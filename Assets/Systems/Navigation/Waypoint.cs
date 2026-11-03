@@ -6,7 +6,7 @@ public class Waypoint : MonoBehaviour
 {
     public List<Waypoint> neighbors = new();
 
-    /*void OnDrawGizmos()
+    void OnDrawGizmos()
     {
         Gizmos.DrawWireSphere(transform.position, .1f);
 
@@ -15,7 +15,7 @@ public class Waypoint : MonoBehaviour
             //Gizmos.DrawLine(transform.position, neighbor.transform.position);
             Handles.DrawBezier(transform.position, neighbor.transform.position, transform.position, neighbor.transform.position, Color.red, null, 10f);
         }
-    }*/
+    }
 }
 
 public class PathNode

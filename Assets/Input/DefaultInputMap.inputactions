@@ -1,0 +1,36 @@
+{
+    "version": 1,
+    "name": "DefaultInputMap",
+    "maps": [
+        {
+            "name": "Default",
+            "id": "74a9e8be-0fba-49f2-bd00-5028b6f3101a",
+            "actions": [
+                {
+                    "name": "ViewMode",
+                    "type": "Button",
+                    "id": "1602cc0c-db83-40a6-9fc5-2a102b4c3987",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "ef36b788-0a35-498e-aed8-dc21142efc74",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ViewMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

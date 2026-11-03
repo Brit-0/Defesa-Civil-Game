@@ -5,13 +5,13 @@ namespace SingularityGroup.HotReload {
     internal static class PackageConst {
         //CI changes this property to 'true' for asset store builds.
         //Don't touch unless you know what you are doing
-        public static bool IsAssetStoreBuild => true;
+        public static bool IsAssetStoreBuild => false;
 
         
-        public const string Version = "1.13.25";
+        public const string Version = "1.13.26";
         // Never higher than Version
         // Used for the download
-        public const string ServerVersion = "1.13.25";
+        public const string ServerVersion = "1.13.26";
         public const string PackageName = "com.singularitygroup.hotreload";
         // IMPORTANT: if this is changed also change set-chinese.clj & set-chinese.sh
         public const string DefaultLocale = Locale.English;

@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 public class CameraController : MonoBehaviour
 {
-    public static CameraController main;
+    public static CameraController Instance;
     
     [SerializeField] private SpriteRenderer limiter;
     private float minX, maxX, minY, maxY;
@@ -18,7 +18,7 @@ public class CameraController : MonoBehaviour
 
     void Awake()
     {
-        main = this;
+        Instance = this;
     }
 
     private void Start()
@@ -50,9 +50,9 @@ public class CameraController : MonoBehaviour
     {
         isAnimating = true;
         
-        main.zoom = 3f;
-        main.cam.transform.DOMove(targetPos, 1f).SetEase(Ease.OutQuart);
-        main.cam.DOOrthoSize(3, 1f).SetEase(Ease.OutQuart).OnComplete(() =>
+        Instance.zoom = 3f;
+        Instance.cam.transform.DOMove(targetPos, 1f).SetEase(Ease.OutQuart);
+        Instance.cam.DOOrthoSize(3, 1f).SetEase(Ease.OutQuart).OnComplete(() =>
         {
             isAnimating = false;
         });

@@ -14,21 +14,13 @@ public class GPS : MonoBehaviour
     [Header("WAYPOINTS")]
     [SerializeField] private List<Waypoint> allWaypoints = new();
 
-    private List<Waypoint> path;
-
     [SerializeField] private LineRenderer pathDisplayer;
 
-    [Header("ACTION POINTS")]
-    [SerializeField] private TMP_Text pointsLbl;
-    [SerializeField] private GameObject spentPointPf;
-    [SerializeField] private Transform spentPointPos;
-    [SerializeField] private Transform canvas;
 
     [Header("PLAYER")]
-    [SerializeField] private Transform player;
     [SerializeField] private float speed;
     [Header("LOCATIONS")]
-    public List<Location> allLocations = new();
+    public List<House> allLocations = new();
     
 
     public bool isFollowingPath;
@@ -40,51 +32,32 @@ public class GPS : MonoBehaviour
     }
 
     [Button]
-    public IEnumerator FollowPath(Location destination)
-    {
-        if (isFollowingPath) yield break;
-
-        GameManager.BlockInput();
-
-        if (path == null) FindShortestPath(destination.entry);
+    public IEnumerator FollowPath(Transform worker, List<Waypoint> path, bool isLastWorker = false)
+    { 
         isFollowingPath = true;
 
-        //CurrentLocation.GetComponent<Image>().raycastTarget = true;
-        destination.GetComponent<Image>().raycastTarget = false;
-
+        if (path == null) print("SEM CAMINHO");
         foreach (Waypoint waypoint in path)
         {
-            while (Vector3.Distance(player.position, waypoint.transform.position) > 0.01f)
+            while (Vector3.Distance(worker.position, waypoint.transform.position) > 0.01f)
             {
-                player.position = Vector3.MoveTowards(player.position, waypoint.transform.position, speed * Time.deltaTime);
+                worker.position = Vector3.MoveTowards(worker.position, waypoint.transform.position, speed * Time.deltaTime);
 
                 yield return null;
             }
         }
 
-        //CurrentLocation = destination;
-        isFollowingPath = false;
-        GameManager.UnblockInput();
-        ResetPath();
+        Destroy(worker.gameObject, .1f);
     }
 
     [Button]
-    public void FindShortestPath(Waypoint destinationWaypoint)
+    public List<Waypoint> FindShortestPath(Waypoint entryWaypoint, Waypoint destinationWaypoint)
     {
-        //if (isFollowingPath || CurrentLocation.entry == destinationWaypoint) return 0;
-        //path = Pathfinder.FindPath(CurrentLocation.entry, destinationWaypoint);
-        ShowPath();
+        return Pathfinder.FindPath(entryWaypoint, destinationWaypoint);
+        //ShowPath();
     }   
 
-    public void ResetPath()
-    {
-        if (isFollowingPath) return;
-        
-        path = null;
-        pathDisplayer.positionCount = 0;
-    }
-
-    private void ShowPath()
+    /*private void ShowPath()
     {
         if (path == null) return;
         
@@ -98,5 +71,5 @@ public class GPS : MonoBehaviour
         }
 
         pathDisplayer.SetPositions(pathPositions);
-    }
+    }*/
 }
