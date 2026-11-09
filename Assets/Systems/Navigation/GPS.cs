@@ -32,7 +32,7 @@ public class GPS : MonoBehaviour
     }
 
     [Button]
-    public IEnumerator FollowPath(Transform worker, List<Waypoint> path, bool isLastWorker = false)
+    public IEnumerator FollowPath(Transform worker, List<Waypoint> path, House destination = null, bool isLastWorker = false)
     { 
         isFollowingPath = true;
 
@@ -48,6 +48,11 @@ public class GPS : MonoBehaviour
         }
 
         Destroy(worker.gameObject, .1f);
+
+        if (isLastWorker && !destination.GetComponent<CityGuard>())
+        {
+            destination.StartWorking();
+        }
     }
 
     [Button]

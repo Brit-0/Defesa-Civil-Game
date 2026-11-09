@@ -1,4 +1,5 @@
 using DG.Tweening;
+using NUnit.Framework.Internal.Execution;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -10,8 +11,8 @@ public enum State
     Intact,
     PowerOutage,
     Damaged,
+    OnFire
 }
-
 
 public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
 {
@@ -21,7 +22,10 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     public Waypoint entry;
     public State currentState;
     public bool isEnergized;
-    static readonly int outlineFade = Shader.PropertyToID("_OuterOutlineFade");
+
+    [SerializeField] private float workTime;
+    [SerializeField] private Image progressCircle;
+    //static readonly int outlineFade = Shader.PropertyToID("_OuterOutlineFade");
 
     private void Awake()
     {
@@ -36,6 +40,16 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     public void ShowEnergyStatus()
     {
         
+    }
+
+    public void StartWorking()
+    {
+        progressCircle.fillAmount = 0f;
+        progressCircle.gameObject.SetActive(true);
+        progressCircle.DOFillAmount(1f, workTime).OnComplete(() =>
+        {
+
+        });
     }
 
     #region INTERFACES
@@ -61,7 +75,6 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         if (!interactable) return;
         tweener.HoverEnter();
         //sprite.GetComponent<Image>().materialForRendering.SetFloat(outlineFade, 1f);
-
         //GPS.main.FindShortestPath(entry);
     }
 
@@ -71,6 +84,23 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         tweener.HoverExit();
         //sprite.GetComponent<Image>().materialForRendering.SetFloat(outlineFade, 0f);
         //GPS.main.ResetPath();
+    }
+
+    public void GenerateCall()
+    {
+        switch (currentState)
+        {
+            case State.Intact:
+                return;
+            case State.PowerOutage:
+                break;
+            case State.Damaged:
+                break;
+            case State.OnFire:
+                break;
+            default:
+                break;
+        }
     }
 
     public virtual void OnPointerClick(PointerEventData eventData)
