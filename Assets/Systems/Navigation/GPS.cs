@@ -32,9 +32,10 @@ public class GPS : MonoBehaviour
     }
 
     [Button]
-    public IEnumerator FollowPath(Transform worker, List<Waypoint> path, House destination = null, bool isLastWorker = false)
+    public IEnumerator FollowPath(Transform worker, List<Waypoint> path, Call call, bool isLastWorker = false, bool isReturning = false)
     { 
         isFollowingPath = true;
+        House destination = isReturning ? call.guard : call.house;
 
         if (path == null) print("SEM CAMINHO");
         foreach (Waypoint waypoint in path)
@@ -48,6 +49,7 @@ public class GPS : MonoBehaviour
         }
 
         Destroy(worker.gameObject, .1f);
+        if (isReturning) ResourcesManager.Workers++;
 
         if (isLastWorker && !destination.GetComponent<CityGuard>())
         {

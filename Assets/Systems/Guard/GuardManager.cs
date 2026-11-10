@@ -3,10 +3,11 @@ using TMPro;
 using UnityEngine;
 using static UnityEngine.InputSystem.InputAction;
 
+[System.Serializable]
 public class Call 
 {
     public House house;
-    public int workersNeeded;
+    public int workersNeeded = 1;
     public int workersSent;
     public CallType type;
     public CityGuard guard;
@@ -62,6 +63,7 @@ public class GuardManager : MonoBehaviour
         currentCall = null;
         selectBaseMode = false;
         FeedbacksManager.HideText();
+        callTab.SetActive(false);
     }
 
     public void SelectBase(CityGuard guard)
@@ -80,6 +82,9 @@ public class GuardManager : MonoBehaviour
 
     public IEnumerator SendTeam()
     {
+        if (TeamSize < currentCall.workersNeeded) yield break;
+        if (currentCall.house.currentState == State.Damaged && currentCall.house.damageAmount > ResourcesManager.BuildMaterial) yield break;
+
         callTab.SetActive(false);
         Call callForReference = currentCall;
         currentCall = null;
@@ -90,9 +95,15 @@ public class GuardManager : MonoBehaviour
         for (int i = 0; i < teamSize; i++)
         {
             Transform newWorker = Instantiate(workerPf, selectedGuard.entry.transform.position, Quaternion.identity, workersParent).transform;
-            StartCoroutine(GPS.main.FollowPath(newWorker, GPS.main.FindShortestPath(selectedGuard.entry, callForReference.house.entry), callForReference.house, i == teamSize - 1));
+            ResourcesManager.Workers--;
+            StartCoroutine(GPS.main.FollowPath(newWorker, GPS.main.FindShortestPath(selectedGuard.entry, callForReference.house.entry), callForReference, i == teamSize - 1));
             yield return new WaitForSeconds(.8f);
         }
+    }
+
+    public void CallRetrieveTeam(Call call)
+    {
+        StartCoroutine(RetrieveTeam(call));
     }
 
     public IEnumerator RetrieveTeam(Call call)
@@ -100,18 +111,20 @@ public class GuardManager : MonoBehaviour
         for (int i = 0; i < call.workersSent; i++)
         {
             Transform newWorker = Instantiate(workerPf, call.house.entry.transform.position, Quaternion.identity, workersParent).transform;
-            StartCoroutine(GPS.main.FollowPath(newWorker, GPS.main.FindShortestPath(call.house.entry, call.guard.entry), currentCall.guard, i == teamSize - 1));
+            StartCoroutine(GPS.main.FollowPath(newWorker, GPS.main.FindShortestPath(call.house.entry, call.guard.entry), call, i == teamSize - 1, true));
             yield return new WaitForSeconds(.8f);
         }
     }
 
     public void IncreaseTeamSize()
     {
+        if (TeamSize + 1 > ResourcesManager.Workers) return;
         TeamSize++;
     }
 
     public void DecreaseTeamSize()
     {
+        if (TeamSize - 1 < 0) return;
         TeamSize--;
     }
 }

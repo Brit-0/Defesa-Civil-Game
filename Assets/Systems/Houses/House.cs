@@ -1,8 +1,11 @@
 using DG.Tweening;
 using NUnit.Framework.Internal.Execution;
+using Sirenix.OdinInspector;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using VInspector.Libs;
 
 public enum Place { }
 
@@ -16,20 +19,30 @@ public enum State
 
 public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
 {
+    [Header("BASIC REFERENCES")]
     [SerializeField] private Image sprite;
     [SerializeField] private Tweener tweener;
-    public bool interactable = true;
     public Waypoint entry;
+
+    [Header("VARIABLES")]
+    public bool interactable = true;
     public State currentState;
     public bool isEnergized;
+    public int damageAmount;
 
+    [Header("CALL")]
+    public Call currentCall;
+    [SerializeField] private GameObject callDisplay;
     [SerializeField] private float workTime;
     [SerializeField] private Image progressCircle;
+    [SerializeField] private Image progressIcon;
+    [SerializeField] private GameObject complete;
+    protected bool isComplete;
     //static readonly int outlineFade = Shader.PropertyToID("_OuterOutlineFade");
 
     private void Awake()
     {
-        //sprite.GetComponent<Image>().material = new(locationMat);
+        sprite.material = new(sprite.material);
     }
 
     public void Energize()
@@ -39,18 +52,10 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
     public void ShowEnergyStatus()
     {
-        
+
     }
 
-    public void StartWorking()
-    {
-        progressCircle.fillAmount = 0f;
-        progressCircle.gameObject.SetActive(true);
-        progressCircle.DOFillAmount(1f, workTime).OnComplete(() =>
-        {
-
-        });
-    }
+    
 
     #region INTERFACES
 
@@ -86,26 +91,149 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         //GPS.main.ResetPath();
     }
 
+    public virtual void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left || !interactable) return;
+
+        if (isComplete)
+        {
+            ResolveCompletion();
+            return;
+        }
+
+        if (currentState != State.Intact)
+        {
+            GuardManager.Instance.OpenCall(currentCall);
+        }
+    }
+
+    #endregion
+
+    #region CALL
+
+    [Button]
     public void GenerateCall()
     {
-        switch (currentState)
+        Call newCall = new()
+        {
+            house = this,
+            type = CallType.Problem
+        };
+
+        State problem = (State)Random.Range(1, 4);
+
+        switch (problem)
         {
             case State.Intact:
                 return;
             case State.PowerOutage:
                 break;
             case State.Damaged:
+                Break();
                 break;
             case State.OnFire:
                 break;
             default:
                 break;
         }
+
+        currentState = problem;
+        currentCall = newCall;
+        ShowCall();
     }
 
-    public virtual void OnPointerClick(PointerEventData eventData)
+    private void ShowCall()
     {
-        
+        callDisplay.SetActive(true);
+    }
+
+    public void StartWorking()
+    {
+        callDisplay.SetActive(false);
+        progressCircle.fillAmount = 0f;
+        progressIcon.sprite = GetIconByCallType(currentCall);
+        progressCircle.gameObject.SetActive(true);
+        progressCircle.DOFillAmount(1f, workTime).SetEase(Ease.Linear).OnComplete(() =>
+        {
+            isComplete = true;
+            interactable = true;
+            progressCircle.gameObject.SetActive(false);
+            complete.SetActive(true);
+        });
+    }
+
+    public void ResolveCompletion()
+    {
+        complete.SetActive(false);
+
+        switch (currentCall.type)
+        {
+            case CallType.Problem:
+                switch (currentState)
+                {
+                    case State.Intact:
+                        break;
+                    case State.PowerOutage:
+                        break;
+                    case State.Damaged:
+                        if (ResourcesManager.BuildMaterial >= damageAmount)
+                        {
+                            ResourcesManager.BuildMaterial -= damageAmount;
+                            Repair();
+                        }
+                        break;
+                    case State.OnFire:
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case CallType.Restock:
+                ResourcesManager.BuildMaterial += currentCall.workersSent;
+                break;
+            default:
+                break;
+        }
+
+        callDisplay.SetActive(false);
+        GuardManager.Instance.CallRetrieveTeam(currentCall);
+        currentCall = null;
+        isComplete = false;
+    }
+
+    private Sprite GetIconByCallType(Call call)
+    {
+        return call.type switch
+        {
+            CallType.Problem => currentState switch
+            {
+                State.Intact => null,
+                State.PowerOutage => null,
+                State.Damaged => null,
+                State.OnFire => null,
+                _ => null,
+            },
+            CallType.Restock => ResourcesManager.Instance.materialIcon,
+            _ => null,
+        };
+    }
+
+    #endregion
+
+    #region STATES
+
+    [Button]
+    public void Break()
+    {
+        currentState = State.Damaged;
+        damageAmount = Random.Range(1, 4);
+        sprite.material.SetFloat("_TextureLayer1Fade", 1f);
+    }
+
+    public void Repair()
+    {
+        currentState = State.Intact;
+        sprite.material.SetFloat("_TextureLayer1Fade", 0f);
     }
 
     #endregion
