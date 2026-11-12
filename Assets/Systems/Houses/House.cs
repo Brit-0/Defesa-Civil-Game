@@ -1,11 +1,9 @@
 using DG.Tweening;
-using NUnit.Framework.Internal.Execution;
 using Sirenix.OdinInspector;
-using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using VInspector.Libs;
 
 public enum Place { }
 
@@ -29,6 +27,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     public State currentState;
     public bool isEnergized;
     public int damageAmount;
+    [SerializeField] private TMP_Text damageAmountLbl;
 
     [Header("CALL")]
     public Call currentCall;
@@ -75,7 +74,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         //GPS.main.StartCoroutine(GPS.main.FollowPath(this));
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public virtual void OnPointerEnter(PointerEventData eventData)
     {
         if (!interactable) return;
         tweener.HoverEnter();
@@ -83,7 +82,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         //GPS.main.FindShortestPath(entry);
     }
 
-    public void OnPointerExit(PointerEventData eventData)
+    public virtual void OnPointerExit(PointerEventData eventData)
     {
         if (!interactable) return;
         tweener.HoverExit();
@@ -197,7 +196,6 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
         callDisplay.SetActive(false);
         GuardManager.Instance.CallRetrieveTeam(currentCall);
-        currentCall = null;
         isComplete = false;
     }
 
@@ -227,12 +225,15 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     {
         currentState = State.Damaged;
         damageAmount = Random.Range(1, 4);
+        damageAmountLbl.text = damageAmount.ToString();
+        damageAmountLbl.gameObject.SetActive(true);
         sprite.material.SetFloat("_TextureLayer1Fade", 1f);
     }
 
     public void Repair()
     {
         currentState = State.Intact;
+        damageAmountLbl.gameObject.SetActive(false);
         sprite.material.SetFloat("_TextureLayer1Fade", 0f);
     }
 
