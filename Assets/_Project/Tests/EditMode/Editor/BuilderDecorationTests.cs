@@ -20,7 +20,7 @@ namespace DefesaCivil.CityGen.Tests
         }
         [TearDown] public void TearDown() => ts.Close();
 
-        BuildResult Build() => new CityBuilder(layout, ts.refs, cat).Run();
+        BuildResult Build() => new CityBuilder(layout, ts.refs, cat, undo: false).Run();
         List<Transform> Trees() => ts.refs.trees.Cast<Transform>().Where(CitySceneRefs.IsGenerated).ToList();
 
         [Test] public void CreatesDecorationsWithNativeSizeAndNoRaycast()

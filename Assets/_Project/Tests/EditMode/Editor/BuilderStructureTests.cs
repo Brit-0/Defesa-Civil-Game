@@ -21,7 +21,7 @@ namespace DefesaCivil.CityGen.Tests
         }
         [TearDown] public void TearDown() => ts.Close();
 
-        BuildResult Build() => new CityBuilder(layout, ts.refs, cat).Run();
+        BuildResult Build() => new CityBuilder(layout, ts.refs, cat, undo: false).Run();
         List<Transform> Generated(Transform p) => p.Cast<Transform>().Where(CitySceneRefs.IsGenerated).ToList();
         Transform Of(StructureData s) => ts.refs.houses.Find(CitySceneRefs.Name(s.type, s.id));
 

@@ -16,7 +16,7 @@ namespace DefesaCivil.CityGen.Tests
         {
             ts = TestCityScene.Create();
             layout = CityGenerator.Generate(5150, ts.center, cat, "t");
-            new CityBuilder(layout, ts.refs, cat).Run();
+            new CityBuilder(layout, ts.refs, cat, undo: false).Run();
         }
         [TearDown] public void TearDown() => ts.Close();
 

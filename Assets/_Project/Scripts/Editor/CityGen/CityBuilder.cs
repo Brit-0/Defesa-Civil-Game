@@ -26,16 +26,21 @@ namespace DefesaCivil.CityGen
         readonly CitySceneRefs refs;
         readonly SpriteCatalog cat;
         readonly BuildResult res = new BuildResult();
+        readonly bool undo;
 
-        public CityBuilder(CityLayout layout, CitySceneRefs refs, SpriteCatalog cat)
+        /// <param name="undo">false nos testes: o Test Runner desfaz o histórico de Undo ao terminar e recriaria objetos na cena aberta.</param>
+        public CityBuilder(CityLayout layout, CitySceneRefs refs, SpriteCatalog cat, bool undo = true)
         {
-            this.layout = layout; this.refs = refs; this.cat = cat;
+            this.layout = layout; this.refs = refs; this.cat = cat; this.undo = undo;
         }
+
+        void Record(Object o) { if (undo) Record(o); }
+        void Created(GameObject go) { if (undo) Created(go); }
+        void SetSibling(Transform t, int i) { if (undo) Undo.SetSiblingIndex(t, i, "City Build"); else t.SetSiblingIndex(i); }
 
         public BuildResult Run()
         {
-            Undo.IncrementCurrentGroup();
-            Undo.SetCurrentGroupName("City Build");
+            if (undo) { Undo.IncrementCurrentGroup(); Undo.SetCurrentGroupName("City Build"); }
             int group = Undo.GetCurrentGroup();
             MigrateOldPolygon();
             BuildPolygons();
@@ -47,7 +52,7 @@ namespace DefesaCivil.CityGen
             FillGps();
             BuildDecorations();
             SortByBottom(refs.trees, layout.decorations.ToDictionary(d => CitySceneRefs.Name("Tree", d.id), d => (Vector2)d.bottomCenter));
-            Undo.CollapseUndoOperations(group);
+            if (undo) Undo.CollapseUndoOperations(group);
             return res;
         }
 
@@ -65,7 +70,7 @@ namespace DefesaCivil.CityGen
         void Destroy(GameObject go, string why)
         {
             res.log.Add("removido " + go.name + " (" + why + ")");
-            Undo.DestroyObjectImmediate(go);
+            if (undo) Undo.DestroyObjectImmediate(go); else Object.DestroyImmediate(go);
             res.deleted++;
         }
 
@@ -96,7 +101,7 @@ namespace DefesaCivil.CityGen
                 if (!existing.TryGetValue(p.id, out var t))
                 {
                     var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab, layer);
-                    Undo.RegisterCreatedObjectUndo(go, "City Build");
+                    Created(go);
                     go.name = CitySceneRefs.Name("Polygon", p.id);
                     go.transform.localPosition = Vector3.zero;
                     t = go.transform; created = true; res.created++;
@@ -106,7 +111,7 @@ namespace DefesaCivil.CityGen
                 bool same = col.pathCount == 1 && col.GetPath(0).Length == local.Length && col.GetPath(0).Zip(local, (a, b) => Approx(a, b)).All(x => x);
                 if (!same)
                 {
-                    Undo.RecordObject(col, "City Build");
+                    Record(col);
                     col.pathCount = 1;
                     col.SetPath(0, local);
                 }
@@ -167,7 +172,7 @@ namespace DefesaCivil.CityGen
                 if (!existing.TryGetValue(key, out var t))
                 {
                     var go = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(StructurePrefabPath(s.type)), refs.houses);
-                    Undo.RegisterCreatedObjectUndo(go, "City Build");
+                    Created(go);
                     go.name = CitySceneRefs.Name(s.type, s.id);
                     t = go.transform; created = true; res.created++;
                 }
@@ -184,16 +189,16 @@ namespace DefesaCivil.CityGen
                 bool changed = false;
                 if (rt.anchorMin != half || rt.anchorMax != half || rt.pivot != half || !Approx(rt.sizeDelta, size) || !Approx(rt.anchoredPosition, anchored) || !Approx(rt.localPosition.z, 0f))
                 {
-                    Undo.RecordObject(rt, "City Build");
+                    Record(rt);
                     rt.anchorMin = half; rt.anchorMax = half; rt.pivot = half;
                     rt.sizeDelta = size; rt.anchoredPosition = anchored;
                     rt.localPosition = new Vector3(rt.localPosition.x, rt.localPosition.y, 0f);
                     changed = true;
                 }
-                if (img.sprite != sprite) { Undo.RecordObject(img, "City Build"); img.sprite = sprite; changed = true; }
+                if (img.sprite != sprite) { Record(img); img.sprite = sprite; changed = true; }
                 if (box && (!Approx(box.size, size) || !Approx(box.offset, Vector2.zero)))
                 {
-                    Undo.RecordObject(box, "City Build");
+                    Record(box);
                     box.size = size; box.offset = Vector2.zero;
                     changed = true;
                 }
@@ -203,7 +208,7 @@ namespace DefesaCivil.CityGen
                 if (!existingWp.TryGetValue(key, out var wp))
                 {
                     var go = (GameObject)PrefabUtility.InstantiatePrefab(wpPrefab, refs.waypoints);
-                    Undo.RegisterCreatedObjectUndo(go, "City Build");
+                    Created(go);
                     go.name = CitySceneRefs.Name("Waypoint", key);
                     wp = go.transform; wpCreated = true; res.created++;
                 }
@@ -211,12 +216,12 @@ namespace DefesaCivil.CityGen
                 var wl = refs.waypoints.InverseTransformPoint(new Vector3(s.entry.x, s.entry.y, refs.waypoints.position.z));
                 var wpLocal = new Vector3(wl.x, wl.y, wpCreated ? wpLocalZ : wp.localPosition.z);
                 bool wpChanged = (wp.localPosition - wpLocal).sqrMagnitude > 1e-6f;
-                if (wpChanged) { Undo.RecordObject(wp, "City Build"); wp.localPosition = wpLocal; }
+                if (wpChanged) { Record(wp); wp.localPosition = wpLocal; }
                 if (!wpCreated) Changed(wpChanged);
 
                 var house = t.GetComponent<House>();
                 var waypoint = wp.GetComponent<Waypoint>();
-                if (house.entry != waypoint) { Undo.RecordObject(house, "City Build"); house.entry = waypoint; changed = true; }
+                if (house.entry != waypoint) { Record(house); house.entry = waypoint; changed = true; }
                 entries[s] = waypoint;
                 if (house is Location) locations.Add(house);
 
@@ -235,7 +240,7 @@ namespace DefesaCivil.CityGen
                 .ToList();
             bool changed = false;
             for (int i = 0; i < ordered.Count; i++)
-                if (ordered[i].GetSiblingIndex() != i) { Undo.SetSiblingIndex(ordered[i], i, "City Build"); changed = true; }
+                if (ordered[i].GetSiblingIndex() != i) { SetSibling(ordered[i], i); changed = true; }
             Changed(changed);
         }
 
@@ -244,7 +249,7 @@ namespace DefesaCivil.CityGen
             var so = new SerializedObject(refs.gps);
             bool changed = SetList(so.FindProperty("allWaypoints"), layout.structures.Where(entries.ContainsKey).Select(s => (Object)entries[s]).ToList());
             changed |= SetList(so.FindProperty("allLocations"), locations.Cast<Object>().ToList());
-            if (changed) { Undo.RecordObject(refs.gps, "City Build"); so.ApplyModifiedProperties(); }
+            if (changed) { Record(refs.gps); so.ApplyModifiedProperties(); }
             Changed(changed);
         }
 
@@ -274,7 +279,7 @@ namespace DefesaCivil.CityGen
                 if (!existing.TryGetValue(d.id, out var t))
                 {
                     var go = new GameObject(CitySceneRefs.Name("Tree", d.id), typeof(RectTransform), typeof(CanvasRenderer), typeof(UnityEngine.UI.Image));
-                    Undo.RegisterCreatedObjectUndo(go, "City Build");
+                    Created(go);
                     go.layer = refs.trees.gameObject.layer;
                     go.transform.SetParent(refs.trees, false);
                     t = go.transform; created = true; res.created++;
@@ -288,7 +293,7 @@ namespace DefesaCivil.CityGen
                 bool changed = false;
                 if (rt.anchorMin != half || rt.anchorMax != half || rt.pivot != half || !Approx(rt.sizeDelta, size) || !Approx(rt.anchoredPosition, anchored) || !Approx(rt.localPosition.z, 0f))
                 {
-                    Undo.RecordObject(rt, "City Build");
+                    Record(rt);
                     rt.anchorMin = half; rt.anchorMax = half; rt.pivot = half;
                     rt.sizeDelta = size; rt.anchoredPosition = anchored;
                     rt.localPosition = new Vector3(rt.localPosition.x, rt.localPosition.y, 0f);
@@ -296,7 +301,7 @@ namespace DefesaCivil.CityGen
                 }
                 if (img.sprite != sprite || img.raycastTarget)
                 {
-                    Undo.RecordObject(img, "City Build");
+                    Record(img);
                     img.sprite = sprite;
                     img.raycastTarget = false; // decisão: decorações não recebem cliques
                     changed = true;
@@ -319,7 +324,7 @@ namespace DefesaCivil.CityGen
             bool changed = (t.position - pos).sqrMagnitude > 1e-10f || (t.localScale - scale).sqrMagnitude > 1e-10f;
             if (changed)
             {
-                Undo.RecordObject(t, "City Build");
+                Record(t);
                 t.position = pos; t.localScale = scale;
             }
             Changed(changed);
@@ -341,7 +346,7 @@ namespace DefesaCivil.CityGen
             bool changed = false;
             if (!Approx(refs.polygonCamera.orthographicSize, ortho))
             {
-                Undo.RecordObject(refs.polygonCamera, "City Build");
+                Record(refs.polygonCamera);
                 refs.polygonCamera.orthographicSize = ortho;
                 changed = true;
             }
@@ -352,7 +357,7 @@ namespace DefesaCivil.CityGen
             var pos = new Vector3(c.x, c.y, rt.position.z);
             if (rt.anchorMin != half || rt.anchorMax != half || rt.pivot != half || !Approx(rt.sizeDelta, size) || ((Vector2)rt.position - c).sqrMagnitude > 1e-8f)
             {
-                Undo.RecordObject(rt, "City Build");
+                Record(rt);
                 rt.anchorMin = half; rt.anchorMax = half; rt.pivot = half;
                 rt.sizeDelta = size;
                 rt.position = pos;
