@@ -86,8 +86,10 @@ namespace DefesaCivil.CityGen
 
             // R27 na cena: Limiter = caixa dos polígonos
             var lb = r.limiter.bounds;
-            if (Mathf.Abs(lb.min.x - bb.xMin) > 0.01f || Mathf.Abs(lb.min.y - bb.yMin) > 0.01f || Mathf.Abs(lb.max.x - bb.xMax) > 0.01f || Mathf.Abs(lb.max.y - bb.yMax) > 0.01f)
-                report.Add("R27", "Limiter", lb.center, $"bounds {lb.min}–{lb.max} ≠ caixa {bb}");
+            float lm = json.limiterMargin;
+            var lbox = Rect.MinMaxRect(bb.xMin - lm, bb.yMin - lm, bb.xMax + lm, bb.yMax + lm);
+            if (Mathf.Abs(lb.min.x - lbox.xMin) > 0.01f || Mathf.Abs(lb.min.y - lbox.yMin) > 0.01f || Mathf.Abs(lb.max.x - lbox.xMax) > 0.01f || Mathf.Abs(lb.max.y - lbox.yMax) > 0.01f)
+                report.Add("R27", "Limiter", lb.center, $"bounds {lb.min}–{lb.max} ≠ caixa + rua de contorno {lbox}");
 
             report.Finish();
             return report;
@@ -108,7 +110,7 @@ namespace DefesaCivil.CityGen
         public static CityLayout FromScene(CitySceneRefs r, CityLayout json, SpriteCatalog cat, out List<Violation> extra)
         {
             extra = new List<Violation>();
-            var l = new CityLayout { seed = json.seed, center = (Vector2)r.mainCamera.transform.position, streetWidth = json.streetWidth };
+            var l = new CityLayout { seed = json.seed, center = (Vector2)r.mainCamera.transform.position, streetWidth = json.streetWidth, limiterMargin = json.limiterMargin };
             string polyPrefix = CitySceneRefs.CgPrefix + "Polygon ";
             foreach (Transform c in r.polygonLayer)
             {
@@ -130,6 +132,7 @@ namespace DefesaCivil.CityGen
                 var s = new StructureData { type = parts[0], id = parts[1], bottomCenter = new Vec2((corners[0].x + corners[3].x) / 2f, corners[0].y) };
                 s.sprite = Ref(img ? img.sprite : null);
                 var cs = cat.Get(s.sprite);
+                if (cs != null) s.bottomCenter = cs.BaseCenterFor(corners[0]);
                 s.district = cs != null ? cs.category : District.None;
                 var house = c.GetComponent<House>();
                 if (house && house.entry)
@@ -155,6 +158,7 @@ namespace DefesaCivil.CityGen
                 var corners = new Vector3[4]; rt.GetWorldCorners(corners);
                 var d = new DecorationData { id = c.name.Substring(treePrefix.Length), sprite = Ref(img ? img.sprite : null), bottomCenter = new Vec2((corners[0].x + corners[3].x) / 2f, corners[0].y) };
                 var cs = cat.Get(d.sprite);
+                if (cs != null) d.bottomCenter = cs.BaseCenterFor(corners[0]);
                 float w = corners[2].x - corners[0].x, h = corners[1].y - corners[0].y;
                 if (cs != null && (Mathf.Abs(w - cs.widthU) > LayoutValidator.SizeTolerance || Mathf.Abs(h - cs.heightU) > LayoutValidator.SizeTolerance))
                     extra.Add(V("R18", c.name, d.bottomCenter, $"tamanho {w:0.###}×{h:0.###} u ≠ nativo {cs.widthU}×{cs.heightU}"));

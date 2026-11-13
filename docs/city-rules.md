@@ -1,6 +1,14 @@
+| R27 | erro | Os bounds XY do `Essentials/Limiter` são iguais à caixa envolvente de todos os polígonos expandida por `limiterMargin` (= largura da rua) em cada lado, formando a rua de contorno (tolerância 0,01 u). |
+| R25 | erro | Polígonos não se sobrepõem. A distância mínima entre quaisquer dois polígonos é ≥ `streetWidth` (0,8 u). |
+| R21 | — | **Revogada em 2026-11-13.** (Era: ≥ 70% das decorações a ≤ 0,5 u da borda do polígono.) |
+| R20 | erro | Os 2 cantos inferiores (da parte visível) de cada decoração estão dentro do mesmo polígono (quarteirão ou decorativo). |
+| R19 | erro | Nº de decorações ≥ 2× o nº de `House`. Sem limite superior. |
+| R17 | erro | O sprite de cada decoração termina em `_S`, vem de qualquer pasta de `Assets/Arts/Houses` (Nature, Roads, Carros e os objetos de Suburban, Commercial e Industrial) e não é sprite de estrutura (R06). Continuam excluídos de `Nature/`: `Barraca*`, `Saco_Dormir`, `Canoa`, `Remo`, `Fogueira*`, `Lenha`, `Placa_Madeira`, `Ponte_*`, `Horta_*`, `Milho_*`, `Trigo_*`, `Abobora`, `Cenoura`, `Melancia`, `Nabo`, `Vitoria_Regia*`. Repetição de sprite permitida. |
+| R12 | erro | Os 2 cantos inferiores (da parte visível) de cada estrutura estão dentro do mesmo quarteirão. |
 # Regras da Cidade
 
 Fonte: pedido do usuário (2026-11-12) e respostas registradas em `decisions.md`.
+Revisão de 2026-11-13: o usuário pediu uma cidade bonita e natural, com ruas de largura única, e liberou ignorar regras anteriores. Mudaram R12, R17, R19, R20, R25 e R27; R21 foi revogada; entraram R35, R36 e R37.
 Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente", "priorize").
 
 ## Definições
@@ -10,12 +18,13 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 - **Estrutura**: instância dos prefabs `House`, `Guard` ou `Warehouse` (`Assets/Systems/Houses/`).
 - **Decoração**: GameObject com `Image` dentro de `Trees`.
 - **Retângulo do sprite**: retângulo do `Visual` (estrutura) ou da `Image` (decoração) no mundo.
-- **Borda inferior**: lado de baixo do retângulo do sprite. "Cantos inferiores" são as 2 extremidades dela.
+- **Parte visível**: retângulo que envolve os pixels opacos do sprite (sem a margem transparente).
+- **Base** (ou borda inferior): lado de baixo da parte visível. "Cantos inferiores" são as 2 extremidades dela. No `city_layout.json`, `bottomCenter` é o centro da base.
 - **Tamanho nativo**: largura = largura do sprite em px / 32 u; altura = altura em px / 32 u.
 - **Polígono**: instância do prefab `Polygon` em `Main Camera/PolygonLayer`.
   - **Quarteirão**: polígono que contém estruturas.
   - **Polígono decorativo**: polígono que só contém decoração.
-- **Rua**: área dentro do Limiter que não pertence a nenhum polígono.
+- **Rua**: área dentro do Limiter que não pertence a nenhum polígono. Inclui a rua de contorno entre os quarteirões da borda e o Limiter.
 
 ## Composição
 
@@ -80,3 +89,6 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 | R32 | aviso | Os 2 `Warehouse` ficam em cantos diagonalmente opostos: cada um no quarteirão mais próximo de um canto do Limiter (SW/NE ou NW/SE). |
 | R33 | aviso | A `Guard` fica em um quarteirão do bairro Industrial (≥ 80% das `House` dele são de `Industrial/`, como em R10). |
 | R34 | erro | Enquadramento dos chãos: o centro XY da caixa dos polígonos coincide com a posição inicial da Main Camera (tolerância 0,5 u). A vista da PolygonCamera (2·ortho·16/9 × 2·ortho) e o retângulo do `PolygonsDisplay` no mundo têm o mesmo centro (a Main Camera) e o mesmo tamanho (tolerância 0,01 u), e ambos contêm a caixa dos polígonos inteira. |
+| R35 | erro | Ruas de largura única: de qualquer ponto de um lado de polígono, andando para fora na perpendicular, encontra-se outro polígono ou a borda do Limiter a exatamente `streetWidth` (tolerância 0,02 u). Exceções: o lado está na borda do Limiter, ou o ponto está na boca de uma rua transversal que também mede `streetWidth`. |
+| R36 | aviso | Oclusão coerente: como `Trees` é desenhado sobre `Houses`, uma decoração só pode cobrir a parte visível de uma estrutura se estiver à frente dela (base da decoração com y ≤ base da estrutura). |
+| R37 | aviso | As partes visíveis das estruturas não se sobrepõem. |

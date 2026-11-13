@@ -1,5 +1,6 @@
 using System.Linq;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace DefesaCivil.CityGen.Tests
 {
@@ -13,7 +14,7 @@ namespace DefesaCivil.CityGen.Tests
             Assert.AreEqual(21, cat.Suburban.Count, "Suburban Casa_*");
             Assert.AreEqual(33, cat.Commercial.Count, "Commercial Predio/Arranha_Ceu/Fundo");
             Assert.AreEqual(20, cat.Industrial.Count, "Industrial Fabrica_*");
-            Assert.AreEqual(96, cat.Decoration.Count, "Nature sem excluídos");
+            Assert.AreEqual(165, cat.Decoration.Count, "tudo que não é estrutura, menos as exclusões de Nature");
         }
 
         [Test] public void AllSpritesEndWithS()
@@ -35,6 +36,17 @@ namespace DefesaCivil.CityGen.Tests
             var casaD = cat.Suburban.First(s => s.texture == "Casa_D");
             Assert.AreEqual(112f / 32f, casaD.widthU, 1e-5f);
             Assert.AreEqual(128f / 32f, casaD.heightU, 1e-5f);
+        }
+
+        [Test] public void VisibleRectIsMeasured()
+        {
+            var casaD = cat.ByTexture("Casa_D");
+            Assert.AreEqual(17f / 32f, casaD.padBottomU, 1e-5f);
+            Assert.AreEqual(11f / 32f, casaD.padLeftU, 1e-5f);
+            Assert.AreEqual(90f / 32f, casaD.visWU, 1e-5f);
+            Assert.AreEqual(68f / 32f, casaD.visHU, 1e-5f);
+            var rc = casaD.RectCenterFor(new Vector2(10f, 5f));
+            Assert.AreEqual(new Vector2(10f, 5f), casaD.BaseCenterFor(rc - new Vector2(casaD.widthU, casaD.heightU) / 2f));
         }
 
         [Test] public void LookupAndLoad()

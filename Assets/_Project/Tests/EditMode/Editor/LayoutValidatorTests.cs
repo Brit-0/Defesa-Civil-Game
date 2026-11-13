@@ -165,15 +165,38 @@ namespace DefesaCivil.CityGen.Tests
             Assert.IsTrue(V(l).Has("R20"));
         }
 
-        [Test] public void R21_CurbShareIsWarning()
+        [Test] public void R35_UniformStreets()
         {
             var l = Base();
-            D(l, "001", Deco, 5, 7.5f); D(l, "002", Deco, 9, 7.5f);
+            Assert.IsFalse(V(l).Has("R35"));
+            l.polygons[1] = Poly("002", 0, 0, 20, 3.5f); // rua de 1,5 u
+            Assert.IsTrue(V(l).Has("R35"));
+            // malha 2×2 com rua de contorno: cruzamento e contorno são aceitos
+            l = new CityLayout { seed = 1, center = new Vec2(10.4f, 5.4f), limiterMargin = 0.8f };
+            l.polygons.Add(Poly("001", 0, 0, 10, 5)); l.polygons.Add(Poly("002", 10.8f, 0, 20.8f, 5));
+            l.polygons.Add(Poly("003", 0, 5.8f, 7, 10.8f)); l.polygons.Add(Poly("004", 7.8f, 5.8f, 20.8f, 10.8f));
+            Assert.IsFalse(V(l).Has("R35"));
+            l.limiterMargin = 1.5f;
+            Assert.IsTrue(V(l).Has("R35"));
+        }
+
+        [Test] public void R36_DecorationBehindMustNotCoverStructure()
+        {
+            var l = Base(); S(l, "001", StructureType.House, Sub, 5, 5.3f);
+            D(l, "001", Deco, 5, 5.2f); // à frente: pode cobrir
+            Assert.IsFalse(V(l).Has("R36"));
+            D(l, "002", Deco, 5, 6.5f); // atrás e por cima
             var r = V(l);
-            Assert.IsTrue(r.Has("R21"));
-            Assert.AreEqual(Severity.Warning, r.violations.First(v => v.ruleId == "R21").severity);
-            l = Base(); D(l, "001", Deco, 5, 9.7f); D(l, "002", Deco, 9, 5.2f);
-            Assert.IsFalse(V(l).Has("R21"));
+            Assert.IsTrue(r.Has("R36"));
+            Assert.AreEqual(Severity.Warning, r.violations.First(v => v.ruleId == "R36").severity);
+        }
+
+        [Test] public void R37_StructuresDoNotOverlap()
+        {
+            var l = Base(); S(l, "001", StructureType.House, Sub, 5, 5.3f); S(l, "002", StructureType.House, Sub, 10, 5.3f);
+            Assert.IsFalse(V(l).Has("R37"));
+            S(l, "003", StructureType.House, Sub, 6, 6f);
+            Assert.IsTrue(V(l).Has("R37"));
         }
 
         [Test] public void R23_BlockMustBeAxisAlignedRectangle()

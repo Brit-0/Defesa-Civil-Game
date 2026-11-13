@@ -38,13 +38,13 @@ namespace DefesaCivil.CityGen.Tests
         [Test]
         public void MissingSeedIsRejected()
         {
-            Assert.Throws<ArgumentException>(() => CityLayout.FromJson("{\"version\":1}"));
+            Assert.Throws<ArgumentException>(() => CityLayout.FromJson("{\"version\":2}"));
         }
 
         [Test]
         public void WrongVersionIsRejected()
         {
-            Assert.Throws<ArgumentException>(() => CityLayout.FromJson("{\"version\":2,\"seed\":1}"));
+            Assert.Throws<ArgumentException>(() => CityLayout.FromJson("{\"version\":99,\"seed\":1}"));
         }
 
         [Test]

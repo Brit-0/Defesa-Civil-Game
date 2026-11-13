@@ -4,16 +4,21 @@ using UnityEngine;
 
 namespace DefesaCivil.CityGen
 {
-    /// <summary>Raiz do city_layout.json. Coordenadas em unidades de mundo (u), XY.</summary>
+    /// <summary>
+    /// Raiz do city_layout.json. Coordenadas em unidades de mundo (u), XY.
+    /// Versão 2: bottomCenter é o centro da BASE VISÍVEL do sprite (sem a margem transparente).
+    /// </summary>
     [Serializable]
     public class CityLayout
     {
-        public const int CurrentVersion = 1;
+        public const int CurrentVersion = 2;
 
         public int version = CurrentVersion;
         public int seed;
         public string generatedAt = "";
         public float streetWidth = 0.8f;
+        /// <summary>Faixa de rua entre a caixa dos polígonos e o Limiter (rua de contorno). 0 = Limiter colado na caixa.</summary>
+        public float limiterMargin;
         /// <summary>Posição inicial da Main Camera no momento do Generate (centro da cidade, R34).</summary>
         public Vec2 center;
         public List<PolygonData> polygons = new List<PolygonData>();

@@ -37,8 +37,8 @@ namespace DefesaCivil.CityGen.Tests
                 var c = new Vector3[4]; t.GetWorldCorners(c);
                 Assert.AreEqual(cs.widthU, c[2].x - c[0].x, 0.01f);
                 Assert.AreEqual(cs.heightU, c[2].y - c[0].y, 0.01f);
-                Assert.AreEqual(d.bottomCenter.y, c[0].y, 0.01f);
-                Assert.AreEqual(d.bottomCenter.x, (c[0].x + c[2].x) / 2f, 0.01f);
+                Assert.AreEqual(d.bottomCenter.y, c[0].y + cs.padBottomU, 0.01f);
+                Assert.AreEqual(d.bottomCenter.x, c[0].x + cs.padLeftU + cs.visWU / 2f, 0.01f);
             }
         }
 

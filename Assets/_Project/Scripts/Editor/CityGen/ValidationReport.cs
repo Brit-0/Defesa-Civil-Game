@@ -11,7 +11,7 @@ namespace DefesaCivil.CityGen
         public const string Error = "erro";
         public const string Warning = "aviso";
 
-        static readonly HashSet<string> WarningRules = new HashSet<string> { "R09", "R10", "R21", "R32", "R33" };
+        static readonly HashSet<string> WarningRules = new HashSet<string> { "R09", "R10", "R32", "R33", "R36", "R37" };
         public static string Of(string ruleId) => WarningRules.Contains(ruleId) ? Warning : Error;
     }
 

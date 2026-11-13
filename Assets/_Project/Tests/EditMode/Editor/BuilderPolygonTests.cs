@@ -49,6 +49,8 @@ namespace DefesaCivil.CityGen.Tests
         {
             Build();
             var bb = CityGeometry.BoundingBox(layout.polygons.Select(p => (IList<Vector2>)CityGeometry.ToVectors(p.points)));
+            float m = layout.limiterMargin;
+            bb = Rect.MinMaxRect(bb.xMin - m, bb.yMin - m, bb.xMax + m, bb.yMax + m);
             var b = ts.refs.limiter.bounds;
             Assert.That(Mathf.Abs(b.min.x - bb.xMin) + Mathf.Abs(b.min.y - bb.yMin) + Mathf.Abs(b.max.x - bb.xMax) + Mathf.Abs(b.max.y - bb.yMax), Is.LessThan(0.01f));
         }

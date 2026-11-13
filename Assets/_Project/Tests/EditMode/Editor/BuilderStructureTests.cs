@@ -46,8 +46,10 @@ namespace DefesaCivil.CityGen.Tests
                 var c = new Vector3[4]; t.GetWorldCorners(c);
                 Assert.AreEqual(cs.widthU, c[2].x - c[0].x, 0.01f, "largura nativa");
                 Assert.AreEqual(cs.heightU, c[2].y - c[0].y, 0.01f, "altura nativa");
-                Assert.AreEqual(s.bottomCenter.y, c[0].y, 0.01f, "borda inferior");
-                Assert.AreEqual(s.bottomCenter.x, (c[0].x + c[2].x) / 2f, 0.01f, "centro inferior");
+                Vector2 rc = cs.RectCenterFor(s.bottomCenter);
+                Assert.AreEqual(rc.y, (c[0].y + c[2].y) / 2f, 0.01f, "centro Y do retângulo");
+                Assert.AreEqual(rc.x, (c[0].x + c[2].x) / 2f, 0.01f, "centro X do retângulo");
+                Assert.AreEqual(s.bottomCenter.y, c[0].y + cs.padBottomU, 0.01f, "base visível");
                 var box = t.GetComponent<BoxCollider2D>();
                 Assert.AreEqual(t.sizeDelta.x, box.size.x, 1e-3f); Assert.AreEqual(t.sizeDelta.y, box.size.y, 1e-3f);
             }

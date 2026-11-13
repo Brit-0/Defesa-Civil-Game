@@ -180,7 +180,8 @@ namespace DefesaCivil.CityGen
 
                 var rt = (RectTransform)t;
                 var size = new Vector2(cs.widthU / scale.x, cs.heightU / scale.y);
-                var local = refs.houses.InverseTransformPoint(new Vector3(s.bottomCenter.x, s.bottomCenter.y + cs.heightU / 2f, refs.houses.position.z));
+                Vector2 rc = cs.RectCenterFor(s.bottomCenter);
+                var local = refs.houses.InverseTransformPoint(new Vector3(rc.x, rc.y, refs.houses.position.z));
                 var anchored = new Vector2(local.x, local.y);
                 var half = new Vector2(0.5f, 0.5f);
                 var img = t.Find("Visual").GetComponent<UnityEngine.UI.Image>();
@@ -288,7 +289,8 @@ namespace DefesaCivil.CityGen
                 var rt = (RectTransform)t;
                 var img = t.GetComponent<UnityEngine.UI.Image>();
                 var size = new Vector2(cs.widthU / scale.x, cs.heightU / scale.y);
-                var local = refs.trees.InverseTransformPoint(new Vector3(d.bottomCenter.x, d.bottomCenter.y + cs.heightU / 2f, refs.trees.position.z));
+                Vector2 rc = cs.RectCenterFor(d.bottomCenter);
+                var local = refs.trees.InverseTransformPoint(new Vector3(rc.x, rc.y, refs.trees.position.z));
                 var anchored = new Vector2(local.x, local.y);
                 bool changed = false;
                 if (rt.anchorMin != half || rt.anchorMax != half || rt.pivot != half || !Approx(rt.sizeDelta, size) || !Approx(rt.anchoredPosition, anchored) || !Approx(rt.localPosition.z, 0f))
@@ -316,6 +318,8 @@ namespace DefesaCivil.CityGen
         void FitLimiter()
         {
             var bb = PolygonBox();
+            float m = layout.limiterMargin; // rua de contorno (R27)
+            bb = Rect.MinMaxRect(bb.xMin - m, bb.yMin - m, bb.xMax + m, bb.yMax + m);
             var t = refs.limiter.transform;
             var spriteSize = refs.limiter.sprite.bounds.size;
             var parentScale = t.parent ? t.parent.lossyScale : Vector3.one;

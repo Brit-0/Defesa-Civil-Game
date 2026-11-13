@@ -48,6 +48,39 @@ namespace DefesaCivil.CityGen
 
         static float Cross(Vector2 a, Vector2 b) => a.x * b.y - a.y * b.x;
 
+        public static float SignedArea(IList<Vector2> poly)
+        {
+            float a = 0f;
+            for (int i = 0, j = poly.Count - 1; i < poly.Count; j = i++) a += poly[j].x * poly[i].y - poly[i].x * poly[j].y;
+            return a / 2f;
+        }
+
+        /// <summary>
+        /// Distância, a partir de 'origin' na direção unitária 'dir', até a primeira aresta de polígono ou até
+        /// sair de 'limiter' (o que vier primeiro).
+        /// </summary>
+        public static float RayDistance(Vector2 origin, Vector2 dir, IEnumerable<IList<Vector2>> polys, Rect limiter)
+        {
+            float best = float.MaxValue;
+            if (dir.x > 1e-6f) best = Mathf.Min(best, (limiter.xMax - origin.x) / dir.x);
+            if (dir.x < -1e-6f) best = Mathf.Min(best, (limiter.xMin - origin.x) / dir.x);
+            if (dir.y > 1e-6f) best = Mathf.Min(best, (limiter.yMax - origin.y) / dir.y);
+            if (dir.y < -1e-6f) best = Mathf.Min(best, (limiter.yMin - origin.y) / dir.y);
+            best = Mathf.Max(best, 0f);
+            foreach (var poly in polys)
+                for (int i = 0, j = poly.Count - 1; i < poly.Count; j = i++)
+                {
+                    Vector2 a = poly[j], e = poly[i] - poly[j];
+                    float den = Cross(dir, e);
+                    if (Mathf.Abs(den) < 1e-9f) continue;
+                    float t = Cross(a - origin, e) / den;
+                    float u = Cross(a - origin, dir) / den;
+                    if (t >= 0f && u >= -1e-5f && u <= 1f + 1e-5f && t < best) best = t;
+                }
+            return best;
+        }
+
+
         public static bool SegmentsIntersect(Vector2 p1, Vector2 p2, Vector2 q1, Vector2 q2)
         {
             float d1 = Cross(q2 - q1, p1 - q1), d2 = Cross(q2 - q1, p2 - q1);
