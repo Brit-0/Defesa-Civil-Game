@@ -1,0 +1,4239 @@
+{
+    "version": 1,
+    "seed": 2066620142,
+    "generatedAt": "2026-11-13T04:12:12Z",
+    "streetWidth": 0.800000011920929,
+    "center": {
+        "x": -3.4352400302886963,
+        "y": -0.1485700011253357
+    },
+    "polygons": [
+        {
+            "id": "001",
+            "kind": "Block",
+            "district": "Suburban",
+            "points": [
+                {
+                    "x": -29.653038024902344,
+                    "y": -14.598569869995117
+                },
+                {
+                    "x": -11.723838806152344,
+                    "y": -14.598569869995117
+                },
+                {
+                    "x": -11.723838806152344,
+                    "y": -8.24856948852539
+                },
+                {
+                    "x": -29.653038024902344,
+                    "y": -8.24856948852539
+                }
+            ]
+        },
+        {
+            "id": "002",
+            "kind": "Block",
+            "district": "Suburban",
+            "points": [
+                {
+                    "x": -10.923839569091797,
+                    "y": -14.598569869995117
+                },
+                {
+                    "x": 2.6113433837890625,
+                    "y": -14.598569869995117
+                },
+                {
+                    "x": 2.6113433837890625,
+                    "y": -7.998569965362549
+                },
+                {
+                    "x": -10.923839569091797,
+                    "y": -7.998569965362549
+                }
+            ]
+        },
+        {
+            "id": "003",
+            "kind": "Block",
+            "district": "Suburban",
+            "points": [
+                {
+                    "x": 3.4113426208496094,
+                    "y": -14.598569869995117
+                },
+                {
+                    "x": 22.782554626464844,
+                    "y": -14.598569869995117
+                },
+                {
+                    "x": 22.782554626464844,
+                    "y": -8.24856948852539
+                },
+                {
+                    "x": 3.4113426208496094,
+                    "y": -8.24856948852539
+                }
+            ]
+        },
+        {
+            "id": "004",
+            "kind": "Block",
+            "district": "Suburban",
+            "points": [
+                {
+                    "x": -29.653038024902344,
+                    "y": -7.1985697746276855
+                },
+                {
+                    "x": -9.915464401245117,
+                    "y": -7.1985697746276855
+                },
+                {
+                    "x": -9.915464401245117,
+                    "y": -0.5985698699951172
+                },
+                {
+                    "x": -29.653038024902344,
+                    "y": -0.5985698699951172
+                }
+            ]
+        },
+        {
+            "id": "005",
+            "kind": "Block",
+            "district": "Suburban",
+            "points": [
+                {
+                    "x": -9.11546516418457,
+                    "y": -7.1985697746276855
+                },
+                {
+                    "x": 11.328163146972656,
+                    "y": -7.1985697746276855
+                },
+                {
+                    "x": 11.328163146972656,
+                    "y": -2.598569869995117
+                },
+                {
+                    "x": -9.11546516418457,
+                    "y": -2.598569869995117
+                }
+            ]
+        },
+        {
+            "id": "006",
+            "kind": "Block",
+            "district": "Suburban",
+            "points": [
+                {
+                    "x": -29.653038024902344,
+                    "y": 0.2014303207397461
+                },
+                {
+                    "x": -7.23240852355957,
+                    "y": 0.2014303207397461
+                },
+                {
+                    "x": -7.23240852355957,
+                    "y": 4.801429748535156
+                },
+                {
+                    "x": -29.653038024902344,
+                    "y": 4.801429748535156
+                }
+            ]
+        },
+        {
+            "id": "007",
+            "kind": "Block",
+            "district": "Suburban",
+            "points": [
+                {
+                    "x": -6.432409286499023,
+                    "y": 0.2014303207397461
+                },
+                {
+                    "x": 0.7762184143066406,
+                    "y": 0.2014303207397461
+                },
+                {
+                    "x": 0.7762184143066406,
+                    "y": 4.801429748535156
+                },
+                {
+                    "x": -6.432409286499023,
+                    "y": 4.801429748535156
+                }
+            ]
+        },
+        {
+            "id": "008",
+            "kind": "Block",
+            "district": "Commercial",
+            "points": [
+                {
+                    "x": -29.653038024902344,
+                    "y": 5.601430892944336
+                },
+                {
+                    "x": -6.696939468383789,
+                    "y": 5.601430892944336
+                },
+                {
+                    "x": -6.696939468383789,
+                    "y": 12.201431274414063
+                },
+                {
+                    "x": -29.653038024902344,
+                    "y": 12.201431274414063
+                }
+            ]
+        },
+        {
+            "id": "009",
+            "kind": "Block",
+            "district": "Commercial",
+            "points": [
+                {
+                    "x": -5.896940231323242,
+                    "y": 5.601430892944336
+                },
+                {
+                    "x": 8.067878723144531,
+                    "y": 5.601430892944336
+                },
+                {
+                    "x": 8.067878723144531,
+                    "y": 12.201431274414063
+                },
+                {
+                    "x": -5.896940231323242,
+                    "y": 12.201431274414063
+                }
+            ]
+        },
+        {
+            "id": "010",
+            "kind": "Block",
+            "district": "Commercial",
+            "points": [
+                {
+                    "x": 8.867881774902344,
+                    "y": 5.601430892944336
+                },
+                {
+                    "x": 18.427757263183594,
+                    "y": 5.601430892944336
+                },
+                {
+                    "x": 18.427757263183594,
+                    "y": 10.201431274414063
+                },
+                {
+                    "x": 8.867881774902344,
+                    "y": 10.201431274414063
+                }
+            ]
+        },
+        {
+            "id": "011",
+            "kind": "Block",
+            "district": "Industrial",
+            "points": [
+                {
+                    "x": -29.653038024902344,
+                    "y": 13.00143051147461
+                },
+                {
+                    "x": -11.209390640258789,
+                    "y": 13.00143051147461
+                },
+                {
+                    "x": -11.209390640258789,
+                    "y": 19.601430892944336
+                },
+                {
+                    "x": -29.653038024902344,
+                    "y": 19.601430892944336
+                }
+            ]
+        },
+        {
+            "id": "012",
+            "kind": "Block",
+            "district": "Industrial",
+            "points": [
+                {
+                    "x": -10.409391403198242,
+                    "y": 13.00143051147461
+                },
+                {
+                    "x": 8.521560668945313,
+                    "y": 13.00143051147461
+                },
+                {
+                    "x": 8.521560668945313,
+                    "y": 17.601430892944336
+                },
+                {
+                    "x": -10.409391403198242,
+                    "y": 17.601430892944336
+                }
+            ]
+        },
+        {
+            "id": "013",
+            "kind": "Plaza",
+            "district": "None",
+            "points": [
+                {
+                    "x": -29.053037643432617,
+                    "y": -19.898571014404297
+                },
+                {
+                    "x": -17.744140625,
+                    "y": -19.898571014404297
+                },
+                {
+                    "x": -17.14413833618164,
+                    "y": -19.29857063293457
+                },
+                {
+                    "x": -17.14413833618164,
+                    "y": -15.998570442199707
+                },
+                {
+                    "x": -17.744140625,
+                    "y": -15.39857006072998
+                },
+                {
+                    "x": -29.053037643432617,
+                    "y": -15.39857006072998
+                },
+                {
+                    "x": -29.653038024902344,
+                    "y": -15.998570442199707
+                },
+                {
+                    "x": -29.653038024902344,
+                    "y": -19.29857063293457
+                }
+            ]
+        },
+        {
+            "id": "014",
+            "kind": "Plaza",
+            "district": "None",
+            "points": [
+                {
+                    "x": -15.744138717651367,
+                    "y": -19.898571014404297
+                },
+                {
+                    "x": -4.435239791870117,
+                    "y": -19.898571014404297
+                },
+                {
+                    "x": -3.8352394104003906,
+                    "y": -19.29857063293457
+                },
+                {
+                    "x": -3.8352394104003906,
+                    "y": -15.998570442199707
+                },
+                {
+                    "x": -4.435239791870117,
+                    "y": -15.39857006072998
+                },
+                {
+                    "x": -15.744138717651367,
+                    "y": -15.39857006072998
+                },
+                {
+                    "x": -16.344139099121094,
+                    "y": -15.998570442199707
+                },
+                {
+                    "x": -16.344139099121094,
+                    "y": -19.29857063293457
+                }
+            ]
+        },
+        {
+            "id": "015",
+            "kind": "Plaza",
+            "district": "None",
+            "points": [
+                {
+                    "x": -2.435239791870117,
+                    "y": -19.898571014404297
+                },
+                {
+                    "x": 8.873661041259766,
+                    "y": -19.898571014404297
+                },
+                {
+                    "x": 9.47365951538086,
+                    "y": -19.29857063293457
+                },
+                {
+                    "x": 9.47365951538086,
+                    "y": -15.998570442199707
+                },
+                {
+                    "x": 8.873661041259766,
+                    "y": -15.39857006072998
+                },
+                {
+                    "x": -2.435239791870117,
+                    "y": -15.39857006072998
+                },
+                {
+                    "x": -3.0352401733398438,
+                    "y": -15.998570442199707
+                },
+                {
+                    "x": -3.0352401733398438,
+                    "y": -19.29857063293457
+                }
+            ]
+        },
+        {
+            "id": "016",
+            "kind": "Plaza",
+            "district": "None",
+            "points": [
+                {
+                    "x": 10.8736572265625,
+                    "y": -19.898571014404297
+                },
+                {
+                    "x": 22.182559967041016,
+                    "y": -19.898571014404297
+                },
+                {
+                    "x": 22.78255844116211,
+                    "y": -19.29857063293457
+                },
+                {
+                    "x": 22.78255844116211,
+                    "y": -15.998570442199707
+                },
+                {
+                    "x": 22.182559967041016,
+                    "y": -15.39857006072998
+                },
+                {
+                    "x": 10.8736572265625,
+                    "y": -15.39857006072998
+                },
+                {
+                    "x": 10.273658752441406,
+                    "y": -15.998570442199707
+                },
+                {
+                    "x": 10.273658752441406,
+                    "y": -19.29857063293457
+                }
+            ]
+        }
+    ],
+    "structures": [
+        {
+            "id": "001",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "001",
+            "sprite": {
+                "guid": "820241118f51527eafbe72f39bfa110a",
+                "name": "Casa_K_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_K/Casa_K.png"
+            },
+            "bottomCenter": {
+                "x": -27.853038787841797,
+                "y": -14.298569679260254
+            },
+            "entry": {
+                "x": -27.853038787841797,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "002",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "001",
+            "sprite": {
+                "guid": "111349d72c795d8ba7ddc287a059d113",
+                "name": "Casa_M_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_M/Casa_M.png"
+            },
+            "bottomCenter": {
+                "x": -21.222793579101563,
+                "y": -14.298569679260254
+            },
+            "entry": {
+                "x": -21.222793579101563,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "003",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "001",
+            "sprite": {
+                "guid": "fe01414fa49b5b4b8217dec223ce8d20",
+                "name": "Casa_U_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_U/Casa_U.png"
+            },
+            "bottomCenter": {
+                "x": -13.773838996887207,
+                "y": -14.298569679260254
+            },
+            "entry": {
+                "x": -13.773838996887207,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "004",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "001",
+            "sprite": {
+                "guid": "820241118f51527eafbe72f39bfa110a",
+                "name": "Casa_K_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_K/Casa_K.png"
+            },
+            "bottomCenter": {
+                "x": -27.853038787841797,
+                "y": -12.548569679260254
+            },
+            "entry": {
+                "x": -27.853038787841797,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "005",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "001",
+            "sprite": {
+                "guid": "820241118f51527eafbe72f39bfa110a",
+                "name": "Casa_K_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_K/Casa_K.png"
+            },
+            "bottomCenter": {
+                "x": -24.695205688476563,
+                "y": -12.548569679260254
+            },
+            "entry": {
+                "x": -24.695205688476563,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "006",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "001",
+            "sprite": {
+                "guid": "a2fd02e26a8f5b31a65f44cdce840855",
+                "name": "Casa_A_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_A/Casa_A.png"
+            },
+            "bottomCenter": {
+                "x": -21.269672393798828,
+                "y": -12.548569679260254
+            },
+            "entry": {
+                "x": -21.269672393798828,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "007",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "001",
+            "sprite": {
+                "guid": "27840e1f7d06522f9b02f84651dff460",
+                "name": "Casa_O_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_O/Casa_O.png"
+            },
+            "bottomCenter": {
+                "x": -17.757984161376953,
+                "y": -12.548569679260254
+            },
+            "entry": {
+                "x": -17.757984161376953,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "008",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "001",
+            "sprite": {
+                "guid": "9f42e96fa88c5983a53bb9e87d0109d4",
+                "name": "Casa_Q_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_Q/Casa_Q.png"
+            },
+            "bottomCenter": {
+                "x": -14.418745994567871,
+                "y": -12.548569679260254
+            },
+            "entry": {
+                "x": -14.418745994567871,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "009",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "002",
+            "sprite": {
+                "guid": "9f42e96fa88c5983a53bb9e87d0109d4",
+                "name": "Casa_Q_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_Q/Casa_Q.png"
+            },
+            "bottomCenter": {
+                "x": -9.12384033203125,
+                "y": -14.298569679260254
+            },
+            "entry": {
+                "x": -9.12384033203125,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "010",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "002",
+            "sprite": {
+                "guid": "820241118f51527eafbe72f39bfa110a",
+                "name": "Casa_K_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_K/Casa_K.png"
+            },
+            "bottomCenter": {
+                "x": -5.953523635864258,
+                "y": -14.298569679260254
+            },
+            "entry": {
+                "x": -5.953523635864258,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "011",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "002",
+            "sprite": {
+                "guid": "9f42e96fa88c5983a53bb9e87d0109d4",
+                "name": "Casa_Q_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_Q/Casa_Q.png"
+            },
+            "bottomCenter": {
+                "x": -2.938302993774414,
+                "y": -14.298569679260254
+            },
+            "entry": {
+                "x": -2.938302993774414,
+                "y": -15.250101089477539
+            }
+        },
+        {
+            "id": "012",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "002",
+            "sprite": {
+                "guid": "17f81f34157a5ac5a5872b60b11c8a76",
+                "name": "Casa_T_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_T/Casa_T.png"
+            },
+            "bottomCenter": {
+                "x": 0.5613384246826172,
+                "y": -14.298569679260254
+            },
+            "entry": {
+                "x": 0.5613384246826172,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "013",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "002",
+            "sprite": {
+                "guid": "7b81246b0a825bd188a3f04b1c5c5407",
+                "name": "Casa_R_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_R/Casa_R.png"
+            },
+            "bottomCenter": {
+                "x": -8.87384033203125,
+                "y": -12.298569679260254
+            },
+            "entry": {
+                "x": -8.87384033203125,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "014",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "002",
+            "sprite": {
+                "guid": "12a5ff60b497520fb294fe99dff22e74",
+                "name": "Casa_G_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_G/Casa_G.png"
+            },
+            "bottomCenter": {
+                "x": -4.7503204345703125,
+                "y": -12.298569679260254
+            },
+            "entry": {
+                "x": -4.7503204345703125,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "015",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "002",
+            "sprite": {
+                "guid": "577560e5014155f382263a2ae1f264ca",
+                "name": "Casa_S_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_S/Casa_S.png"
+            },
+            "bottomCenter": {
+                "x": -0.7146759033203125,
+                "y": -12.298569679260254
+            },
+            "entry": {
+                "x": -0.7146759033203125,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "016",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "003",
+            "sprite": {
+                "guid": "111349d72c795d8ba7ddc287a059d113",
+                "name": "Casa_M_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_M/Casa_M.png"
+            },
+            "bottomCenter": {
+                "x": 5.711341857910156,
+                "y": -14.298569679260254
+            },
+            "entry": {
+                "x": 5.711341857910156,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "017",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "003",
+            "sprite": {
+                "guid": "74febb45d8cb5090b453bcd2475564c5",
+                "name": "Casa_J_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_J/Casa_J.png"
+            },
+            "bottomCenter": {
+                "x": 12.409778594970703,
+                "y": -14.298569679260254
+            },
+            "entry": {
+                "x": 12.409778594970703,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "018",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "003",
+            "sprite": {
+                "guid": "a2fd02e26a8f5b31a65f44cdce840855",
+                "name": "Casa_A_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_A/Casa_A.png"
+            },
+            "bottomCenter": {
+                "x": 16.295650482177734,
+                "y": -14.298569679260254
+            },
+            "entry": {
+                "x": 16.295650482177734,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "001",
+            "type": "Warehouse",
+            "district": "Industrial",
+            "polygonId": "003",
+            "sprite": {
+                "guid": "0057b3e8b7d85df994b8ce00f1ffbfa5",
+                "name": "Fabrica_C_S",
+                "path": "Assets/Arts/Houses/Industrial/Fabrica_C/Fabrica_C.png"
+            },
+            "bottomCenter": {
+                "x": 20.482555389404297,
+                "y": -14.298569679260254
+            },
+            "entry": {
+                "x": 20.482555389404297,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "019",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "003",
+            "sprite": {
+                "guid": "820241118f51527eafbe72f39bfa110a",
+                "name": "Casa_K_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_K/Casa_K.png"
+            },
+            "bottomCenter": {
+                "x": 5.211341857910156,
+                "y": -12.548569679260254
+            },
+            "entry": {
+                "x": 5.211341857910156,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "020",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "003",
+            "sprite": {
+                "guid": "9f42e96fa88c5983a53bb9e87d0109d4",
+                "name": "Casa_Q_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_Q/Casa_Q.png"
+            },
+            "bottomCenter": {
+                "x": 8.59267807006836,
+                "y": -12.548569679260254
+            },
+            "entry": {
+                "x": 8.59267807006836,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "021",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "003",
+            "sprite": {
+                "guid": "288651ee31cf5161a42b2f7bd50a11ed",
+                "name": "Casa_N_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_N/Casa_N.png"
+            },
+            "bottomCenter": {
+                "x": 12.453609466552734,
+                "y": -12.548569679260254
+            },
+            "entry": {
+                "x": 12.453609466552734,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "022",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "003",
+            "sprite": {
+                "guid": "fe01414fa49b5b4b8217dec223ce8d20",
+                "name": "Casa_U_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_U/Casa_U.png"
+            },
+            "bottomCenter": {
+                "x": 16.61865997314453,
+                "y": -12.548569679260254
+            },
+            "entry": {
+                "x": 16.61865997314453,
+                "y": -14.99856948852539
+            }
+        },
+        {
+            "id": "023",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "0d29af9a23595152b2cb1a2f02fb43df",
+                "name": "Casa_L_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_L/Casa_L.png"
+            },
+            "bottomCenter": {
+                "x": -27.853038787841797,
+                "y": -6.898569583892822
+            },
+            "entry": {
+                "x": -27.853038787841797,
+                "y": -7.723569869995117
+            }
+        },
+        {
+            "id": "024",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "22e9f40575865a418fa5c2a4ffb651c2",
+                "name": "Casa_C_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_C/Casa_C.png"
+            },
+            "bottomCenter": {
+                "x": -21.410839080810547,
+                "y": -6.898569583892822
+            },
+            "entry": {
+                "x": -21.410839080810547,
+                "y": -7.723569869995117
+            }
+        },
+        {
+            "id": "025",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "27840e1f7d06522f9b02f84651dff460",
+                "name": "Casa_O_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_O/Casa_O.png"
+            },
+            "bottomCenter": {
+                "x": -17.590328216552734,
+                "y": -6.898569583892822
+            },
+            "entry": {
+                "x": -17.590328216552734,
+                "y": -7.723569869995117
+            }
+        },
+        {
+            "id": "026",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "0d29af9a23595152b2cb1a2f02fb43df",
+                "name": "Casa_L_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_L/Casa_L.png"
+            },
+            "bottomCenter": {
+                "x": -14.098852157592773,
+                "y": -6.898569583892822
+            },
+            "entry": {
+                "x": -14.098852157592773,
+                "y": -7.723569869995117
+            }
+        },
+        {
+            "id": "027",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "17f81f34157a5ac5a5872b60b11c8a76",
+                "name": "Casa_T_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_T/Casa_T.png"
+            },
+            "bottomCenter": {
+                "x": -27.603038787841797,
+                "y": -4.8985700607299805
+            },
+            "entry": {
+                "x": -27.603038787841797,
+                "y": -7.723569869995117
+            }
+        },
+        {
+            "id": "028",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "fe01414fa49b5b4b8217dec223ce8d20",
+                "name": "Casa_U_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_U/Casa_U.png"
+            },
+            "bottomCenter": {
+                "x": -23.614784240722656,
+                "y": -4.8985700607299805
+            },
+            "entry": {
+                "x": -23.614784240722656,
+                "y": -7.723569869995117
+            }
+        },
+        {
+            "id": "029",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "12a5ff60b497520fb294fe99dff22e74",
+                "name": "Casa_G_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_G/Casa_G.png"
+            },
+            "bottomCenter": {
+                "x": -19.773542404174805,
+                "y": -4.8985700607299805
+            },
+            "entry": {
+                "x": -19.773542404174805,
+                "y": -7.723569869995117
+            }
+        },
+        {
+            "id": "030",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "2d48160284a85bc7907d64846d44ee6c",
+                "name": "Casa_E_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_E/Casa_E.png"
+            },
+            "bottomCenter": {
+                "x": -15.553983688354492,
+                "y": -4.8985700607299805
+            },
+            "entry": {
+                "x": -15.553983688354492,
+                "y": -7.723569869995117
+            }
+        },
+        {
+            "id": "031",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "17f81f34157a5ac5a5872b60b11c8a76",
+                "name": "Casa_T_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_T/Casa_T.png"
+            },
+            "bottomCenter": {
+                "x": -11.965465545654297,
+                "y": -4.8985700607299805
+            },
+            "entry": {
+                "x": -11.965465545654297,
+                "y": -7.723569869995117
+            }
+        },
+        {
+            "id": "032",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "005",
+            "sprite": {
+                "guid": "577560e5014155f382263a2ae1f264ca",
+                "name": "Casa_S_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_S/Casa_S.png"
+            },
+            "bottomCenter": {
+                "x": -7.065465927124023,
+                "y": -6.898569583892822
+            },
+            "entry": {
+                "x": -7.065465927124023,
+                "y": -7.598569869995117
+            }
+        },
+        {
+            "id": "033",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "005",
+            "sprite": {
+                "guid": "0d29af9a23595152b2cb1a2f02fb43df",
+                "name": "Casa_L_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_L/Casa_L.png"
+            },
+            "bottomCenter": {
+                "x": -1.5796089172363281,
+                "y": -6.898569583892822
+            },
+            "entry": {
+                "x": -1.5796089172363281,
+                "y": -7.598569869995117
+            }
+        },
+        {
+            "id": "034",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "005",
+            "sprite": {
+                "guid": "577560e5014155f382263a2ae1f264ca",
+                "name": "Casa_S_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_S/Casa_S.png"
+            },
+            "bottomCenter": {
+                "x": 1.929595947265625,
+                "y": -6.898569583892822
+            },
+            "entry": {
+                "x": 1.929595947265625,
+                "y": -7.598569869995117
+            }
+        },
+        {
+            "id": "035",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "005",
+            "sprite": {
+                "guid": "1490485c04fa5141834eb1c102c9d124",
+                "name": "Casa_B_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_B/Casa_B.png"
+            },
+            "bottomCenter": {
+                "x": 5.585643768310547,
+                "y": -6.898569583892822
+            },
+            "entry": {
+                "x": 5.585643768310547,
+                "y": -7.723569869995117
+            }
+        },
+        {
+            "id": "036",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "005",
+            "sprite": {
+                "guid": "446678dcd6f452c79da5de4818414d8a",
+                "name": "Casa_H_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_H/Casa_H.png"
+            },
+            "bottomCenter": {
+                "x": 9.278160095214844,
+                "y": -6.898569583892822
+            },
+            "entry": {
+                "x": 9.278160095214844,
+                "y": -7.723569869995117
+            }
+        },
+        {
+            "id": "037",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "006",
+            "sprite": {
+                "guid": "0d29af9a23595152b2cb1a2f02fb43df",
+                "name": "Casa_L_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_L/Casa_L.png"
+            },
+            "bottomCenter": {
+                "x": -27.853038787841797,
+                "y": 0.5014305114746094
+            },
+            "entry": {
+                "x": -27.853038787841797,
+                "y": -0.19856977462768555
+            }
+        },
+        {
+            "id": "038",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "006",
+            "sprite": {
+                "guid": "8288a3eefb6250c08c8edfb8e68ef44b",
+                "name": "Casa_P_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_P/Casa_P.png"
+            },
+            "bottomCenter": {
+                "x": -24.45758819580078,
+                "y": 0.5014305114746094
+            },
+            "entry": {
+                "x": -24.45758819580078,
+                "y": -0.19856977462768555
+            }
+        },
+        {
+            "id": "039",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "006",
+            "sprite": {
+                "guid": "288651ee31cf5161a42b2f7bd50a11ed",
+                "name": "Casa_N_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_N/Casa_N.png"
+            },
+            "bottomCenter": {
+                "x": -20.400556564331055,
+                "y": 0.5014305114746094
+            },
+            "entry": {
+                "x": -20.400556564331055,
+                "y": -0.19856977462768555
+            }
+        },
+        {
+            "id": "040",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "006",
+            "sprite": {
+                "guid": "7b81246b0a825bd188a3f04b1c5c5407",
+                "name": "Casa_R_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_R/Casa_R.png"
+            },
+            "bottomCenter": {
+                "x": -13.220020294189453,
+                "y": 0.5014305114746094
+            },
+            "entry": {
+                "x": -13.220020294189453,
+                "y": -0.19856977462768555
+            }
+        },
+        {
+            "id": "041",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "006",
+            "sprite": {
+                "guid": "22e9f40575865a418fa5c2a4ffb651c2",
+                "name": "Casa_C_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_C/Casa_C.png"
+            },
+            "bottomCenter": {
+                "x": -9.282411575317383,
+                "y": 0.5014305114746094
+            },
+            "entry": {
+                "x": -9.282411575317383,
+                "y": -3.8985698223114014
+            }
+        },
+        {
+            "id": "042",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "007",
+            "sprite": {
+                "guid": "fd8b113177d0504a84583004208125fa",
+                "name": "Casa_D_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_D/Casa_D.png"
+            },
+            "bottomCenter": {
+                "x": -4.382410049438477,
+                "y": 0.5014305114746094
+            },
+            "entry": {
+                "x": -4.382410049438477,
+                "y": -1.1985697746276855
+            }
+        },
+        {
+            "id": "043",
+            "type": "House",
+            "district": "Suburban",
+            "polygonId": "007",
+            "sprite": {
+                "guid": "0d29af9a23595152b2cb1a2f02fb43df",
+                "name": "Casa_L_S",
+                "path": "Assets/Arts/Houses/Suburban/Casa_L/Casa_L.png"
+            },
+            "bottomCenter": {
+                "x": -1.0237808227539063,
+                "y": 0.5014305114746094
+            },
+            "entry": {
+                "x": -1.0237808227539063,
+                "y": -1.1985697746276855
+            }
+        },
+        {
+            "id": "044",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "37e604420f885d9082b392c17c766047",
+                "name": "Fundo_Largo_A_S",
+                "path": "Assets/Arts/Houses/Commercial/Fundo_Largo_A/Fundo_Largo_A.png"
+            },
+            "bottomCenter": {
+                "x": -28.103038787841797,
+                "y": 5.901430130004883
+            },
+            "entry": {
+                "x": -28.103038787841797,
+                "y": 5.201430320739746
+            }
+        },
+        {
+            "id": "045",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "a1a0f3e85bb05e06902386f78cc0d34c",
+                "name": "Arranha_Ceu_C_S",
+                "path": "Assets/Arts/Houses/Commercial/Arranha_Ceu_C/Arranha_Ceu_C.png"
+            },
+            "bottomCenter": {
+                "x": -22.6862735748291,
+                "y": 5.901430130004883
+            },
+            "entry": {
+                "x": -22.6862735748291,
+                "y": 5.201430320739746
+            }
+        },
+        {
+            "id": "046",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "20633eb2f726553880f02ef82d235f27",
+                "name": "Fundo_L_S",
+                "path": "Assets/Arts/Houses/Commercial/Fundo_L/Fundo_L.png"
+            },
+            "bottomCenter": {
+                "x": -17.752790451049805,
+                "y": 5.901430130004883
+            },
+            "entry": {
+                "x": -17.752790451049805,
+                "y": 5.201430320739746
+            }
+        },
+        {
+            "id": "047",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "c59dae3f1a0d5e9e96b64888236306a5",
+                "name": "Predio_N_S",
+                "path": "Assets/Arts/Houses/Commercial/Predio_N/Predio_N.png"
+            },
+            "bottomCenter": {
+                "x": -14.763270378112793,
+                "y": 5.901430130004883
+            },
+            "entry": {
+                "x": -14.763270378112793,
+                "y": 5.201430320739746
+            }
+        },
+        {
+            "id": "048",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "614166b908095d11bd1b37c426fce65a",
+                "name": "Predio_E_S",
+                "path": "Assets/Arts/Houses/Commercial/Predio_E/Predio_E.png"
+            },
+            "bottomCenter": {
+                "x": -8.746942520141602,
+                "y": 5.901430130004883
+            },
+            "entry": {
+                "x": -8.746942520141602,
+                "y": 5.201430320739746
+            }
+        },
+        {
+            "id": "049",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "c59dae3f1a0d5e9e96b64888236306a5",
+                "name": "Predio_N_S",
+                "path": "Assets/Arts/Houses/Commercial/Predio_N/Predio_N.png"
+            },
+            "bottomCenter": {
+                "x": -27.603038787841797,
+                "y": 7.901430130004883
+            },
+            "entry": {
+                "x": -27.603038787841797,
+                "y": 5.201430320739746
+            }
+        },
+        {
+            "id": "050",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "4d1cb619dca1562bbbf3dac3798c022f",
+                "name": "Fundo_G_S",
+                "path": "Assets/Arts/Houses/Commercial/Fundo_G/Fundo_G.png"
+            },
+            "bottomCenter": {
+                "x": -24.76250457763672,
+                "y": 7.901430130004883
+            },
+            "entry": {
+                "x": -24.76250457763672,
+                "y": 5.201430320739746
+            }
+        },
+        {
+            "id": "051",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "ddc3e47bb88c5d338af341323cad2e8f",
+                "name": "Fundo_K_S",
+                "path": "Assets/Arts/Houses/Commercial/Fundo_K/Fundo_K.png"
+            },
+            "bottomCenter": {
+                "x": -22.63031768798828,
+                "y": 7.901430130004883
+            },
+            "entry": {
+                "x": -22.63031768798828,
+                "y": 5.201430320739746
+            }
+        },
+        {
+            "id": "052",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "009",
+            "sprite": {
+                "guid": "6123836799145e518aa23e0de70003c8",
+                "name": "Arranha_Ceu_E_S",
+                "path": "Assets/Arts/Houses/Commercial/Arranha_Ceu_E/Arranha_Ceu_E.png"
+            },
+            "bottomCenter": {
+                "x": -4.596940994262695,
+                "y": 5.901430130004883
+            },
+            "entry": {
+                "x": -4.596940994262695,
+                "y": 5.201430320739746
+            }
+        },
+        {
+            "id": "053",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "009",
+            "sprite": {
+                "guid": "fb6a82b03c295f54bca63c45b3d24e0d",
+                "name": "Predio_B_S",
+                "path": "Assets/Arts/Houses/Commercial/Predio_B/Predio_B.png"
+            },
+            "bottomCenter": {
+                "x": -1.8624706268310547,
+                "y": 5.901430130004883
+            },
+            "entry": {
+                "x": -1.8624706268310547,
+                "y": 5.201430320739746
+            }
+        },
+        {
+            "id": "054",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "009",
+            "sprite": {
+                "guid": "6c0910dc81ac587e8434a44e7afd8232",
+                "name": "Fundo_Largo_B_S",
+                "path": "Assets/Arts/Houses/Commercial/Fundo_Largo_B/Fundo_Largo_B.png"
+            },
+            "bottomCenter": {
+                "x": 1.1628475189208984,
+                "y": 5.901430130004883
+            },
+            "entry": {
+                "x": 1.1628475189208984,
+                "y": 1.5014305114746094
+            }
+        },
+        {
+            "id": "055",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "009",
+            "sprite": {
+                "guid": "ddc3e47bb88c5d338af341323cad2e8f",
+                "name": "Fundo_K_S",
+                "path": "Assets/Arts/Houses/Commercial/Fundo_K/Fundo_K.png"
+            },
+            "bottomCenter": {
+                "x": -4.596940994262695,
+                "y": 7.901430130004883
+            },
+            "entry": {
+                "x": -4.596940994262695,
+                "y": 5.201430320739746
+            }
+        },
+        {
+            "id": "056",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "009",
+            "sprite": {
+                "guid": "26f6a7ce051154f6926e845445958fbe",
+                "name": "Predio_H_S",
+                "path": "Assets/Arts/Houses/Commercial/Predio_H/Predio_H.png"
+            },
+            "bottomCenter": {
+                "x": -2.249715805053711,
+                "y": 7.901430130004883
+            },
+            "entry": {
+                "x": -2.249715805053711,
+                "y": 5.201430320739746
+            }
+        },
+        {
+            "id": "057",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "009",
+            "sprite": {
+                "guid": "dc1e42c9ad3258c188c4a37e551c6590",
+                "name": "Fundo_I_S",
+                "path": "Assets/Arts/Houses/Commercial/Fundo_I/Fundo_I.png"
+            },
+            "bottomCenter": {
+                "x": 0.08642196655273438,
+                "y": 7.901430130004883
+            },
+            "entry": {
+                "x": 0.08642196655273438,
+                "y": 5.201430320739746
+            }
+        },
+        {
+            "id": "058",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "009",
+            "sprite": {
+                "guid": "c59dae3f1a0d5e9e96b64888236306a5",
+                "name": "Predio_N_S",
+                "path": "Assets/Arts/Houses/Commercial/Predio_N/Predio_N.png"
+            },
+            "bottomCenter": {
+                "x": 3.0279464721679688,
+                "y": 7.901430130004883
+            },
+            "entry": {
+                "x": 3.0279464721679688,
+                "y": 1.5014305114746094
+            }
+        },
+        {
+            "id": "059",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "009",
+            "sprite": {
+                "guid": "26f6a7ce051154f6926e845445958fbe",
+                "name": "Predio_H_S",
+                "path": "Assets/Arts/Houses/Commercial/Predio_H/Predio_H.png"
+            },
+            "bottomCenter": {
+                "x": 6.517875671386719,
+                "y": 7.901430130004883
+            },
+            "entry": {
+                "x": 6.517875671386719,
+                "y": 1.5014305114746094
+            }
+        },
+        {
+            "id": "060",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "010",
+            "sprite": {
+                "guid": "603c4188acc755669b3da99426960312",
+                "name": "Predio_J_S",
+                "path": "Assets/Arts/Houses/Commercial/Predio_J/Predio_J.png"
+            },
+            "bottomCenter": {
+                "x": 10.66788101196289,
+                "y": 5.901430130004883
+            },
+            "entry": {
+                "x": 10.66788101196289,
+                "y": 1.5014305114746094
+            }
+        },
+        {
+            "id": "061",
+            "type": "House",
+            "district": "Commercial",
+            "polygonId": "010",
+            "sprite": {
+                "guid": "6c0910dc81ac587e8434a44e7afd8232",
+                "name": "Fundo_Largo_B_S",
+                "path": "Assets/Arts/Houses/Commercial/Fundo_Largo_B/Fundo_Largo_B.png"
+            },
+            "bottomCenter": {
+                "x": 16.877758026123047,
+                "y": 5.901430130004883
+            },
+            "entry": {
+                "x": 16.877758026123047,
+                "y": -1.3235692977905273
+            }
+        },
+        {
+            "id": "062",
+            "type": "House",
+            "district": "Industrial",
+            "polygonId": "011",
+            "sprite": {
+                "guid": "3187fa9621b2597298552febf5f32967",
+                "name": "Fabrica_S_S",
+                "path": "Assets/Arts/Houses/Industrial/Fabrica_S/Fabrica_S.png"
+            },
+            "bottomCenter": {
+                "x": -27.603038787841797,
+                "y": 13.301429748535156
+            },
+            "entry": {
+                "x": -27.603038787841797,
+                "y": 12.601430892944336
+            }
+        },
+        {
+            "id": "063",
+            "type": "House",
+            "district": "Industrial",
+            "polygonId": "011",
+            "sprite": {
+                "guid": "3187fa9621b2597298552febf5f32967",
+                "name": "Fabrica_S_S",
+                "path": "Assets/Arts/Houses/Industrial/Fabrica_S/Fabrica_S.png"
+            },
+            "bottomCenter": {
+                "x": -23.67098617553711,
+                "y": 13.301429748535156
+            },
+            "entry": {
+                "x": -23.67098617553711,
+                "y": 12.601430892944336
+            }
+        },
+        {
+            "id": "064",
+            "type": "House",
+            "district": "Industrial",
+            "polygonId": "011",
+            "sprite": {
+                "guid": "3187fa9621b2597298552febf5f32967",
+                "name": "Fabrica_S_S",
+                "path": "Assets/Arts/Houses/Industrial/Fabrica_S/Fabrica_S.png"
+            },
+            "bottomCenter": {
+                "x": -19.942886352539063,
+                "y": 13.301429748535156
+            },
+            "entry": {
+                "x": -19.942886352539063,
+                "y": 12.601430892944336
+            }
+        },
+        {
+            "id": "002",
+            "type": "Warehouse",
+            "district": "Industrial",
+            "polygonId": "011",
+            "sprite": {
+                "guid": "ba8aa1430b0352c98a383d2d58449836",
+                "name": "Fabrica_F_S",
+                "path": "Assets/Arts/Houses/Industrial/Fabrica_F/Fabrica_F.png"
+            },
+            "bottomCenter": {
+                "x": -16.26251983642578,
+                "y": 13.301429748535156
+            },
+            "entry": {
+                "x": -16.26251983642578,
+                "y": 12.601430892944336
+            }
+        },
+        {
+            "id": "065",
+            "type": "House",
+            "district": "Industrial",
+            "polygonId": "011",
+            "sprite": {
+                "guid": "0eeff8358c005907a1e594c094de0a44",
+                "name": "Fabrica_J_S",
+                "path": "Assets/Arts/Houses/Industrial/Fabrica_J/Fabrica_J.png"
+            },
+            "bottomCenter": {
+                "x": -27.603038787841797,
+                "y": 15.301429748535156
+            },
+            "entry": {
+                "x": -27.603038787841797,
+                "y": 12.601430892944336
+            }
+        },
+        {
+            "id": "066",
+            "type": "House",
+            "district": "Industrial",
+            "polygonId": "011",
+            "sprite": {
+                "guid": "749705cfb95e5c099b140054a0d26bc8",
+                "name": "Fabrica_G_S",
+                "path": "Assets/Arts/Houses/Industrial/Fabrica_G/Fabrica_G.png"
+            },
+            "bottomCenter": {
+                "x": -23.813369750976563,
+                "y": 15.301429748535156
+            },
+            "entry": {
+                "x": -23.813369750976563,
+                "y": 12.601430892944336
+            }
+        },
+        {
+            "id": "067",
+            "type": "House",
+            "district": "Industrial",
+            "polygonId": "011",
+            "sprite": {
+                "guid": "c067ba3746c759018be707a7422ad173",
+                "name": "Fabrica_B_S",
+                "path": "Assets/Arts/Houses/Industrial/Fabrica_B/Fabrica_B.png"
+            },
+            "bottomCenter": {
+                "x": -19.87112808227539,
+                "y": 15.301429748535156
+            },
+            "entry": {
+                "x": -19.87112808227539,
+                "y": 12.601430892944336
+            }
+        },
+        {
+            "id": "068",
+            "type": "House",
+            "district": "Industrial",
+            "polygonId": "011",
+            "sprite": {
+                "guid": "013fe3b17fb9502f8cf200593dcfb23b",
+                "name": "Fabrica_N_S",
+                "path": "Assets/Arts/Houses/Industrial/Fabrica_N/Fabrica_N.png"
+            },
+            "bottomCenter": {
+                "x": -16.158397674560547,
+                "y": 15.301429748535156
+            },
+            "entry": {
+                "x": -16.158397674560547,
+                "y": 12.601430892944336
+            }
+        },
+        {
+            "id": "069",
+            "type": "House",
+            "district": "Industrial",
+            "polygonId": "011",
+            "sprite": {
+                "guid": "ba8aa1430b0352c98a383d2d58449836",
+                "name": "Fabrica_F_S",
+                "path": "Assets/Arts/Houses/Industrial/Fabrica_F/Fabrica_F.png"
+            },
+            "bottomCenter": {
+                "x": -13.009391784667969,
+                "y": 15.301429748535156
+            },
+            "entry": {
+                "x": -13.009391784667969,
+                "y": 12.601430892944336
+            }
+        },
+        {
+            "id": "070",
+            "type": "House",
+            "district": "Industrial",
+            "polygonId": "012",
+            "sprite": {
+                "guid": "a7b85cc4f06751378e02f16fa2af92a5",
+                "name": "Fabrica_P_S",
+                "path": "Assets/Arts/Houses/Industrial/Fabrica_P/Fabrica_P.png"
+            },
+            "bottomCenter": {
+                "x": -8.359392166137695,
+                "y": 13.301429748535156
+            },
+            "entry": {
+                "x": -8.359392166137695,
+                "y": 12.601430892944336
+            }
+        },
+        {
+            "id": "071",
+            "type": "House",
+            "district": "Industrial",
+            "polygonId": "012",
+            "sprite": {
+                "guid": "013fe3b17fb9502f8cf200593dcfb23b",
+                "name": "Fabrica_N_S",
+                "path": "Assets/Arts/Houses/Industrial/Fabrica_N/Fabrica_N.png"
+            },
+            "bottomCenter": {
+                "x": -2.310880661010742,
+                "y": 13.301429748535156
+            },
+            "entry": {
+                "x": -2.310880661010742,
+                "y": 12.601430892944336
+            }
+        },
+        {
+            "id": "072",
+            "type": "House",
+            "district": "Industrial",
+            "polygonId": "012",
+            "sprite": {
+                "guid": "02c0dcccd4685143aef8c84cdb03d3b6",
+                "name": "Fabrica_E_S",
+                "path": "Assets/Arts/Houses/Industrial/Fabrica_E/Fabrica_E.png"
+            },
+            "bottomCenter": {
+                "x": 3.4338760375976563,
+                "y": 13.301429748535156
+            },
+            "entry": {
+                "x": 3.4338760375976563,
+                "y": 12.601430892944336
+            }
+        },
+        {
+            "id": "001",
+            "type": "Guard",
+            "district": "Industrial",
+            "polygonId": "012",
+            "sprite": {
+                "guid": "02c0dcccd4685143aef8c84cdb03d3b6",
+                "name": "Fabrica_E_S",
+                "path": "Assets/Arts/Houses/Industrial/Fabrica_E/Fabrica_E.png"
+            },
+            "bottomCenter": {
+                "x": 6.721561431884766,
+                "y": 13.301429748535156
+            },
+            "entry": {
+                "x": 6.721561431884766,
+                "y": 12.601430892944336
+            }
+        }
+    ],
+    "decorations": [
+        {
+            "id": "001",
+            "polygonId": "001",
+            "sprite": {
+                "guid": "765309e0158350b0a20765b766b8af0a",
+                "name": "Pedra_Chata_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_Chata_C/Pedra_Chata_C.png"
+            },
+            "bottomCenter": {
+                "x": -24.92523956298828,
+                "y": -14.39857006072998
+            }
+        },
+        {
+            "id": "002",
+            "polygonId": "001",
+            "sprite": {
+                "guid": "59c13091169c5178ad4835bbf9212364",
+                "name": "Pedra_Grande_F_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_Grande_F/Pedra_Grande_F.png"
+            },
+            "bottomCenter": {
+                "x": -17.2614803314209,
+                "y": -14.39857006072998
+            }
+        },
+        {
+            "id": "003",
+            "polygonId": "003",
+            "sprite": {
+                "guid": "4f4b9afbe47652b985042c111b68e54f",
+                "name": "Estatua_Cabeca_S",
+                "path": "Assets/Arts/Houses/Nature/Estatua_Cabeca/Estatua_Cabeca.png"
+            },
+            "bottomCenter": {
+                "x": 9.129947662353516,
+                "y": -14.39857006072998
+            }
+        },
+        {
+            "id": "004",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "cc96d9866d0f5d66a042e77f141cde39",
+                "name": "Arbusto_Grande_S",
+                "path": "Assets/Arts/Houses/Nature/Arbusto_Grande/Arbusto_Grande.png"
+            },
+            "bottomCenter": {
+                "x": -24.76011085510254,
+                "y": -6.998569965362549
+            }
+        },
+        {
+            "id": "005",
+            "polygonId": "005",
+            "sprite": {
+                "guid": "a82ebcab71c35ec5aee438801354181c",
+                "name": "Toco_Velho_S",
+                "path": "Assets/Arts/Houses/Nature/Toco_Velho/Toco_Velho.png"
+            },
+            "bottomCenter": {
+                "x": -4.192586898803711,
+                "y": -6.998569965362549
+            }
+        },
+        {
+            "id": "006",
+            "polygonId": "006",
+            "sprite": {
+                "guid": "888f58c554e3593d908500f905550dc3",
+                "name": "Pedra_Grande_A_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_Grande_A/Pedra_Grande_A.png"
+            },
+            "bottomCenter": {
+                "x": -16.64063835144043,
+                "y": 0.4014301300048828
+            }
+        },
+        {
+            "id": "007",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "e578f64fdec55e96afcef0169bd39761",
+                "name": "Cerca_Tabuas_Dupla_S",
+                "path": "Assets/Arts/Houses/Nature/Cerca_Tabuas_Dupla/Cerca_Tabuas_Dupla.png"
+            },
+            "bottomCenter": {
+                "x": -25.3075008392334,
+                "y": 5.801431655883789
+            }
+        },
+        {
+            "id": "008",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "7ae64422c8a256c6a59c4c551705e8c7",
+                "name": "Rocha_Alta_B_S",
+                "path": "Assets/Arts/Houses/Nature/Rocha_Alta_B/Rocha_Alta_B.png"
+            },
+            "bottomCenter": {
+                "x": -20.179683685302734,
+                "y": 5.801431655883789
+            }
+        },
+        {
+            "id": "009",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "c3eb22a9a8615bb785c88451ffd60cb7",
+                "name": "Arvore_Alta_S",
+                "path": "Assets/Arts/Houses/Nature/Arvore_Alta/Arvore_Alta.png"
+            },
+            "bottomCenter": {
+                "x": -11.796588897705078,
+                "y": 5.801431655883789
+            }
+        },
+        {
+            "id": "010",
+            "polygonId": "010",
+            "sprite": {
+                "guid": "85f0a9fbe73150608c7f08d8d0df2851",
+                "name": "Tronco_S",
+                "path": "Assets/Arts/Houses/Nature/Tronco/Tronco.png"
+            },
+            "bottomCenter": {
+                "x": 13.901775360107422,
+                "y": 5.801431655883789
+            }
+        },
+        {
+            "id": "011",
+            "polygonId": "012",
+            "sprite": {
+                "guid": "7878d2b7c9035bb69cd5c580ee54c55c",
+                "name": "Arbusto_S",
+                "path": "Assets/Arts/Houses/Nature/Arbusto/Arbusto.png"
+            },
+            "bottomCenter": {
+                "x": -5.261455535888672,
+                "y": 13.201431274414063
+            }
+        },
+        {
+            "id": "012",
+            "polygonId": "012",
+            "sprite": {
+                "guid": "c6a506bf791654b587b358c7c7a11a87",
+                "name": "Pinheiro_Redondo_B_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Redondo_B/Pinheiro_Redondo_B.png"
+            },
+            "bottomCenter": {
+                "x": 0.6295967102050781,
+                "y": 13.201431274414063
+            }
+        },
+        {
+            "id": "013",
+            "polygonId": "001",
+            "sprite": {
+                "guid": "cdb3a6927d3252e786074e8de93d212c",
+                "name": "Flor_Sino_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Sino/Flor_Sino.png"
+            },
+            "bottomCenter": {
+                "x": -28.150997161865234,
+                "y": -8.54857063293457
+            }
+        },
+        {
+            "id": "014",
+            "polygonId": "001",
+            "sprite": {
+                "guid": "64ad9230fac755d3a1fccbcc46a094d8",
+                "name": "Flor_Margarida_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Margarida/Flor_Margarida.png"
+            },
+            "bottomCenter": {
+                "x": -24.04140281677246,
+                "y": -8.54857063293457
+            }
+        },
+        {
+            "id": "015",
+            "polygonId": "001",
+            "sprite": {
+                "guid": "8a7628b57ffd5b62bb666a6409dcba55",
+                "name": "Planta_Baixa_S",
+                "path": "Assets/Arts/Houses/Nature/Planta_Baixa/Planta_Baixa.png"
+            },
+            "bottomCenter": {
+                "x": -20.484886169433594,
+                "y": -8.54857063293457
+            }
+        },
+        {
+            "id": "016",
+            "polygonId": "001",
+            "sprite": {
+                "guid": "a84c2829f12c54bfbcf567f2f6c6d9c4",
+                "name": "Pedra_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_C/Pedra_C.png"
+            },
+            "bottomCenter": {
+                "x": -17.055561065673828,
+                "y": -8.54857063293457
+            }
+        },
+        {
+            "id": "017",
+            "polygonId": "001",
+            "sprite": {
+                "guid": "871e19c9e1e25b41bf7530778ed8c0ef",
+                "name": "Cogumelo_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo/Cogumelo.png"
+            },
+            "bottomCenter": {
+                "x": -13.579421997070313,
+                "y": -8.54857063293457
+            }
+        },
+        {
+            "id": "018",
+            "polygonId": "002",
+            "sprite": {
+                "guid": "cdb3a6927d3252e786074e8de93d212c",
+                "name": "Flor_Sino_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Sino/Flor_Sino.png"
+            },
+            "bottomCenter": {
+                "x": -9.453697204589844,
+                "y": -8.29857063293457
+            }
+        },
+        {
+            "id": "019",
+            "polygonId": "002",
+            "sprite": {
+                "guid": "8745a898d6125118af857ab5ba79b42b",
+                "name": "Folhagem_S",
+                "path": "Assets/Arts/Houses/Nature/Folhagem/Folhagem.png"
+            },
+            "bottomCenter": {
+                "x": -5.822027206420898,
+                "y": -8.29857063293457
+            }
+        },
+        {
+            "id": "020",
+            "polygonId": "002",
+            "sprite": {
+                "guid": "a84c2829f12c54bfbcf567f2f6c6d9c4",
+                "name": "Pedra_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_C/Pedra_C.png"
+            },
+            "bottomCenter": {
+                "x": -2.5434112548828125,
+                "y": -8.29857063293457
+            }
+        },
+        {
+            "id": "021",
+            "polygonId": "002",
+            "sprite": {
+                "guid": "a84c2829f12c54bfbcf567f2f6c6d9c4",
+                "name": "Pedra_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_C/Pedra_C.png"
+            },
+            "bottomCenter": {
+                "x": 0.7611045837402344,
+                "y": -8.29857063293457
+            }
+        },
+        {
+            "id": "022",
+            "polygonId": "003",
+            "sprite": {
+                "guid": "64ad9230fac755d3a1fccbcc46a094d8",
+                "name": "Flor_Margarida_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Margarida/Flor_Margarida.png"
+            },
+            "bottomCenter": {
+                "x": 4.862575531005859,
+                "y": -8.54857063293457
+            }
+        },
+        {
+            "id": "023",
+            "polygonId": "003",
+            "sprite": {
+                "guid": "a84c2829f12c54bfbcf567f2f6c6d9c4",
+                "name": "Pedra_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_C/Pedra_C.png"
+            },
+            "bottomCenter": {
+                "x": 7.991977691650391,
+                "y": -8.54857063293457
+            }
+        },
+        {
+            "id": "024",
+            "polygonId": "003",
+            "sprite": {
+                "guid": "8a7628b57ffd5b62bb666a6409dcba55",
+                "name": "Planta_Baixa_S",
+                "path": "Assets/Arts/Houses/Nature/Planta_Baixa/Planta_Baixa.png"
+            },
+            "bottomCenter": {
+                "x": 11.623516082763672,
+                "y": -8.54857063293457
+            }
+        },
+        {
+            "id": "025",
+            "polygonId": "003",
+            "sprite": {
+                "guid": "343ae10cc4dd55f0ab777ae1a4864333",
+                "name": "Cogumelo_Chapeu_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Chapeu/Cogumelo_Chapeu.png"
+            },
+            "bottomCenter": {
+                "x": 14.815208435058594,
+                "y": -8.54857063293457
+            }
+        },
+        {
+            "id": "026",
+            "polygonId": "003",
+            "sprite": {
+                "guid": "efde3a00c673587f9d5b54529adf3024",
+                "name": "Cogumelo_Alto_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Alto/Cogumelo_Alto.png"
+            },
+            "bottomCenter": {
+                "x": 18.034893035888672,
+                "y": -8.54857063293457
+            }
+        },
+        {
+            "id": "027",
+            "polygonId": "003",
+            "sprite": {
+                "guid": "343ae10cc4dd55f0ab777ae1a4864333",
+                "name": "Cogumelo_Chapeu_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Chapeu/Cogumelo_Chapeu.png"
+            },
+            "bottomCenter": {
+                "x": 21.130657196044922,
+                "y": -8.54857063293457
+            }
+        },
+        {
+            "id": "028",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "8745a898d6125118af857ab5ba79b42b",
+                "name": "Folhagem_S",
+                "path": "Assets/Arts/Houses/Nature/Folhagem/Folhagem.png"
+            },
+            "bottomCenter": {
+                "x": -28.151729583740234,
+                "y": -0.8985700607299805
+            }
+        },
+        {
+            "id": "029",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "8a7628b57ffd5b62bb666a6409dcba55",
+                "name": "Planta_Baixa_S",
+                "path": "Assets/Arts/Houses/Nature/Planta_Baixa/Planta_Baixa.png"
+            },
+            "bottomCenter": {
+                "x": -24.574371337890625,
+                "y": -0.8985700607299805
+            }
+        },
+        {
+            "id": "030",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "8745a898d6125118af857ab5ba79b42b",
+                "name": "Folhagem_S",
+                "path": "Assets/Arts/Houses/Nature/Folhagem/Folhagem.png"
+            },
+            "bottomCenter": {
+                "x": -21.70482063293457,
+                "y": -0.8985700607299805
+            }
+        },
+        {
+            "id": "031",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "efde3a00c673587f9d5b54529adf3024",
+                "name": "Cogumelo_Alto_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Alto/Cogumelo_Alto.png"
+            },
+            "bottomCenter": {
+                "x": -17.977598190307617,
+                "y": -0.8985700607299805
+            }
+        },
+        {
+            "id": "032",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "a84c2829f12c54bfbcf567f2f6c6d9c4",
+                "name": "Pedra_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_C/Pedra_C.png"
+            },
+            "bottomCenter": {
+                "x": -15.035233497619629,
+                "y": -0.8985700607299805
+            }
+        },
+        {
+            "id": "033",
+            "polygonId": "004",
+            "sprite": {
+                "guid": "8a7628b57ffd5b62bb666a6409dcba55",
+                "name": "Planta_Baixa_S",
+                "path": "Assets/Arts/Houses/Nature/Planta_Baixa/Planta_Baixa.png"
+            },
+            "bottomCenter": {
+                "x": -11.798728942871094,
+                "y": -0.8985700607299805
+            }
+        },
+        {
+            "id": "034",
+            "polygonId": "005",
+            "sprite": {
+                "guid": "8a7628b57ffd5b62bb666a6409dcba55",
+                "name": "Planta_Baixa_S",
+                "path": "Assets/Arts/Houses/Nature/Planta_Baixa/Planta_Baixa.png"
+            },
+            "bottomCenter": {
+                "x": -7.70402717590332,
+                "y": -2.8985700607299805
+            }
+        },
+        {
+            "id": "035",
+            "polygonId": "005",
+            "sprite": {
+                "guid": "871e19c9e1e25b41bf7530778ed8c0ef",
+                "name": "Cogumelo_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo/Cogumelo.png"
+            },
+            "bottomCenter": {
+                "x": -3.835987091064453,
+                "y": -2.8985700607299805
+            }
+        },
+        {
+            "id": "036",
+            "polygonId": "005",
+            "sprite": {
+                "guid": "64ad9230fac755d3a1fccbcc46a094d8",
+                "name": "Flor_Margarida_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Margarida/Flor_Margarida.png"
+            },
+            "bottomCenter": {
+                "x": -0.8781833648681641,
+                "y": -2.8985700607299805
+            }
+        },
+        {
+            "id": "037",
+            "polygonId": "005",
+            "sprite": {
+                "guid": "64ad9230fac755d3a1fccbcc46a094d8",
+                "name": "Flor_Margarida_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Margarida/Flor_Margarida.png"
+            },
+            "bottomCenter": {
+                "x": 2.96685791015625,
+                "y": -2.8985700607299805
+            }
+        },
+        {
+            "id": "038",
+            "polygonId": "005",
+            "sprite": {
+                "guid": "8a7628b57ffd5b62bb666a6409dcba55",
+                "name": "Planta_Baixa_S",
+                "path": "Assets/Arts/Houses/Nature/Planta_Baixa/Planta_Baixa.png"
+            },
+            "bottomCenter": {
+                "x": 6.2998809814453125,
+                "y": -2.8985700607299805
+            }
+        },
+        {
+            "id": "039",
+            "polygonId": "005",
+            "sprite": {
+                "guid": "efde3a00c673587f9d5b54529adf3024",
+                "name": "Cogumelo_Alto_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Alto/Cogumelo_Alto.png"
+            },
+            "bottomCenter": {
+                "x": 9.721691131591797,
+                "y": -2.8985700607299805
+            }
+        },
+        {
+            "id": "040",
+            "polygonId": "006",
+            "sprite": {
+                "guid": "8745a898d6125118af857ab5ba79b42b",
+                "name": "Folhagem_S",
+                "path": "Assets/Arts/Houses/Nature/Folhagem/Folhagem.png"
+            },
+            "bottomCenter": {
+                "x": -28.050548553466797,
+                "y": 4.501430511474609
+            }
+        },
+        {
+            "id": "041",
+            "polygonId": "006",
+            "sprite": {
+                "guid": "efde3a00c673587f9d5b54529adf3024",
+                "name": "Cogumelo_Alto_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Alto/Cogumelo_Alto.png"
+            },
+            "bottomCenter": {
+                "x": -24.69742774963379,
+                "y": 4.501430511474609
+            }
+        },
+        {
+            "id": "042",
+            "polygonId": "006",
+            "sprite": {
+                "guid": "8745a898d6125118af857ab5ba79b42b",
+                "name": "Folhagem_S",
+                "path": "Assets/Arts/Houses/Nature/Folhagem/Folhagem.png"
+            },
+            "bottomCenter": {
+                "x": -21.81967544555664,
+                "y": 4.501430511474609
+            }
+        },
+        {
+            "id": "043",
+            "polygonId": "006",
+            "sprite": {
+                "guid": "a84c2829f12c54bfbcf567f2f6c6d9c4",
+                "name": "Pedra_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_C/Pedra_C.png"
+            },
+            "bottomCenter": {
+                "x": -18.6419677734375,
+                "y": 4.501430511474609
+            }
+        },
+        {
+            "id": "044",
+            "polygonId": "006",
+            "sprite": {
+                "guid": "64ad9230fac755d3a1fccbcc46a094d8",
+                "name": "Flor_Margarida_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Margarida/Flor_Margarida.png"
+            },
+            "bottomCenter": {
+                "x": -15.044588088989258,
+                "y": 4.501430511474609
+            }
+        },
+        {
+            "id": "045",
+            "polygonId": "006",
+            "sprite": {
+                "guid": "8745a898d6125118af857ab5ba79b42b",
+                "name": "Folhagem_S",
+                "path": "Assets/Arts/Houses/Nature/Folhagem/Folhagem.png"
+            },
+            "bottomCenter": {
+                "x": -12.193199157714844,
+                "y": 4.501430511474609
+            }
+        },
+        {
+            "id": "046",
+            "polygonId": "006",
+            "sprite": {
+                "guid": "343ae10cc4dd55f0ab777ae1a4864333",
+                "name": "Cogumelo_Chapeu_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Chapeu/Cogumelo_Chapeu.png"
+            },
+            "bottomCenter": {
+                "x": -8.547708511352539,
+                "y": 4.501430511474609
+            }
+        },
+        {
+            "id": "047",
+            "polygonId": "007",
+            "sprite": {
+                "guid": "8a7628b57ffd5b62bb666a6409dcba55",
+                "name": "Planta_Baixa_S",
+                "path": "Assets/Arts/Houses/Nature/Planta_Baixa/Planta_Baixa.png"
+            },
+            "bottomCenter": {
+                "x": -4.444599151611328,
+                "y": 4.501430511474609
+            }
+        },
+        {
+            "id": "048",
+            "polygonId": "007",
+            "sprite": {
+                "guid": "871e19c9e1e25b41bf7530778ed8c0ef",
+                "name": "Cogumelo_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo/Cogumelo.png"
+            },
+            "bottomCenter": {
+                "x": -1.2691287994384766,
+                "y": 4.501430511474609
+            }
+        },
+        {
+            "id": "049",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "64ad9230fac755d3a1fccbcc46a094d8",
+                "name": "Flor_Margarida_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Margarida/Flor_Margarida.png"
+            },
+            "bottomCenter": {
+                "x": -28.17239761352539,
+                "y": 11.901430130004883
+            }
+        },
+        {
+            "id": "050",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "871e19c9e1e25b41bf7530778ed8c0ef",
+                "name": "Cogumelo_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo/Cogumelo.png"
+            },
+            "bottomCenter": {
+                "x": -24.622390747070313,
+                "y": 11.901430130004883
+            }
+        },
+        {
+            "id": "051",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "efde3a00c673587f9d5b54529adf3024",
+                "name": "Cogumelo_Alto_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Alto/Cogumelo_Alto.png"
+            },
+            "bottomCenter": {
+                "x": -21.205162048339844,
+                "y": 11.901430130004883
+            }
+        },
+        {
+            "id": "052",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "64ad9230fac755d3a1fccbcc46a094d8",
+                "name": "Flor_Margarida_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Margarida/Flor_Margarida.png"
+            },
+            "bottomCenter": {
+                "x": -18.239103317260742,
+                "y": 11.901430130004883
+            }
+        },
+        {
+            "id": "053",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "343ae10cc4dd55f0ab777ae1a4864333",
+                "name": "Cogumelo_Chapeu_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Chapeu/Cogumelo_Chapeu.png"
+            },
+            "bottomCenter": {
+                "x": -15.168288230895996,
+                "y": 11.901430130004883
+            }
+        },
+        {
+            "id": "054",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "343ae10cc4dd55f0ab777ae1a4864333",
+                "name": "Cogumelo_Chapeu_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Chapeu/Cogumelo_Chapeu.png"
+            },
+            "bottomCenter": {
+                "x": -11.676017761230469,
+                "y": 11.901430130004883
+            }
+        },
+        {
+            "id": "055",
+            "polygonId": "008",
+            "sprite": {
+                "guid": "64ad9230fac755d3a1fccbcc46a094d8",
+                "name": "Flor_Margarida_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Margarida/Flor_Margarida.png"
+            },
+            "bottomCenter": {
+                "x": -8.588235855102539,
+                "y": 11.901430130004883
+            }
+        },
+        {
+            "id": "056",
+            "polygonId": "009",
+            "sprite": {
+                "guid": "343ae10cc4dd55f0ab777ae1a4864333",
+                "name": "Cogumelo_Chapeu_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Chapeu/Cogumelo_Chapeu.png"
+            },
+            "bottomCenter": {
+                "x": -4.319385528564453,
+                "y": 11.901430130004883
+            }
+        },
+        {
+            "id": "057",
+            "polygonId": "009",
+            "sprite": {
+                "guid": "efde3a00c673587f9d5b54529adf3024",
+                "name": "Cogumelo_Alto_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Alto/Cogumelo_Alto.png"
+            },
+            "bottomCenter": {
+                "x": -0.8690910339355469,
+                "y": 11.901430130004883
+            }
+        },
+        {
+            "id": "058",
+            "polygonId": "009",
+            "sprite": {
+                "guid": "8a7628b57ffd5b62bb666a6409dcba55",
+                "name": "Planta_Baixa_S",
+                "path": "Assets/Arts/Houses/Nature/Planta_Baixa/Planta_Baixa.png"
+            },
+            "bottomCenter": {
+                "x": 2.685382843017578,
+                "y": 11.901430130004883
+            }
+        },
+        {
+            "id": "059",
+            "polygonId": "009",
+            "sprite": {
+                "guid": "efde3a00c673587f9d5b54529adf3024",
+                "name": "Cogumelo_Alto_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Alto/Cogumelo_Alto.png"
+            },
+            "bottomCenter": {
+                "x": 6.386989593505859,
+                "y": 11.901430130004883
+            }
+        },
+        {
+            "id": "060",
+            "polygonId": "010",
+            "sprite": {
+                "guid": "64ad9230fac755d3a1fccbcc46a094d8",
+                "name": "Flor_Margarida_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Margarida/Flor_Margarida.png"
+            },
+            "bottomCenter": {
+                "x": 10.614181518554688,
+                "y": 9.901430130004883
+            }
+        },
+        {
+            "id": "061",
+            "polygonId": "010",
+            "sprite": {
+                "guid": "8745a898d6125118af857ab5ba79b42b",
+                "name": "Folhagem_S",
+                "path": "Assets/Arts/Houses/Nature/Folhagem/Folhagem.png"
+            },
+            "bottomCenter": {
+                "x": 13.427738189697266,
+                "y": 9.901430130004883
+            }
+        },
+        {
+            "id": "062",
+            "polygonId": "010",
+            "sprite": {
+                "guid": "871e19c9e1e25b41bf7530778ed8c0ef",
+                "name": "Cogumelo_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo/Cogumelo.png"
+            },
+            "bottomCenter": {
+                "x": 16.59743881225586,
+                "y": 9.901430130004883
+            }
+        },
+        {
+            "id": "063",
+            "polygonId": "011",
+            "sprite": {
+                "guid": "cdb3a6927d3252e786074e8de93d212c",
+                "name": "Flor_Sino_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Sino/Flor_Sino.png"
+            },
+            "bottomCenter": {
+                "x": -28.10598373413086,
+                "y": 19.30143165588379
+            }
+        },
+        {
+            "id": "064",
+            "polygonId": "011",
+            "sprite": {
+                "guid": "343ae10cc4dd55f0ab777ae1a4864333",
+                "name": "Cogumelo_Chapeu_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Chapeu/Cogumelo_Chapeu.png"
+            },
+            "bottomCenter": {
+                "x": -24.977523803710938,
+                "y": 19.30143165588379
+            }
+        },
+        {
+            "id": "065",
+            "polygonId": "011",
+            "sprite": {
+                "guid": "64ad9230fac755d3a1fccbcc46a094d8",
+                "name": "Flor_Margarida_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Margarida/Flor_Margarida.png"
+            },
+            "bottomCenter": {
+                "x": -21.72722053527832,
+                "y": 19.30143165588379
+            }
+        },
+        {
+            "id": "066",
+            "polygonId": "011",
+            "sprite": {
+                "guid": "343ae10cc4dd55f0ab777ae1a4864333",
+                "name": "Cogumelo_Chapeu_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Chapeu/Cogumelo_Chapeu.png"
+            },
+            "bottomCenter": {
+                "x": -18.6765079498291,
+                "y": 19.30143165588379
+            }
+        },
+        {
+            "id": "067",
+            "polygonId": "011",
+            "sprite": {
+                "guid": "871e19c9e1e25b41bf7530778ed8c0ef",
+                "name": "Cogumelo_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo/Cogumelo.png"
+            },
+            "bottomCenter": {
+                "x": -16.089550018310547,
+                "y": 19.30143165588379
+            }
+        },
+        {
+            "id": "068",
+            "polygonId": "011",
+            "sprite": {
+                "guid": "64ad9230fac755d3a1fccbcc46a094d8",
+                "name": "Flor_Margarida_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Margarida/Flor_Margarida.png"
+            },
+            "bottomCenter": {
+                "x": -12.943584442138672,
+                "y": 19.30143165588379
+            }
+        },
+        {
+            "id": "069",
+            "polygonId": "012",
+            "sprite": {
+                "guid": "871e19c9e1e25b41bf7530778ed8c0ef",
+                "name": "Cogumelo_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo/Cogumelo.png"
+            },
+            "bottomCenter": {
+                "x": -8.939279556274414,
+                "y": 17.301429748535156
+            }
+        },
+        {
+            "id": "070",
+            "polygonId": "012",
+            "sprite": {
+                "guid": "efde3a00c673587f9d5b54529adf3024",
+                "name": "Cogumelo_Alto_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Alto/Cogumelo_Alto.png"
+            },
+            "bottomCenter": {
+                "x": -5.546718597412109,
+                "y": 17.301429748535156
+            }
+        },
+        {
+            "id": "071",
+            "polygonId": "012",
+            "sprite": {
+                "guid": "8a7628b57ffd5b62bb666a6409dcba55",
+                "name": "Planta_Baixa_S",
+                "path": "Assets/Arts/Houses/Nature/Planta_Baixa/Planta_Baixa.png"
+            },
+            "bottomCenter": {
+                "x": -2.8115005493164063,
+                "y": 17.301429748535156
+            }
+        },
+        {
+            "id": "072",
+            "polygonId": "012",
+            "sprite": {
+                "guid": "64ad9230fac755d3a1fccbcc46a094d8",
+                "name": "Flor_Margarida_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Margarida/Flor_Margarida.png"
+            },
+            "bottomCenter": {
+                "x": 0.6915283203125,
+                "y": 17.301429748535156
+            }
+        },
+        {
+            "id": "073",
+            "polygonId": "012",
+            "sprite": {
+                "guid": "efde3a00c673587f9d5b54529adf3024",
+                "name": "Cogumelo_Alto_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Alto/Cogumelo_Alto.png"
+            },
+            "bottomCenter": {
+                "x": 3.5059967041015625,
+                "y": 17.301429748535156
+            }
+        },
+        {
+            "id": "074",
+            "polygonId": "012",
+            "sprite": {
+                "guid": "8a7628b57ffd5b62bb666a6409dcba55",
+                "name": "Planta_Baixa_S",
+                "path": "Assets/Arts/Houses/Nature/Planta_Baixa/Planta_Baixa.png"
+            },
+            "bottomCenter": {
+                "x": 7.087001800537109,
+                "y": 17.301429748535156
+            }
+        },
+        {
+            "id": "075",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "45e91a18f6b45a1098f89e1abe41b7f5",
+                "name": "Arvore_Cone_S",
+                "path": "Assets/Arts/Houses/Nature/Arvore_Cone/Arvore_Cone.png"
+            },
+            "bottomCenter": {
+                "x": 12.05185317993164,
+                "y": -16.81047248840332
+            }
+        },
+        {
+            "id": "076",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "aa120f70292d57e2a98cd1f5be275fe6",
+                "name": "Pedra_F_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_F/Pedra_F.png"
+            },
+            "bottomCenter": {
+                "x": 11.924102783203125,
+                "y": -16.375944137573242
+            }
+        },
+        {
+            "id": "077",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "343ae10cc4dd55f0ab777ae1a4864333",
+                "name": "Cogumelo_Chapeu_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Chapeu/Cogumelo_Chapeu.png"
+            },
+            "bottomCenter": {
+                "x": 6.901924133300781,
+                "y": -17.209152221679688
+            }
+        },
+        {
+            "id": "078",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "7f4bacbae70e51918e7820144e085df3",
+                "name": "Pedra_H_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_H/Pedra_H.png"
+            },
+            "bottomCenter": {
+                "x": 21.11194610595703,
+                "y": -17.542234420776367
+            }
+        },
+        {
+            "id": "079",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "377ce3b5f3605e1b81b47948a225ec5f",
+                "name": "Cogumelo_Grupo_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Grupo/Cogumelo_Grupo.png"
+            },
+            "bottomCenter": {
+                "x": 20.05577850341797,
+                "y": -16.427793502807617
+            }
+        },
+        {
+            "id": "080",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "302e2834d3bc511ca27e5f8a746986d6",
+                "name": "Planta_Alta_S",
+                "path": "Assets/Arts/Houses/Nature/Planta_Alta/Planta_Alta.png"
+            },
+            "bottomCenter": {
+                "x": 20.36847686767578,
+                "y": -17.014503479003906
+            }
+        },
+        {
+            "id": "081",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "d66f43bb3a375746ac5ae661fc7a47a9",
+                "name": "Pinheiro_Pequeno_B_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Pequeno_B/Pinheiro_Pequeno_B.png"
+            },
+            "bottomCenter": {
+                "x": 6.2445831298828125,
+                "y": -17.192001342773438
+            }
+        },
+        {
+            "id": "082",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "3080aefc65a8537592b17aed55d61b85",
+                "name": "Pinheiro_Redondo_A_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Redondo_A/Pinheiro_Redondo_A.png"
+            },
+            "bottomCenter": {
+                "x": -1.1208992004394531,
+                "y": -17.63835334777832
+            }
+        },
+        {
+            "id": "083",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "8745a898d6125118af857ab5ba79b42b",
+                "name": "Folhagem_S",
+                "path": "Assets/Arts/Houses/Nature/Folhagem/Folhagem.png"
+            },
+            "bottomCenter": {
+                "x": 5.664737701416016,
+                "y": -18.187244415283203
+            }
+        },
+        {
+            "id": "084",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "033ad584d1d85c84a49ec880efcfb702",
+                "name": "Obelisco_S",
+                "path": "Assets/Arts/Houses/Nature/Obelisco/Obelisco.png"
+            },
+            "bottomCenter": {
+                "x": 12.227893829345703,
+                "y": -16.82185935974121
+            }
+        },
+        {
+            "id": "085",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "9aab406c6adc57ddaab557df06f60545",
+                "name": "Palmeira_Cheia_S",
+                "path": "Assets/Arts/Houses/Nature/Palmeira_Cheia/Palmeira_Cheia.png"
+            },
+            "bottomCenter": {
+                "x": -22.59996795654297,
+                "y": -18.792644500732422
+            }
+        },
+        {
+            "id": "086",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "64ad9230fac755d3a1fccbcc46a094d8",
+                "name": "Flor_Margarida_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Margarida/Flor_Margarida.png"
+            },
+            "bottomCenter": {
+                "x": -6.895689010620117,
+                "y": -18.208423614501953
+            }
+        },
+        {
+            "id": "087",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "35f68cfb0df95d888d3407eb122e2074",
+                "name": "Rocha_Alta_D_S",
+                "path": "Assets/Arts/Houses/Nature/Rocha_Alta_D/Rocha_Alta_D.png"
+            },
+            "bottomCenter": {
+                "x": -21.232833862304688,
+                "y": -16.90313720703125
+            }
+        },
+        {
+            "id": "088",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "51893f4e1d4c5e109a19dac9fab52507",
+                "name": "Arbusto_Pequeno_S",
+                "path": "Assets/Arts/Houses/Nature/Arbusto_Pequeno/Arbusto_Pequeno.png"
+            },
+            "bottomCenter": {
+                "x": -18.943496704101563,
+                "y": -18.800260543823242
+            }
+        },
+        {
+            "id": "089",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "871e19c9e1e25b41bf7530778ed8c0ef",
+                "name": "Cogumelo_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo/Cogumelo.png"
+            },
+            "bottomCenter": {
+                "x": -26.124452590942383,
+                "y": -18.74663543701172
+            }
+        },
+        {
+            "id": "090",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "573aebaac9195e5ebc66a4e7caccc3b9",
+                "name": "Coluna_S",
+                "path": "Assets/Arts/Houses/Nature/Coluna/Coluna.png"
+            },
+            "bottomCenter": {
+                "x": 0.5246620178222656,
+                "y": -16.7300968170166
+            }
+        },
+        {
+            "id": "091",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "4f4b9afbe47652b985042c111b68e54f",
+                "name": "Estatua_Cabeca_S",
+                "path": "Assets/Arts/Houses/Nature/Estatua_Cabeca/Estatua_Cabeca.png"
+            },
+            "bottomCenter": {
+                "x": -13.59367561340332,
+                "y": -17.6477108001709
+            }
+        },
+        {
+            "id": "092",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "784531e9311a58aaafa91d17216a0021",
+                "name": "Pinheiro_Baixo_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Baixo/Pinheiro_Baixo.png"
+            },
+            "bottomCenter": {
+                "x": 18.15557861328125,
+                "y": -17.777587890625
+            }
+        },
+        {
+            "id": "093",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "7878d2b7c9035bb69cd5c580ee54c55c",
+                "name": "Arbusto_S",
+                "path": "Assets/Arts/Houses/Nature/Arbusto/Arbusto.png"
+            },
+            "bottomCenter": {
+                "x": -19.70644760131836,
+                "y": -18.110885620117188
+            }
+        },
+        {
+            "id": "094",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "10cc8611ce5e56c1b1f862cd166df2c5",
+                "name": "Rocha_Alta_A_S",
+                "path": "Assets/Arts/Houses/Nature/Rocha_Alta_A/Rocha_Alta_A.png"
+            },
+            "bottomCenter": {
+                "x": -25.360820770263672,
+                "y": -18.43231201171875
+            }
+        },
+        {
+            "id": "095",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "200855c4a8565d5680f0ea5edd65c368",
+                "name": "Pedra_E_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_E/Pedra_E.png"
+            },
+            "bottomCenter": {
+                "x": 17.911334991455078,
+                "y": -16.55793571472168
+            }
+        },
+        {
+            "id": "096",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "60f05f93e01558b4a6dabd79d99b70fb",
+                "name": "Cerca_Tabuas_S",
+                "path": "Assets/Arts/Houses/Nature/Cerca_Tabuas/Cerca_Tabuas.png"
+            },
+            "bottomCenter": {
+                "x": -24.805034637451172,
+                "y": -17.589637756347656
+            }
+        },
+        {
+            "id": "097",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "954ca49979ec5cd8b36c348ffd656cf7",
+                "name": "Pinheiro_Alto_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Alto_C/Pinheiro_Alto_C.png"
+            },
+            "bottomCenter": {
+                "x": -14.030035018920898,
+                "y": -17.490509033203125
+            }
+        },
+        {
+            "id": "098",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "93f933eb60ad513da55f11de33fbbdb3",
+                "name": "Tronco_Oco_S",
+                "path": "Assets/Arts/Houses/Nature/Tronco_Oco/Tronco_Oco.png"
+            },
+            "bottomCenter": {
+                "x": -27.018625259399414,
+                "y": -17.053871154785156
+            }
+        },
+        {
+            "id": "099",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "fb1a59c7e64251dca011494c9a2a01df",
+                "name": "Pinheiro_Redondo_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Redondo_C/Pinheiro_Redondo_C.png"
+            },
+            "bottomCenter": {
+                "x": -20.455303192138672,
+                "y": -18.719928741455078
+            }
+        },
+        {
+            "id": "100",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "11d28103a0465e7487d56aee08e0b253",
+                "name": "Coluna_Quebrada_S",
+                "path": "Assets/Arts/Houses/Nature/Coluna_Quebrada/Coluna_Quebrada.png"
+            },
+            "bottomCenter": {
+                "x": -24.265331268310547,
+                "y": -18.13018798828125
+            }
+        },
+        {
+            "id": "101",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "343ae10cc4dd55f0ab777ae1a4864333",
+                "name": "Cogumelo_Chapeu_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Chapeu/Cogumelo_Chapeu.png"
+            },
+            "bottomCenter": {
+                "x": -23.06200408935547,
+                "y": -18.706634521484375
+            }
+        },
+        {
+            "id": "102",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "d351618628155b0e8007a2f3c4966ba4",
+                "name": "Pedra_Topo_A_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_Topo_A/Pedra_Topo_A.png"
+            },
+            "bottomCenter": {
+                "x": -20.064727783203125,
+                "y": -17.953516006469727
+            }
+        },
+        {
+            "id": "103",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "51893f4e1d4c5e109a19dac9fab52507",
+                "name": "Arbusto_Pequeno_S",
+                "path": "Assets/Arts/Houses/Nature/Arbusto_Pequeno/Arbusto_Pequeno.png"
+            },
+            "bottomCenter": {
+                "x": -26.21950912475586,
+                "y": -18.49642562866211
+            }
+        },
+        {
+            "id": "104",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "11d28103a0465e7487d56aee08e0b253",
+                "name": "Coluna_Quebrada_S",
+                "path": "Assets/Arts/Houses/Nature/Coluna_Quebrada/Coluna_Quebrada.png"
+            },
+            "bottomCenter": {
+                "x": 6.480792999267578,
+                "y": -18.9876708984375
+            }
+        },
+        {
+            "id": "105",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "6df2f947023358fb97a20c6a58a59bd1",
+                "name": "Pedra_Grande_D_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_Grande_D/Pedra_Grande_D.png"
+            },
+            "bottomCenter": {
+                "x": -26.840370178222656,
+                "y": -18.449169158935547
+            }
+        },
+        {
+            "id": "106",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "e280a7fa49ae5fea82a4d3d8a415b17b",
+                "name": "Arvore_Galhos_S",
+                "path": "Assets/Arts/Houses/Nature/Arvore_Galhos/Arvore_Galhos.png"
+            },
+            "bottomCenter": {
+                "x": 1.2698535919189453,
+                "y": -18.24435043334961
+            }
+        },
+        {
+            "id": "107",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "4758303115b65f16868d572c35e425d9",
+                "name": "Bambu_2_S",
+                "path": "Assets/Arts/Houses/Nature/Bambu_2/Bambu_2.png"
+            },
+            "bottomCenter": {
+                "x": 12.89141845703125,
+                "y": -17.812971115112305
+            }
+        },
+        {
+            "id": "108",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "a4b9375663e85fe0bd421bd216696dbb",
+                "name": "Bambu_1_S",
+                "path": "Assets/Arts/Houses/Nature/Bambu_1/Bambu_1.png"
+            },
+            "bottomCenter": {
+                "x": 20.778339385986328,
+                "y": -17.41343116760254
+            }
+        },
+        {
+            "id": "109",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "573aebaac9195e5ebc66a4e7caccc3b9",
+                "name": "Coluna_S",
+                "path": "Assets/Arts/Houses/Nature/Coluna/Coluna.png"
+            },
+            "bottomCenter": {
+                "x": -21.10991668701172,
+                "y": -17.051132202148438
+            }
+        },
+        {
+            "id": "110",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "8a1af1add4a65811bd43a9884692e30f",
+                "name": "Cerca_Rustica_S",
+                "path": "Assets/Arts/Houses/Nature/Cerca_Rustica/Cerca_Rustica.png"
+            },
+            "bottomCenter": {
+                "x": 2.3599777221679688,
+                "y": -16.934194564819336
+            }
+        },
+        {
+            "id": "111",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "0502dea0ebec50f892bc9d0cd9fd8cf7",
+                "name": "Pinheiro_Pequeno_A_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Pequeno_A/Pinheiro_Pequeno_A.png"
+            },
+            "bottomCenter": {
+                "x": 16.796218872070313,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "112",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "f548d38c362e5a6797f8c0ed218ec41a",
+                "name": "Rocha_Alta_I_S",
+                "path": "Assets/Arts/Houses/Nature/Rocha_Alta_I/Rocha_Alta_I.png"
+            },
+            "bottomCenter": {
+                "x": 12.287559509277344,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "113",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "10cc8611ce5e56c1b1f862cd166df2c5",
+                "name": "Rocha_Alta_A_S",
+                "path": "Assets/Arts/Houses/Nature/Rocha_Alta_A/Rocha_Alta_A.png"
+            },
+            "bottomCenter": {
+                "x": 12.91176986694336,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "114",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "dc42052c91a654d4a030da21b699dbd2",
+                "name": "Cacto_Baixo_S",
+                "path": "Assets/Arts/Houses/Nature/Cacto_Baixo/Cacto_Baixo.png"
+            },
+            "bottomCenter": {
+                "x": -21.38641929626465,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "115",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "60f05f93e01558b4a6dabd79d99b70fb",
+                "name": "Cerca_Tabuas_S",
+                "path": "Assets/Arts/Houses/Nature/Cerca_Tabuas/Cerca_Tabuas.png"
+            },
+            "bottomCenter": {
+                "x": -26.574737548828125,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "116",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "a47429b223635f038ea15852dc38e7d3",
+                "name": "Palmeira_Curva_S",
+                "path": "Assets/Arts/Houses/Nature/Palmeira_Curva/Palmeira_Curva.png"
+            },
+            "bottomCenter": {
+                "x": 2.2384777069091797,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "117",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "9c8f4858d92755b2be1f675c54c62f3b",
+                "name": "Pedra_Grande_E_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_Grande_E/Pedra_Grande_E.png"
+            },
+            "bottomCenter": {
+                "x": -27.00372886657715,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "118",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "e280a7fa49ae5fea82a4d3d8a415b17b",
+                "name": "Arvore_Galhos_S",
+                "path": "Assets/Arts/Houses/Nature/Arvore_Galhos/Arvore_Galhos.png"
+            },
+            "bottomCenter": {
+                "x": 1.3414573669433594,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "119",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "11d28103a0465e7487d56aee08e0b253",
+                "name": "Coluna_Quebrada_S",
+                "path": "Assets/Arts/Houses/Nature/Coluna_Quebrada/Coluna_Quebrada.png"
+            },
+            "bottomCenter": {
+                "x": -24.293209075927734,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "120",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "e280a7fa49ae5fea82a4d3d8a415b17b",
+                "name": "Arvore_Galhos_S",
+                "path": "Assets/Arts/Houses/Nature/Arvore_Galhos/Arvore_Galhos.png"
+            },
+            "bottomCenter": {
+                "x": 3.299671173095703,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "121",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "e578f64fdec55e96afcef0169bd39761",
+                "name": "Cerca_Tabuas_Dupla_S",
+                "path": "Assets/Arts/Houses/Nature/Cerca_Tabuas_Dupla/Cerca_Tabuas_Dupla.png"
+            },
+            "bottomCenter": {
+                "x": -23.193737030029297,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "122",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "871e19c9e1e25b41bf7530778ed8c0ef",
+                "name": "Cogumelo_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo/Cogumelo.png"
+            },
+            "bottomCenter": {
+                "x": -24.876142501831055,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "123",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "954ca49979ec5cd8b36c348ffd656cf7",
+                "name": "Pinheiro_Alto_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Alto_C/Pinheiro_Alto_C.png"
+            },
+            "bottomCenter": {
+                "x": 5.301513671875,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "124",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "aa4f7587504551d0b7ca4fe7661ece7c",
+                "name": "Pedra_A_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_A/Pedra_A.png"
+            },
+            "bottomCenter": {
+                "x": -25.838939666748047,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "125",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "8830db7624c05b85b0d5301e367f9b0f",
+                "name": "Pinheiro_Alto_A_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Alto_A/Pinheiro_Alto_A.png"
+            },
+            "bottomCenter": {
+                "x": -14.060102462768555,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "126",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "954ca49979ec5cd8b36c348ffd656cf7",
+                "name": "Pinheiro_Alto_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Alto_C/Pinheiro_Alto_C.png"
+            },
+            "bottomCenter": {
+                "x": 14.60593032836914,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "127",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "377ce3b5f3605e1b81b47948a225ec5f",
+                "name": "Cogumelo_Grupo_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Grupo/Cogumelo_Grupo.png"
+            },
+            "bottomCenter": {
+                "x": 2.774372100830078,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "128",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "10cc8611ce5e56c1b1f862cd166df2c5",
+                "name": "Rocha_Alta_A_S",
+                "path": "Assets/Arts/Houses/Nature/Rocha_Alta_A/Rocha_Alta_A.png"
+            },
+            "bottomCenter": {
+                "x": 16.188026428222656,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "129",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "7878d2b7c9035bb69cd5c580ee54c55c",
+                "name": "Arbusto_S",
+                "path": "Assets/Arts/Houses/Nature/Arbusto/Arbusto.png"
+            },
+            "bottomCenter": {
+                "x": 5.969524383544922,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "130",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "dc42052c91a654d4a030da21b699dbd2",
+                "name": "Cacto_Baixo_S",
+                "path": "Assets/Arts/Houses/Nature/Cacto_Baixo/Cacto_Baixo.png"
+            },
+            "bottomCenter": {
+                "x": 19.02564239501953,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "131",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "6c76afdd0dba5e4da5206df01d29ac73",
+                "name": "Arvore_Redonda_S",
+                "path": "Assets/Arts/Houses/Nature/Arvore_Redonda/Arvore_Redonda.png"
+            },
+            "bottomCenter": {
+                "x": -7.739356994628906,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "132",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "10cc8611ce5e56c1b1f862cd166df2c5",
+                "name": "Rocha_Alta_A_S",
+                "path": "Assets/Arts/Houses/Nature/Rocha_Alta_A/Rocha_Alta_A.png"
+            },
+            "bottomCenter": {
+                "x": -8.409000396728516,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "133",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "7878d2b7c9035bb69cd5c580ee54c55c",
+                "name": "Arbusto_S",
+                "path": "Assets/Arts/Houses/Nature/Arbusto/Arbusto.png"
+            },
+            "bottomCenter": {
+                "x": -22.69577407836914,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "134",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "eb763e1d58bd59c087d6bf4539c48109",
+                "name": "Estatua_Bloco_S",
+                "path": "Assets/Arts/Houses/Nature/Estatua_Bloco/Estatua_Bloco.png"
+            },
+            "bottomCenter": {
+                "x": -25.82097625732422,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "135",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "9e01a589adc75148ad2cca7ceb7ce2a7",
+                "name": "Pinheiro_Pequeno_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Pequeno_C/Pinheiro_Pequeno_C.png"
+            },
+            "bottomCenter": {
+                "x": 17.936176300048828,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "136",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "a47429b223635f038ea15852dc38e7d3",
+                "name": "Palmeira_Curva_S",
+                "path": "Assets/Arts/Houses/Nature/Palmeira_Curva/Palmeira_Curva.png"
+            },
+            "bottomCenter": {
+                "x": 13.205841064453125,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "137",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "7ae64422c8a256c6a59c4c551705e8c7",
+                "name": "Rocha_Alta_B_S",
+                "path": "Assets/Arts/Houses/Nature/Rocha_Alta_B/Rocha_Alta_B.png"
+            },
+            "bottomCenter": {
+                "x": -21.468441009521484,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "138",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "ab5602c898665a92b0ae5c9e60238765",
+                "name": "Toco_Redondo_S",
+                "path": "Assets/Arts/Houses/Nature/Toco_Redondo/Toco_Redondo.png"
+            },
+            "bottomCenter": {
+                "x": 2.5906829833984375,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "139",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "e76a3a1ebc4d5606ace57313dd847732",
+                "name": "Estatua_Anel_S",
+                "path": "Assets/Arts/Houses/Nature/Estatua_Anel/Estatua_Anel.png"
+            },
+            "bottomCenter": {
+                "x": 20.323993682861328,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "140",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "8745a898d6125118af857ab5ba79b42b",
+                "name": "Folhagem_S",
+                "path": "Assets/Arts/Houses/Nature/Folhagem/Folhagem.png"
+            },
+            "bottomCenter": {
+                "x": 15.564346313476563,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "141",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "9e01a589adc75148ad2cca7ceb7ce2a7",
+                "name": "Pinheiro_Pequeno_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Pequeno_C/Pinheiro_Pequeno_C.png"
+            },
+            "bottomCenter": {
+                "x": 6.299922943115234,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "142",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "aa120f70292d57e2a98cd1f5be275fe6",
+                "name": "Pedra_F_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_F/Pedra_F.png"
+            },
+            "bottomCenter": {
+                "x": -20.1654052734375,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "143",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "eb763e1d58bd59c087d6bf4539c48109",
+                "name": "Estatua_Bloco_S",
+                "path": "Assets/Arts/Houses/Nature/Estatua_Bloco/Estatua_Bloco.png"
+            },
+            "bottomCenter": {
+                "x": 15.150291442871094,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "144",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "dc06fd4474665fabbfc11f5620213c4e",
+                "name": "Vaso_Grande_S",
+                "path": "Assets/Arts/Houses/Nature/Vaso_Grande/Vaso_Grande.png"
+            },
+            "bottomCenter": {
+                "x": 6.649436950683594,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "145",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "a82ebcab71c35ec5aee438801354181c",
+                "name": "Toco_Velho_S",
+                "path": "Assets/Arts/Houses/Nature/Toco_Velho/Toco_Velho.png"
+            },
+            "bottomCenter": {
+                "x": -21.811565399169922,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "146",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "7ec2e413310455eb98bc744c1d0f623b",
+                "name": "Pedra_Topo_B_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_Topo_B/Pedra_Topo_B.png"
+            },
+            "bottomCenter": {
+                "x": -26.91243553161621,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "147",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "aa4f7587504551d0b7ca4fe7661ece7c",
+                "name": "Pedra_A_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_A/Pedra_A.png"
+            },
+            "bottomCenter": {
+                "x": -1.2200679779052734,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "148",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "aa120f70292d57e2a98cd1f5be275fe6",
+                "name": "Pedra_F_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_F/Pedra_F.png"
+            },
+            "bottomCenter": {
+                "x": -10.011180877685547,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "149",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "ab5602c898665a92b0ae5c9e60238765",
+                "name": "Toco_Redondo_S",
+                "path": "Assets/Arts/Houses/Nature/Toco_Redondo/Toco_Redondo.png"
+            },
+            "bottomCenter": {
+                "x": -12.978105545043945,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "150",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "cdb3a6927d3252e786074e8de93d212c",
+                "name": "Flor_Sino_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Sino/Flor_Sino.png"
+            },
+            "bottomCenter": {
+                "x": 3.621601104736328,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "151",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "573aebaac9195e5ebc66a4e7caccc3b9",
+                "name": "Coluna_S",
+                "path": "Assets/Arts/Houses/Nature/Coluna/Coluna.png"
+            },
+            "bottomCenter": {
+                "x": 13.716293334960938,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "152",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "8a1af1add4a65811bd43a9884692e30f",
+                "name": "Cerca_Rustica_S",
+                "path": "Assets/Arts/Houses/Nature/Cerca_Rustica/Cerca_Rustica.png"
+            },
+            "bottomCenter": {
+                "x": 3.7941741943359375,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "153",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "45e91a18f6b45a1098f89e1abe41b7f5",
+                "name": "Arvore_Cone_S",
+                "path": "Assets/Arts/Houses/Nature/Arvore_Cone/Arvore_Cone.png"
+            },
+            "bottomCenter": {
+                "x": -8.437114715576172,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "154",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "7ae64422c8a256c6a59c4c551705e8c7",
+                "name": "Rocha_Alta_B_S",
+                "path": "Assets/Arts/Houses/Nature/Rocha_Alta_B/Rocha_Alta_B.png"
+            },
+            "bottomCenter": {
+                "x": 4.2301788330078125,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "155",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "0502dea0ebec50f892bc9d0cd9fd8cf7",
+                "name": "Pinheiro_Pequeno_A_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Pequeno_A/Pinheiro_Pequeno_A.png"
+            },
+            "bottomCenter": {
+                "x": -0.2868175506591797,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "156",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "dba5570073295df5b4fbf58cb4c2198b",
+                "name": "Arvore_Simples_S",
+                "path": "Assets/Arts/Houses/Nature/Arvore_Simples/Arvore_Simples.png"
+            },
+            "bottomCenter": {
+                "x": 7.735218048095703,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "157",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "10cc8611ce5e56c1b1f862cd166df2c5",
+                "name": "Rocha_Alta_A_S",
+                "path": "Assets/Arts/Houses/Nature/Rocha_Alta_A/Rocha_Alta_A.png"
+            },
+            "bottomCenter": {
+                "x": 19.800189971923828,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "158",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "fb1a59c7e64251dca011494c9a2a01df",
+                "name": "Pinheiro_Redondo_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Redondo_C/Pinheiro_Redondo_C.png"
+            },
+            "bottomCenter": {
+                "x": 13.826911926269531,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "159",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "8a61bda120e251d9b9a8d1344bfdc88b",
+                "name": "Vaso_S",
+                "path": "Assets/Arts/Houses/Nature/Vaso/Vaso.png"
+            },
+            "bottomCenter": {
+                "x": -9.223899841308594,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "160",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "fb1a59c7e64251dca011494c9a2a01df",
+                "name": "Pinheiro_Redondo_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Redondo_C/Pinheiro_Redondo_C.png"
+            },
+            "bottomCenter": {
+                "x": -9.726236343383789,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "161",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "45e91a18f6b45a1098f89e1abe41b7f5",
+                "name": "Arvore_Cone_S",
+                "path": "Assets/Arts/Houses/Nature/Arvore_Cone/Arvore_Cone.png"
+            },
+            "bottomCenter": {
+                "x": 14.057365417480469,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "162",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "765309e0158350b0a20765b766b8af0a",
+                "name": "Pedra_Chata_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_Chata_C/Pedra_Chata_C.png"
+            },
+            "bottomCenter": {
+                "x": 19.15011978149414,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "163",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "e578f64fdec55e96afcef0169bd39761",
+                "name": "Cerca_Tabuas_Dupla_S",
+                "path": "Assets/Arts/Houses/Nature/Cerca_Tabuas_Dupla/Cerca_Tabuas_Dupla.png"
+            },
+            "bottomCenter": {
+                "x": -10.176429748535156,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "164",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "fb1a59c7e64251dca011494c9a2a01df",
+                "name": "Pinheiro_Redondo_C_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Redondo_C/Pinheiro_Redondo_C.png"
+            },
+            "bottomCenter": {
+                "x": -13.252098083496094,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "165",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "3fce1597c7a45861bf6a0a02c5887c8e",
+                "name": "Toco_Raizes_S",
+                "path": "Assets/Arts/Houses/Nature/Toco_Raizes/Toco_Raizes.png"
+            },
+            "bottomCenter": {
+                "x": -10.24928092956543,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "166",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "a82ebcab71c35ec5aee438801354181c",
+                "name": "Toco_Velho_S",
+                "path": "Assets/Arts/Houses/Nature/Toco_Velho/Toco_Velho.png"
+            },
+            "bottomCenter": {
+                "x": -13.552383422851563,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "167",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "51893f4e1d4c5e109a19dac9fab52507",
+                "name": "Arbusto_Pequeno_S",
+                "path": "Assets/Arts/Houses/Nature/Arbusto_Pequeno/Arbusto_Pequeno.png"
+            },
+            "bottomCenter": {
+                "x": 17.244266510009766,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "168",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "d492dd5eb7a55a2a9ea25cc208e38f34",
+                "name": "Rocha_Alta_C_S",
+                "path": "Assets/Arts/Houses/Nature/Rocha_Alta_C/Rocha_Alta_C.png"
+            },
+            "bottomCenter": {
+                "x": -23.4295597076416,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "169",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "3080aefc65a8537592b17aed55d61b85",
+                "name": "Pinheiro_Redondo_A_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Redondo_A/Pinheiro_Redondo_A.png"
+            },
+            "bottomCenter": {
+                "x": -19.78534507751465,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "170",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "7f4bacbae70e51918e7820144e085df3",
+                "name": "Pedra_H_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_H/Pedra_H.png"
+            },
+            "bottomCenter": {
+                "x": 15.69375991821289,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "171",
+            "polygonId": "013",
+            "sprite": {
+                "guid": "e692b1f8c94256f18e25f66861285f1d",
+                "name": "Flor_Tulipa_S",
+                "path": "Assets/Arts/Houses/Nature/Flor_Tulipa/Flor_Tulipa.png"
+            },
+            "bottomCenter": {
+                "x": -25.473220825195313,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "172",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "377ce3b5f3605e1b81b47948a225ec5f",
+                "name": "Cogumelo_Grupo_S",
+                "path": "Assets/Arts/Houses/Nature/Cogumelo_Grupo/Cogumelo_Grupo.png"
+            },
+            "bottomCenter": {
+                "x": -11.123167037963867,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "173",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "12796fe1f7ec52e1b9572ac5c7399c22",
+                "name": "Pinheiro_Redondo_E_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Redondo_E/Pinheiro_Redondo_E.png"
+            },
+            "bottomCenter": {
+                "x": 15.754146575927734,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "174",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "12796fe1f7ec52e1b9572ac5c7399c22",
+                "name": "Pinheiro_Redondo_E_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Redondo_E/Pinheiro_Redondo_E.png"
+            },
+            "bottomCenter": {
+                "x": -14.40347957611084,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "175",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "a4bb1caa97d4574e8187dd0fe89b3243",
+                "name": "Pedra_G_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_G/Pedra_G.png"
+            },
+            "bottomCenter": {
+                "x": 15.999149322509766,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "176",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "7878d2b7c9035bb69cd5c580ee54c55c",
+                "name": "Arbusto_S",
+                "path": "Assets/Arts/Houses/Nature/Arbusto/Arbusto.png"
+            },
+            "bottomCenter": {
+                "x": 14.206008911132813,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "177",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "6df2f947023358fb97a20c6a58a59bd1",
+                "name": "Pedra_Grande_D_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_Grande_D/Pedra_Grande_D.png"
+            },
+            "bottomCenter": {
+                "x": 5.235919952392578,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "178",
+            "polygonId": "016",
+            "sprite": {
+                "guid": "3080aefc65a8537592b17aed55d61b85",
+                "name": "Pinheiro_Redondo_A_S",
+                "path": "Assets/Arts/Houses/Nature/Pinheiro_Redondo_A/Pinheiro_Redondo_A.png"
+            },
+            "bottomCenter": {
+                "x": 20.278522491455078,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "179",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "dba5570073295df5b4fbf58cb4c2198b",
+                "name": "Arvore_Simples_S",
+                "path": "Assets/Arts/Houses/Nature/Arvore_Simples/Arvore_Simples.png"
+            },
+            "bottomCenter": {
+                "x": 5.775382995605469,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "180",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "888f58c554e3593d908500f905550dc3",
+                "name": "Pedra_Grande_A_S",
+                "path": "Assets/Arts/Houses/Nature/Pedra_Grande_A/Pedra_Grande_A.png"
+            },
+            "bottomCenter": {
+                "x": 2.592731475830078,
+                "y": -15.698570251464844
+            }
+        },
+        {
+            "id": "181",
+            "polygonId": "015",
+            "sprite": {
+                "guid": "1f2ef6e6443152608e1cfb0bab67ba75",
+                "name": "Toco_Quadrado_S",
+                "path": "Assets/Arts/Houses/Nature/Toco_Quadrado/Toco_Quadrado.png"
+            },
+            "bottomCenter": {
+                "x": 6.975738525390625,
+                "y": -19.598569869995117
+            }
+        },
+        {
+            "id": "182",
+            "polygonId": "014",
+            "sprite": {
+                "guid": "85f0a9fbe73150608c7f08d8d0df2851",
+                "name": "Tronco_S",
+                "path": "Assets/Arts/Houses/Nature/Tronco/Tronco.png"
+            },
+            "bottomCenter": {
+                "x": -9.033990859985352,
+                "y": -19.598569869995117
+            }
+        }
+    ]
+}

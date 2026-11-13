@@ -20,7 +20,30 @@ namespace DefesaCivil.CityGen
     public static class CityGenMenu
     {
         [MenuItem("Tools/City/Generate")]
-        public static void Generate() => Debug.Log("[CityGen] Generate: ainda não implementado.");
+        public static void Generate() => GenerateAndWrite(true);
+
+        /// <summary>Gera com semente nova, grava o JSON (com confirmação e backup '~' se já existir) e valida.</summary>
+        public static ValidationReport GenerateAndWrite(bool confirmOverwrite)
+        {
+            var cam = Camera.main;
+            if (cam == null) { Debug.LogError("[CityGen] Generate: abra a cena Gameplay (Main Camera não encontrada)."); return null; }
+            var full = CityGenPaths.LayoutFullPath;
+            if (File.Exists(full))
+            {
+                if (confirmOverwrite && !EditorUtility.DisplayDialog("City Generate",
+                        "city_layout.json já existe e pode ter edições manuais. Sobrescrever? (um backup city_layout.json~ será criado)",
+                        "Sobrescrever", "Cancelar")) return null;
+                File.Copy(full, full + "~", true);
+            }
+            var layout = CityGenerator.GenerateValid(cam.transform.position, SpriteCatalog.Load(), out var report);
+            Directory.CreateDirectory(Path.GetDirectoryName(full));
+            File.WriteAllText(full, layout.ToJson());
+            AssetDatabase.ImportAsset(CityGenPaths.Layout);
+            report.Write();
+            report.LogToConsole();
+            Debug.Log($"[CityGen] Generate: semente {layout.seed}, {layout.structures.Count} estruturas, {layout.decorations.Count} decorações, {layout.polygons.Count} polígonos.");
+            return report;
+        }
 
         [MenuItem("Tools/City/Validate")]
         public static void Validate()
