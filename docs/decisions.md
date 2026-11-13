@@ -113,3 +113,14 @@ Respostas do usuário aos formulários. As regras resultantes estão em `city-ru
 
 **Relatório do Validate**
 - Saída no **Console + `Assets/_Project/Data/Cities/validation_report.json`**.
+
+## 2026-11-13 — Plano aprovado
+
+- `docs/plan-citygen.md` **aprovado** para implementação.
+- **Teste cedo** da visibilidade dos chãos fora do PolygonsDisplay antes do Build (passo 0 do plano).
+- `validation_report.json` fica **fora de `Assets/`**, em `docs/reports/validation_report.json`, e é **ignorado pelo git** (`.gitignore`).
+- **Execução seguida:** um commit por passo, sem pausas. Só paro para:
+  - o resultado do teste cedo;
+  - falhas que eu não consiga resolver;
+  - dúvidas (formulário);
+  - o passo 11.

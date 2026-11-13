@@ -1,6 +1,6 @@
 # Plano do gerador de cidade
 
-Status: **proposto, aguardando aprovação**. Nada foi implementado.
+Status: **aprovado em 2026-11-13**.
 
 Base: `CLAUDE.md`, `city-rules.md` (R01–R33), `inventory.md` (L01–L11) e `decisions.md`. Unidades em **u** (mundo, 32 px) e **cu** (Canvas `UI/Canvas`, 1 cu = 0,01 u, 1 px = 3,125 cu).
 
@@ -72,7 +72,7 @@ O que cada campo representa nas regras:
 - **Layout**: lê o JSON. Roda sozinho ou antes do Build.
 - **Cena**: lê a hierarquia da Gameplay. Roda depois do Build.
 
-O relatório vai para o Console (1 linha por violação) e para `Assets/_Project/Data/Cities/validation_report.json`. Cada item tem `ruleId`, `severity` (erro/aviso), `object` (id ou nome `[CG]`), `position` (x, y em u) e `message`. Termina com o total de erros e avisos.
+O relatório vai para o Console (1 linha por violação) e para `docs/reports/validation_report.json`. Cada item tem `ruleId`, `severity` (erro/aviso), `object` (id ou nome `[CG]`), `position` (x, y em u) e `message`. Termina com o total de erros e avisos.
 
 Legenda: **L** = checável no layout · **C** = checável na cena após o Build · **N** = não automatizável.
 
@@ -108,6 +108,8 @@ Legenda: **L** = checável no layout · **C** = checável na cena após o Build 
 | R31 collider = retângulo nativo | — | ✔ | `BoxCollider2D.size` = `sizeDelta`, offset 0 (tol. 0,01 u). |
 | R32 Warehouses em cantos opostos (aviso) | ✔ | ✔ | Quarteirão de cada Warehouse = o mais próximo de cantos opostos do Limiter. |
 | R33 Guard no industrial (aviso) | ✔ | ✔ | Quarteirão da Guard com ≥ 80% de House Industrial. |
+
+O arquivo `docs/reports/validation_report.json` é ignorado pelo git.
 
 Fora das regras, o Validate informa também quais polígonos ficam fora do retângulo do `PolygonsDisplay` (L11).
 
@@ -188,6 +190,7 @@ Cada passo vira 1 commit em português na `city-gen`.
 
 | # | Passo | Critério verificável |
 |---|---|---|
+| 0 | Teste cedo de visibilidade: Polygons temporários (em memória, sem salvar) dentro e fora do PolygonsDisplay, com screenshots da Game view | Resultado por posição em `docs/reports/`. `git status` sem alterações na cena. **Para e pergunta como seguir.** |
 | 1 | Esqueleto: classes vazias no namespace `DefesaCivil.CityGen`, menus `Tools/City/*` (stub) e 1 teste trivial | Compila sem erros. O Test Runner lista e passa o teste em `Tests/EditMode/Editor`. |
 | 2 | Modelo de dados + JsonUtility | `LayoutSerializationTests` verdes. |
 | 3 | Geometria | `GeometryTests` verdes. |
@@ -206,6 +209,6 @@ Cada passo vira 1 commit em português na `city-gen`.
 2. **Ruído na cena:** o `PolygonMesh2D` recria a mesh a cada frame no Editor. Todo salvamento gera diff na mesh (novo fileID), como já aconteceu no fix do moneyLbl. Por isso R29 é medida pelo dump canônico, não pelo `.unity`.
 3. **R13 × Limiter exato:** quarteirões da fileira sul não podem ter estruturas. O Generate precisa respeitar isso, o que reduz a área útil.
 4. **R08 com JSON editável:** edições manuais de sprite não são detectáveis. R08 fica parcial (N).
-5. **Relatório em `Assets/`:** `validation_report.json` gera `.meta` e reimport a cada Validate, além de diff no git.
+5. **Relatório:** `docs/reports/validation_report.json` fica fora de `Assets/` (sem `.meta` e sem reimport) e é ignorado pelo git (`.gitignore`).
 6. **Raycast:** decorações ficam sem raycast. Estruturas sobrepostas (R12 permite) continuam disputando cliques pela ordem do Y-sort.
 7. **Sem asmdef:** o código do gerador compila junto do projeto. Um erro de compilação em qualquer script bloqueia o gerador e vice-versa.
