@@ -41,6 +41,10 @@ namespace DefesaCivil.CityGen
             BuildPolygons();
             FitLimiter();
             FitPolygonFraming();
+            MigrateOldStructures();
+            BuildStructures();
+            SortByBottom(refs.houses, layout.structures.ToDictionary(s => CitySceneRefs.Name(s.type, s.id), s => (Vector2)s.bottomCenter));
+            FillGps();
             Undo.CollapseUndoOperations(group);
             return res;
         }
@@ -120,6 +124,137 @@ namespace DefesaCivil.CityGen
         }
 
         Rect PolygonBox() => CityGeometry.BoundingBox(layout.polygons.Select(p => (IList<Vector2>)CityGeometry.ToVectors(p.points)));
+
+        // ---------- estruturas (R01–R07, R11, R14, R30, R31) ----------
+
+        public const string WaypointPrefabPath = "Assets/Systems/Navigation/Waypoint.prefab";
+        static string StructurePrefabPath(string type) => $"Assets/Systems/Houses/{type}.prefab";
+
+        void MigrateOldStructures()
+        {
+            foreach (var type in new[] { StructureType.House, StructureType.Guard, StructureType.Warehouse })
+            {
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(StructurePrefabPath(type));
+                foreach (Transform c in refs.uiContainer.Cast<Transform>().ToList())
+                    if (c.name == type && PrefabUtility.GetCorrespondingObjectFromSource(c.gameObject) == prefab)
+                        Destroy(c.gameObject, "migração: estrutura antiga fora de Houses");
+            }
+        }
+
+        readonly Dictionary<StructureData, Waypoint> entries = new Dictionary<StructureData, Waypoint>();
+        readonly List<House> locations = new List<House>();
+
+        void BuildStructures()
+        {
+            var wpPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(WaypointPrefabPath);
+            float wpLocalZ = wpPrefab.transform.localPosition.z;
+            var existing = new Dictionary<string, Transform>();
+            foreach (var type in new[] { StructureType.House, StructureType.Guard, StructureType.Warehouse })
+                foreach (var kv in GeneratedChildren(refs.houses, type)) existing[type + " " + kv.Key] = kv.Value;
+            var existingWp = GeneratedChildren(refs.waypoints, "Waypoint");
+            var scale = refs.houses.lossyScale;
+
+            foreach (var s in layout.structures)
+            {
+                string key = s.type + " " + s.id;
+                var cs = cat.Get(s.sprite);
+                var sprite = SpriteCatalog.LoadSprite(s.sprite);
+                if (cs == null || sprite == null) { res.log.Add("sprite não encontrado para " + key); continue; }
+
+                bool created = false;
+                if (!existing.TryGetValue(key, out var t))
+                {
+                    var go = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(StructurePrefabPath(s.type)), refs.houses);
+                    Undo.RegisterCreatedObjectUndo(go, "City Build");
+                    go.name = CitySceneRefs.Name(s.type, s.id);
+                    t = go.transform; created = true; res.created++;
+                }
+                existing.Remove(key);
+
+                var rt = (RectTransform)t;
+                var size = new Vector2(cs.widthU / scale.x, cs.heightU / scale.y);
+                var local = refs.houses.InverseTransformPoint(new Vector3(s.bottomCenter.x, s.bottomCenter.y + cs.heightU / 2f, refs.houses.position.z));
+                var anchored = new Vector2(local.x, local.y);
+                var half = new Vector2(0.5f, 0.5f);
+                var img = t.Find("Visual").GetComponent<UnityEngine.UI.Image>();
+                var box = t.GetComponent<BoxCollider2D>();
+
+                bool changed = false;
+                if (rt.anchorMin != half || rt.anchorMax != half || rt.pivot != half || !Approx(rt.sizeDelta, size) || !Approx(rt.anchoredPosition, anchored) || !Approx(rt.localPosition.z, 0f))
+                {
+                    Undo.RecordObject(rt, "City Build");
+                    rt.anchorMin = half; rt.anchorMax = half; rt.pivot = half;
+                    rt.sizeDelta = size; rt.anchoredPosition = anchored;
+                    rt.localPosition = new Vector3(rt.localPosition.x, rt.localPosition.y, 0f);
+                    changed = true;
+                }
+                if (img.sprite != sprite) { Undo.RecordObject(img, "City Build"); img.sprite = sprite; changed = true; }
+                if (box && (!Approx(box.size, size) || !Approx(box.offset, Vector2.zero)))
+                {
+                    Undo.RecordObject(box, "City Build");
+                    box.size = size; box.offset = Vector2.zero;
+                    changed = true;
+                }
+
+                // waypoint de entrada (R14)
+                bool wpCreated = false;
+                if (!existingWp.TryGetValue(key, out var wp))
+                {
+                    var go = (GameObject)PrefabUtility.InstantiatePrefab(wpPrefab, refs.waypoints);
+                    Undo.RegisterCreatedObjectUndo(go, "City Build");
+                    go.name = CitySceneRefs.Name("Waypoint", key);
+                    wp = go.transform; wpCreated = true; res.created++;
+                }
+                existingWp.Remove(key);
+                var wl = refs.waypoints.InverseTransformPoint(new Vector3(s.entry.x, s.entry.y, refs.waypoints.position.z));
+                var wpLocal = new Vector3(wl.x, wl.y, wpCreated ? wpLocalZ : wp.localPosition.z);
+                bool wpChanged = (wp.localPosition - wpLocal).sqrMagnitude > 1e-6f;
+                if (wpChanged) { Undo.RecordObject(wp, "City Build"); wp.localPosition = wpLocal; }
+                if (!wpCreated) Changed(wpChanged);
+
+                var house = t.GetComponent<House>();
+                var waypoint = wp.GetComponent<Waypoint>();
+                if (house.entry != waypoint) { Undo.RecordObject(house, "City Build"); house.entry = waypoint; changed = true; }
+                entries[s] = waypoint;
+                if (house is Location) locations.Add(house);
+
+                if (!created) Changed(changed);
+            }
+            foreach (var kv in existing) Destroy(kv.Value.gameObject, "id fora do JSON");
+            foreach (var kv in existingWp) Destroy(kv.Value.gameObject, "id fora do JSON");
+        }
+
+        /// <summary>R30: ordem de irmãos decrescente em y da borda inferior (mais ao sul por último = na frente).</summary>
+        void SortByBottom(Transform parent, Dictionary<string, Vector2> bottoms)
+        {
+            var ordered = parent.Cast<Transform>()
+                .Where(c => CitySceneRefs.IsGenerated(c) && bottoms.ContainsKey(c.name))
+                .OrderByDescending(c => bottoms[c.name].y).ThenBy(c => bottoms[c.name].x).ThenBy(c => c.name, System.StringComparer.Ordinal)
+                .ToList();
+            bool changed = false;
+            for (int i = 0; i < ordered.Count; i++)
+                if (ordered[i].GetSiblingIndex() != i) { Undo.SetSiblingIndex(ordered[i], i, "City Build"); changed = true; }
+            Changed(changed);
+        }
+
+        void FillGps()
+        {
+            var so = new SerializedObject(refs.gps);
+            bool changed = SetList(so.FindProperty("allWaypoints"), layout.structures.Where(entries.ContainsKey).Select(s => (Object)entries[s]).ToList());
+            changed |= SetList(so.FindProperty("allLocations"), locations.Cast<Object>().ToList());
+            if (changed) { Undo.RecordObject(refs.gps, "City Build"); so.ApplyModifiedProperties(); }
+            Changed(changed);
+        }
+
+        static bool SetList(SerializedProperty p, List<Object> items)
+        {
+            bool same = p.arraySize == items.Count;
+            for (int i = 0; same && i < items.Count; i++) same = p.GetArrayElementAtIndex(i).objectReferenceValue == items[i];
+            if (same) return false;
+            p.arraySize = items.Count;
+            for (int i = 0; i < items.Count; i++) p.GetArrayElementAtIndex(i).objectReferenceValue = items[i];
+            return true;
+        }
 
         // ---------- Limiter (R27) ----------
 
