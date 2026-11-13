@@ -45,6 +45,8 @@ namespace DefesaCivil.CityGen
             BuildStructures();
             SortByBottom(refs.houses, layout.structures.ToDictionary(s => CitySceneRefs.Name(s.type, s.id), s => (Vector2)s.bottomCenter));
             FillGps();
+            BuildDecorations();
+            SortByBottom(refs.trees, layout.decorations.ToDictionary(d => CitySceneRefs.Name("Tree", d.id), d => (Vector2)d.bottomCenter));
             Undo.CollapseUndoOperations(group);
             return res;
         }
@@ -254,6 +256,54 @@ namespace DefesaCivil.CityGen
             p.arraySize = items.Count;
             for (int i = 0; i < items.Count; i++) p.GetArrayElementAtIndex(i).objectReferenceValue = items[i];
             return true;
+        }
+
+        // ---------- decorações (R16–R18, R20, R30) ----------
+
+        void BuildDecorations()
+        {
+            var existing = GeneratedChildren(refs.trees, "Tree");
+            var scale = refs.trees.lossyScale;
+            var half = new Vector2(0.5f, 0.5f);
+            foreach (var d in layout.decorations)
+            {
+                var cs = cat.Get(d.sprite);
+                var sprite = SpriteCatalog.LoadSprite(d.sprite);
+                if (cs == null || sprite == null) { res.log.Add("sprite não encontrado para Tree " + d.id); continue; }
+                bool created = false;
+                if (!existing.TryGetValue(d.id, out var t))
+                {
+                    var go = new GameObject(CitySceneRefs.Name("Tree", d.id), typeof(RectTransform), typeof(CanvasRenderer), typeof(UnityEngine.UI.Image));
+                    Undo.RegisterCreatedObjectUndo(go, "City Build");
+                    go.layer = refs.trees.gameObject.layer;
+                    go.transform.SetParent(refs.trees, false);
+                    t = go.transform; created = true; res.created++;
+                }
+                existing.Remove(d.id);
+                var rt = (RectTransform)t;
+                var img = t.GetComponent<UnityEngine.UI.Image>();
+                var size = new Vector2(cs.widthU / scale.x, cs.heightU / scale.y);
+                var local = refs.trees.InverseTransformPoint(new Vector3(d.bottomCenter.x, d.bottomCenter.y + cs.heightU / 2f, refs.trees.position.z));
+                var anchored = new Vector2(local.x, local.y);
+                bool changed = false;
+                if (rt.anchorMin != half || rt.anchorMax != half || rt.pivot != half || !Approx(rt.sizeDelta, size) || !Approx(rt.anchoredPosition, anchored) || !Approx(rt.localPosition.z, 0f))
+                {
+                    Undo.RecordObject(rt, "City Build");
+                    rt.anchorMin = half; rt.anchorMax = half; rt.pivot = half;
+                    rt.sizeDelta = size; rt.anchoredPosition = anchored;
+                    rt.localPosition = new Vector3(rt.localPosition.x, rt.localPosition.y, 0f);
+                    changed = true;
+                }
+                if (img.sprite != sprite || img.raycastTarget)
+                {
+                    Undo.RecordObject(img, "City Build");
+                    img.sprite = sprite;
+                    img.raycastTarget = false; // decisão: decorações não recebem cliques
+                    changed = true;
+                }
+                if (!created) Changed(changed);
+            }
+            foreach (var kv in existing) Destroy(kv.Value.gameObject, "id fora do JSON");
         }
 
         // ---------- Limiter (R27) ----------
