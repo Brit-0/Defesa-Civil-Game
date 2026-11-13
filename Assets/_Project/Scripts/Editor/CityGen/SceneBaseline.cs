@@ -21,9 +21,9 @@ namespace DefesaCivil.CityGen
         public const string MapRenderPath = "Assets/Arts/MapRender.renderTexture";
 
         public string capturedAt = "";
-        public string mainCameraHash = "";
-        public string polygonCameraHash = "";
-        public string polygonsDisplayImageHash = "";
+        public List<string> mainCamera = new List<string>();
+        public List<string> polygonCamera = new List<string>();
+        public List<string> polygonsDisplayImage = new List<string>();
         public string cameraControllerFileHash = "";
         public string mapRenderFileHash = "";
         public List<string> legacyWaypoints = new List<string>();
@@ -39,9 +39,9 @@ namespace DefesaCivil.CityGen
 
         void Fill(CitySceneRefs r)
         {
-            mainCameraHash = Hash(r.mainCamera.GetComponents<Component>().Where(c => c != null), null);
-            polygonCameraHash = Hash(r.polygonCamera.GetComponents<Component>().Where(c => c != null), new HashSet<string> { "orthographic size" });
-            polygonsDisplayImageHash = Hash(r.polygonsDisplay.GetComponents<Component>().Where(c => c != null && !(c is RectTransform)), null);
+            mainCamera = Props(r.mainCamera.GetComponents<Component>().Where(c => c != null), null);
+            polygonCamera = Props(r.polygonCamera.GetComponents<Component>().Where(c => c != null), new HashSet<string> { "orthographic size" });
+            polygonsDisplayImage = Props(r.polygonsDisplay.GetComponents<Component>().Where(c => c != null && !(c is RectTransform)), null);
             cameraControllerFileHash = FileHash(CameraControllerPath);
             mapRenderFileHash = FileHash(MapRenderPath);
         }
@@ -51,20 +51,27 @@ namespace DefesaCivil.CityGen
         {
             var now = new SceneBaseline(); now.Fill(r);
             var d = new List<string>();
-            if (now.mainCameraHash != mainCameraHash) d.Add("componentes da Main Camera mudaram");
-            if (now.polygonCameraHash != polygonCameraHash) d.Add("PolygonCamera mudou além do orthographicSize");
-            if (now.polygonsDisplayImageHash != polygonsDisplayImageHash) d.Add("PolygonsDisplay mudou além do retângulo");
+            Compare(d, "Main Camera", mainCamera, now.mainCamera);
+            Compare(d, "PolygonCamera (exceto orthographicSize)", polygonCamera, now.polygonCamera);
+            Compare(d, "PolygonsDisplay (exceto retângulo)", polygonsDisplayImage, now.polygonsDisplayImage);
             if (now.cameraControllerFileHash != cameraControllerFileHash) d.Add("CameraController.cs mudou");
             if (now.mapRenderFileHash != mapRenderFileHash) d.Add("MapRender.renderTexture mudou");
             return d;
         }
 
-        static string Hash(IEnumerable<Component> comps, HashSet<string> skipNames)
+        static void Compare(List<string> d, string what, List<string> before, List<string> now)
         {
-            var sb = new StringBuilder();
+            var a = new HashSet<string>(before); var b = new HashSet<string>(now);
+            var changed = now.Where(x => !a.Contains(x)).Concat(before.Where(x => !b.Contains(x)).Select(x => "(antes) " + x)).Take(4).ToList();
+            if (changed.Count > 0) d.Add(what + " mudou: " + string.Join(" | ", changed));
+        }
+
+        static List<string> Props(IEnumerable<Component> comps, HashSet<string> skipNames)
+        {
+            var lines = new List<string>();
             foreach (var c in comps)
             {
-                sb.Append("#").Append(c.GetType().FullName).Append('\n');
+                string type = c.GetType().Name;
                 var so = new SerializedObject(c);
                 var it = so.GetIterator();
                 bool enter = true;
@@ -73,10 +80,13 @@ namespace DefesaCivil.CityGen
                     enter = true;
                     if (skipNames != null && skipNames.Contains(it.name)) { enter = false; continue; }
                     if (it.propertyPath == "m_Children" || it.propertyPath.StartsWith("m_Children.")) { enter = false; continue; }
-                    sb.Append(it.propertyPath).Append('=').Append(Value(it)).Append('\n');
+                    // referências: compara por GlobalObjectId e não entra em m_FileID/m_PathID (mudam a cada carga)
+                    if (it.propertyType == SerializedPropertyType.ObjectReference) enter = false;
+                    if (it.hasChildren && it.propertyType == SerializedPropertyType.Generic) continue;
+                    lines.Add(type + "." + it.propertyPath + "=" + Value(it));
                 }
             }
-            return Sha(Encoding.UTF8.GetBytes(sb.ToString()));
+            return lines;
         }
 
         static string Value(SerializedProperty p)
