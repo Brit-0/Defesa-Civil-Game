@@ -34,8 +34,8 @@ namespace DefesaCivil.CityGen
             this.layout = layout; this.refs = refs; this.cat = cat; this.undo = undo;
         }
 
-        void Record(Object o) { if (undo) Record(o); }
-        void Created(GameObject go) { if (undo) Created(go); }
+        void Record(Object o) { if (undo) Undo.RecordObject(o, "City Build"); }
+        void Created(GameObject go) { if (undo) Undo.RegisterCreatedObjectUndo(go, "City Build"); }
         void SetSibling(Transform t, int i) { if (undo) Undo.SetSiblingIndex(t, i, "City Build"); else t.SetSiblingIndex(i); }
 
         public BuildResult Run()
