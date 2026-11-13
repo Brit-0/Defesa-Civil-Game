@@ -102,12 +102,13 @@ Legenda: **L** = checável no layout · **C** = checável na cena após o Build 
 | R25 sem sobreposição, distância ≥ 0,8 u | ✔ | ✔ | Distância mínima entre polígonos (segmento–segmento) e teste de interseção. |
 | R26 só objetos do JSON (exceção Canvas/BG) | — | ✔ | Filhos de PolygonLayer/Houses/Trees: todo filho é `[CG]` com id no JSON, exceto `PolygonLayer/Canvas`. |
 | R27 Limiter = caixa dos polígonos | ✔ (calculado) | ✔ | `SpriteRenderer.bounds` contra a caixa (tol. 0,01). |
-| R28 câmera/MapRender/Display intocados | — | ✔ | Snapshot dos campos serializados (Main Camera, PolygonCamera, CameraController, PolygonsDisplay) contra o valor de `ac210a1`, mais hash de `CameraController.cs` e `MapRender.renderTexture`. |
+| R28 câmera/MapRender intocados; PolygonCamera só ortho; Display só retângulo | — | ✔ | Snapshot dos campos serializados (Main Camera, PolygonCamera, CameraController, PolygonsDisplay) contra o valor de `ac210a1`, mais hash de `CameraController.cs` e `MapRender.renderTexture`. |
 | R29 JSON → Build idempotente | — | ✔ | Build 2× e comparação de um **dump canônico** dos objetos `[CG]` (nome, posição, sprite, tamanho, path). O arquivo `.unity` não serve, ver Riscos. |
 | R30 Y-sort | — | ✔ | Ordem de irmãos em Houses e Trees decrescente em y da borda inferior. |
 | R31 collider = retângulo nativo | — | ✔ | `BoxCollider2D.size` = `sizeDelta`, offset 0 (tol. 0,01 u). |
 | R32 Warehouses em cantos opostos (aviso) | ✔ | ✔ | Quarteirão de cada Warehouse = o mais próximo de cantos opostos do Limiter. |
 | R33 Guard no industrial (aviso) | ✔ | ✔ | Quarteirão da Guard com ≥ 80% de House Industrial. |
+| R34 enquadramento | ✔ (centro) | ✔ | Centro da caixa = posição inicial da câmera. Vista da PolygonCamera e retângulo do Display iguais e contendo a caixa. |
 
 O arquivo `docs/reports/validation_report.json` é ignorado pelo git.
 
@@ -149,7 +150,12 @@ Fora das regras, o Validate informa também quais polígonos ficam fora do retâ
 
 **GPS:** `allWaypoints` = waypoints de entrada gerados e `allLocations` = Guard + Warehouses, gravados via `SerializedObject`.
 
-**Visibilidade dos chãos (L11):** o Builder não altera câmeras, MapRender nem PolygonsDisplay (R28).
+**Visibilidade dos chãos (L11), resolvida pelo teste do passo 0 + decisão de 2026-11-13:**
+- O Generate centraliza a cidade na posição inicial da Main Camera.
+- O Build calcula `ortho = max(meia-altura, meia-largura·9/16)` da caixa dos polígonos, em relação ao centro da câmera.
+- Aplica esse valor na PolygonCamera e ajusta o `PolygonsDisplay`: âncoras no centro, `sizeDelta` = vista em cu e posição no centro da câmera.
+- O MapRender continua em 640×360 (efeito pixelizado).
+- Ainda assim:
 - Depois do Build, o Validate lista os polígonos fora do retângulo do PolygonsDisplay.
 - Também tiro screenshots via MCP (Scene/Camera capture) na posição inicial e com a câmera deslocada.
 - Se houver chão invisível, **paro e pergunto** antes de seguir.

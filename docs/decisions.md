@@ -124,3 +124,15 @@ Respostas do usuário aos formulários. As regras resultantes estão em `city-ru
   - falhas que eu não consiga resolver;
   - dúvidas (formulário);
   - o passo 11.
+
+## 2026-11-13 — Resultado do teste de visibilidade (passo 0)
+
+- O teste (`docs/reports/visibility-test.md`) confirmou que chãos fora de ~17,8×10 u nunca aparecem.
+- Decisão: **ampliar a captura e o display**:
+  - aumentar o `orthographicSize` da PolygonCamera;
+  - ajustar o retângulo do `PolygonsDisplay`;
+  - **sem mudar a resolução do MapRender** (640×360), que dá o efeito pixelizado.
+- R28 foi liberada só para esses dois pontos, e foi criada a R34.
+- Enquadramento **automático pelo layout** (o Build calcula).
+- **Centro da cidade = posição inicial da Main Camera**. PolygonCamera e Display continuam centrados nela.
+- Texels maiores no chão (~0,1 u, ~3 px de sprite): **aceito, é o efeito**.

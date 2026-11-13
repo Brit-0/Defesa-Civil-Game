@@ -73,9 +73,10 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 
 | ID | Severidade | Regra |
 |---|---|---|
-| R28 | erro | Ficam sem alteração em relação ao commit `ac210a1`: componentes da Main Camera, `CameraController.cs`, PolygonCamera, `MapRender` e `PolygonsDisplay`. Sob a Main Camera, só mudam os filhos de `PolygonLayer`. |
+| R28 | erro | Ficam sem alteração em relação ao commit `ac210a1`: componentes da Main Camera, `CameraController.cs` e `MapRender` (incluindo a resolução de 640×360). Na PolygonCamera, só o `orthographicSize` pode mudar; no `PolygonsDisplay`, só o retângulo (âncoras, `sizeDelta` e posição). Ambos são ajustados pelo Build (R34). Sob a Main Camera, só mudam os filhos de `PolygonLayer` e o ortho da PolygonCamera. |
 | R29 | erro | O layout é definido em `Assets/_Project/Data/Cities/city_layout.json` e aplicado por `Tools/City/Build`. Rodar o Build 2 vezes sem mudar o JSON não gera diferença na cena (idempotente). |
 | R30 | erro | Ordem de desenho por Y dentro de cada pai: em `Houses` e em `Trees`, a ordem de irmãos segue o y da borda inferior. Quem tem y menor (mais ao sul) vem depois e é desenhado na frente. `Trees` continua desenhado sobre `Houses`. |
 | R31 | erro | O `BoxCollider2D` de cada estrutura gerada cobre o retângulo do sprite em tamanho nativo (tolerância 0,01 u). |
 | R32 | aviso | Os 2 `Warehouse` ficam em cantos diagonalmente opostos: cada um no quarteirão mais próximo de um canto do Limiter (SW/NE ou NW/SE). |
 | R33 | aviso | A `Guard` fica em um quarteirão do bairro Industrial (≥ 80% das `House` dele são de `Industrial/`, como em R10). |
+| R34 | erro | Enquadramento dos chãos: o centro XY da caixa dos polígonos coincide com a posição inicial da Main Camera (tolerância 0,5 u). A vista da PolygonCamera (2·ortho·16/9 × 2·ortho) e o retângulo do `PolygonsDisplay` no mundo têm o mesmo centro (a Main Camera) e o mesmo tamanho (tolerância 0,01 u), e ambos contêm a caixa dos polígonos inteira. |
