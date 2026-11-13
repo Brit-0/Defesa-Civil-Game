@@ -144,7 +144,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1725543945317942209, guid: fc041bba197ef744cb0bd87bd1491305, type: 3}
+  m_Sprite: {fileID: 1730322336, guid: 3486ad6b724c537fbc9f42fffcf1e0af, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -276,7 +276,6 @@ MonoBehaviour:
   nameLbl: {fileID: 4642342553094151464}
   descriptionLbl: {fileID: 2664026012822025717}
   specificLbl: {fileID: 9155883508034873100}
-  canvasGroup: {fileID: 0}
 --- !u!1 &3847584167488091342
 GameObject:
   m_ObjectHideFlags: 0

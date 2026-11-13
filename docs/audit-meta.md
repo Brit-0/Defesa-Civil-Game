@@ -103,3 +103,17 @@ Além do guid, o **fileID** dessas referências também não existe mais. Eram I
 2. Manter a remoção do override WebGL e a compressão "None" (8192 máx.)? Alvo WebGL pode pedir compressão de volta.
 3. Pixel Perfect: aceitar mudar o zoom do `CameraController`?
 4. Confirmar que os guids novos vieram de reimportação do Unity e não de outra máquina. Se algum colaborador ainda usa o guid antigo, haverá conflito.
+
+## 7. Status: RESOLVIDO (Opção A aplicada)
+
+- `House.prefab` -> `Visual/Image.m_Sprite` = `Rocha_Alta_J_NE` (guid `3486ad6b…`, fileID `1730322336`). **PLACEHOLDER**, sorteado.
+- `Warehouse.prefab` -> `Visual/Image.m_Sprite` = `Casa_Q_N` (guid `9f42e96f…`, fileID `1812150974`). **PLACEHOLDER**, sorteado.
+- Sorteio: `awk srand(1794535202)` sobre 2154 sprites (sem `*_n.png`). Os guids e fileIDs foram conferidos contra os `.meta`.
+- Decisões registradas em `decisions.md`: .meta novos mantidos, WebGL fora, câmera inalterada.
+
+**Verificação (via MCP):**
+- Console sem erros ou avisos após a importação.
+- Cena Gameplay (não salva, `isDirty=false`): 375 componentes, 0 Missing Script, 0 referência perdida, 0 Missing Prefab.
+- House, Warehouse e Guard: 0 referências ausentes. `Guard.prefab` exibe `Rocha_Alta_J_NE`, herdado de House.
+- `git status`: somente `House.prefab` e `Warehouse.prefab` modificados.
+- Efeito colateral do Unity em `House.prefab`: removida a linha `canvasGroup: {fileID: 0}`, um campo serializado antigo e nulo que não existe mais em nenhum script. Inofensivo e mantido.
