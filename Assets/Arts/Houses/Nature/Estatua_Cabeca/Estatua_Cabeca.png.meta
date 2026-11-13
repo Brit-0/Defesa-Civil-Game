@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b1ad4b333b30b54458f5a9ba3374871b
+guid: 4f4b9afbe47652b985042c111b68e54f
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -31,7 +31,7 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 8192
   textureSettings:
     serializedVersion: 2
     filterMode: 0
@@ -48,14 +48,12 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
-  spriteTessellationMethod: 0
   spriteTessellationDetail: -1
-  spriteGeometrySubdivision: -1
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
@@ -71,7 +69,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -84,23 +82,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 2048
+    maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -112,177 +97,177 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ambulancia_0
+      name: Estatua_Cabeca_S
       rect:
         serializedVersion: 2
         x: 0
         y: 672
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e3085359311efd240800000000000000
-      internalID: 4818817600533659710
+      spriteID: bd4681117939539a89947a54097775e8
+      internalID: 2027571530
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_1
+      name: Estatua_Cabeca_SW
       rect:
         serializedVersion: 2
         x: 0
         y: 576
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b539e017b40a08ea0800000000000000
-      internalID: -5872517668211354789
+      spriteID: c701af3e94b05281853e6ff78f956f6d
+      internalID: 279599805
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_2
+      name: Estatua_Cabeca_W
       rect:
         serializedVersion: 2
         x: 0
         y: 480
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e1fe79d04a0bb3590800000000000000
-      internalID: -7693361319783174370
+      spriteID: 7e470d7751ae58e69163bdf8e0ded1ef
+      internalID: 1259826798
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_3
+      name: Estatua_Cabeca_NW
       rect:
         serializedVersion: 2
         x: 0
         y: 384
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: f3c7ffe8ce2ad08e0800000000000000
-      internalID: -1725543945317942209
+      spriteID: 9e692647c0a65cf49e405872b09ca72c
+      internalID: 782553381
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_4
+      name: Estatua_Cabeca_N
       rect:
         serializedVersion: 2
         x: 0
         y: 288
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 6fa0682ac8c32c0c0800000000000000
-      internalID: -4557013298225739018
+      spriteID: f277ca13b8f359b4bfd13948a512c147
+      internalID: 91767010
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_5
+      name: Estatua_Cabeca_NE
       rect:
         serializedVersion: 2
         x: 0
         y: 192
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: ef0b9f9022220eaf0800000000000000
-      internalID: -369257639852789506
+      spriteID: cae242f5e0f65d0298e9cf71a4435a72
+      internalID: 2034401857
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_6
+      name: Estatua_Cabeca_E
       rect:
         serializedVersion: 2
         x: 0
         y: 96
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: abf96c8fd51c45dd0800000000000000
-      internalID: -2498159283933896774
+      spriteID: fb2a45b656f3585a85576d8618034176
+      internalID: 1008061525
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_7
+      name: Estatua_Cabeca_SE
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a0c1cdea8848bc010800000000000000
-      internalID: 1210206647463189514
+      spriteID: 0614c87cdcce55958632d26e7e37e92d
+      internalID: 1145440403
       vertices: []
       indices: 
       edges: []
@@ -291,26 +276,26 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: fef3f084a5114c34e92556666088b1eb
+    spriteID: 1b51275a45cb5f0bb63c84aa20165719
     internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
-    secondaryTextures: []
+    secondaryTextures:
+    - texture: {fileID: 2800000, guid: a083b0cf138b5ee98fa6b1878e6190e8, type: 3}
+      name: _NormalMap
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":96.0,"y":96.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      Ambulancia_0: 4818817600533659710
-      Ambulancia_1: -5872517668211354789
-      Ambulancia_2: -7693361319783174370
-      Ambulancia_3: -1725543945317942209
-      Ambulancia_4: -4557013298225739018
-      Ambulancia_5: -369257639852789506
-      Ambulancia_6: -2498159283933896774
-      Ambulancia_7: 1210206647463189514
+      Estatua_Cabeca_S: 2027571530
+      Estatua_Cabeca_SW: 279599805
+      Estatua_Cabeca_W: 1259826798
+      Estatua_Cabeca_NW: 782553381
+      Estatua_Cabeca_N: 91767010
+      Estatua_Cabeca_NE: 2034401857
+      Estatua_Cabeca_E: 1008061525
+      Estatua_Cabeca_SE: 1145440403
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

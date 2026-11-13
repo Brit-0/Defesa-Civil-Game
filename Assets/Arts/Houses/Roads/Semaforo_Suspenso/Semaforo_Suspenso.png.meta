@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: edbc7f9cda9274a49ba19ae14e28a827
+guid: eae46f7dd8605172a7664c9cb406244c
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -31,7 +31,7 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 8192
   textureSettings:
     serializedVersion: 2
     filterMode: 0
@@ -48,14 +48,12 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
-  spriteTessellationMethod: 0
   spriteTessellationDetail: -1
-  spriteGeometrySubdivision: -1
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
@@ -71,7 +69,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -84,23 +82,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 2048
+    maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -112,177 +97,177 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ambulancia_0
+      name: Semaforo_Suspenso_S
       rect:
         serializedVersion: 2
         x: 0
         y: 672
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e3085359311efd240800000000000000
-      internalID: 4818817600533659710
+      spriteID: 62655c6db8195ac696866fa600120139
+      internalID: 1450608585
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_1
+      name: Semaforo_Suspenso_SW
       rect:
         serializedVersion: 2
         x: 0
         y: 576
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b539e017b40a08ea0800000000000000
-      internalID: -5872517668211354789
+      spriteID: 273a2b1d2d1b54298e00557cab7ddd4d
+      internalID: 386787209
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_2
+      name: Semaforo_Suspenso_W
       rect:
         serializedVersion: 2
         x: 0
         y: 480
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e1fe79d04a0bb3590800000000000000
-      internalID: -7693361319783174370
+      spriteID: 29a6274196315a8dae54a05eba823ac9
+      internalID: 1999063714
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_3
+      name: Semaforo_Suspenso_NW
       rect:
         serializedVersion: 2
         x: 0
         y: 384
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: f3c7ffe8ce2ad08e0800000000000000
-      internalID: -1725543945317942209
+      spriteID: e2c8633f9fa05499aeba23ca94ad7d19
+      internalID: 1282863515
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_4
+      name: Semaforo_Suspenso_N
       rect:
         serializedVersion: 2
         x: 0
         y: 288
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 6fa0682ac8c32c0c0800000000000000
-      internalID: -4557013298225739018
+      spriteID: 02adc6f59c6854aa8107e88c33afa82e
+      internalID: 4948880
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_5
+      name: Semaforo_Suspenso_NE
       rect:
         serializedVersion: 2
         x: 0
         y: 192
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: ef0b9f9022220eaf0800000000000000
-      internalID: -369257639852789506
+      spriteID: 5ba31bc734b0585fbe00f4124b19bbdf
+      internalID: 1330863674
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_6
+      name: Semaforo_Suspenso_E
       rect:
         serializedVersion: 2
         x: 0
         y: 96
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: abf96c8fd51c45dd0800000000000000
-      internalID: -2498159283933896774
+      spriteID: c5d88123d30b5ce4a3e0f311d357431f
+      internalID: 876875828
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_7
+      name: Semaforo_Suspenso_SE
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 96
+        width: 64
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.208333333333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a0c1cdea8848bc010800000000000000
-      internalID: 1210206647463189514
+      spriteID: d140f915488a516db524d8890eba64f4
+      internalID: 830339772
       vertices: []
       indices: 
       edges: []
@@ -291,26 +276,26 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: fef3f084a5114c34e92556666088b1eb
+    spriteID: 3a1c513fa2e65e3bb6401483fadd536e
     internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
-    secondaryTextures: []
+    secondaryTextures:
+    - texture: {fileID: 2800000, guid: 6a5bc003d77e5935a8eecea05be0543f, type: 3}
+      name: _NormalMap
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":96.0,"y":96.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      Ambulancia_0: 4818817600533659710
-      Ambulancia_1: -5872517668211354789
-      Ambulancia_2: -7693361319783174370
-      Ambulancia_3: -1725543945317942209
-      Ambulancia_4: -4557013298225739018
-      Ambulancia_5: -369257639852789506
-      Ambulancia_6: -2498159283933896774
-      Ambulancia_7: 1210206647463189514
+      Semaforo_Suspenso_S: 1450608585
+      Semaforo_Suspenso_SW: 386787209
+      Semaforo_Suspenso_W: 1999063714
+      Semaforo_Suspenso_NW: 1282863515
+      Semaforo_Suspenso_N: 4948880
+      Semaforo_Suspenso_NE: 1330863674
+      Semaforo_Suspenso_E: 876875828
+      Semaforo_Suspenso_SE: 830339772
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

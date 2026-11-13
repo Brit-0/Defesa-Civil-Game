@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 31551e5055efcd147907b6bc81d28901
+guid: e280a7fa49ae5fea82a4d3d8a415b17b
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -31,7 +31,7 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 8192
   textureSettings:
     serializedVersion: 2
     filterMode: 0
@@ -48,14 +48,12 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
-  spriteTessellationMethod: 0
   spriteTessellationDetail: -1
-  spriteGeometrySubdivision: -1
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
@@ -71,7 +69,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -84,23 +82,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 2048
+    maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -112,177 +97,177 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ambulancia_0
+      name: Arvore_Galhos_S
       rect:
         serializedVersion: 2
         x: 0
         y: 672
-        width: 96
+        width: 80
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.135416666667}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e3085359311efd240800000000000000
-      internalID: 4818817600533659710
+      spriteID: 2c0312b36af859b1af816e14b17d0776
+      internalID: 1773044825
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_1
+      name: Arvore_Galhos_SW
       rect:
         serializedVersion: 2
         x: 0
         y: 576
-        width: 96
+        width: 80
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.135416666667}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b539e017b40a08ea0800000000000000
-      internalID: -5872517668211354789
+      spriteID: 3b748f19738e5ee985c163a0adb1334f
+      internalID: 1028740023
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_2
+      name: Arvore_Galhos_W
       rect:
         serializedVersion: 2
         x: 0
         y: 480
-        width: 96
+        width: 80
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.135416666667}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e1fe79d04a0bb3590800000000000000
-      internalID: -7693361319783174370
+      spriteID: 691f16de528a575485578f635d2cb18e
+      internalID: 461771126
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_3
+      name: Arvore_Galhos_NW
       rect:
         serializedVersion: 2
         x: 0
         y: 384
-        width: 96
+        width: 80
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.135416666667}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: f3c7ffe8ce2ad08e0800000000000000
-      internalID: -1725543945317942209
+      spriteID: f154e78761f05acfb99adbf78f60b5c4
+      internalID: 1419965756
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_4
+      name: Arvore_Galhos_N
       rect:
         serializedVersion: 2
         x: 0
         y: 288
-        width: 96
+        width: 80
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.135416666667}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 6fa0682ac8c32c0c0800000000000000
-      internalID: -4557013298225739018
+      spriteID: 4091d485c80153dca81cb780b08a9667
+      internalID: 1053121547
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_5
+      name: Arvore_Galhos_NE
       rect:
         serializedVersion: 2
         x: 0
         y: 192
-        width: 96
+        width: 80
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.135416666667}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: ef0b9f9022220eaf0800000000000000
-      internalID: -369257639852789506
+      spriteID: 7b2092e7e0525f939c7e4f18074efbb1
+      internalID: 1117049231
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_6
+      name: Arvore_Galhos_E
       rect:
         serializedVersion: 2
         x: 0
         y: 96
-        width: 96
+        width: 80
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.135416666667}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: abf96c8fd51c45dd0800000000000000
-      internalID: -2498159283933896774
+      spriteID: 79e9793065f757f480408856a77d0b1e
+      internalID: 893835684
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_7
+      name: Arvore_Galhos_SE
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 96
+        width: 80
         height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.135416666667}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a0c1cdea8848bc010800000000000000
-      internalID: 1210206647463189514
+      spriteID: 2b83882172b655e88497c44c4d16e563
+      internalID: 923570635
       vertices: []
       indices: 
       edges: []
@@ -291,26 +276,26 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: fef3f084a5114c34e92556666088b1eb
+    spriteID: 430c1adb1ac6555c870a7444a7b7d811
     internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
-    secondaryTextures: []
+    secondaryTextures:
+    - texture: {fileID: 2800000, guid: 2fc848d40bef54b6abb3dceb6c1ea61c, type: 3}
+      name: _NormalMap
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":96.0,"y":96.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      Ambulancia_0: 4818817600533659710
-      Ambulancia_1: -5872517668211354789
-      Ambulancia_2: -7693361319783174370
-      Ambulancia_3: -1725543945317942209
-      Ambulancia_4: -4557013298225739018
-      Ambulancia_5: -369257639852789506
-      Ambulancia_6: -2498159283933896774
-      Ambulancia_7: 1210206647463189514
+      Arvore_Galhos_S: 1773044825
+      Arvore_Galhos_SW: 1028740023
+      Arvore_Galhos_W: 461771126
+      Arvore_Galhos_NW: 1419965756
+      Arvore_Galhos_N: 1053121547
+      Arvore_Galhos_NE: 1117049231
+      Arvore_Galhos_E: 893835684
+      Arvore_Galhos_SE: 923570635
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

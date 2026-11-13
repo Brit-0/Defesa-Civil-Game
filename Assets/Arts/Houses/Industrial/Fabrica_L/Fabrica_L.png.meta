@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 078edebc1a3bf884f99e23e498b1e7e9
+guid: e9f54b200f7d5efcbb2bcd65fe4c95f8
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -31,7 +31,7 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 8192
   textureSettings:
     serializedVersion: 2
     filterMode: 0
@@ -48,14 +48,12 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
-  spriteTessellationMethod: 0
   spriteTessellationDetail: -1
-  spriteGeometrySubdivision: -1
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
@@ -71,7 +69,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -84,23 +82,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 2048
+    maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -112,177 +97,177 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ambulancia_0
+      name: Fabrica_L_S
       rect:
         serializedVersion: 2
         x: 0
-        y: 672
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        y: 896
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e3085359311efd240800000000000000
-      internalID: 4818817600533659710
+      spriteID: 05b9549a61815338a793992014a08697
+      internalID: 956136832
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_1
+      name: Fabrica_L_SW
       rect:
         serializedVersion: 2
         x: 0
-        y: 576
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        y: 768
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b539e017b40a08ea0800000000000000
-      internalID: -5872517668211354789
+      spriteID: b9c9d74bd9be5e16b039e1250c5ad0fc
+      internalID: 1654580798
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_2
+      name: Fabrica_L_W
       rect:
         serializedVersion: 2
         x: 0
-        y: 480
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        y: 640
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e1fe79d04a0bb3590800000000000000
-      internalID: -7693361319783174370
+      spriteID: 8abc6ecbb48255e687460c93c06183eb
+      internalID: 1135217532
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_3
+      name: Fabrica_L_NW
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 512
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 53b4d31f19d25479a6d0d352b45ff7fb
+      internalID: 562239492
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fabrica_L_N
       rect:
         serializedVersion: 2
         x: 0
         y: 384
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: f3c7ffe8ce2ad08e0800000000000000
-      internalID: -1725543945317942209
+      spriteID: 956f682d9b4f5aa6ac76e27a925997c8
+      internalID: 1792309230
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_4
+      name: Fabrica_L_NE
       rect:
         serializedVersion: 2
         x: 0
-        y: 288
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        y: 256
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 6fa0682ac8c32c0c0800000000000000
-      internalID: -4557013298225739018
+      spriteID: 8471a51abe295fe6881035ebe1dfa9ab
+      internalID: 1528068706
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_5
+      name: Fabrica_L_E
       rect:
         serializedVersion: 2
         x: 0
-        y: 192
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        y: 128
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: ef0b9f9022220eaf0800000000000000
-      internalID: -369257639852789506
+      spriteID: 1ea8adfec4da51888e73afdfcc41110d
+      internalID: 665804722
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_6
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 96
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: abf96c8fd51c45dd0800000000000000
-      internalID: -2498159283933896774
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Ambulancia_7
+      name: Fabrica_L_SE
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a0c1cdea8848bc010800000000000000
-      internalID: 1210206647463189514
+      spriteID: 35e3c3ba567058f394ae6ced928711ff
+      internalID: 21346892
       vertices: []
       indices: 
       edges: []
@@ -291,26 +276,26 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: fef3f084a5114c34e92556666088b1eb
+    spriteID: 837c0b9fb5af5e1d902cfe64d4581de4
     internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
-    secondaryTextures: []
+    secondaryTextures:
+    - texture: {fileID: 2800000, guid: 8d0ef82872fb5fb5a7bf1726ce2d2be9, type: 3}
+      name: _NormalMap
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":96.0,"y":96.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      Ambulancia_0: 4818817600533659710
-      Ambulancia_1: -5872517668211354789
-      Ambulancia_2: -7693361319783174370
-      Ambulancia_3: -1725543945317942209
-      Ambulancia_4: -4557013298225739018
-      Ambulancia_5: -369257639852789506
-      Ambulancia_6: -2498159283933896774
-      Ambulancia_7: 1210206647463189514
+      Fabrica_L_S: 956136832
+      Fabrica_L_SW: 1654580798
+      Fabrica_L_W: 1135217532
+      Fabrica_L_NW: 562239492
+      Fabrica_L_N: 1792309230
+      Fabrica_L_NE: 1528068706
+      Fabrica_L_E: 665804722
+      Fabrica_L_SE: 21346892
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

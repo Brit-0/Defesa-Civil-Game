@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 1c103302ebab1c44fab76f575ce4042d
+guid: f2954da288025879bd668f942e6dd4bf
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -31,7 +31,7 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 8192
   textureSettings:
     serializedVersion: 2
     filterMode: 0
@@ -48,14 +48,12 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
-  spriteTessellationMethod: 0
   spriteTessellationDetail: -1
-  spriteGeometrySubdivision: -1
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
@@ -71,7 +69,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -84,23 +82,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 2048
+    maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -112,177 +97,177 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ambulancia_0
+      name: Rocha_Alta_E_S
       rect:
         serializedVersion: 2
         x: 0
-        y: 672
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        y: 560
+        width: 64
+        height: 80
+      alignment: 9
+      pivot: {x: 0.5, y: 0.3125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e3085359311efd240800000000000000
-      internalID: 4818817600533659710
+      spriteID: 8b8115576b4f5a798b1b80fafd84bf15
+      internalID: 8597729
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_1
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 576
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b539e017b40a08ea0800000000000000
-      internalID: -5872517668211354789
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Ambulancia_2
+      name: Rocha_Alta_E_SW
       rect:
         serializedVersion: 2
         x: 0
         y: 480
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 64
+        height: 80
+      alignment: 9
+      pivot: {x: 0.5, y: 0.3125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e1fe79d04a0bb3590800000000000000
-      internalID: -7693361319783174370
+      spriteID: 6d5a53f62ac4587d92f26ec34a64e519
+      internalID: 1342983032
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_3
+      name: Rocha_Alta_E_W
       rect:
         serializedVersion: 2
         x: 0
-        y: 384
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        y: 400
+        width: 64
+        height: 80
+      alignment: 9
+      pivot: {x: 0.5, y: 0.3125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: f3c7ffe8ce2ad08e0800000000000000
-      internalID: -1725543945317942209
+      spriteID: 363b452ec15b5666a95e0b4e438f33f3
+      internalID: 925020161
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_4
+      name: Rocha_Alta_E_NW
       rect:
         serializedVersion: 2
         x: 0
-        y: 288
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        y: 320
+        width: 64
+        height: 80
+      alignment: 9
+      pivot: {x: 0.5, y: 0.3125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 6fa0682ac8c32c0c0800000000000000
-      internalID: -4557013298225739018
+      spriteID: 3f2fe4f190605dbdb610067e5ba7e534
+      internalID: 1894218158
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_5
+      name: Rocha_Alta_E_N
       rect:
         serializedVersion: 2
         x: 0
-        y: 192
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        y: 240
+        width: 64
+        height: 80
+      alignment: 9
+      pivot: {x: 0.5, y: 0.3125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: ef0b9f9022220eaf0800000000000000
-      internalID: -369257639852789506
+      spriteID: 252623b5240753b5ba392d28888998f7
+      internalID: 1679759842
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_6
+      name: Rocha_Alta_E_NE
       rect:
         serializedVersion: 2
         x: 0
-        y: 96
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        y: 160
+        width: 64
+        height: 80
+      alignment: 9
+      pivot: {x: 0.5, y: 0.3125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: abf96c8fd51c45dd0800000000000000
-      internalID: -2498159283933896774
+      spriteID: 4a2adcd1b5bc5f75957955bfcfe5ea59
+      internalID: 398386693
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ambulancia_7
+      name: Rocha_Alta_E_E
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 80
+        width: 64
+        height: 80
+      alignment: 9
+      pivot: {x: 0.5, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 881242211b5c515bb53e2938b715aeb3
+      internalID: 228129230
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Rocha_Alta_E_SE
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 96
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 64
+        height: 80
+      alignment: 9
+      pivot: {x: 0.5, y: 0.3125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a0c1cdea8848bc010800000000000000
-      internalID: 1210206647463189514
+      spriteID: 289815d1594a55d590032a529b04b855
+      internalID: 1698821672
       vertices: []
       indices: 
       edges: []
@@ -291,26 +276,26 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: fef3f084a5114c34e92556666088b1eb
+    spriteID: 037c8cb09c025d92a5b2923acc56e222
     internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
-    secondaryTextures: []
+    secondaryTextures:
+    - texture: {fileID: 2800000, guid: ab5a2242a74c5db89101f074aeef01be, type: 3}
+      name: _NormalMap
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":96.0,"y":96.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      Ambulancia_0: 4818817600533659710
-      Ambulancia_1: -5872517668211354789
-      Ambulancia_2: -7693361319783174370
-      Ambulancia_3: -1725543945317942209
-      Ambulancia_4: -4557013298225739018
-      Ambulancia_5: -369257639852789506
-      Ambulancia_6: -2498159283933896774
-      Ambulancia_7: 1210206647463189514
+      Rocha_Alta_E_S: 8597729
+      Rocha_Alta_E_SW: 1342983032
+      Rocha_Alta_E_W: 925020161
+      Rocha_Alta_E_NW: 1894218158
+      Rocha_Alta_E_N: 1679759842
+      Rocha_Alta_E_NE: 398386693
+      Rocha_Alta_E_E: 228129230
+      Rocha_Alta_E_SE: 1698821672
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

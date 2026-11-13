@@ -45,6 +45,20 @@ public class ResourcesManager : MonoBehaviour
         }
     }
 
+    [Header("MONEY")]
+    [SerializeField] private TMP_Text moneyLbl;
+    public Sprite moneylIcon;
+    private int money;
+    public static int Money
+    {
+        get => Instance.money;
+        set
+        {
+            Instance.money = value;
+            Instance.moneyLbl.text = value.ToString();
+        }
+    }
+
     private void Awake()
     {
         Instance = this;

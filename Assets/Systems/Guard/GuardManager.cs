@@ -25,6 +25,8 @@ public class GuardManager : MonoBehaviour
 
     private CityGuard selectedGuard;
     private Call currentCall;
+
+    public int moneyPerCall = 10;
     
     public static bool selectBaseMode;
 

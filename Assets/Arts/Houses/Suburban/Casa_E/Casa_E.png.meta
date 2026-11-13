@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 63cd216e2caddaa45be6ee0527a6d3f2
+guid: 2d48160284a85bc7907d64846d44ee6c
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -31,7 +31,7 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 8192
   textureSettings:
     serializedVersion: 2
     filterMode: 0
@@ -48,14 +48,12 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
-  spriteTessellationMethod: 0
   spriteTessellationDetail: -1
-  spriteGeometrySubdivision: -1
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
@@ -71,7 +69,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -84,23 +82,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 2048
+    maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -112,177 +97,177 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Casa_E_0
+      name: Casa_E_S
       rect:
         serializedVersion: 2
-        x: 16
-        y: 908
-        width: 80
-        height: 80
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 896
+        width: 112
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2890625}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7e19331dc0fc68947b730555f1d23df4
-      internalID: 109656531
+      spriteID: 5769ecafc3595c20b9d5bab06a915133
+      internalID: 1532176661
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Casa_E_1
+      name: Casa_E_SW
       rect:
         serializedVersion: 2
-        x: 9
-        y: 769
-        width: 96
-        height: 105
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 768
+        width: 112
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2890625}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9699327f169479e4899a56e2b2c49cd1
-      internalID: -1047274585
+      spriteID: b2ae2b19b78c5675b4b2c7a300029f5e
+      internalID: 788719946
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Casa_E_2
+      name: Casa_E_W
       rect:
         serializedVersion: 2
-        x: 24
-        y: 648
-        width: 64
-        height: 104
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 640
+        width: 112
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2890625}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fcab039d7a865bf4f8574630a816a09c
-      internalID: -1286637035
+      spriteID: 92082a697743527f9865a2481e99ed64
+      internalID: 2039127602
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Casa_E_3
+      name: Casa_E_NW
       rect:
         serializedVersion: 2
-        x: 9
-        y: 513
-        width: 96
-        height: 102
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 512
+        width: 112
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2890625}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1edfc3e46a4b5864fb0b302ab2d04082
-      internalID: 1295318043
+      spriteID: 7dee3c0adf2c59d2b9cb5a4378241149
+      internalID: 81219822
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Casa_E_4
+      name: Casa_E_N
       rect:
         serializedVersion: 2
-        x: 16
-        y: 398
-        width: 80
-        height: 82
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 384
+        width: 112
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2890625}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5d342fc1ca3d4a64ab25678ee093ac81
-      internalID: -1063499511
+      spriteID: dca8f869646550fcb542c4d0d848ce1f
+      internalID: 10355990
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Casa_E_5
+      name: Casa_E_NE
       rect:
         serializedVersion: 2
-        x: 7
-        y: 257
-        width: 96
-        height: 102
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 256
+        width: 112
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2890625}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 85f18d4b8d5dc5049938161f85500d48
-      internalID: -882498883
+      spriteID: 20ef55de59015eea839109245b17db27
+      internalID: 665079397
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Casa_E_6
+      name: Casa_E_E
       rect:
         serializedVersion: 2
-        x: 24
-        y: 136
-        width: 64
-        height: 104
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 128
+        width: 112
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2890625}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a3c4acedc153c9b45aba42e6e4e266ae
-      internalID: -1032451623
+      spriteID: 3de31d3d8e2357c19a33d18cd0b7829a
+      internalID: 2035369785
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Casa_E_7
+      name: Casa_E_SE
       rect:
         serializedVersion: 2
-        x: 7
-        y: 1
-        width: 96
-        height: 105
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 0
+        width: 112
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2890625}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 276b58a09d40b7440874fe6287a0bbee
-      internalID: 814013811
+      spriteID: 702b04910c9650439bdef3c51e9fe650
+      internalID: 1786408324
       vertices: []
       indices: 
       edges: []
@@ -291,26 +276,26 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: fef3f084a5114c34e92556666088b1eb
+    spriteID: af6ac5405d6d5e26abd3ae368de4cc8e
     internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
-    secondaryTextures: []
+    secondaryTextures:
+    - texture: {fileID: 2800000, guid: 5528a82be951568aa60b7b7d0f0de2db, type: 3}
+      name: _NormalMap
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      Casa_E_0: 109656531
-      Casa_E_1: -1047274585
-      Casa_E_2: -1286637035
-      Casa_E_3: 1295318043
-      Casa_E_4: -1063499511
-      Casa_E_5: -882498883
-      Casa_E_6: -1032451623
-      Casa_E_7: 814013811
+      Casa_E_S: 1532176661
+      Casa_E_SW: 788719946
+      Casa_E_W: 2039127602
+      Casa_E_NW: 81219822
+      Casa_E_N: 10355990
+      Casa_E_NE: 665079397
+      Casa_E_E: 2035369785
+      Casa_E_SE: 1786408324
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
