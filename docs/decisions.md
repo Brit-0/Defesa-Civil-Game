@@ -65,3 +65,12 @@ Respostas do usuário aos formulários. As regras resultantes estão em `city-ru
 - **Fluxo por JSON**: `city_layout.json` → Tools/City/Validate → Tools/City/Build.
 - **Usar os pais existentes** (Houses, Trees, PolygonLayer). Sem root `GeneratedCity`.
 - Namespace: **`DefesaCivil.CityGen`**.
+
+## 2026-11-13 — Pendências e inventário (Etapa 2)
+
+- `Polygon.prefab` e `PolygonMAT.mat` commitados sem alteração.
+- As alterações não salvas da cena Gameplay eram do usuário. Foram salvas e commitadas, e `vHierarchy Data.asset` foi **commitado junto da cena**.
+- Decorações: **podem repetir sprite**. O pool de R17 tem 96 sprites, menos que o mínimo de 100 de R19.
+- `PolygonLayer/Canvas` (BG): **exceção fixa** a R26. Permanece e não é tocado.
+- Ordem de desenho: **Y-sort dentro de cada pai** (Houses e Trees), com Trees sobre Houses (R30).
+- `BoxCollider2D` das estruturas geradas: **ajustar ao retângulo do sprite nativo** na instância (R31).

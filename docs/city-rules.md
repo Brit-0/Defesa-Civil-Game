@@ -52,7 +52,7 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 | ID | Severidade | Regra |
 |---|---|---|
 | R16 | erro | Toda decoração é um GameObject com `Image`, filho direto de `UI/Canvas/UIContainer/Trees`. |
-| R17 | erro | O sprite de cada decoração vem de `Nature/`, termina em `_S` e não é de uma pasta excluída. Monumentos são permitidos. Excluídos: `Barraca*`, `Saco_Dormir`, `Canoa`, `Remo`, `Fogueira*`, `Lenha`, `Placa_Madeira`, `Ponte_*`, `Horta_*`, `Milho_*`, `Trigo_*`, `Abobora`, `Cenoura`, `Melancia`, `Nabo`, `Vitoria_Regia*`. |
+| R17 | erro | O sprite de cada decoração vem de `Nature/`, termina em `_S` e não é de uma pasta excluída. Monumentos são permitidos. Excluídos: `Barraca*`, `Saco_Dormir`, `Canoa`, `Remo`, `Fogueira*`, `Lenha`, `Placa_Madeira`, `Ponte_*`, `Horta_*`, `Milho_*`, `Trigo_*`, `Abobora`, `Cenoura`, `Melancia`, `Nabo`, `Vitoria_Regia*`. Repetição de sprite permitida. |
 | R18 | erro | Toda decoração está em tamanho nativo (tolerância 0,01 u). |
 | R19 | erro | Nº de decorações entre 2× e 3× o nº de `House`, inclusive. |
 | R20 | erro | Os 2 cantos inferiores de cada decoração estão dentro do mesmo polígono (quarteirão ou decorativo). Sobreposição com estruturas é permitida. |
@@ -66,7 +66,7 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 | R23 | erro | Todo quarteirão tem exatamente 4 vértices e lados paralelos aos eixos X/Y. |
 | R24 | erro | Polígonos decorativos têm forma livre, com ≥ 3 vértices. |
 | R25 | erro | Polígonos não se sobrepõem. A distância mínima entre quaisquer dois polígonos é ≥ 0,8 u (largura mínima de rua). |
-| R26 | erro | `PolygonLayer`, `Houses` e `Trees` contêm somente objetos que constam em `city_layout.json`. O Polygon e as estruturas antigos não permanecem. |
+| R26 | erro | `PolygonLayer`, `Houses` e `Trees` contêm somente objetos que constam em `city_layout.json`. O Polygon e as estruturas antigos não permanecem. **Exceção fixa:** `PolygonLayer/Canvas` (com `BG`) permanece e não é tocado. |
 | R27 | erro | Os bounds XY do `Essentials/Limiter` são iguais à caixa envolvente de todos os polígonos (tolerância 0,01 u). |
 
 ## Restrições e fluxo
@@ -75,3 +75,5 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 |---|---|---|
 | R28 | erro | Ficam sem alteração em relação ao commit `ac210a1`: componentes da Main Camera, `CameraController.cs`, PolygonCamera, `MapRender` e `PolygonsDisplay`. Sob a Main Camera, só mudam os filhos de `PolygonLayer`. |
 | R29 | erro | O layout é definido em `Assets/_Project/Data/Cities/city_layout.json` e aplicado por `Tools/City/Build`. Rodar o Build 2 vezes sem mudar o JSON não gera diferença na cena (idempotente). |
+| R30 | erro | Ordem de desenho por Y dentro de cada pai: em `Houses` e em `Trees`, a ordem de irmãos segue o y da borda inferior. Quem tem y menor (mais ao sul) vem depois e é desenhado na frente. `Trees` continua desenhado sobre `Houses`. |
+| R31 | erro | O `BoxCollider2D` de cada estrutura gerada cobre o retângulo do sprite em tamanho nativo (tolerância 0,01 u). |
