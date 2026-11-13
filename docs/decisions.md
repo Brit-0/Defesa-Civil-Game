@@ -74,3 +74,42 @@ Respostas do usuário aos formulários. As regras resultantes estão em `city-ru
 - `PolygonLayer/Canvas` (BG): **exceção fixa** a R26. Permanece e não é tocado.
 - Ordem de desenho: **Y-sort dentro de cada pai** (Houses e Trees), com Trees sobre Houses (R30).
 - `BoxCollider2D` das estruturas geradas: **ajustar ao retângulo do sprite nativo** na instância (R31).
+
+## 2026-11-13 — Correção do moneyLbl e plano do gerador (Etapa 3)
+
+- `ResourcesManager.moneyLbl` → `UI/UICanvas/Money/Lbl`, o único candidato. Verificado em Play Mode: `House.ResolveCompletion()` levou Money de 0 a 10 e o label mostrou 10, sem exceções.
+- **GPS:** `GPS.allWaypoints` e `GPS.allLocations` são preenchidas pelo Build do gerador.
+  - `allWaypoints`: **só os waypoints de entrada** gerados. Os 3 antigos ficam de fora.
+  - `allLocations`: **só Locations** (Guard e Warehouses).
+
+**Layout (JSON)**
+- **Layout explícito** em `city_layout.json`: cada polígono, estrutura, decoração e waypoint de entrada tem posição e sprite.
+- `Tools/City/Generate` sorteia e escreve o JSON, que pode ser editado à mão. O Build só aplica.
+- Biblioteca: **JsonUtility**.
+- Semente: **nova a cada Generate**, gravada no JSON.
+- Generate sobre JSON existente: **pede confirmação** e guarda um backup.
+
+**Build**
+- Objetos gerados são identificados por **convenção de nome `[CG] <tipo> <id>`**.
+- Estratégia: **atualizar por id** (cria, atualiza e remove só o que mudou).
+- Ao fim, **salva a cena só se o Validate passar** (0 erros). Com erros, deixa a cena alterada sem salvar e reporta.
+- Decorações geradas com **Raycast Target off**.
+
+**Generate**
+- Ruas **todas de 0,8 u**.
+- Bairros com **posição livre/sorteada**.
+- Quarteirões **sorteados**: 1 ou 2 fileiras, largura variável.
+- Nº de casas **sorteado entre 50 e 80**, com **2 a 4 praças** (polígonos só de decoração).
+- Espaço entre estruturas vizinhas: **sorteado entre 0 e 0,5 u**.
+- **Guard:** a primeira fica no bairro industrial (haverá mais Guards no futuro; nesta etapa R02 continua exigindo **exatamente 1**).
+- **Warehouses:** afastados, perto de **cantos diagonalmente opostos** da cidade. Isso virou regra (**aviso**), assim como a Guard no industrial: **R32 e R33**.
+
+**Código e testes**
+- **Sem asmdef**:
+  - Dados em `Assets/_Project/Scripts/Runtime/CityData`.
+  - Editor em `Assets/_Project/Scripts/Editor/CityGen`.
+  - Testes em `Assets/_Project/Tests/EditMode/Editor/`.
+- Verificado: `Assembly-CSharp-Editor` já referencia `nunit.framework` e o TestRunner.
+
+**Relatório do Validate**
+- Saída no **Console + `Assets/_Project/Data/Cities/validation_report.json`**.

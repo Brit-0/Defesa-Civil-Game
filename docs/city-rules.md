@@ -77,3 +77,5 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 | R29 | erro | O layout é definido em `Assets/_Project/Data/Cities/city_layout.json` e aplicado por `Tools/City/Build`. Rodar o Build 2 vezes sem mudar o JSON não gera diferença na cena (idempotente). |
 | R30 | erro | Ordem de desenho por Y dentro de cada pai: em `Houses` e em `Trees`, a ordem de irmãos segue o y da borda inferior. Quem tem y menor (mais ao sul) vem depois e é desenhado na frente. `Trees` continua desenhado sobre `Houses`. |
 | R31 | erro | O `BoxCollider2D` de cada estrutura gerada cobre o retângulo do sprite em tamanho nativo (tolerância 0,01 u). |
+| R32 | aviso | Os 2 `Warehouse` ficam em cantos diagonalmente opostos: cada um no quarteirão mais próximo de um canto do Limiter (SW/NE ou NW/SE). |
+| R33 | aviso | A `Guard` fica em um quarteirão do bairro Industrial (≥ 80% das `House` dele são de `Industrial/`, como em R10). |
