@@ -1,86 +1,83 @@
-# Relatório do Build (passo 11)
+# Relatório do Build — cidade v2 (2026-11-13)
 
-Data: 2026-11-13.
+Pedido do usuário: ruas com a mesma largura, cidade bonita e natural, estruturas mais perto da rua ao sul, liberdade para ignorar regras anteriores. Só a organização nos empties foi mantida obrigatória.
 
-- **Layout:** `Assets/_Project/Data/Cities/city_layout.json`, semente `2066620142`.
-- **Build:** `Tools/City/Build` (via MCP) na cena `Assets/Scenes/Gameplay.unity`.
-- **1º Build:** 348 criados, 5 atualizados, 4 removidos.
-  - Os removidos foram as estruturas antigas House, Guard e Warehouse, mais o Polygon antigo.
-  - Os atualizados foram o Limiter, o enquadramento e as listas do GPS.
-- **2º Build:** 0 criados, 0 atualizados, 0 removidos, 353 sem mudança. É idempotente (R29).
-- **Validate de cena:** 0 erros, 0 avisos. A cena foi salva.
-  - Revalidado depois de recarregar a cena do disco: 0 erros, 0 avisos.
-  - Console sem erros.
+- **Layout:** `Assets/_Project/Data/Cities/city_layout.json` (versão 2), semente `293574367`.
+  - Escolhida por mim entre 5 sementes sorteadas, olhando as prévias.
+- **Build:** `Tools/City/Build` na cena `Assets/Scenes/Gameplay.unity`.
+  - 1º Build: 207 criados, 347 atualizados, 6 removidos.
+  - 2º Build: nenhuma mudança (554 sem alteração). É idempotente (R29).
+- **Validate de cena:** 0 erros, 0 avisos. Revalidado com a cena recarregada do disco: 0 erros, 0 avisos, console limpo.
+- **Testes EditMode:** 76 passando.
+
+## Como a cidade foi desenhada
+
+Estudei os sprites em folhas de contato. São quase vista de cima: telhado grande e uma faixa de fachada ao sul. Por isso a parte visível do sprite é praticamente o terreno que ele ocupa. Disso saíram as decisões:
+
+- **Base visível:** tudo é posicionado pela base da parte visível do sprite, sem a margem transparente. As casas ficam a 0,12 u da rua ao sul (antes ficavam a ~0,8 u).
+- **Sem sobreposição de estruturas:** uma fileira por quarteirão, todas de frente para a rua ao sul.
+- **Malha:** 6 faixas de quarteirões com todas as ruas em 0,8 u, mais uma rua de contorno.
+  - Duas ruas norte-sul atravessam a cidade inteira e ladeiam o parque.
+  - As demais ruas verticais são desencontradas entre faixas (cruzamentos em T), para não parecer grade.
+- **Bairros:**
+  - Parque central, com 2 faixas de altura: monumento, colunas, canteiro de flores, alameda de árvores no contorno, 4 entradas com postes, 2 quiosques e bosques nos canteiros.
+  - Centro comercial em volta do parque, com estacionamento.
+  - Indústria no nordeste: tanques, chaminés, turbina, contêineres e painéis solares nos fundos.
+  - Guarda na indústria, com caminhão de bombeiros, ambulância e viatura estacionados ao lado.
+  - Depósitos nos cantos noroeste e sudeste: contêineres, caminhão, caixas e cerca alta.
+  - Bosque de pinheiros e rochas no canto sudoeste.
+  - Residencial no restante: quintais com árvores atrás das casas, cercas ou sebes nos fundos, canteiros, flores, carros na garagem.
+- **Mobiliário:** semáforos nas esquinas do centro, postes e placas de pare em algumas esquinas.
+- **Oclusão:** `Trees` é desenhado sobre `Houses`. O gerador só deixa uma decoração cobrir uma estrutura se ela estiver à frente (R36). Árvores de quintal ficam atrás do telhado, sem cobri-lo.
 
 ## Conteúdo gerado
 
 | Item | Qtd |
 |---|---|
-| House (Suburban / Commercial / Industrial) | 72 (43 / 18 / 11) → 59,7% / 25,0% / 15,3% |
+| House (Suburban / Commercial / Industrial) | 69 (41 / 18 / 10) → 59% / 26% / 14% |
 | Guard / Warehouse | 1 / 2 |
-| Decorações (Trees) | 182 (2,53× nº de House) |
-| Polígonos | 17 = 13 quarteirões + 4 praças |
-| Waypoints de entrada | 75 (+ 3 antigos mantidos) |
-| Caixa da cidade (= Limiter) | 52,44 × 39,50 u, centrada em (−3,44; −0,15) = posição inicial da Main Camera |
-| PolygonCamera ortho | 5 → 19,75 (vista 70,2 × 39,5 u). PolygonsDisplay com o mesmo retângulo. MapRender continua 640×360. |
+| Decorações (Trees) | 380, com 71 sprites diferentes (Nature 329, Carros 14, Roads 13, Industrial 11, Suburban 11, Commercial 2) |
+| Sprites de estrutura diferentes | 42 |
+| Polígonos | 25 = 23 quarteirões + parque + bosque |
+| Waypoints de entrada | 72 (+ 3 antigos mantidos) |
+| Caixa dos polígonos | 52,6 × 33,4 u, centrada na posição inicial da Main Camera |
+| Limiter | 54,2 × 35,0 u (caixa + rua de contorno de 0,8 u) |
+| PolygonCamera ortho | 16,7. PolygonsDisplay com o mesmo retângulo. MapRender continua 640×360. |
 
-## Resultado por regra (validador de cena)
+## Resultado por regra
 
-| Regra | Sev. | Resultado |
+Todas as regras ativas passam: R01–R20, R22–R37 (R21 foi revogada). R08 segue parcial: a semente fica registrada, mas "não escolhido à mão" não é automatizável.
+
+Regras que mudaram nesta revisão (detalhes em `city-rules.md` e `decisions.md`):
+
+| Regra | Antes | Agora |
 |---|---|---|
-| R01 50–80 House | erro | ✔ 72 |
-| R02 1 Guard | erro | ✔ |
-| R03 2 Warehouse | erro | ✔ |
-| R04 estruturas só em Houses | erro | ✔ |
-| R05 sufixo `_S` | erro | ✔ |
-| R06 pool House | erro | ✔ |
-| R07 pool Guard/Warehouse | erro | ✔ |
-| R08 sorteio + semente | erro | ✔ parcial: semente registrada e sprites nos pools. "Não manual" não é automatizável. |
-| R09 proporção ±5 | aviso | ✔ |
-| R10 ≥ 80% mesma pasta por quarteirão | aviso | ✔ (100%: 1 bairro por quarteirão) |
-| R11 tamanho nativo estruturas | erro | ✔ |
-| R12 cantos inferiores no quarteirão | erro | ✔ |
-| R13 rua ao sul | erro | ✔ |
-| R14 waypoint de entrada | erro | ✔ |
-| R15 3 Waypoints antigos | erro | ✔ (por GlobalObjectId) |
-| R16 decoração em Trees com Image | erro | ✔ |
-| R17 pool decoração | erro | ✔ |
-| R18 tamanho nativo decoração | erro | ✔ |
-| R19 2–3× nº de House | erro | ✔ 182 |
-| R20 cantos inferiores da decoração no polígono | erro | ✔ |
-| R21 ≥ 70% rente à borda | aviso | ✔ |
-| R22 Polygon.prefab em PolygonLayer | erro | ✔ |
-| R23 quarteirão retangular alinhado | erro | ✔ |
-| R24 praça ≥ 3 vértices | erro | ✔ (octógonos) |
-| R25 ruas ≥ 0,8 u, sem sobreposição | erro | ✔ |
-| R26 só objetos do JSON (exceção Canvas/BG) | erro | ✔ |
-| R27 Limiter = caixa dos polígonos | erro | ✔ |
-| R28 câmera/CameraController/MapRender intocados | erro | ✔ (baseline de `ac210a1`; só o ortho da PolygonCamera e o retângulo do Display mudaram) |
-| R29 JSON → Build idempotente | erro | ✔ (dump canônico igual no 2º Build) |
-| R30 Y-sort | erro | ✔ |
-| R31 collider = retângulo nativo | erro | ✔ |
-| R32 Warehouses em cantos opostos | aviso | ✔ |
-| R33 Guard no industrial | aviso | ✔ |
-| R34 enquadramento | erro | ✔ |
+| R12, R20 | cantos do retângulo do sprite | cantos da parte visível |
+| R17 | só `Nature/` | qualquer pasta, menos sprites de estrutura e as exclusões de Nature |
+| R19 | 2× a 3× o nº de casas | ≥ 2× |
+| R21 | 70% rente à borda | revogada |
+| R25 | ≥ 0,8 u | ≥ `streetWidth` |
+| R27 | Limiter = caixa dos polígonos | caixa + rua de contorno |
+| R35 | — | ruas de largura única (erro) |
+| R36 | — | oclusão coerente (aviso) |
+| R37 | — | estruturas não se sobrepõem (aviso) |
 
-## Screenshots (Play Mode, nada salvo)
+## Imagens
 
-Ficam em `docs/reports/build/`:
+Em `docs/reports/build/`:
 
-| Arquivo | Câmera |
+| Arquivo | O que mostra |
 |---|---|
-| `01_visao_geral.png` | Cidade inteira (ortho 21) |
-| `02_inicio_zoom_padrao.png` | Posição inicial, ortho 10 |
-| `03_pan_noroeste.png` a `06_pan_sudeste.png` | Pan até os 4 quadrantes (ortho 8). Os chãos aparecem em todos. |
-| `07_detalhe_centro.png` | Zoom no centro (ortho 4) |
+| `v2_00_previa_layout.png` | Prévia do layout em PNG (ferramenta `CityPreview`, sem a cena) |
+| `v2_01_visao_geral.png` | Cidade inteira no jogo (Play Mode) |
+| `v2_02_centro_parque.png` | Parque e centro |
+| `v2_03_noroeste.png` a `v2_06_sudeste.png` | Os 4 quadrantes |
+| `v2_07_detalhe_residencial.png` | Zoom: casas rente à rua, quintal, cerca |
 
-As câmeras foram movidas só em Play Mode, como o pan do jogo, e descartadas ao sair.
+## Observações e riscos
 
-## Observações e riscos restantes
-
-1. **Decoração rente ao topo do quarteirão:** a base fica dentro do polígono, mas o sprite sobe sobre a rua de cima. Visualmente parece estar na rua, apesar de cumprir R20/R21.
-2. **Praças densas:** as decorações das praças se sobrepõem bastante. As da borda de cima invadem a frente das casas do quarteirão logo acima, porque Trees é desenhado sobre Houses (R30).
-3. **Ruído no `.unity`:** o `PolygonMesh2D` recria a mesh a cada frame no Editor. Todo salvamento da cena gera diff nas meshes. R29 é medida pelo dump canônico.
-4. **Test Runner e Undo:** o Test Runner salva a cena aberta e desfaz o Undo ao terminar. O Builder roda sem Undo nos testes (`undo:false`), e o caminho com Undo só é exercitado no Build real.
-5. **Ligações do GPS:** os `neighbors` dos waypoints de entrada estão vazios. A ligação com a malha de ruas fica para a etapa do GPS. Até lá, `Pathfinder` não acha caminho entre estruturas.
-6. **R08:** é só parcialmente automatizável, porque edições manuais de sprite no JSON não são detectáveis.
+1. **Ligações do GPS:** os `neighbors` dos waypoints continuam vazios. A malha de ruas fica para a etapa do GPS.
+2. **Ruído no `.unity`:** o `PolygonMesh2D` recria as meshes no Editor, então todo salvamento gera diff. R29 é medida pelo dump canônico.
+3. **Undo:** o Build é grande e o Unity avisou que o histórico de Undo estourou. Desfazer um Build inteiro com Ctrl+Z pode não funcionar; use o git.
+4. **Copas sobre a rua:** árvores de fundo passam até 0,6 u da borda norte do quarteirão. É intencional (parece copa sobre a calçada), e não chega às casas do outro lado.
+5. **Formato do JSON mudou (versão 2):** `bottomCenter` agora é a base visível. Um layout da versão 1 é recusado.

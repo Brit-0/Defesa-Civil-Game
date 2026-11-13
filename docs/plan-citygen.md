@@ -1,6 +1,8 @@
 # Plano do gerador de cidade
 
-Status: **aprovado em 2026-11-13**.
+Status: **aprovado em 2026-11-13** e implementado.
+
+> **Revisão v2 (2026-11-13):** a pedido do usuário, o gerador foi redesenhado (malha de ruas de largura única, bairros temáticos, posicionamento pela base visível). O JSON foi para a versão 2 e as regras R12, R17, R19, R20, R25 e R27 mudaram; R21 foi revogada; entraram R35–R37. O que este plano diz sobre o Generate (seção a) e sobre essas regras vale como histórico. O estado atual está em `city-rules.md`, `decisions.md` e `reports/build-report.md`.
 
 Base: `CLAUDE.md`, `city-rules.md` (R01–R33), `inventory.md` (L01–L11) e `decisions.md`. Unidades em **u** (mundo, 32 px) e **cu** (Canvas `UI/Canvas`, 1 cu = 0,01 u, 1 px = 3,125 cu).
 

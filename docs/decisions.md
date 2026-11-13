@@ -136,3 +136,29 @@ Respostas do usuário aos formulários. As regras resultantes estão em `city-ru
 - Enquadramento **automático pelo layout** (o Build calcula).
 - **Centro da cidade = posição inicial da Main Camera**. PolygonCamera e Display continuam centrados nela.
 - Texels maiores no chão (~0,1 u, ~3 px de sprite): **aceito, é o efeito**.
+
+## 2026-11-13 — Cidade v2: bonita e natural (carta branca do usuário)
+
+Pedido do usuário, sem formulários: "deixe as ruas todas com a mesma largura, independente do número de casas", "faça a cidade parecer natural", "esqueça um pouco as regras", "diminua a distância da base das estruturas até a rua ao sul", "estude os sprites", "se necessário, ignore qualquer regra pré-estabelecida", "apenas siga a organização dos objetos nos empties corretos", "faça todo o processo sem pedir autorização".
+
+Escolhas minhas dentro dessa liberdade (nenhuma é PLACEHOLDER; todas podem ser revistas):
+
+- **Ruas:** largura única de 0,8 u em toda a cidade, com rua de contorno. O Limiter passa a ser a caixa dos polígonos + 0,8 u (muda R27). Nova R35 (erro) mede a largura única.
+- **Posicionamento pela base visível** do sprite (sem a margem transparente). Estruturas a 0,12 u da rua ao sul. O JSON foi para a versão 2.
+- **Estruturas não se sobrepõem** (nova R37, aviso). Antes a sobreposição era permitida.
+- **Decoração usa todas as pastas** de `Assets/Arts/Houses` (carros, postes, semáforos, tanques, chaminés, contêineres, cercas, canteiros), não só `Nature/` (muda R17). As exclusões que você pediu em Nature (acampamento, pontes, horta) continuam.
+- **Quantidade de decoração:** só mínimo de 2× as casas (muda R19). R21 (70% rente à borda) foi revogada.
+- **Oclusão coerente** (nova R36, aviso): decoração só cobre estrutura se estiver à frente dela.
+- **Desenho urbano:** 6 faixas, duas ruas norte-sul atravessando, parque central, centro comercial em volta, indústria e Guarda no nordeste, depósitos no noroeste e sudeste, bosque no sudoeste.
+- **Mantido das decisões anteriores:**
+  - sprites `_S`;
+  - 50–80 casas;
+  - 1 Guard e 2 Warehouses em cantos opostos;
+  - Guard no bairro industrial;
+  - proporção ~60/25/15;
+  - tamanho nativo;
+  - objetos em Houses, Trees, Waypoints e PolygonLayer;
+  - câmera e CameraController intocados;
+  - MapRender 640×360.
+- **Semente:** 293574367, escolhida por mim entre 5 sementes sorteadas, pelas prévias.
+- **Ferramenta nova:** `CityPreview` gera um PNG do layout sem tocar na cena.
