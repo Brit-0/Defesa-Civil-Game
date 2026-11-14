@@ -35,7 +35,8 @@ namespace DefesaCivil.CityGen.Tests
         {
             var img = AnyHouse.Find("Visual").GetComponent<Image>();
             var path = UnityEditor.AssetDatabase.GetAssetPath(img.sprite);
-            img.sprite = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(path).OfType<Sprite>().First(x => x.name.EndsWith("_N"));
+            string wrong = img.sprite.name.EndsWith("_N") ? "_E" : "_N"; // direção que não é a da fileira
+            img.sprite = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(path).OfType<Sprite>().First(x => x.name.EndsWith(wrong));
             Assert.IsTrue(V().Has("R05"));
         }
 

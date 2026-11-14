@@ -68,8 +68,25 @@ namespace DefesaCivil.CityGen.Tests
                 Assert.That(Vector2.Distance(h.entry.transform.position, s.entry), Is.LessThan(0.01f));
             }
             var so = new SerializedObject(ts.refs.gps);
-            Assert.AreEqual(layout.structures.Count, so.FindProperty("allWaypoints").arraySize);
+            Assert.AreEqual(layout.structures.Count + layout.junctions.Count, so.FindProperty("allWaypoints").arraySize);
             Assert.AreEqual(3, so.FindProperty("allLocations").arraySize);
+        }
+
+        [Test] public void NeighborsAreSymmetricAndMatchLinks()
+        {
+            Build();
+            var wps = ts.refs.waypoints.Cast<Transform>().Where(CitySceneRefs.IsGenerated).Select(t => t.GetComponent<Waypoint>()).ToList();
+            Assert.AreEqual(layout.structures.Count + layout.junctions.Count, wps.Count);
+            int links = 0;
+            foreach (var w in wps)
+            {
+                CollectionAssert.DoesNotContain(w.neighbors, w, w.name + " não pode estar na própria lista");
+                CollectionAssert.AllItemsAreUnique(w.neighbors);
+                foreach (var n in w.neighbors) CollectionAssert.Contains(n.neighbors, w, w.name + " ↔ " + n.name);
+                links += w.neighbors.Count;
+            }
+            Assert.AreEqual(layout.links.Count * 2, links);
+            Assert.IsTrue(wps.All(w => w.neighbors.Count > 0), "todo waypoint gerado tem ao menos um vizinho");
         }
 
         [Test] public void YSortedSiblings()

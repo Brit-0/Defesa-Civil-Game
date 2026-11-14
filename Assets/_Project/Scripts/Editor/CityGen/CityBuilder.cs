@@ -48,12 +48,39 @@ namespace DefesaCivil.CityGen
             FitPolygonFraming();
             MigrateOldStructures();
             BuildStructures();
+            BuildWaypoints();
             SortByBottom(refs.houses, layout.structures.ToDictionary(s => CitySceneRefs.Name(s.type, s.id), s => (Vector2)s.bottomCenter));
             FillGps();
             BuildDecorations();
             SortByBottom(refs.trees, layout.decorations.ToDictionary(d => CitySceneRefs.Name("Tree", d.id), d => (Vector2)d.bottomCenter));
+            FlushPrefabOverrides();
             if (undo) Undo.CollapseUndoOperations(group);
             return res;
+        }
+
+        /// <summary>
+        /// Registra como override de prefab tudo o que o Build mudou nas instâncias (Waypoint, House, Polygon).
+        /// Sem isso, alterações feitas e salvas no mesmo frame podem não ir para o arquivo (ex.: neighbors salvo
+        /// com o tamanho certo mas com referências nulas).
+        /// </summary>
+        void FlushPrefabOverrides()
+        {
+            foreach (var parent in new[] { refs.houses, refs.waypoints, refs.polygonLayer, refs.trees })
+                foreach (Transform c in parent)
+                {
+                    if (!CitySceneRefs.IsGenerated(c)) continue;
+                    foreach (var comp in c.GetComponentsInChildren<Component>(true))
+                    {
+                        if (comp == null) continue;
+                        if (PrefabUtility.IsPartOfPrefabInstance(comp)) PrefabUtility.RecordPrefabInstancePropertyModifications(comp);
+                        EditorUtility.SetDirty(comp);
+                    }
+                }
+            foreach (var comp in new Component[] { refs.gps, refs.limiter.transform, refs.polygonCamera, refs.polygonsDisplay })
+            {
+                if (PrefabUtility.IsPartOfPrefabInstance(comp)) PrefabUtility.RecordPrefabInstancePropertyModifications(comp);
+                EditorUtility.SetDirty(comp);
+            }
         }
 
         // ---------- utilitários ----------
@@ -148,17 +175,13 @@ namespace DefesaCivil.CityGen
             }
         }
 
-        readonly Dictionary<StructureData, Waypoint> entries = new Dictionary<StructureData, Waypoint>();
         readonly List<House> locations = new List<House>();
 
         void BuildStructures()
         {
-            var wpPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(WaypointPrefabPath);
-            float wpLocalZ = wpPrefab.transform.localPosition.z;
             var existing = new Dictionary<string, Transform>();
             foreach (var type in new[] { StructureType.House, StructureType.Guard, StructureType.Warehouse })
                 foreach (var kv in GeneratedChildren(refs.houses, type)) existing[type + " " + kv.Key] = kv.Value;
-            var existingWp = GeneratedChildren(refs.waypoints, "Waypoint");
             var scale = refs.houses.lossyScale;
 
             foreach (var s in layout.structures)
@@ -204,7 +227,31 @@ namespace DefesaCivil.CityGen
                     changed = true;
                 }
 
-                // waypoint de entrada (R14)
+                var house = t.GetComponent<House>();
+                houses[key] = house;
+                if (house is Location) locations.Add(house);
+
+                if (!created) Changed(changed);
+            }
+            foreach (var kv in existing) Destroy(kv.Value.gameObject, "id fora do JSON");
+        }
+
+        readonly Dictionary<string, House> houses = new Dictionary<string, House>();
+        readonly Dictionary<string, Waypoint> waypointByKey = new Dictionary<string, Waypoint>();
+
+        /// <summary>
+        /// Waypoints de entrada (um por estrutura, R14) e de cruzamento (R38), com neighbors iguais às ligações do
+        /// JSON: simétricos, sem repetição e nunca o próprio waypoint. Os 3 Waypoints antigos (não [CG]) não são tocados.
+        /// </summary>
+        void BuildWaypoints()
+        {
+            var wpPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(WaypointPrefabPath);
+            float wpLocalZ = wpPrefab.transform.localPosition.z;
+            var existingWp = GeneratedChildren(refs.waypoints, "Waypoint");
+            var wanted = layout.structures.Select(s => (key: StreetGraph.EntryKey(s), p: (Vector2)s.entry))
+                .Concat(layout.junctions.Select(j => (key: StreetGraph.JunctionKey(j.id), p: (Vector2)j.position))).ToList();
+            foreach (var (key, p) in wanted)
+            {
                 bool wpCreated = false;
                 if (!existingWp.TryGetValue(key, out var wp))
                 {
@@ -214,22 +261,39 @@ namespace DefesaCivil.CityGen
                     wp = go.transform; wpCreated = true; res.created++;
                 }
                 existingWp.Remove(key);
-                var wl = refs.waypoints.InverseTransformPoint(new Vector3(s.entry.x, s.entry.y, refs.waypoints.position.z));
+                var wl = refs.waypoints.InverseTransformPoint(new Vector3(p.x, p.y, refs.waypoints.position.z));
                 var wpLocal = new Vector3(wl.x, wl.y, wpCreated ? wpLocalZ : wp.localPosition.z);
                 bool wpChanged = (wp.localPosition - wpLocal).sqrMagnitude > 1e-6f;
                 if (wpChanged) { Record(wp); wp.localPosition = wpLocal; }
                 if (!wpCreated) Changed(wpChanged);
-
-                var house = t.GetComponent<House>();
-                var waypoint = wp.GetComponent<Waypoint>();
-                if (house.entry != waypoint) { Record(house); house.entry = waypoint; changed = true; }
-                entries[s] = waypoint;
-                if (house is Location) locations.Add(house);
-
-                if (!created) Changed(changed);
+                waypointByKey[key] = wp.GetComponent<Waypoint>();
             }
-            foreach (var kv in existing) Destroy(kv.Value.gameObject, "id fora do JSON");
             foreach (var kv in existingWp) Destroy(kv.Value.gameObject, "id fora do JSON");
+
+            // vizinhos
+            var adj = waypointByKey.Keys.ToDictionary(k => k, k => new List<string>());
+            foreach (var l in layout.links)
+            {
+                if (l.a == l.b || !adj.ContainsKey(l.a) || !adj.ContainsKey(l.b)) continue;
+                if (!adj[l.a].Contains(l.b)) adj[l.a].Add(l.b);
+                if (!adj[l.b].Contains(l.a)) adj[l.b].Add(l.a);
+            }
+            foreach (var kv in adj)
+            {
+                var wp = waypointByKey[kv.Key];
+                var want = kv.Value.OrderBy(k => k, System.StringComparer.Ordinal).Select(k => waypointByKey[k]).ToList();
+                bool same = wp.neighbors.Count == want.Count && wp.neighbors.Zip(want, (x, y) => x == y).All(x => x);
+                if (!same) { Record(wp); wp.neighbors = want; }
+                Changed(!same);
+            }
+
+            // entrada de cada estrutura
+            foreach (var s in layout.structures)
+            {
+                string key = StreetGraph.EntryKey(s);
+                if (!houses.TryGetValue(key, out var house) || !waypointByKey.TryGetValue(key, out var w)) continue;
+                if (house.entry != w) { Record(house); house.entry = w; res.updated++; }
+            }
         }
 
         /// <summary>R30: ordem de irmãos decrescente em y da borda inferior (mais ao sul por último = na frente).</summary>
@@ -248,7 +312,7 @@ namespace DefesaCivil.CityGen
         void FillGps()
         {
             var so = new SerializedObject(refs.gps);
-            bool changed = SetList(so.FindProperty("allWaypoints"), layout.structures.Where(entries.ContainsKey).Select(s => (Object)entries[s]).ToList());
+            bool changed = SetList(so.FindProperty("allWaypoints"), waypointByKey.OrderBy(k => k.Key, System.StringComparer.Ordinal).Select(k => (Object)k.Value).ToList());
             changed |= SetList(so.FindProperty("allLocations"), locations.Cast<Object>().ToList());
             if (changed) { Record(refs.gps); so.ApplyModifiedProperties(); }
             Changed(changed);

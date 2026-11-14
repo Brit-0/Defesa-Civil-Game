@@ -74,6 +74,47 @@ namespace DefesaCivil.CityGen.Tests
             Assert.IsTrue(V(l).Has("R05"));
         }
 
+        [Test] public void R05_NorthRowUsesNSprites()
+        {
+            var l = Base(); var s = S(l, "001", StructureType.House, Sub, 3, 6.5f);
+            s.facing = Facing.North;
+            Assert.IsTrue(V(l).Has("R05"), "fileira N com sprite _S");
+            s.sprite = cat.North(Sub).ToRef();
+            Assert.IsFalse(V(l).Has("R05"));
+        }
+
+        [Test] public void R14_NorthEntryIsOnStreetAbove()
+        {
+            var l = Base();
+            var g = LayoutValidator.BuildGeo(l);
+            var e = LayoutValidator.ExpectedEntry(g, new Vector2(3, 2f), Facing.North, 0.8f);
+            Assert.IsTrue(e.HasValue);
+            Assert.AreEqual(4.6f, e.Value.y, 1e-4f, "rua entre 4,2 e 5,0");
+            Assert.IsNull(LayoutValidator.ExpectedEntry(g, new Vector2(3, 7f), Facing.North, 0.8f), "fileira de cima da cidade sem rua de contorno");
+        }
+
+        [Test] public void R38_WaypointGraph()
+        {
+            var l = new CityLayout { seed = 1, center = new Vec2(10.4f, 4.6f), limiterMargin = 0.8f };
+            l.polygons.Add(Poly("001", 0, 0, 10, 4)); l.polygons.Add(Poly("002", 10.8f, 0, 20.8f, 4));
+            l.polygons.Add(Poly("003", 0, 4.8f, 20.8f, 9.2f));
+            S(l, "001", StructureType.House, Sub, 3, 0.2f); S(l, "002", StructureType.House, Sub, 14, 0.2f);
+            var n = S(l, "003", StructureType.House, cat.North(Sub), 6, 1.5f); n.facing = Facing.North;
+            var g = LayoutValidator.BuildGeo(l);
+            foreach (var s in l.structures) s.entry = LayoutValidator.ExpectedEntry(g, s.bottomCenter, s.facing, 0.8f).Value;
+            StreetGraph.Fill(l);
+            Assert.IsFalse(V(l).Has("R38"), string.Join(" | ", V(l).violations.Where(v => v.ruleId == "R38").Select(v => v.ToString())));
+            Assert.Greater(l.junctions.Count, 0);
+            Assert.IsTrue(l.links.All(k => k.a != k.b));
+            // House 003 (fileira N do quarteirão de baixo) fica na mesma rua que nenhuma outra entrada: liga-se a cruzamentos
+            Assert.IsTrue(l.links.Any(k => k.a == "House 003" || k.b == "House 003"));
+            var removed = l.links[0]; l.links.RemoveAt(0);
+            Assert.IsTrue(V(l).Has("R38"), "falta ligação");
+            l.links.Add(removed);
+            l.links.Add(new WaypointLink { a = "House 001", b = "House 001" });
+            Assert.IsTrue(V(l).Has("R38"), "ligado a si mesmo");
+        }
+
         [Test] public void R06_HousePool()
         {
             var l = Base(); S(l, "001", StructureType.House, Sub, 3, 5.3f);
@@ -245,7 +286,7 @@ namespace DefesaCivil.CityGen.Tests
             Assert.IsFalse(V(l).Has("R32"));
             l.structures[5].bottomCenter = new Vec2(13, 6f); // NE: mesmo lado norte
             Assert.IsTrue(V(l).Has("R32"));
-            l.structures[5].bottomCenter = new Vec2(6, 2.5f); // SW: mesmo lado oeste
+            l.structures[5].bottomCenter = new Vec2(6, 1.0f); // SW: mesmo lado oeste
             Assert.IsTrue(V(l).Has("R32"));
         }
 

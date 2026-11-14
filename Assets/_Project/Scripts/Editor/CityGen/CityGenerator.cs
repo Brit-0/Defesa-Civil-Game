@@ -8,37 +8,59 @@ namespace DefesaCivil.CityGen
     /// <summary>
     /// Gera um CityLayout determinístico a partir de uma semente.
     ///
-    /// Desenho da cidade (v2):
-    /// - Malha de 5 faixas horizontais de quarteirões, com TODAS as ruas na mesma largura, mais uma rua de contorno.
-    /// - Duas ruas norte-sul atravessam a cidade e ladeiam um parque central (2 faixas de altura).
-    /// - Centro comercial em volta do parque, indústria no canto nordeste (com a Guarda), depósitos nos cantos
-    ///   noroeste e sudeste, bosque no canto sudoeste e bairros residenciais no restante.
-    /// - Estruturas alinhadas pela base VISÍVEL do sprite, rente à rua ao sul, sem se sobrepor.
-    /// - Decoração temática por bairro: quintais com árvores e cercas, carros na garagem, postes, semáforos,
-    ///   tanques e chaminés na indústria, viaturas na Guarda, contêineres nos depósitos.
+    /// Desenho da cidade (v3):
+    /// - Malha de 4 faixas de quarteirões, com TODAS as ruas na mesma largura e rua de contorno. Duas ruas norte-sul
+    ///   atravessam a cidade e ladeiam um parque central (2 faixas de altura).
+    /// - Cada quarteirão tem duas fileiras de estruturas: a de baixo com fachada para a rua ao sul (sprites _S) e a de
+    ///   cima com fachada para a rua ao norte (sprites _N), com um quintal entre elas.
+    /// - Centro comercial em volta do parque, indústria no nordeste (com a Guarda), depósitos nos cantos noroeste e
+    ///   sudeste, bosque no sudoeste e bairros residenciais no restante.
+    /// - Nenhum sprite da pasta Carros. Decoração: árvores, arbustos, flores, cercas, canteiros, postes, semáforos,
+    ///   equipamentos industriais.
+    /// - Waypoints: um de entrada por estrutura (na rua da fachada), um por cruzamento, ligados aos vizinhos pela rua.
     /// </summary>
     public static class CityGenerator
     {
         public const float Street = 0.8f;
-        public const float Setback = 0.12f;      // base visível da estrutura até a rua ao sul
+        public const float Setback = 0.12f;      // parte visível da estrutura até a rua da fachada
         public const float TopOverhang = 0.6f;   // quanto uma decoração pode passar da borda norte do quarteirão
+        public const float YardMin = 1.3f;       // quintal mínimo entre as duas fileiras
         const string Res = "Res", Com = "Com", Ind = "Ind", IndGuard = "IndGuard", Depot = "Depot", Park = "Park", Woods = "Woods";
 
         class Block
         {
             public Rect r; public string role; public string polyId; public int row;
-            public bool parking, westEnd, eastItem, westItem;
-            public float MarginL(float normal) => westItem ? 1.15f : normal;
-            public float MarginR(float normal) => eastItem ? (row >= 2 && row <= 4 ? 0.85f : 1.2f) : normal;
+            public bool westEnd, eastItem, westItem;
+            public float MarginL => westItem ? 1.15f : 0.4f;
+            public float MarginR => eastItem ? 0.85f : 0.4f;
+            public float RowMaxH => (r.height - 2 * Setback - YardMin) / 2f;
             public readonly List<Rect> structs = new List<Rect>();
-            /// <summary>Decorações "sólidas" (carros, contêineres, cercas, canteiros): não se sobrepõem entre si.</summary>
+            public readonly List<Rect> southRow = new List<Rect>(), northRow = new List<Rect>();
+            /// <summary>Decorações "sólidas" (cercas, canteiros, contêineres, painéis): não se sobrepõem entre si.</summary>
             public readonly List<Rect> solids = new List<Rect>();
+            public readonly List<Slot> southSlots = new List<Slot>(), northSlots = new List<Slot>();
+
+            /// <summary>Topo das estruturas da fileira sul que cruzam [xa, xb] (ou a base do quarteirão).</summary>
+            public float SouthTop(float xa, float xb)
+            {
+                float top = r.yMin;
+                foreach (var s in southRow) if (s.xMax > xa && s.xMin < xb) top = Mathf.Max(top, s.yMax);
+                return top;
+            }
+
+            /// <summary>Base das estruturas da fileira norte que cruzam [xa, xb] (ou o topo do quarteirão).</summary>
+            public float NorthBottom(float xa, float xb)
+            {
+                float b = r.yMax;
+                foreach (var s in northRow) if (s.xMax > xa && s.xMin < xb) b = Mathf.Min(b, s.yMin);
+                return b;
+            }
         }
 
         class Slot
         {
-            public CatalogSprite cs; public string type; public string district;
-            public float gapBefore, baseDy, x;
+            public CatalogSprite cs; public string type;
+            public float gapBefore, jitter, x;
             public bool IsStructure => type != null;
         }
 
@@ -46,7 +68,7 @@ namespace DefesaCivil.CityGen
         {
             readonly List<CatalogSprite> all; readonly System.Random rng; List<CatalogSprite> left = new List<CatalogSprite>();
             public Deck(IEnumerable<CatalogSprite> items, System.Random rng) { all = items.Where(i => i != null).ToList(); this.rng = rng; }
-            public int Count => all.Count;
+            public IReadOnlyList<CatalogSprite> All => all;
             void Refill() { left = all.ToList(); for (int i = left.Count - 1; i > 0; i--) { int j = rng.Next(i + 1); (left[i], left[j]) = (left[j], left[i]); } }
             public CatalogSprite Next() => NextWhere(_ => true);
             /// <summary>Próximo sprite do baralho que satisfaz o filtro (sem repetir até esgotar), ou null.</summary>
@@ -68,9 +90,11 @@ namespace DefesaCivil.CityGen
         {
             public System.Random rng; public SpriteCatalog cat; public CityLayout layout;
             public readonly List<Block> blocks = new List<Block>();
-            public readonly List<(Rect rect, float baseY)> structRects = new List<(Rect, float)>();
             public readonly Dictionary<string, int> ids = new Dictionary<string, int>();
-            public Deck sub, comWide, comTower, ind, cars, yardTrees, parkTrees, pines, bushes, flowers, smallRocks, bigRocks, monuments, stumps, mushrooms, palms;
+            public readonly Dictionary<string, int> target = new Dictionary<string, int>();
+            public readonly Dictionary<string, int> placed = new Dictionary<string, int>();
+            public readonly Dictionary<string, float> gap = new Dictionary<string, float>();
+            public Deck sub, comWide, comTower, ind, yardTrees, parkTrees, pines, bushes, flowers, smallRocks, bigRocks, monuments, stumps, mushrooms, palms, indProps, indBack;
 
             public float Range(float a, float b) => a + (float)rng.NextDouble() * (b - a);
             public bool Chance(float p) => rng.NextDouble() < p;
@@ -79,6 +103,8 @@ namespace DefesaCivil.CityGen
             public CatalogSprite T(string texture) => cat.ByTexture(texture);
             public Deck D(params string[] textures) => new Deck(textures.Select(T), rng);
             public Deck P(string category, params string[] prefixes) => new Deck(prefixes.SelectMany(p => cat.ByPrefix(category, p)).Distinct(), rng);
+            /// <summary>Sprite desenhado para a estrutura: o próprio _S ou a variante _N.</summary>
+            public CatalogSprite Draw(CatalogSprite s, bool north) => north ? cat.North(s) : s;
         }
 
         public static CityLayout Generate(int seed, Vector2 center, SpriteCatalog cat, string generatedAt)
@@ -95,6 +121,7 @@ namespace DefesaCivil.CityGen
                 g.layout.polygons.Add(poly);
                 b.polyId = poly.id;
             }
+            PlanDensity(g);
             foreach (var b in g.blocks)
             {
                 switch (b.role)
@@ -121,11 +148,11 @@ namespace DefesaCivil.CityGen
 
         static void BuildDecks(Gen g)
         {
-            g.sub = new Deck(g.cat.Suburban, g.rng);
-            g.comWide = g.P("Commercial", "Predio_", "Arranha_Ceu_");
-            g.comTower = g.P("Commercial", "Fundo_");
-            g.ind = new Deck(g.cat.Industrial, g.rng);
-            g.cars = g.D("Sedan", "Sedan_Esportivo", "SUV", "SUV_Luxo", "Hatch_Esportivo", "Picape", "Taxi", "Van");
+            bool HasNorth(CatalogSprite c) => g.cat.North(c) != null;
+            g.sub = new Deck(g.cat.Suburban.Where(HasNorth), g.rng);
+            g.comWide = new Deck(g.P("Commercial", "Predio_", "Arranha_Ceu_").All.Where(HasNorth), g.rng);
+            g.comTower = new Deck(g.P("Commercial", "Fundo_").All.Where(HasNorth), g.rng);
+            g.ind = new Deck(g.cat.Industrial.Where(HasNorth), g.rng);
             g.yardTrees = g.D("Arvore_Quintal", "Arvore_Quintal_Baixa", "Arvore", "Arvore_Redonda", "Arvore_Simples", "Arvore_Alta", "Arvore_Cone", "Arvore_Chapeu", "Arvore_Fina", "Carvalho", "Pinheiro", "Pinheiro_Alto_A");
             g.parkTrees = g.D("Arvore", "Arvore_Alta", "Arvore_Blocos", "Arvore_Chapeu", "Arvore_Cone", "Arvore_Fina", "Arvore_Galhos", "Arvore_Gorda", "Arvore_Redonda", "Arvore_Simples", "Carvalho", "Arvore_Quintal", "Arvore_Quintal_Baixa");
             g.pines = g.P("Nature", "Pinheiro");
@@ -137,6 +164,8 @@ namespace DefesaCivil.CityGen
             g.stumps = g.D("Toco_Quadrado", "Toco_Raizes", "Toco_Redondo", "Toco_Velho", "Tronco_Oco");
             g.mushrooms = g.D("Cogumelo", "Cogumelo_Alto", "Cogumelo_Chapeu", "Cogumelo_Grupo");
             g.palms = g.D("Palmeira", "Palmeira_Cheia", "Palmeira_Cruz", "Palmeira_Curva");
+            g.indProps = g.D("Chamine", "Chamine_Baixa", "Chamine_Listrada", "Caixa_Dagua", "Conteiner", "Tanque", "Turbina_Eolica");
+            g.indBack = g.D("Painel_Solar", "Cacamba_Lixo", "Barreira_Concreto", "Arbusto_Grande");
         }
 
         // ------------------------------------------------------------------ malha de quarteirões
@@ -146,16 +175,13 @@ namespace DefesaCivil.CityGen
         static void BuildBlocks(Gen g)
         {
             float S = Street;
-            float W = R1(g.Range(50f, 54f));
-            float pw = R1(g.Range(13.6f, 15.2f));
+            float W = R1(g.Range(46.5f, 49f));
+            float pw = R1(g.Range(12.4f, 13.4f));
             float L = R1((W - pw - 2 * S) * g.Range(0.46f, 0.54f));
             float xMidA = L + S, xMidB = xMidA + pw, xRight = xMidB + S;
-            const int Rows = 6;
-            float[] depth =
-            {
-                R1(g.Range(4.8f, 5.0f)), R1(g.Range(4.7f, 4.9f)), R1(g.Range(4.5f, 4.7f)),
-                R1(g.Range(4.5f, 4.7f)), R1(g.Range(4.8f, 5.0f)), R1(g.Range(5.2f, 5.4f))
-            };
+            const int Rows = 4;
+            var depth = new float[Rows];
+            for (int i = 0; i < Rows; i++) depth[i] = R1(g.Range(7.2f, 7.5f));
             var y = new float[Rows];
             for (int i = 1; i < Rows; i++) y[i] = y[i - 1] + depth[i - 1] + S;
 
@@ -172,42 +198,30 @@ namespace DefesaCivil.CityGen
                 float c = R1(xa + (xb - xa - S) * g.Range(fracMin, fracMax));
                 if (!float.IsNaN(lastCut) && Mathf.Abs(c - lastCut) > 0.01f && Mathf.Abs(c - lastCut) < 2.2f)
                     c = lastCut + (c >= lastCut ? 2.2f : -2.2f);
-                c = Mathf.Clamp(c, xa + 6.2f, xb - S - 6.2f);
+                c = Mathf.Clamp(c, xa + 5.6f, xb - S - 5.6f);
                 lastCut = c;
                 return c;
             }
-            void Maybe(int row, float xa, float xb, string role, float chance)
-            {
-                if (g.Chance(chance)) { float c = Cut(xa, xb, 0.4f, 0.6f); Add(row, xa, c, role); Add(row, c + S, xb, role); }
-                else Add(row, xa, xb, role);
-            }
 
-            // --- faixa esquerda (oeste)
+            // --- faixa oeste
             lastCut = float.NaN;
             float c0 = Cut(0, L, 0.44f, 0.52f); Add(0, 0, c0, Woods); Add(0, c0 + S, L, Res);
-            Maybe(1, 0, L, Res, 0.6f);
-            float c2 = Cut(0, L, 0.42f, 0.56f); Add(2, 0, c2, Res); Add(2, c2 + S, L, Com);
-            float c3 = Cut(0, L, 0.42f, 0.56f); Add(3, 0, c3, Res); Add(3, c3 + S, L, Com);
-            Maybe(4, 0, L, Res, 0.6f);
-            float c5 = Cut(0, L, 0.46f, 0.54f); Add(5, 0, c5, Depot, b => b.westEnd = true); Add(5, c5 + S, L, Res);
+            float c1 = Cut(0, L, 0.42f, 0.56f); Add(1, 0, c1, Res); Add(1, c1 + S, L, Com);
+            float c2 = Cut(0, L, 0.42f, 0.56f); Add(2, 0, c2, Res); Add(2, c2 + S, L, Res);
+            float c3 = Cut(0, L, 0.46f, 0.54f); Add(3, 0, c3, Depot, b => b.westEnd = true); Add(3, c3 + S, L, Res);
 
-            // --- faixa do meio (parque nas faixas 2 e 3)
+            // --- faixa do meio (parque nas faixas 1 e 2)
             lastCut = float.NaN;
-            Maybe(0, xMidA, xMidB, Res, 0.5f);
-            Add(1, xMidA, xMidB, Res);
-            g.blocks.Add(new Block { r = Rect.MinMaxRect(xMidA, y[2], xMidB, y[3] + depth[3]), role = Park, row = 2 });
-            Add(4, xMidA, xMidB, Com, b => b.parking = true);
-            lastCut = float.NaN;
-            Maybe(5, xMidA, xMidB, Res, 0.5f);
+            if (g.Chance(0.5f)) { float m0 = Cut(xMidA, xMidB, 0.4f, 0.6f); Add(0, xMidA, m0, Res); Add(0, m0 + S, xMidB, Res); } else Add(0, xMidA, xMidB, Res);
+            g.blocks.Add(new Block { r = Rect.MinMaxRect(xMidA, y[1], xMidB, y[2] + depth[2]), role = Park, row = 1 });
+            Add(3, xMidA, xMidB, Com);
 
-            // --- faixa direita (leste)
+            // --- faixa leste
             lastCut = float.NaN;
             float e0 = Cut(xRight, W, 0.46f, 0.54f); Add(0, xRight, e0, Res); Add(0, e0 + S, W, Depot);
-            Maybe(1, xRight, W, Res, 0.6f);
-            float e2 = Cut(xRight, W, 0.44f, 0.58f); Add(2, xRight, e2, Com); Add(2, e2 + S, W, Res);
-            float e3 = Cut(xRight, W, 0.44f, 0.58f); Add(3, xRight, e3, Com); Add(3, e3 + S, W, Ind);
-            Add(4, xRight, W, Ind);
-            Add(5, xRight, W, IndGuard);
+            float e1 = Cut(xRight, W, 0.44f, 0.58f); Add(1, xRight, e1, Com); Add(1, e1 + S, W, Res);
+            Add(2, xRight, W, Ind);
+            Add(3, xRight, W, IndGuard);
 
             // esquinas voltadas para as duas ruas que atravessam a cidade recebem semáforo ou placa
             foreach (var b in g.blocks)
@@ -218,41 +232,67 @@ namespace DefesaCivil.CityGen
             }
         }
 
+        // ------------------------------------------------------------------ densidade (R01, R09)
+
+        /// <summary>Espaço que sobra numa fileira para casas comuns, descontando o que é reservado.</summary>
+        static float RowAvail(Block b, bool north)
+        {
+            float a = b.r.width - b.MarginL - b.MarginR;
+            if (!north && b.role == Depot) return 0f;
+            if (!north && b.role == IndGuard) a -= 3.4f;
+            return Mathf.Max(0f, a);
+        }
+
+        /// <summary>
+        /// Distribui ~66–76 casas entre os bairros (60/25/15) e calcula o espaço médio entre casas de cada bairro
+        /// para que a frente disponível acomode esse número. O que sobra vira quintal, árvores e equipamentos.
+        /// </summary>
+        static void PlanDensity(Gen g)
+        {
+            int n = g.rng.Next(70, 79);
+            int nS = Mathf.RoundToInt(0.60f * n), nC = Mathf.RoundToInt(0.25f * n);
+            g.target[District.Suburban] = nS; g.target[District.Commercial] = nC; g.target[District.Industrial] = n - nS - nC;
+            var minGap = new Dictionary<string, float> { { District.Suburban, 0.4f }, { District.Commercial, 0.25f }, { District.Industrial, 0.55f } };
+            foreach (var d in g.target.Keys.ToList())
+            {
+                var blocks = g.blocks.Where(b => DistrictOf(b.role) == d && b.role != Park && b.role != Woods).ToList();
+                float front = blocks.Sum(b => RowAvail(b, false) + RowAvail(b, true));
+                var pool = d == District.Suburban ? g.sub.All : d == District.Commercial ? g.comWide.All.Concat(g.comTower.All).ToList() : g.ind.All;
+                float maxH = blocks.Count > 0 ? blocks.Min(b => b.RowMaxH) : 3f;
+                var fit = pool.Where(c => g.cat.North(c) != null && c.visHU <= maxH && g.cat.North(c).visHU <= maxH).ToList();
+                float avgW = (fit.Count > 0 ? fit : pool.ToList()).Average(c => c.visWU);
+                g.gap[d] = Mathf.Clamp(front / Mathf.Max(1, g.target[d]) - avgW, minGap[d], 4.5f);
+                g.placed[d] = 0;
+            }
+        }
+
         // ------------------------------------------------------------------ utilitários de posicionamento
 
-        static StructureData AddStructure(Gen g, Block b, CatalogSprite cs, string type, float baseX, float baseY)
+        static StructureData AddStructure(Gen g, Block b, CatalogSprite draw, string type, bool north, float baseX, float baseY)
         {
             var s = new StructureData
             {
-                id = g.NextId(type), type = type, district = cs.category, polygonId = b.polyId, sprite = cs.ToRef(),
-                bottomCenter = new Vec2(baseX, baseY)
+                id = g.NextId(type), type = type, facing = north ? Facing.North : Facing.South, district = draw.category,
+                polygonId = b.polyId, sprite = draw.ToRef(), bottomCenter = new Vec2(baseX, baseY)
             };
             g.layout.structures.Add(s);
-            var rect = cs.VisibleRect(new Vector2(baseX, baseY));
+            var rect = draw.VisibleRect(new Vector2(baseX, baseY));
             b.structs.Add(rect);
-            g.structRects.Add((rect, baseY));
+            (north ? b.northRow : b.southRow).Add(rect);
             return s;
-        }
-
-        /// <summary>Topo mais alto das estruturas do quarteirão que cruzam a faixa [xa, xb] (ou a base do quarteirão).</summary>
-        static float TopAt(Block b, float xa, float xb)
-        {
-            float top = b.r.yMin;
-            foreach (var r in b.structs) if (r.xMax > xa && r.xMin < xb) top = Mathf.Max(top, r.yMax);
-            return top;
         }
 
         /// <summary>
         /// Adiciona uma decoração se couber: base dentro do quarteirão, copa sem passar muito da borda norte e
-        /// sem cobrir estrutura que esteja à sua frente.
+        /// sem cobrir estrutura que esteja à sua frente (R36).
         /// </summary>
-        static bool AddDeco(Gen g, Block b, CatalogSprite cs, float baseX, float baseY, float overhang = TopOverhang, bool solid = false)
+        static bool AddDeco(Gen g, Block b, CatalogSprite cs, float baseX, float baseY, float overhang = TopOverhang, bool solid = false, float maxTop = float.MaxValue)
         {
             if (cs == null) return false;
             float half = cs.visWU / 2f;
             if (baseX - half < b.r.xMin + 0.03f || baseX + half > b.r.xMax - 0.03f) return false;
             if (baseY < b.r.yMin + 0.03f || baseY > b.r.yMax - 0.05f) return false;
-            if (baseY + cs.visHU > b.r.yMax + overhang) return false;
+            if (baseY + cs.visHU > Mathf.Min(b.r.yMax + overhang, maxTop)) return false;
             var rect = cs.VisibleRect(new Vector2(baseX, baseY));
             foreach (var s in b.structs)
                 if (baseY > s.yMin + 0.02f && rect.xMax > s.xMin + 0.05f && rect.xMin < s.xMax - 0.05f && rect.yMax > s.yMin + 0.05f && rect.yMin < s.yMax - 0.05f)
@@ -265,9 +305,9 @@ namespace DefesaCivil.CityGen
             }
             else
             {
-                // tronco/pé não nasce de dentro de um carro, canteiro ou cerca
-                foreach (var o in b.solids)
-                    if (baseX > o.xMin - 0.05f && baseX < o.xMax + 0.05f && baseY > o.yMin + 0.05f && baseY < o.yMax) return false;
+                // tronco/pé não nasce de dentro de uma cerca, canteiro ou estrutura
+                foreach (var o in b.solids.Concat(b.structs))
+                    if (baseX > o.xMin - 0.02f && baseX < o.xMax + 0.02f && baseY > o.yMin + 0.05f && baseY < o.yMax) return false;
             }
             g.layout.decorations.Add(new DecorationData { polygonId = b.polyId, sprite = cs.ToRef(), bottomCenter = new Vec2(baseX, baseY) });
             return true;
@@ -298,119 +338,139 @@ namespace DefesaCivil.CityGen
             }
         }
 
-        static void PlaceRow(Gen g, Block b, List<Slot> slots)
+        /// <summary>Base Y da estrutura/decoração de fileira: rente à rua sul (fileira S) ou à rua norte (fileira N).</summary>
+        static float RowBase(Block b, bool north, CatalogSprite cs, float jitter) =>
+            north ? b.r.yMax - Setback - jitter - cs.visHU : b.r.yMin + Setback + jitter;
+
+        static void PlaceRow(Gen g, Block b, List<Slot> slots, bool north)
         {
-            foreach (var s in slots.Where(s => s.IsStructure)) AddStructure(g, b, s.cs, s.type, s.x, b.r.yMin + Setback + s.baseDy);
-            foreach (var s in slots.Where(s => !s.IsStructure)) AddDeco(g, b, s.cs, s.x, b.r.yMin + Setback + s.baseDy, 1.2f, true);
+            foreach (var s in slots.Where(s => s.IsStructure)) AddStructure(g, b, s.cs, s.type, north, s.x, RowBase(b, north, s.cs, s.jitter));
+            foreach (var s in slots.Where(s => !s.IsStructure)) AddDeco(g, b, s.cs, s.x, RowBase(b, north, s.cs, s.jitter), 10f, true);
+            (north ? b.northSlots : b.southSlots).AddRange(slots);
         }
 
-        // ------------------------------------------------------------------ residencial
-
-        const int MaxHouses = 78;
-        static int HouseCount(Gen g) => g.layout.structures.Count(s => s.type == StructureType.House);
-
-        static void FillResidential(Gen g, Block b)
+        /// <summary>
+        /// Enche uma fileira com casas do bairro (sprites _S ou _N conforme a fileira), respeitando a altura máxima
+        /// da fileira e o espaço médio planejado. 'preset' entra na frente (Guarda, Warehouse, contêineres).
+        /// </summary>
+        static List<Slot> FillRow(Gen g, Block b, bool north, string district, Func<CatalogSprite> pickDeck, float avail, List<Slot> preset = null,
+            Func<float, Slot> between = null)
         {
-            float mL = b.MarginL(0.4f), mR = b.MarginR(0.4f), minGap = 0.4f;
-            float avail = b.r.width - mL - mR, used = 0f;
-            var slots = new List<Slot>();
-            int houses = HouseCount(g);
-            for (int guard = 0; guard < 30 && houses < MaxHouses; guard++)
+            var slots = preset ?? new List<Slot>();
+            float used = slots.Sum(s => s.cs.visWU) + slots.Skip(1).Sum(s => s.gapBefore);
+            float maxH = b.RowMaxH;
+            for (int guard = 0; guard < 40 && g.placed[district] < g.target[district] + 1; guard++)
             {
-                float gap = slots.Count > 0 ? minGap : 0f;
-                var cs = g.sub.NextWhere(c => c.visWU + gap <= avail - used);
-                if (cs == null) break;
-                slots.Add(new Slot { cs = cs, type = StructureType.House, gapBefore = gap, baseDy = g.Range(0f, 0.1f) });
-                used += cs.visWU + gap; houses++;
-                if (g.Chance(0.25f))
+                float gp = slots.Count > 0 ? g.gap[district] * g.Range(0.75f, 1.25f) : 0f;
+                if (between != null && slots.Count > 0 && slots[slots.Count - 1].IsStructure)
                 {
-                    var car = g.cars.NextWhere(c => c.visWU + 0.3f + minGap + 2.2f <= avail - used);
-                    if (car != null) { slots.Add(new Slot { cs = car, gapBefore = 0.3f, baseDy = g.Range(0.15f, 0.5f) }); used += car.visWU + 0.3f; }
+                    var mid = between(gp);
+                    if (mid != null && used + mid.gapBefore + mid.cs.visWU + 0.3f + 1.5f <= avail)
+                    {
+                        slots.Add(mid); used += mid.gapBefore + mid.cs.visWU;
+                        gp = 0.3f;
+                    }
                 }
+                CatalogSprite draw = null;
+                for (int tries = 0; tries < 40 && draw == null; tries++)
+                {
+                    var s = pickDeck();
+                    var d = s == null ? null : g.Draw(s, north);
+                    if (d != null && d.visHU <= maxH && d.visWU + gp <= avail - used) draw = d;
+                }
+                if (draw == null) break;
+                slots.Add(new Slot { cs = draw, type = StructureType.House, gapBefore = gp, jitter = g.Range(0f, 0.06f) });
+                used += draw.visWU + gp;
+                g.placed[district]++;
             }
-            while (slots.Count > 0 && !slots[slots.Count - 1].IsStructure) slots.RemoveAt(slots.Count - 1);
-            LayoutRow(g, slots, b.r.xMin + mL, b.r.xMax - mR, 0.5f);
-            PlaceRow(g, b, slots);
+            while (slots.Count > 0 && !slots[slots.Count - 1].IsStructure && preset == null) slots.RemoveAt(slots.Count - 1);
+            return slots;
+        }
 
-            float y0 = b.r.yMin, y1 = b.r.yMax;
-            // vãos entre casas: árvore fina mais ao fundo; vaso, flor, planta ou poste na frente
+        // ------------------------------------------------------------------ decoração comum
+
+        /// <summary>Árvore/arbusto nos vãos entre estruturas de uma fileira e flores ou vaso na frente.</summary>
+        static void GapPlanting(Gen g, Block b, List<Slot> slots, bool north, Deck trees, bool lamps)
+        {
             for (int i = 1; i < slots.Count; i++)
             {
                 var a = slots[i - 1]; var c = slots[i];
                 if (!a.IsStructure || !c.IsStructure) continue;
                 float xa = a.x + a.cs.visWU / 2f, xb = c.x - c.cs.visWU / 2f, gw = xb - xa, xm = (xa + xb) / 2f;
-                if (gw >= 1.0f && g.Chance(0.7f))
+                if (gw < 0.6f) continue;
+                // árvore no lote, ao lado da casa
+                if (gw >= 0.95f && g.Chance(0.8f))
                 {
-                    var tree = g.yardTrees.NextWhere(t => t.visWU <= gw - 0.08f);
-                    if (tree != null) AddDeco(g, b, tree, xm, y0 + g.Range(1.0f, 1.8f));
+                    var tree = trees.NextWhere(t => t.visWU <= gw - 0.08f);
+                    if (tree != null)
+                    {
+                        float baseY = north ? b.NorthBottom(xa, xb) - tree.visHU * 0.25f + g.Range(-0.2f, 0.2f) : b.r.yMin + g.Range(0.9f, 1.5f);
+                        if (north) baseY = Mathf.Min(baseY, b.r.yMax + TopOverhang - tree.visHU);
+                        AddDeco(g, b, tree, xm + g.Range(-0.1f, 0.1f), baseY, TopOverhang, false, north ? float.MaxValue : b.NorthBottom(xa, xb) + 0.6f);
+                    }
                 }
-                if (gw >= 0.75f && g.Chance(0.7f))
+                // na frente, perto da calçada
+                var front = (lamps && !north && g.Chance(0.25f) ? g.D("Poste_Curvo") : g.D("Flor_Margarida", "Flor_Sino", "Flor_Tulipa", "Planta_Baixa", "Planta_Alta", "Folhagem", "Vaso", "Arbusto_Pequeno"))
+                    .NextWhere(t => t.visWU <= gw - 0.08f);
+                if (front != null && g.Chance(0.75f))
                 {
-                    var front = g.D("Flor_Margarida", "Flor_Sino", "Flor_Tulipa", "Planta_Baixa", "Planta_Alta", "Folhagem", "Vaso", "Poste_Curvo").NextWhere(t => t.visWU <= gw - 0.08f);
-                    if (front != null) AddDeco(g, b, front, xm + g.Range(-0.06f, 0.06f), y0 + g.Range(0.08f, 0.4f), 10f);
+                    float baseY = north ? b.r.yMax - 0.05f - front.visHU * 0.6f : b.r.yMin + g.Range(0.08f, 0.35f);
+                    AddDeco(g, b, front, xm + g.Range(-0.06f, 0.06f), baseY, 10f);
                 }
-            }
-            Backyard(g, b, slots, g.yardTrees, 0.92f, 0.55f);
-            // canteiro grande em alguns quintais
-            if (g.Chance(0.35f))
-            {
-                var planter = g.T(g.Chance(0.6f) ? "Jardineira" : "Cercado");
-                float x = g.Range(b.r.xMin + 1.6f, b.r.xMax - 1.6f);
-                float baseY = TopAt(b, x - planter.visWU / 2f, x + planter.visWU / 2f) + 0.2f;
-                if (baseY + planter.visHU <= y1 - 0.1f) AddDeco(g, b, planter, x, baseY, 0f, true);
-            }
-            // cerca ou sebe nos fundos
-            float roll = (float)g.rng.NextDouble();
-            if (roll < 0.5f)
-            {
-                var fence = g.T(g.Pick(new[] { "Cerca_Tabuas", "Cerca_Rustica", "Cerca_Trilho", "Cerca_Tabuas_Dupla" }));
-                FenceLine(g, b, fence, y1 - fence.visHU - 0.08f, 0.25f);
-            }
-            else if (roll < 0.85f) Hedge(g, b, 1.35f, 1.8f);
-            CornerGarden(g, b, slots, g.yardTrees);
-        }
-
-        /// <summary>Fileira de arbustos rente ao fundo do quarteirão.</summary>
-        static void Hedge(Gen g, Block b, float stepMin, float stepMax)
-        {
-            for (float x = b.r.xMin + 0.9f + g.Range(0f, 0.5f); x < b.r.xMax - 0.9f; x += g.Range(stepMin, stepMax))
-            {
-                var bush = g.bushes.Next();
-                float baseY = Mathf.Max(TopAt(b, x - bush.visWU / 2f, x + bush.visWU / 2f) + 0.08f, b.r.yMax - bush.visHU - g.Range(0.0f, 0.2f));
-                AddDeco(g, b, bush, x, baseY);
             }
         }
 
-        /// <summary>Árvores atrás das estruturas (sem cobri-las), arbustos onde não há altura e canteiros de flores.</summary>
-        static void Backyard(Gen g, Block b, List<Slot> slots, Deck trees, float treeChance, float secondChance)
+        /// <summary>Quintal entre as fileiras: cerca ou sebe dividindo os lotes e árvores atrás das casas.</summary>
+        static void Yard(Gen g, Block b, Deck trees, string divider, float treeChance)
         {
-            float y1 = b.r.yMax;
-            foreach (var s in slots.Where(s => s.IsStructure))
+            float ya = b.SouthTop(b.r.xMin, b.r.xMax), yb = b.NorthBottom(b.r.xMin, b.r.xMax);
+            // divisória no meio do quintal
+            if (divider == "fence" || divider == "high")
+            {
+                var fence = g.T(divider == "high" ? "Cerca_Alta" : g.Pick(new[] { "Cerca_Tabuas", "Cerca_Rustica", "Cerca_Trilho", "Cerca_Tabuas_Dupla" }));
+                float yMid = MidYard(b) - fence.visHU / 2f;
+                FenceLine(g, b, fence, yMid, 0.25f);
+            }
+            else if (divider == "hedge")
+            {
+                for (float x = b.r.xMin + 0.9f + g.Range(0f, 0.5f); x < b.r.xMax - 0.9f; x += g.Range(1.3f, 1.8f))
+                {
+                    var bush = g.bushes.Next();
+                    AddDeco(g, b, bush, x, MidYard(b, x) - bush.visHU / 2f + g.Range(-0.1f, 0.1f));
+                }
+            }
+            // árvores atrás das casas da fileira sul (podem encobrir o fundo das casas da fileira norte)
+            foreach (var s in b.southSlots.Where(s => s.IsStructure))
             {
                 if (!g.Chance(treeChance)) continue;
-                int n = s.cs.visWU > 2.4f && g.Chance(secondChance) ? 2 : 1;
-                for (int k = 0; k < n; k++)
+                float x = s.x + g.Range(-0.35f, 0.35f) * s.cs.visWU;
+                var tree = trees.NextWhere(t =>
                 {
-                    float x = n == 2 ? s.x + (k == 0 ? -1f : 1f) * g.Range(0.5f, 0.9f) : s.x + g.Range(-0.35f, 0.35f) * s.cs.visWU;
-                    var tree = trees.NextWhere(t => TopAt(b, x - t.visWU / 2f, x + t.visWU / 2f) + 0.06f + t.visHU <= y1 + TopOverhang);
-                    if (tree == null) tree = g.bushes.NextWhere(t => TopAt(b, x - t.visWU / 2f, x + t.visWU / 2f) + 0.08f + t.visHU <= y1 + TopOverhang);
-                    if (tree == null) continue;
-                    float top = TopAt(b, x - tree.visWU / 2f, x + tree.visWU / 2f);
-                    float room = y1 + TopOverhang - tree.visHU - top - 0.06f;
-                    AddDeco(g, b, tree, x, top + 0.06f + g.Range(0f, Mathf.Min(0.5f, Mathf.Max(0f, room))));
-                }
+                    float top = b.SouthTop(x - t.visWU / 2f, x + t.visWU / 2f);
+                    return top + 0.06f + t.visHU <= b.NorthBottom(x - t.visWU / 2f, x + t.visWU / 2f) + 0.9f;
+                }) ?? g.bushes.Next();
+                float baseY = b.SouthTop(x - tree.visWU / 2f, x + tree.visWU / 2f) + g.Range(0.06f, 0.25f);
+                AddDeco(g, b, tree, x, baseY, TopOverhang, false, b.NorthBottom(x - tree.visWU / 2f, x + tree.visWU / 2f) + 0.9f);
             }
-            // flores no fundo
-            int beds = Mathf.Max(1, Mathf.FloorToInt(b.r.width / 4.5f));
+            // flores no quintal
+            int beds = Mathf.Max(1, Mathf.FloorToInt(b.r.width / 5f));
             for (int i = 0; i < beds; i++)
             {
-                if (!g.Chance(0.75f)) continue;
+                if (!g.Chance(0.6f)) continue;
                 float x = g.Range(b.r.xMin + 1.0f, b.r.xMax - 1.0f);
-                float yb = Mathf.Max(TopAt(b, x - 1.0f, x + 1.0f) + 0.15f, y1 - g.Range(1.1f, 1.7f));
                 var f = g.flowers.Next();
-                int count = g.rng.Next(2, 5);
-                for (int k = 0; k < count; k++) AddDeco(g, b, f, x + (k - (count - 1) / 2f) * 0.5f + g.Range(-0.08f, 0.08f), yb + g.Range(-0.12f, 0.12f));
+                float y0 = b.SouthTop(x - 1f, x + 1f) + 0.15f, y1 = b.NorthBottom(x - 1f, x + 1f) - f.visHU - 0.1f;
+                if (y1 <= y0) continue;
+                float yb2 = g.Range(y0, y1);
+                int count = g.rng.Next(2, 4);
+                for (int k = 0; k < count; k++) AddDeco(g, b, f, x + (k - (count - 1) / 2f) * 0.5f, yb2 + g.Range(-0.08f, 0.08f));
             }
+        }
+
+        static float MidYard(Block b, float? x = null)
+        {
+            float xa = x.HasValue ? x.Value - 0.5f : b.r.xMin, xb = x.HasValue ? x.Value + 0.5f : b.r.xMax;
+            return (b.SouthTop(xa, xb) + b.NorthBottom(xa, xb)) / 2f;
         }
 
         static void FenceLine(Gen g, Block b, CatalogSprite fence, float baseY, float inset)
@@ -426,21 +486,45 @@ namespace DefesaCivil.CityGen
         }
 
         /// <summary>Jardim nas pontas da fileira: árvores escalonadas e um arbusto na frente.</summary>
-        static void CornerGarden(Gen g, Block b, List<Slot> slots, Deck trees, bool skipLeft = false)
+        static void CornerGarden(Gen g, Block b, List<Slot> slots, bool north, Deck trees)
         {
             if (slots.Count == 0) return;
             var first = slots[0]; var last = slots[slots.Count - 1];
             float leftW = first.x - first.cs.visWU / 2f - b.r.xMin, rightW = b.r.xMax - (last.x + last.cs.visWU / 2f);
-            foreach (var (xa, w) in new[] { (b.r.xMin, skipLeft ? 0f : leftW), (b.r.xMax - rightW, rightW) })
+            foreach (var (xa, w) in new[] { (b.r.xMin, leftW), (b.r.xMax - rightW, rightW) })
             {
                 if (w < 1.15f) continue;
-                int k = 0;
-                for (float x = xa + 0.65f; x <= xa + w - 0.6f; x += g.Range(1.1f, 1.4f), k++)
+                for (float x = xa + 0.65f; x <= xa + w - 0.6f; x += g.Range(1.1f, 1.4f))
                 {
                     var tree = trees.NextWhere(t => t.visWU <= Mathf.Min(1.5f, w - 0.1f));
-                    if (tree != null) AddDeco(g, b, tree, x, b.r.yMin + (k % 2 == 0 ? g.Range(0.9f, 1.4f) : g.Range(0.3f, 0.6f)));
+                    if (tree == null) continue;
+                    float baseY = north ? b.r.yMax + TopOverhang - tree.visHU - g.Range(0.1f, 0.6f) : b.r.yMin + g.Range(0.3f, 1.2f);
+                    AddDeco(g, b, tree, x, baseY, TopOverhang, false, north ? float.MaxValue : b.NorthBottom(xa, xa + w) + 0.6f);
                 }
-                if (w >= 1.6f) { var bush = g.bushes.Next(); AddDeco(g, b, bush, xa + w / 2f + g.Range(-0.3f, 0.3f), b.r.yMin + g.Range(0.08f, 0.2f), 10f); }
+            }
+        }
+
+        // ------------------------------------------------------------------ residencial
+
+        static void FillResidential(Gen g, Block b)
+        {
+            foreach (bool north in new[] { false, true })
+            {
+                var slots = FillRow(g, b, north, District.Suburban, () => g.sub.Next(), RowAvail(b, north));
+                LayoutRow(g, slots, b.r.xMin + b.MarginL, b.r.xMax - b.MarginR, g.gap[District.Suburban] * 0.6f);
+                PlaceRow(g, b, slots, north);
+            }
+            GapPlanting(g, b, b.southSlots, false, g.yardTrees, true);
+            GapPlanting(g, b, b.northSlots, true, g.yardTrees, false);
+            Yard(g, b, g.yardTrees, g.Chance(0.55f) ? "fence" : "hedge", 0.75f);
+            CornerGarden(g, b, b.southSlots, false, g.yardTrees);
+            CornerGarden(g, b, b.northSlots, true, g.yardTrees);
+            // canteiro grande em alguns quintais
+            if (g.Chance(0.35f))
+            {
+                var planter = g.T(g.Chance(0.6f) ? "Jardineira" : "Cercado");
+                float x = g.Range(b.r.xMin + 1.6f, b.r.xMax - 1.6f);
+                AddDeco(g, b, planter, x, MidYard(b, x) - planter.visHU / 2f, 0f, true);
             }
         }
 
@@ -448,158 +532,96 @@ namespace DefesaCivil.CityGen
 
         static void FillCommercial(Gen g, Block b)
         {
-            float y0 = b.r.yMin, y1 = b.r.yMax;
-            float xa = b.r.xMin + b.MarginL(0.45f), xb = b.r.xMax - b.MarginR(0.45f);
-            // estacionamento numa ponta, com canteiro de arbustos atrás
-            if (b.parking)
+            CatalogSprite Pick() => g.Chance(0.7f) ? g.comWide.Next() : g.comTower.Next();
+            foreach (bool north in new[] { false, true })
             {
-                var lot = new List<Slot>();
-                float lotW = 0f;
-                for (int i = 0; i < 4; i++)
+                // entre os prédios: canteiro, palmeira ou guarda-sol de vez em quando
+                Slot Between(float gp)
                 {
-                    var car = g.cars.Next();
-                    lot.Add(new Slot { cs = car, gapBefore = 0.35f, baseDy = g.Range(0.2f, 0.4f) });
-                    lotW += car.visWU + (i > 0 ? 0.35f : 0f);
+                    if (!g.Chance(0.18f)) return null;
+                    var p = north ? g.T("Jardineira") : g.Pick(new[] { g.T("Guarda_Sol"), g.T("Jardineira") });
+                    return p == null ? null : new Slot { cs = p, gapBefore = Mathf.Max(gp, 0.35f), jitter = 0.1f };
                 }
-                LayoutRow(g, lot, xa + 0.2f, xa + 0.2f + lotW, 0f);
-                foreach (var s in lot) AddDeco(g, b, s.cs, s.x, y0 + Setback + s.baseDy, 10f, true);
-                for (float x = xa + 0.9f; x < xa + lotW; x += 1.6f) { var bush = g.bushes.Next(); AddDeco(g, b, bush, x, y0 + 3.25f + g.Range(0f, 0.2f)); }
-                xa += lotW + 1.4f;
+                var slots = FillRow(g, b, north, District.Commercial, Pick, RowAvail(b, north), null, Between);
+                LayoutRow(g, slots, b.r.xMin + b.MarginL, b.r.xMax - b.MarginR, g.gap[District.Commercial] * 0.8f);
+                PlaceRow(g, b, slots, north);
             }
-            float avail = xb - xa, used = 0f;
-            var slots = new List<Slot>();
-            bool plaza = false;
-            int houses = HouseCount(g);
-            for (int guard = 0; guard < 40 && houses < MaxHouses; guard++)
-            {
-                float gap = slots.Count > 0 ? g.Range(0.14f, 0.32f) : 0f;
-                // pracinha com guarda-sol e palmeira
-                if (!plaza && false)
-                {
-                    var sun = g.T("Guarda_Sol");
-                    slots.Add(new Slot { cs = sun, gapBefore = 0.7f, baseDy = g.Range(0.35f, 0.6f) });
-                    used += sun.visWU + 0.7f; plaza = true;
-                    continue;
-                }
-                if (slots.Count > 0 && !slots[slots.Count - 1].IsStructure) gap = 0.7f;
-                bool tower = g.Chance(0.3f);
-                var cs = (tower ? g.comTower : g.comWide).NextWhere(c => c.visWU + gap <= avail - used) ?? g.comTower.NextWhere(c => c.visWU + gap <= avail - used);
-                if (cs == null) break;
-                slots.Add(new Slot { cs = cs, type = StructureType.House, gapBefore = gap, baseDy = 0f });
-                used += cs.visWU + gap; houses++;
-            }
-            while (slots.Count > 0 && !slots[slots.Count - 1].IsStructure) slots.RemoveAt(slots.Count - 1);
-            LayoutRow(g, slots, xa, xb, 0.3f);
-            PlaceRow(g, b, slots);
-            foreach (var s in slots.Where(s => !s.IsStructure))
-            {
-                float top = y0 + Setback + s.baseDy + s.cs.visHU;
-                var palm = g.palms.NextWhere(p => top + 0.05f + p.visHU <= y1 + TopOverhang);
-                if (palm != null) AddDeco(g, b, palm, s.x + g.Range(-0.3f, 0.3f), top + 0.05f);
-                var fl = g.flowers.Next();
-                AddDeco(g, b, fl, s.x - s.cs.visWU / 2f - 0.2f, y0 + 0.12f);
-                AddDeco(g, b, fl, s.x + s.cs.visWU / 2f + 0.2f, y0 + 0.12f);
-            }
-            // fundos: árvores de rua onde houver altura, senão arbustos e vasos
-            Backyard(g, b, slots, g.D("Arvore_Redonda", "Arvore_Cone", "Arvore_Simples", "Arvore_Alta", "Arvore_Quintal"), 0.55f, 0f);
-            CornerGarden(g, b, slots, g.D("Arvore_Redonda", "Arvore_Cone", "Arvore_Simples", "Arvore_Alta"), b.parking);
-            if (g.Chance(0.7f)) Hedge(g, b, 1.5f, 2.3f);
+            var streetTrees = g.D("Arvore_Redonda", "Arvore_Cone", "Arvore_Simples", "Arvore_Alta", "Arvore_Quintal");
+            GapPlanting(g, b, b.southSlots, false, streetTrees, true);
+            GapPlanting(g, b, b.northSlots, true, streetTrees, false);
+            Yard(g, b, streetTrees, "hedge", 0.45f);
+            CornerGarden(g, b, b.southSlots, false, streetTrees);
+            CornerGarden(g, b, b.northSlots, true, streetTrees);
         }
 
         // ------------------------------------------------------------------ industrial
 
+        static Slot IndustrialProp(Gen g, Block b, float gp)
+        {
+            if (!g.Chance(0.4f)) return null;
+            var p = g.indProps.NextWhere(c => c.visHU <= b.RowMaxH);
+            return p == null ? null : new Slot { cs = p, gapBefore = Mathf.Max(0.3f, gp * 0.5f), jitter = g.Range(0.05f, 0.25f) };
+        }
+
         static void FillIndustrial(Gen g, Block b)
         {
-            float mL = b.MarginL(0.5f), mR = b.MarginR(0.5f), y1 = b.r.yMax;
-            float avail = b.r.width - mL - mR, used = 0f;
-            var props = g.D("Chamine", "Chamine_Baixa", "Chamine_Listrada", "Caixa_Dagua", "Conteiner", "Tanque", "Torre_Resfriamento", "Tanque_Grande", "Turbina_Eolica");
-            var slots = new List<Slot>();
-            if (b.role == IndGuard)
+            foreach (bool north in new[] { false, true })
             {
-                // Guarda com as viaturas estacionadas ao lado
-                var hq = g.ind.NextWhere(c => c.visWU >= 2.6f) ?? g.ind.Next();
-                slots.Add(new Slot { cs = hq, type = StructureType.Guard });
-                used += hq.visWU;
-                foreach (var v in new[] { "Caminhao_Bombeiros", "Ambulancia", "Viatura_Policia" })
+                List<Slot> preset = null;
+                if (!north && b.role == IndGuard)
                 {
-                    var car = g.T(v); if (car == null) continue;
-                    slots.Add(new Slot { cs = car, gapBefore = 0.3f, baseDy = g.Range(0.1f, 0.25f) });
-                    used += car.visWU + 0.3f;
+                    var hq = g.ind.NextWhere(c => c.visWU >= 2.6f && c.visHU <= b.RowMaxH) ?? g.ind.NextWhere(c => c.visHU <= b.RowMaxH);
+                    preset = new List<Slot> { new Slot { cs = hq, type = StructureType.Guard } };
                 }
+                float avail = b.r.width - b.MarginL - b.MarginR;
+                var slots = FillRow(g, b, north, District.Industrial, () => g.ind.Next(), avail, preset, gp => IndustrialProp(g, b, gp));
+                // sobra na frente: mais um equipamento
+                float used = slots.Sum(s => s.cs.visWU) + slots.Skip(1).Sum(s => s.gapBefore);
+                var extra = g.indProps.NextWhere(c => c.visHU <= b.RowMaxH && c.visWU + 0.45f <= avail - used);
+                if (extra != null) slots.Add(new Slot { cs = extra, gapBefore = 0.45f, jitter = g.Range(0.05f, 0.25f) });
+                LayoutRow(g, slots, b.r.xMin + b.MarginL, b.r.xMax - b.MarginR, g.gap[District.Industrial] * 0.6f);
+                PlaceRow(g, b, slots, north);
             }
-            int houses = HouseCount(g);
-            for (int guard = 0; guard < 30 && houses < MaxHouses; guard++)
+            // pátio entre as fileiras: painéis solares, tanques e caçambas
+            for (float x = b.r.xMin + 1.4f + g.Range(0f, 0.8f); x < b.r.xMax - 1.2f;)
             {
-                float gap = slots.Count > 0 ? 0.55f : 0f;
-                var cs = g.ind.NextWhere(c => c.visWU + gap <= avail - used);
-                if (cs == null) break;
-                slots.Add(new Slot { cs = cs, type = StructureType.House, gapBefore = gap, baseDy = g.Range(0f, 0.05f) });
-                used += cs.visWU + gap; houses++;
-                if (g.Chance(0.65f))
-                {
-                    var p = props.NextWhere(c => c.visWU + 0.35f + 0.55f + 2.0f <= avail - used && Setback + 0.3f + c.visHU <= b.r.height + 0.3f);
-                    if (p != null) { slots.Add(new Slot { cs = p, gapBefore = 0.35f, baseDy = g.Range(0.05f, 0.3f) }); used += p.visWU + 0.35f; }
-                }
-            }
-            // sobra de frente: mais um equipamento (tanque, chaminé, contêiner…)
-            for (int extra = 0; extra < 2; extra++)
-            {
-                var p = props.NextWhere(c => c.visWU + 0.4f <= avail - used && Setback + 0.3f + c.visHU <= b.r.height + 0.3f);
-                if (p == null) break;
-                slots.Add(new Slot { cs = p, gapBefore = 0.4f, baseDy = g.Range(0.05f, 0.3f) }); used += p.visWU + 0.4f;
-            }
-            LayoutRow(g, slots, b.r.xMin + mL, b.r.xMax - mR, 0.7f);
-            PlaceRow(g, b, slots);
-            CornerGarden(g, b, slots, g.pines);
-            // fundos: painéis solares e caçambas onde couber
-            var back = g.D("Painel_Solar", "Painel_Solar", "Painel_Solar", "Painel_Solar_Plano", "Cacamba_Lixo");
-            for (float x = b.r.xMin + 1.8f + g.Range(0f, 0.8f); x < b.r.xMax - 1.6f;)
-            {
-                var p = back.Next();
-                float top = TopAt(b, x - p.visWU / 2f, x + p.visWU / 2f);
-                float baseY = Mathf.Max(top + 0.12f, y1 - p.visHU - g.Range(0.08f, 0.2f));
-                if (baseY + p.visHU <= y1 + 0.2f) AddDeco(g, b, p, x, baseY, 0.2f, true);
+                var p = g.indBack.Next();
+                float ya = b.SouthTop(x - p.visWU / 2f, x + p.visWU / 2f) + 0.12f, yb = b.NorthBottom(x - p.visWU / 2f, x + p.visWU / 2f) - 0.1f;
+                if (yb - ya >= p.visHU) AddDeco(g, b, p, x, ya + (yb - ya - p.visHU) * g.Range(0.3f, 0.7f), 0f, true);
                 x += p.visWU + g.Range(0.3f, 1.2f);
             }
+            CornerGarden(g, b, b.southSlots, false, g.pines);
+            CornerGarden(g, b, b.northSlots, true, g.pines);
         }
 
         // ------------------------------------------------------------------ depósito
 
         static void FillDepot(Gen g, Block b)
         {
-            float margin = 0.5f, y0 = b.r.yMin, y1 = b.r.yMax;
-            var slots = new List<Slot>();
-            var wh = g.ind.NextWhere(c => c.visWU >= 2.7f) ?? g.ind.Next();
+            // fileira sul: Warehouse + pátio de contêineres e tanque
+            var wh = g.ind.NextWhere(c => c.visWU >= 2.7f && c.visHU <= b.RowMaxH) ?? g.ind.NextWhere(c => c.visHU <= b.RowMaxH);
             var yard = new List<Slot>
             {
-                new Slot { cs = g.T("Conteiner"), gapBefore = 0.4f, baseDy = g.Range(0.1f, 0.3f) },
-                new Slot { cs = g.T("Conteiner"), gapBefore = 0.12f, baseDy = g.Range(0.1f, 0.3f) },
-                new Slot { cs = g.T(g.Chance(0.5f) ? "Caminhao_Bau" : "Caminhao_Carroceria"), gapBefore = 0.4f, baseDy = g.Range(0.15f, 0.4f) },
+                new Slot { cs = g.T("Conteiner"), gapBefore = 0.4f, jitter = g.Range(0.1f, 0.3f) },
+                new Slot { cs = g.T("Conteiner"), gapBefore = 0.12f, jitter = g.Range(0.1f, 0.3f) },
+                new Slot { cs = g.T("Tanque"), gapBefore = 0.4f, jitter = g.Range(0.15f, 0.4f) },
             };
-            yard.RemoveAll(s => s.cs == null);
+            yard.RemoveAll(s => s.cs == null || s.cs.visHU > b.RowMaxH);
             var house = new Slot { cs = wh, type = StructureType.Warehouse };
-            if (b.westEnd) { slots.Add(house); slots.AddRange(yard); }
-            else { yard.Reverse(); foreach (var s in yard) s.gapBefore = 0.3f; slots.AddRange(yard); house.gapBefore = 0.4f; slots.Add(house); }
-            slots[0].gapBefore = 0f;
-            while (slots.Sum(s => s.cs.visWU) + slots.Skip(1).Sum(s => s.gapBefore) > b.r.width - 2 * margin && slots.Count > 1)
-                slots.Remove(slots.First(s => !s.IsStructure));
-            LayoutRow(g, slots, b.r.xMin + margin, b.r.xMax - margin, 0.5f);
-            PlaceRow(g, b, slots);
-            // pilha de caixas num canto dos fundos e cerca alta fechando o pátio
-            var crate = g.T("Caixa");
-            var fence = g.T("Cerca_Alta");
-            float fenceY = y1 - fence.visHU - 0.08f;
-            if (crate != null)
-            {
-                float xc = b.westEnd ? b.r.xMax - 1.3f : b.r.xMin + 1.3f;
-                for (int i = 0; i < 3; i++)
-                {
-                    float x = xc + (i - 1) * 1.05f * (b.westEnd ? -1f : 1f) + g.Range(-0.05f, 0.05f);
-                    float baseY = Mathf.Max(TopAt(b, x - crate.visWU / 2f, x + crate.visWU / 2f) + 0.1f, fenceY - crate.visHU + 0.5f - (i % 2) * 0.35f);
-                    AddDeco(g, b, crate, x, baseY, 0.2f);
-                }
-            }
-            FenceLine(g, b, fence, fenceY, 0.2f);
+            var south = new List<Slot>();
+            if (b.westEnd) { south.Add(house); south.AddRange(yard); }
+            else { yard.Reverse(); foreach (var s in yard) s.gapBefore = 0.3f; south.AddRange(yard); house.gapBefore = 0.4f; south.Add(house); }
+            south[0].gapBefore = 0f;
+            while (south.Sum(s => s.cs.visWU) + south.Skip(1).Sum(s => s.gapBefore) > b.r.width - b.MarginL - b.MarginR && south.Count > 1)
+                south.Remove(south.First(s => !s.IsStructure));
+            LayoutRow(g, south, b.r.xMin + b.MarginL, b.r.xMax - b.MarginR, 0.6f);
+            PlaceRow(g, b, south, false);
+            // fileira norte: galpões industriais de frente para a rua de cima
+            var north = FillRow(g, b, true, District.Industrial, () => g.ind.Next(), RowAvail(b, true), null, gp => IndustrialProp(g, b, gp));
+            LayoutRow(g, north, b.r.xMin + b.MarginL, b.r.xMax - b.MarginR, g.gap[District.Industrial] * 0.6f);
+            PlaceRow(g, b, north, true);
+            // cerca alta fechando o pátio
+            Yard(g, b, g.pines, "high", 0f);
         }
 
         // ------------------------------------------------------------------ parque central
@@ -612,8 +634,8 @@ namespace DefesaCivil.CityGen
             AddDeco(g, b, mon, cx, cy - mon.visHU / 2f + 0.25f, 10f, true);
             var kiosk = g.T("Guarda_Sol");
             float ksx = g.Chance(0.5f) ? 1f : -1f;
-            AddDeco(g, b, kiosk, cx - ksx * 4.1f, cy + 1.7f, 10f, true);
-            AddDeco(g, b, kiosk, cx + ksx * 4.1f, cy - 3.6f, 10f, true);
+            AddDeco(g, b, kiosk, cx - ksx * 4.1f, cy + 2.2f, 10f, true);
+            AddDeco(g, b, kiosk, cx + ksx * 4.1f, cy - 4.0f, 10f, true);
             var col = g.T("Coluna");
             foreach (var sx in new[] { -1f, 1f })
                 foreach (var sy in new[] { -1f, 1f })
@@ -624,7 +646,6 @@ namespace DefesaCivil.CityGen
                 float a = i * Mathf.PI * 2f / 14f;
                 AddDeco(g, b, fl, cx + Mathf.Cos(a) * 1.5f, cy - 0.4f + Mathf.Sin(a) * 0.95f, 10f);
             }
-            // clareira central e dois caminhos em cruz até as entradas
             bool Clear(float x, float y) =>
                 Mathf.Abs(x - cx) < 1.0f || Mathf.Abs(y - cy) < 0.85f || ((x - cx) * (x - cx)) / (3.1f * 3.1f) + ((y - cy) * (y - cy)) / (2.3f * 2.3f) < 1f;
 
@@ -645,7 +666,7 @@ namespace DefesaCivil.CityGen
                 AddDeco(g, b, t, x0 + 0.85f + g.Range(-0.08f, 0.08f), y, 10f);
                 AddDeco(g, b, t, x1 - 0.85f + g.Range(-0.08f, 0.08f), y, 10f);
             }
-            // postes nas quatro entradas
+            // postes nas entradas
             var lamp = g.T("Poste_Curvo_Duplo");
             foreach (var sx in new[] { -1f, 1f })
             {
@@ -702,10 +723,10 @@ namespace DefesaCivil.CityGen
             var sem = g.T("Semaforo"); var stop = g.T("Placa_Pare"); var lamp = g.T("Poste_Curvo");
             foreach (var b in g.blocks)
             {
-                // semáforos nos cruzamentos do centro (faixas do parque e a de cima); poste nas demais esquinas
+                // semáforos nos cruzamentos ao lado do parque; poste nas demais esquinas das ruas que atravessam
                 if (b.eastItem)
                 {
-                    var item = b.row >= 2 && b.row <= 4 ? sem : (g.Chance(0.6f) ? lamp : null);
+                    var item = b.row >= 1 && b.row <= 2 ? sem : (g.Chance(0.6f) ? lamp : null);
                     if (item != null) AddDeco(g, b, item, b.r.xMax - item.visWU / 2f - 0.08f, b.r.yMin + 0.05f, 10f);
                 }
                 if (b.westItem && stop != null) AddDeco(g, b, stop, b.r.xMin + stop.visWU / 2f + 0.08f, b.r.yMin + 0.05f, 10f);
@@ -718,11 +739,11 @@ namespace DefesaCivil.CityGen
         {
             var l = g.layout;
             // garantia final de oclusão coerente (R36)
+            var rects = l.structures.Select(s => (rect: g.cat.Get(s.sprite).VisibleRect(s.bottomCenter), baseY: s.bottomCenter.y)).ToList();
             l.decorations.RemoveAll(d =>
             {
-                var cs = g.cat.Get(d.sprite);
-                var rect = cs.VisibleRect(d.bottomCenter);
-                return g.structRects.Any(s => d.bottomCenter.y > s.baseY + 0.02f
+                var rect = g.cat.Get(d.sprite).VisibleRect(d.bottomCenter);
+                return rects.Any(s => d.bottomCenter.y > s.baseY + 0.02f
                     && Mathf.Min(rect.xMax, s.rect.xMax) - Mathf.Max(rect.xMin, s.rect.xMin) > 0.06f
                     && Mathf.Min(rect.yMax, s.rect.yMax) - Mathf.Max(rect.yMin, s.rect.yMin) > 0.06f);
             });
@@ -735,13 +756,14 @@ namespace DefesaCivil.CityGen
             foreach (var s in l.structures) s.bottomCenter = (Vector2)s.bottomCenter + off;
             foreach (var d in l.decorations) d.bottomCenter = (Vector2)d.bottomCenter + off;
 
-            // waypoints de entrada (R14)
+            // waypoints de entrada (R14) e grafo de ruas (R38)
             var geo = LayoutValidator.BuildGeo(l);
             foreach (var s in l.structures)
             {
-                var e = LayoutValidator.ExpectedEntry(geo, s.bottomCenter);
+                var e = LayoutValidator.ExpectedEntry(geo, s.bottomCenter, s.facing, l.streetWidth);
                 s.entry = e ?? (Vector2)s.bottomCenter;
             }
+            StreetGraph.Fill(l);
         }
 
         /// <summary>Gera com sementes novas até obter um layout sem erros (máx. 30 tentativas).</summary>

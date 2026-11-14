@@ -7,11 +7,12 @@ namespace DefesaCivil.CityGen
     /// <summary>
     /// Raiz do city_layout.json. Coordenadas em unidades de mundo (u), XY.
     /// Versão 2: bottomCenter é o centro da BASE VISÍVEL do sprite (sem a margem transparente).
+    /// Versão 3: estruturas com orientação (facing S/N), waypoints de cruzamento (junctions) e ligações (links).
     /// </summary>
     [Serializable]
     public class CityLayout
     {
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
 
         public int version = CurrentVersion;
         public int seed;
@@ -24,6 +25,10 @@ namespace DefesaCivil.CityGen
         public List<PolygonData> polygons = new List<PolygonData>();
         public List<StructureData> structures = new List<StructureData>();
         public List<DecorationData> decorations = new List<DecorationData>();
+        /// <summary>Waypoints de cruzamento das ruas (além dos de entrada das estruturas).</summary>
+        public List<WaypointNode> junctions = new List<WaypointNode>();
+        /// <summary>Ligações entre waypoints vizinhos na mesma rua. Chaves: "House 012" (entrada) ou "Junction 003".</summary>
+        public List<WaypointLink> links = new List<WaypointLink>();
 
         public string ToJson() => JsonUtility.ToJson(this, true);
 
@@ -62,6 +67,26 @@ namespace DefesaCivil.CityGen
         public const string None = "None";
     }
 
+    public static class Facing
+    {
+        public const string South = "S";
+        public const string North = "N";
+        public static string Of(string f) => f == North ? North : South;
+    }
+
+    [Serializable]
+    public class WaypointNode
+    {
+        public string id = "";
+        public Vec2 position;
+    }
+
+    [Serializable]
+    public class WaypointLink
+    {
+        public string a = "", b = "";
+    }
+
     public static class StructureType
     {
         public const string House = "House";
@@ -92,6 +117,8 @@ namespace DefesaCivil.CityGen
     {
         public string id = "";
         public string type = StructureType.House;
+        /// <summary>Para onde a fachada aponta: S (fileira de baixo, rua ao sul) ou N (fileira de cima, rua ao norte).</summary>
+        public string facing = Facing.South;
         public string district = District.None;
         public string polygonId = "";
         public SpriteRef sprite = new SpriteRef();

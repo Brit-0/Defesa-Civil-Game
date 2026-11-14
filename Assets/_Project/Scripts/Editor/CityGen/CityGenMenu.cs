@@ -108,6 +108,18 @@ namespace DefesaCivil.CityGen
             {
                 bool ok = EditorSceneManager.SaveScene(scene);
                 Debug.Log("[CityGen] Build: cena " + (ok ? "salva." : "NÃO salva (falha ao salvar)."));
+                if (ok)
+                {
+                    // confere o que foi para o disco: reabre a cena e valida de novo
+                    var reopened = EditorSceneManager.OpenScene(scene.path, OpenSceneMode.Single);
+                    var after = SceneValidator.Validate(CitySceneRefs.Find(reopened, out _), layout, cat, SceneBaseline.Load());
+                    after.notes.Add("Validação da cena reaberta do disco após salvar.");
+                    after.notes.AddRange(report.notes);
+                    after.Write();
+                    after.LogToConsole();
+                    if (after.errors > 0) Debug.LogError("[CityGen] Build: a cena salva no disco tem erros (ver relatório).");
+                    return after;
+                }
             }
             else if (report.errors > 0) Debug.LogWarning("[CityGen] Build: cena NÃO salva (há erros). Corrija e rode de novo, ou desfaça (Undo).");
             return report;

@@ -14,7 +14,7 @@ namespace DefesaCivil.CityGen
         static readonly Color32 StreetColor = new Color32(26, 23, 34, 255);
         static readonly Color32 GroundColor = new Color32(86, 86, 86, 255);
 
-        public static void Render(CityLayout l, SpriteCatalog cat, string pngPath, int ppu = 32)
+        public static void Render(CityLayout l, SpriteCatalog cat, string pngPath, int ppu = 32, bool waypointGraph = false)
         {
             var geo = LayoutValidator.BuildGeo(l);
             var area = geo.limiter;
@@ -61,6 +61,27 @@ namespace DefesaCivil.CityGen
             foreach (var s in l.structures.OrderByDescending(s => s.bottomCenter.y).ThenBy(s => s.bottomCenter.x)) Draw(s.sprite, s.bottomCenter);
             foreach (var d in l.decorations.OrderByDescending(d => d.bottomCenter.y).ThenBy(d => d.bottomCenter.x)) Draw(d.sprite, d.bottomCenter);
 
+            if (waypointGraph)
+            {
+                var pos = l.structures.ToDictionary(StreetGraph.EntryKey, s => (Vector2)s.entry);
+                foreach (var j in l.junctions) pos[StreetGraph.JunctionKey(j.id)] = j.position;
+                var lineC = new Color32(255, 214, 64, 255); var entryC = new Color32(80, 220, 255, 255); var juncC = new Color32(255, 90, 90, 255);
+                void Px(int x, int y, Color32 c) { if (x >= 0 && x < W && y >= 0 && y < H) img[y * W + x] = c; }
+                (int, int) ToPx(Vector2 p) => (Mathf.RoundToInt((p.x - area.xMin) * ppu), Mathf.RoundToInt((p.y - area.yMin) * ppu));
+                foreach (var k in l.links)
+                {
+                    if (!pos.TryGetValue(k.a, out var a) || !pos.TryGetValue(k.b, out var b)) continue;
+                    var (x0, y0) = ToPx(a); var (x1, y1) = ToPx(b);
+                    int n = Mathf.Max(Mathf.Abs(x1 - x0), Mathf.Abs(y1 - y0));
+                    for (int i = 0; i <= n; i++) { float tt = n == 0 ? 0 : i / (float)n; int x = Mathf.RoundToInt(Mathf.Lerp(x0, x1, tt)), y = Mathf.RoundToInt(Mathf.Lerp(y0, y1, tt)); Px(x, y, lineC); Px(x, y + 1, lineC); }
+                }
+                foreach (var kv in pos)
+                {
+                    var (cx, cy) = ToPx(kv.Value);
+                    var c = kv.Key.StartsWith(StreetGraph.JunctionType) ? juncC : entryC;
+                    for (int dy = -3; dy <= 3; dy++) for (int dx = -3; dx <= 3; dx++) if (dx * dx + dy * dy <= 9) Px(cx + dx, cy + dy, c);
+                }
+            }
             var tex = new Texture2D(W, H, TextureFormat.RGB24, false);
             tex.SetPixels32(img); tex.Apply();
             Directory.CreateDirectory(Path.GetDirectoryName(pngPath));

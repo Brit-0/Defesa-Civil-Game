@@ -43,11 +43,25 @@ namespace DefesaCivil.CityGen
             return null;
         }
 
-        /// <summary>Waypoint de entrada esperado (R14) ou null se não há rua ao sul (R13).</summary>
-        public static Vector2? ExpectedEntry(Geo g, Vector2 baseCenter)
+        /// <summary>
+        /// Waypoint de entrada esperado (R14): na linha central da rua que encosta no quarteirão, ao sul (fileira S) ou
+        /// ao norte (fileira N), na vertical do centro da base. null se ali não há rua dentro do Limiter (R13).
+        /// </summary>
+        public static Vector2? ExpectedEntry(Geo g, Vector2 baseCenter, string facing = Facing.South, float street = 0.8f)
         {
-            if (!CityGeometry.SouthStreetSegment(baseCenter, g.All, g.limiter.yMin, out var top, out var bottom)) return null;
-            return new Vector2(baseCenter.x, (top + bottom) / 2f);
+            foreach (var poly in g.All)
+            {
+                if (poly.Count < 3) continue;
+                foreach (var iv in CityGeometry.VerticalIntervals(baseCenter.x, poly))
+                {
+                    if (baseCenter.y < iv.x - CityGeometry.Eps || baseCenter.y > iv.y + CityGeometry.Eps) continue;
+                    var e = Facing.Of(facing) == Facing.North ? new Vector2(baseCenter.x, iv.y + street / 2f) : new Vector2(baseCenter.x, iv.x - street / 2f);
+                    if (e.y < g.limiter.yMin || e.y > g.limiter.yMax) return null;
+                    if (g.All.Any(p => p.Count >= 3 && CityGeometry.PointInPolygon(e, p, 0f))) return null;
+                    return e;
+                }
+            }
+            return null;
         }
 
         static bool Overlap(Rect a, Rect b) =>
@@ -82,7 +96,8 @@ namespace DefesaCivil.CityGen
                 Vector2 bc = s.bottomCenter;
                 if (s.type != StructureType.House && s.type != StructureType.Guard && s.type != StructureType.Warehouse)
                     r.Add("R04", obj, bc, $"tipo desconhecido '{s.type}'");
-                if (!s.sprite.name.EndsWith("_S")) r.Add("R05", obj, bc, $"sprite '{s.sprite.name}' não termina em _S");
+                string suffix = "_" + Facing.Of(s.facing);
+                if (!s.sprite.name.EndsWith(suffix)) r.Add("R05", obj, bc, $"sprite '{s.sprite.name}' não termina em {suffix} (fileira {Facing.Of(s.facing)})");
                 var cs = cat.Get(s.sprite);
                 if (s.type == StructureType.House)
                 {
@@ -97,13 +112,14 @@ namespace DefesaCivil.CityGen
                 if (cs == null) { r.Add("R11", obj, bc, "sprite inexistente: tamanho nativo indeterminável"); continue; }
 
                 structRects.Add((obj, cs.VisibleRect(bc), bc.y));
-                var (a, b) = BottomCorners(bc, cs.visWU);
-                var pid = ContainingPolygon(g, a, b);
-                if (pid == null) r.Add("R12", obj, bc, "cantos inferiores não estão no mesmo quarteirão");
+                var vr = cs.VisibleRect(bc);
+                var pid = ContainingPolygon(g, new Vector2(vr.xMin, vr.yMin), new Vector2(vr.xMax, vr.yMin));
+                if (pid != null && !(CityGeometry.PointInPolygon(new Vector2(vr.xMin, vr.yMax), g.polys[pid]) && CityGeometry.PointInPolygon(new Vector2(vr.xMax, vr.yMax), g.polys[pid]))) pid = null;
+                if (pid == null) r.Add("R12", obj, bc, "a parte visível não está inteira dentro de um quarteirão");
                 else structPoly[s] = pid;
 
-                var expected = ExpectedEntry(g, bc);
-                if (expected == null) r.Add("R13", obj, bc, "sem rua ao sul dentro do Limiter");
+                var expected = ExpectedEntry(g, bc, s.facing, street);
+                if (expected == null) r.Add("R13", obj, bc, Facing.Of(s.facing) == Facing.North ? "sem rua ao norte dentro do Limiter" : "sem rua ao sul dentro do Limiter");
                 else
                 {
                     Vector2 e = s.entry;
@@ -200,6 +216,8 @@ namespace DefesaCivil.CityGen
                 if (ind < 0.8f - 1e-4f) r.Add("R33", "Guard " + guard.id, guard.bottomCenter, $"quarteirão {pid} com {ind:P0} de House Industrial (mín. 80%)");
             }
 
+            CheckWaypointGraph(r, l, g);
+
             // R34 (parte de layout): centro da caixa = centro registrado (câmera inicial)
             if (g.polys.Count > 0 && Vector2.Distance(g.bbox.center, l.center) > CenterTolerance)
                 r.Add("R34", "Polygons", g.bbox.center, $"centro da caixa {(Vec2)g.bbox.center} difere de center {l.center} (tol. 0,5)");
@@ -243,6 +261,47 @@ namespace DefesaCivil.CityGen
                         break;
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// R38: waypoints vizinhos pela rua estão ligados, e só eles. Recalcula o grafo pela geometria e compara com
+        /// junctions/links do JSON (cruzamentos casados por posição). Também exige o grafo conexo.
+        /// </summary>
+        static void CheckWaypointGraph(ValidationReport r, CityLayout l, Geo g)
+        {
+            var known = new HashSet<string>(l.structures.Select(StreetGraph.EntryKey));
+            foreach (var j in l.junctions) known.Add(StreetGraph.JunctionKey(j.id));
+            var seen = new HashSet<(string, string)>();
+            foreach (var k in l.links)
+            {
+                if (k.a == k.b) r.Add("R38", k.a, Vector2.zero, "waypoint ligado a si mesmo");
+                if (!known.Contains(k.a) || !known.Contains(k.b)) r.Add("R38", k.a + " – " + k.b, Vector2.zero, "ligação com waypoint inexistente");
+                var pair = string.CompareOrdinal(k.a, k.b) < 0 ? (k.a, k.b) : (k.b, k.a);
+                if (!seen.Add(pair)) r.Add("R38", k.a + " – " + k.b, Vector2.zero, "ligação repetida");
+            }
+            var entries = l.structures.Select(s => (StreetGraph.EntryKey(s), (Vector2)s.entry)).ToList();
+            string missing = null;
+            var exp = StreetGraph.Build(StreetGraph.Rects(l), g.limiter, l.streetWidth, entries, p =>
+            {
+                var j = l.junctions.FirstOrDefault(n => Vector2.Distance(n.position, p) < 0.05f);
+                if (j == null) { missing ??= p.ToString(); return "?" + p; }
+                return StreetGraph.JunctionKey(j.id);
+            });
+            if (missing != null) r.Add("R38", "Junctions", Vector2.zero, "cruzamento de ruas sem waypoint, ex.: " + missing);
+            if (exp.junctions.Count != l.junctions.Count) r.Add("R38", "Junctions", Vector2.zero, $"{l.junctions.Count} cruzamentos no JSON, {exp.junctions.Count} na malha");
+            foreach (var k in exp.offStreet) r.Add("R38", k, Vector2.zero, "waypoint de entrada fora da linha central de uma rua");
+            var expSet = new HashSet<(string, string)>(exp.links);
+            foreach (var x in expSet.Where(x => !seen.Contains(x)).Take(10)) r.Add("R38", x.Item1 + " – " + x.Item2, Vector2.zero, "vizinhos pela rua mas não ligados");
+            foreach (var x in seen.Where(x => !expSet.Contains(x)).Take(10)) r.Add("R38", x.Item1 + " – " + x.Item2, Vector2.zero, "ligados mas não são vizinhos imediatos pela rua");
+            // conexo
+            if (known.Count > 0)
+            {
+                var adj = known.ToDictionary(k => k, k => new List<string>());
+                foreach (var (a, b) in seen) if (adj.ContainsKey(a) && adj.ContainsKey(b)) { adj[a].Add(b); adj[b].Add(a); }
+                var start = known.First(); var vis = new HashSet<string> { start }; var q = new Queue<string>(); q.Enqueue(start);
+                while (q.Count > 0) foreach (var n in adj[q.Dequeue()]) if (vis.Add(n)) q.Enqueue(n);
+                if (vis.Count != known.Count) r.Add("R38", "Waypoints", Vector2.zero, $"grafo desconexo: {known.Count - vis.Count} waypoint(s) sem caminho até os demais");
             }
         }
 

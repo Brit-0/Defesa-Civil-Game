@@ -52,6 +52,7 @@ namespace DefesaCivil.CityGen
         public readonly List<CatalogSprite> Decoration = new List<CatalogSprite>();
         readonly Dictionary<string, CatalogSprite> byKey = new Dictionary<string, CatalogSprite>();
         readonly Dictionary<string, CatalogSprite> byTexture = new Dictionary<string, CatalogSprite>();
+        readonly Dictionary<CatalogSprite, CatalogSprite> north = new Dictionary<CatalogSprite, CatalogSprite>();
 
         /// <summary>R07: Guard e Warehouse usam Industrial/Fabrica_*_S.</summary>
         public List<CatalogSprite> GuardWarehouse => Industrial;
@@ -76,7 +77,7 @@ namespace DefesaCivil.CityGen
 
         /// <summary>Decoração: qualquer sprite que não seja de estrutura nem das exclusões de Nature.</summary>
         public static bool IsDecorationTexture(string category, string texture) =>
-            !IsHouseTexture(category, texture) && !(category == "Nature" && NatureExcluded.IsMatch(texture));
+            category != "Carros" && !IsHouseTexture(category, texture) && !(category == "Nature" && NatureExcluded.IsMatch(texture));
 
         static SpriteCatalog cached;
 
@@ -102,7 +103,22 @@ namespace DefesaCivil.CityGen
                 Measure(sprite, cs);
                 c.byKey[Key(guid, sprite.name)] = cs;
                 c.byTexture[texture] = cs;
-                if (IsHouseTexture(category, texture)) c.HousePool(category).Add(cs);
+                if (IsHouseTexture(category, texture))
+                {
+                    c.HousePool(category).Add(cs);
+                    var ns = AssetDatabase.LoadAllAssetsAtPath(path).OfType<Sprite>().FirstOrDefault(s => s.name == texture + "_N");
+                    if (ns != null)
+                    {
+                        var n = new CatalogSprite
+                        {
+                            guid = guid, name = ns.name, path = path, category = category, texture = texture,
+                            widthU = ns.rect.width / PixelsPerUnit, heightU = ns.rect.height / PixelsPerUnit
+                        };
+                        Measure(ns, n);
+                        c.byKey[Key(guid, ns.name)] = n;
+                        c.north[cs] = n;
+                    }
+                }
                 else if (IsDecorationTexture(category, texture)) c.Decoration.Add(cs);
             }
             foreach (var l in new[] { c.Suburban, c.Commercial, c.Industrial, c.Decoration })
@@ -143,6 +159,9 @@ namespace DefesaCivil.CityGen
             cs.visWU = (x1 - x0 + 1) / PixelsPerUnit;
             cs.visHU = (y1 - y0 + 1) / PixelsPerUnit;
         }
+
+        /// <summary>Variante _N (fachada para o norte) de um sprite de estrutura _S, ou null.</summary>
+        public CatalogSprite North(CatalogSprite south) => south != null && north.TryGetValue(south, out var n) ? n : null;
 
         /// <summary>Entrada do catálogo para a referência, ou null.</summary>
         public CatalogSprite Get(SpriteRef r) => r != null && byKey.TryGetValue(Key(r.guid, r.name), out var cs) ? cs : null;

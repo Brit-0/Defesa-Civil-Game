@@ -14,7 +14,8 @@ namespace DefesaCivil.CityGen.Tests
             Assert.AreEqual(21, cat.Suburban.Count, "Suburban Casa_*");
             Assert.AreEqual(33, cat.Commercial.Count, "Commercial Predio/Arranha_Ceu/Fundo");
             Assert.AreEqual(20, cat.Industrial.Count, "Industrial Fabrica_*");
-            Assert.AreEqual(165, cat.Decoration.Count, "tudo que não é estrutura, menos as exclusões de Nature");
+            Assert.AreEqual(133, cat.Decoration.Count, "tudo que não é estrutura nem da pasta Carros, menos as exclusões de Nature");
+            Assert.IsFalse(cat.Decoration.Any(s => s.category == "Carros"), "nenhum sprite de carro");
         }
 
         [Test] public void AllSpritesEndWithS()
@@ -47,6 +48,18 @@ namespace DefesaCivil.CityGen.Tests
             Assert.AreEqual(68f / 32f, casaD.visHU, 1e-5f);
             var rc = casaD.RectCenterFor(new Vector2(10f, 5f));
             Assert.AreEqual(new Vector2(10f, 5f), casaD.BaseCenterFor(rc - new Vector2(casaD.widthU, casaD.heightU) / 2f));
+        }
+
+        [Test] public void NorthVariants()
+        {
+            foreach (var s in cat.Suburban.Concat(cat.Commercial).Concat(cat.Industrial))
+            {
+                var n = cat.North(s);
+                Assert.IsNotNull(n, s.name);
+                StringAssert.EndsWith("_N", n.name);
+                Assert.AreSame(n, cat.Get(n.ToRef()));
+                Assert.IsTrue(cat.InHousePool(n.ToRef(), out _));
+            }
         }
 
         [Test] public void LookupAndLoad()

@@ -23,8 +23,9 @@
 ## Como trabalhar
 - A cidade é gerada por dados: editar o JSON -> Tools/City/Validate -> Tools/City/Build. Não posicionar objetos manualmente na cena.
 - O Build escreve nos pais existentes (Houses, Trees, Waypoints, PolygonLayer) e ajusta o Limiter. Sem root GeneratedCity. Build idempotente.
-- No JSON (versão 2), `bottomCenter` é o centro da base VISÍVEL do sprite (sem a margem transparente). Ruas têm largura única (R35), com rua de contorno.
-- Para avaliar um layout sem mexer na cena: `CityPreview.Render` gera um PNG.
+- No JSON (versão 3), `bottomCenter` é o centro da base VISÍVEL do sprite (sem a margem transparente) e `facing` é S ou N (fileira de baixo `_S`, de cima `_N`). Ruas têm largura única (R35), com rua de contorno. `junctions`/`links` descrevem o grafo de waypoints (R38).
+- O Build revalida a cena reaberta do disco depois de salvar.
+- Para avaliar um layout sem mexer na cena: `CityPreview.Render` gera um PNG (com `waypointGraph: true`, desenha o grafo).
 - Só criar/alterar arquivos em `Assets/_Project/` e `docs/`, além da cena Gameplay via Build, salvo quando a tarefa pedir outra coisa. Não modificar assets existentes sem pedir.
 - Executar sozinho tudo o que estiver ao alcance (git, MCP, testes, screenshots); não devolver passos manuais ao usuário.
 - Antes de mudanças grandes: mostrar plano e esperar confirmação.

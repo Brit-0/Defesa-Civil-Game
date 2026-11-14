@@ -1,14 +1,8 @@
-| R27 | erro | Os bounds XY do `Essentials/Limiter` são iguais à caixa envolvente de todos os polígonos expandida por `limiterMargin` (= largura da rua) em cada lado, formando a rua de contorno (tolerância 0,01 u). |
-| R25 | erro | Polígonos não se sobrepõem. A distância mínima entre quaisquer dois polígonos é ≥ `streetWidth` (0,8 u). |
-| R21 | — | **Revogada em 2026-11-13.** (Era: ≥ 70% das decorações a ≤ 0,5 u da borda do polígono.) |
-| R20 | erro | Os 2 cantos inferiores (da parte visível) de cada decoração estão dentro do mesmo polígono (quarteirão ou decorativo). |
-| R19 | erro | Nº de decorações ≥ 2× o nº de `House`. Sem limite superior. |
-| R17 | erro | O sprite de cada decoração termina em `_S`, vem de qualquer pasta de `Assets/Arts/Houses` (Nature, Roads, Carros e os objetos de Suburban, Commercial e Industrial) e não é sprite de estrutura (R06). Continuam excluídos de `Nature/`: `Barraca*`, `Saco_Dormir`, `Canoa`, `Remo`, `Fogueira*`, `Lenha`, `Placa_Madeira`, `Ponte_*`, `Horta_*`, `Milho_*`, `Trigo_*`, `Abobora`, `Cenoura`, `Melancia`, `Nabo`, `Vitoria_Regia*`. Repetição de sprite permitida. |
-| R12 | erro | Os 2 cantos inferiores (da parte visível) de cada estrutura estão dentro do mesmo quarteirão. |
 # Regras da Cidade
 
 Fonte: pedido do usuário (2026-11-12) e respostas registradas em `decisions.md`.
-Revisão de 2026-11-13: o usuário pediu uma cidade bonita e natural, com ruas de largura única, e liberou ignorar regras anteriores. Mudaram R12, R17, R19, R20, R25 e R27; R21 foi revogada; entraram R35, R36 e R37.
+Revisão de 2026-11-13 (v3): fileira norte com sprites `_N`, nenhum sprite da pasta Carros e waypoints ligados pela rua. Mudaram R05, R12, R13, R14 e R17; entrou R38.
+Revisão de 2026-11-13 (v2): o usuário pediu uma cidade bonita e natural, com ruas de largura única, e liberou ignorar regras anteriores. Mudaram R12, R17, R19, R20, R25 e R27; R21 foi revogada; entraram R35, R36 e R37.
 Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente", "priorize").
 
 ## Definições
@@ -39,7 +33,7 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 
 | ID | Severidade | Regra |
 |---|---|---|
-| R05 | erro | O `Visual/Image.sprite` de toda estrutura tem nome terminado em `_S`. |
+| R05 | erro | O `Visual/Image.sprite` de toda estrutura termina com o sufixo da sua fileira: `_S` na fileira de baixo do quarteirão (fachada para a rua ao sul) e `_N` na fileira de cima (fachada para a rua ao norte). |
 | R06 | erro | O sprite de cada `House` pertence ao pool abaixo. Repetição permitida. Nenhum outro sprite é aceito, incluindo `Guarda_Sol`. Pool: `Suburban/Casa_*`, `Commercial/Predio_*`, `Commercial/Arranha_Ceu_*`, `Commercial/Fundo_*` (inclui `Fundo_Largo_*`) e `Industrial/Fabrica_*`. |
 | R07 | erro | O sprite de `Guard` e dos 2 `Warehouse` é `Industrial/Fabrica_*_S`. |
 | R08 | erro | Os sprites de estruturas e decorações vêm de sorteio, não de escolha manual. A semente do sorteio fica registrada em `city_layout.json`. |
@@ -51,9 +45,9 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 
 | ID | Severidade | Regra |
 |---|---|---|
-| R12 | erro | Os 2 cantos inferiores de cada estrutura estão dentro do mesmo quarteirão. Sobreposição visual entre estruturas é permitida. |
-| R13 | erro | Toda estrutura tem rua ao sul: um raio vertical para baixo, saindo do centro da borda inferior, deixa o quarteirão e atravessa um trecho de rua antes de sair do Limiter. |
-| R14 | erro | Toda estrutura tem `entry` ≠ nulo, apontando para um `Waypoint` filho de `UI/Canvas/UIContainer/Waypoints`. O Waypoint fica fora de qualquer polígono, com x = centro da borda inferior e y = ponto médio do primeiro trecho de rua do raio de R13 (tolerância 0,01 u). |
+| R12 | erro | A parte visível de cada estrutura está inteira dentro do mesmo quarteirão. |
+| R13 | erro | Toda estrutura tem rua na sua fachada: abaixo do quarteirão (fileira S) ou acima dele (fileira N), dentro do Limiter. |
+| R14 | erro | Toda estrutura tem `entry` ≠ nulo, apontando para um `Waypoint` filho de `UI/Canvas/UIContainer/Waypoints`, na linha central da rua da fachada (meia largura de rua além da borda do quarteirão) e na vertical do centro da base (tolerância 0,01 u). |
 | R15 | erro | Os 3 Waypoints pré-existentes em `Waypoints` são mantidos. |
 
 ## Decoração (Trees)
@@ -61,11 +55,11 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 | ID | Severidade | Regra |
 |---|---|---|
 | R16 | erro | Toda decoração é um GameObject com `Image`, filho direto de `UI/Canvas/UIContainer/Trees`. |
-| R17 | erro | O sprite de cada decoração vem de `Nature/`, termina em `_S` e não é de uma pasta excluída. Monumentos são permitidos. Excluídos: `Barraca*`, `Saco_Dormir`, `Canoa`, `Remo`, `Fogueira*`, `Lenha`, `Placa_Madeira`, `Ponte_*`, `Horta_*`, `Milho_*`, `Trigo_*`, `Abobora`, `Cenoura`, `Melancia`, `Nabo`, `Vitoria_Regia*`. Repetição de sprite permitida. |
+| R17 | erro | O sprite de cada decoração termina em `_S`, vem de qualquer pasta de `Assets/Arts/Houses`, exceto `Carros/` (Nature, Roads e os objetos de Suburban, Commercial e Industrial) e não é sprite de estrutura (R06). Continuam excluídos de `Nature/`: `Barraca*`, `Saco_Dormir`, `Canoa`, `Remo`, `Fogueira*`, `Lenha`, `Placa_Madeira`, `Ponte_*`, `Horta_*`, `Milho_*`, `Trigo_*`, `Abobora`, `Cenoura`, `Melancia`, `Nabo`, `Vitoria_Regia*`. Repetição de sprite permitida. |
 | R18 | erro | Toda decoração está em tamanho nativo (tolerância 0,01 u). |
-| R19 | erro | Nº de decorações entre 2× e 3× o nº de `House`, inclusive. |
-| R20 | erro | Os 2 cantos inferiores de cada decoração estão dentro do mesmo polígono (quarteirão ou decorativo). Sobreposição com estruturas é permitida. |
-| R21 | aviso | ≥ 70% das decorações têm o centro da borda inferior a ≤ 0,5 u da borda do polígono que as contém (árvores de calçada). |
+| R19 | erro | Nº de decorações ≥ 2× o nº de `House`. Sem limite superior. |
+| R20 | erro | Os 2 cantos inferiores (da parte visível) de cada decoração estão dentro do mesmo polígono (quarteirão ou decorativo). |
+| R21 | — | **Revogada em 2026-11-13.** (Era: ≥ 70% das decorações a ≤ 0,5 u da borda do polígono.) |
 
 ## Chãos e ruas
 
@@ -74,9 +68,9 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 | R22 | erro | Todo chão é instância de `Assets/Systems/Houses/Polygon.prefab`, filho direto de `Main Camera/PolygonLayer`. |
 | R23 | erro | Todo quarteirão tem exatamente 4 vértices e lados paralelos aos eixos X/Y. |
 | R24 | erro | Polígonos decorativos têm forma livre, com ≥ 3 vértices. |
-| R25 | erro | Polígonos não se sobrepõem. A distância mínima entre quaisquer dois polígonos é ≥ 0,8 u (largura mínima de rua). |
+| R25 | erro | Polígonos não se sobrepõem. A distância mínima entre quaisquer dois polígonos é ≥ `streetWidth` (0,8 u). |
 | R26 | erro | `PolygonLayer`, `Houses` e `Trees` contêm somente objetos que constam em `city_layout.json`. O Polygon e as estruturas antigos não permanecem. **Exceção fixa:** `PolygonLayer/Canvas` (com `BG`) permanece e não é tocado. |
-| R27 | erro | Os bounds XY do `Essentials/Limiter` são iguais à caixa envolvente de todos os polígonos (tolerância 0,01 u). |
+| R27 | erro | Os bounds XY do `Essentials/Limiter` são iguais à caixa envolvente de todos os polígonos expandida por `limiterMargin` (= largura da rua) em cada lado, formando a rua de contorno (tolerância 0,01 u). |
 
 ## Restrições e fluxo
 
@@ -92,3 +86,4 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 | R35 | erro | Ruas de largura única: de qualquer ponto de um lado de polígono, andando para fora na perpendicular, encontra-se outro polígono ou a borda do Limiter a exatamente `streetWidth` (tolerância 0,02 u). Exceções: o lado está na borda do Limiter, ou o ponto está na boca de uma rua transversal que também mede `streetWidth`. |
 | R36 | aviso | Oclusão coerente: como `Trees` é desenhado sobre `Houses`, uma decoração só pode cobrir a parte visível de uma estrutura se estiver à frente dela (base da decoração com y ≤ base da estrutura). |
 | R37 | aviso | As partes visíveis das estruturas não se sobrepõem. |
+| R38 | erro | Waypoints ligados pela rua: além das entradas, há um waypoint em cada cruzamento de ruas (`[CG] Waypoint Junction ###`). Ao longo de cada rua, cada waypoint é ligado ao seguinte, e só a ele: os dois têm um ao outro em `neighbors`. Ninguém está na própria lista, não há repetição nem referência nula, e todos os waypoints gerados formam um grafo conexo. Os 3 Waypoints antigos (R15) ficam fora do grafo. |

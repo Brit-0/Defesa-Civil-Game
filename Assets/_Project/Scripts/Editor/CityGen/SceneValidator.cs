@@ -138,6 +138,8 @@ namespace DefesaCivil.CityGen
                 if (house && house.entry)
                 {
                     s.entry = (Vector2)house.entry.transform.position;
+                    // orientação: a entrada fica na rua da fachada (acima = fileira N)
+                    s.facing = s.entry.y > s.bottomCenter.y ? Facing.North : Facing.South;
                     if (house.entry.transform.parent != r.waypoints) extra.Add(V("R14", c.name, s.entry, "entry fora de UI/Canvas/UIContainer/Waypoints"));
                 }
                 else { s.entry = new Vec2(float.NaN, float.NaN); extra.Add(V("R14", c.name, s.bottomCenter, "entry nulo")); }
@@ -149,6 +151,31 @@ namespace DefesaCivil.CityGen
                     extra.Add(V("R31", c.name, s.bottomCenter, "BoxCollider2D não cobre o retângulo nativo"));
                 l.structures.Add(s);
             }
+            // waypoints de cruzamento e ligações (R38)
+            string jPrefix = CitySceneRefs.CgPrefix + "Waypoint " + StreetGraph.JunctionType + " ";
+            string wPrefix = CitySceneRefs.CgPrefix + "Waypoint ";
+            var pairs = new HashSet<(string, string)>();
+            foreach (Transform c in r.waypoints)
+            {
+                var wp = c.GetComponent<Waypoint>();
+                if (!wp) continue;
+                bool generated = c.name.StartsWith(wPrefix);
+                if (c.name.StartsWith(jPrefix)) l.junctions.Add(new WaypointNode { id = c.name.Substring(jPrefix.Length), position = (Vector2)c.position });
+                var seenHere = new HashSet<Waypoint>();
+                foreach (var n in wp.neighbors)
+                {
+                    if (!generated) break; // os 3 antigos não fazem parte do grafo gerado
+                    if (n == null) { extra.Add(V("R38", c.name, c.position, "vizinho nulo")); continue; }
+                    if (n == wp) extra.Add(V("R38", c.name, c.position, "waypoint na própria lista de vizinhos"));
+                    if (!seenHere.Add(n)) extra.Add(V("R38", c.name, c.position, "vizinho repetido: " + n.name));
+                    if (!n.neighbors.Contains(wp)) extra.Add(V("R38", c.name, c.position, "ligação não é recíproca com " + n.name));
+                    if (!n.name.StartsWith(wPrefix)) { extra.Add(V("R38", c.name, c.position, "ligado a waypoint fora do grafo gerado: " + n.name)); continue; }
+                    string a = c.name.Substring(wPrefix.Length), b = n.name.Substring(wPrefix.Length);
+                    pairs.Add(string.CompareOrdinal(a, b) < 0 ? (a, b) : (b, a));
+                }
+            }
+            l.links = pairs.Select(p => new WaypointLink { a = p.Item1, b = p.Item2 }).ToList();
+
             string treePrefix = CitySceneRefs.CgPrefix + "Tree ";
             foreach (Transform c in r.trees)
             {

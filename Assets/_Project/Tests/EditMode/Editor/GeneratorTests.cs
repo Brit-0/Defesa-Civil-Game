@@ -44,6 +44,10 @@ namespace DefesaCivil.CityGen.Tests
             Assert.AreEqual(2, l.polygons.Count(p => p.kind == PolygonKind.Plaza), "parque central + bosque");
             Assert.AreEqual(CityGenerator.Street, l.limiterMargin, "rua de contorno");
             Assert.AreEqual(777, l.seed);
+            Assert.IsTrue(l.structures.Any(s => s.facing == Facing.North), "fileira de cima");
+            Assert.IsTrue(l.structures.Where(s => s.facing == Facing.North).All(s => s.sprite.name.EndsWith("_N")));
+            Assert.IsFalse(l.decorations.Any(d => cat.Get(d.sprite).category == "Carros"), "nenhum carro");
+            Assert.Greater(l.junctions.Count, 0);
         }
 
         [Test] public void JsonRoundTripOfGeneratedLayout()
