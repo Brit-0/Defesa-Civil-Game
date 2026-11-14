@@ -48,6 +48,7 @@ namespace DefesaCivil.CityGen
             FitPolygonFraming();
             MigrateOldStructures();
             BuildStructures();
+            MigrateOldWaypoints();
             BuildWaypoints();
             SortByBottom(refs.houses, layout.structures.ToDictionary(s => CitySceneRefs.Name(s.type, s.id), s => (Vector2)s.bottomCenter));
             FillGps();
@@ -234,6 +235,14 @@ namespace DefesaCivil.CityGen
                 if (!created) Changed(changed);
             }
             foreach (var kv in existing) Destroy(kv.Value.gameObject, "id fora do JSON");
+        }
+
+        /// <summary>Migração (decisão de 2026-11-13): remove os Waypoints antigos (não [CG]); a malha é toda gerada.</summary>
+        void MigrateOldWaypoints()
+        {
+            foreach (Transform c in refs.waypoints.Cast<Transform>().ToList())
+                if (!CitySceneRefs.IsGenerated(c) && c.GetComponent<Waypoint>() != null)
+                    Destroy(c.gameObject, "migração: Waypoint antigo");
         }
 
         readonly Dictionary<string, House> houses = new Dictionary<string, House>();

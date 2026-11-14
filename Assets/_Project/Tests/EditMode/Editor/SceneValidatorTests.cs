@@ -98,17 +98,21 @@ namespace DefesaCivil.CityGen.Tests
             Assert.IsTrue(V().Has("R27"));
         }
 
-        [Test] public void R28_R15_Baseline()
+        [Test] public void R28_Baseline()
         {
             var b = SceneBaseline.Capture(ts.refs);
             Assert.IsFalse(V(b).Has("R28"));
-            Assert.IsFalse(V(b).Has("R15"));
             ts.refs.polygonCamera.orthographicSize += 1f; // permitido
             Assert.IsFalse(V(b).Has("R28"));
             ts.refs.polygonCamera.fieldOfView = 30f; // não permitido
             Assert.IsTrue(V(b).Has("R28"));
-            Object.DestroyImmediate(ts.refs.waypoints.Find("Waypoint").gameObject);
-            Assert.IsTrue(V(b).Has("R15"));
+        }
+
+        [Test] public void R26_ForeignWaypoint()
+        {
+            Assert.IsFalse(V().Has("R26"));
+            new GameObject("Waypoint").AddComponent<Waypoint>().transform.SetParent(ts.refs.waypoints, false);
+            Assert.IsTrue(V().Has("R26"));
         }
     }
 }

@@ -32,7 +32,7 @@ namespace DefesaCivil.CityGen.Tests
             Assert.AreEqual(1, ts.refs.houses.GetComponentsInChildren<CityGuard>(true).Length);
             Assert.AreEqual(2, ts.refs.houses.GetComponentsInChildren<Warehouse>(true).Length);
             foreach (var n in new[] { "House", "Guard", "Warehouse" }) Assert.IsNull(ts.refs.uiContainer.Find(n), n + " antigo removido");
-            Assert.IsNotNull(ts.refs.waypoints.Find("Waypoint"), "Waypoint antigo mantido (R15)");
+            Assert.IsNull(ts.refs.waypoints.Find("Waypoint"), "Waypoint antigo removido");
         }
 
         [Test] public void SpriteSizeAndColliderPerInstance()

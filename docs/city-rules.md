@@ -48,7 +48,7 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 | R12 | erro | A parte visível de cada estrutura está inteira dentro do mesmo quarteirão. |
 | R13 | erro | Toda estrutura tem rua na sua fachada: abaixo do quarteirão (fileira S) ou acima dele (fileira N), dentro do Limiter. |
 | R14 | erro | Toda estrutura tem `entry` ≠ nulo, apontando para um `Waypoint` filho de `UI/Canvas/UIContainer/Waypoints`, na linha central da rua da fachada (meia largura de rua além da borda do quarteirão) e na vertical do centro da base (tolerância 0,01 u). |
-| R15 | erro | Os 3 Waypoints pré-existentes em `Waypoints` são mantidos. |
+| R15 | — | **Revogada em 2026-11-13** a pedido do usuário: os 3 Waypoints antigos foram removidos. (Era: os 3 Waypoints pré-existentes em `Waypoints` são mantidos.) |
 
 ## Decoração (Trees)
 
@@ -69,7 +69,7 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 | R23 | erro | Todo quarteirão tem exatamente 4 vértices e lados paralelos aos eixos X/Y. |
 | R24 | erro | Polígonos decorativos têm forma livre, com ≥ 3 vértices. |
 | R25 | erro | Polígonos não se sobrepõem. A distância mínima entre quaisquer dois polígonos é ≥ `streetWidth` (0,8 u). |
-| R26 | erro | `PolygonLayer`, `Houses` e `Trees` contêm somente objetos que constam em `city_layout.json`. O Polygon e as estruturas antigos não permanecem. **Exceção fixa:** `PolygonLayer/Canvas` (com `BG`) permanece e não é tocado. |
+| R26 | erro | `PolygonLayer`, `Houses`, `Trees` e `Waypoints` contêm somente objetos que constam em `city_layout.json`. O Polygon e as estruturas antigos não permanecem. **Exceção fixa:** `PolygonLayer/Canvas` (com `BG`) permanece e não é tocado. |
 | R27 | erro | Os bounds XY do `Essentials/Limiter` são iguais à caixa envolvente de todos os polígonos expandida por `limiterMargin` (= largura da rua) em cada lado, formando a rua de contorno (tolerância 0,01 u). |
 
 ## Restrições e fluxo
@@ -86,4 +86,4 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 | R35 | erro | Ruas de largura única: de qualquer ponto de um lado de polígono, andando para fora na perpendicular, encontra-se outro polígono ou a borda do Limiter a exatamente `streetWidth` (tolerância 0,02 u). Exceções: o lado está na borda do Limiter, ou o ponto está na boca de uma rua transversal que também mede `streetWidth`. |
 | R36 | aviso | Oclusão coerente: como `Trees` é desenhado sobre `Houses`, uma decoração só pode cobrir a parte visível de uma estrutura se estiver à frente dela (base da decoração com y ≤ base da estrutura). |
 | R37 | aviso | As partes visíveis das estruturas não se sobrepõem. |
-| R38 | erro | Waypoints ligados pela rua: além das entradas, há um waypoint em cada cruzamento de ruas (`[CG] Waypoint Junction ###`). Ao longo de cada rua, cada waypoint é ligado ao seguinte, e só a ele: os dois têm um ao outro em `neighbors`. Ninguém está na própria lista, não há repetição nem referência nula, e todos os waypoints gerados formam um grafo conexo. Os 3 Waypoints antigos (R15) ficam fora do grafo. |
+| R38 | erro | Waypoints ligados pela rua: além das entradas, há um waypoint em cada cruzamento de ruas (`[CG] Waypoint Junction ###`). Ao longo de cada rua, cada waypoint é ligado ao seguinte, e só a ele: os dois têm um ao outro em `neighbors`. Ninguém está na própria lista, não há repetição nem referência nula, e todos os waypoints gerados formam um grafo conexo. |

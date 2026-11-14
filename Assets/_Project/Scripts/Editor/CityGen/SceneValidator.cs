@@ -58,14 +58,12 @@ namespace DefesaCivil.CityGen
             foreach (var k in jsonStructs) if (!r.houses.Find(CitySceneRefs.CgPrefix + k)) report.Add("R29", k, Vector2.zero, "estrutura do JSON ausente na cena");
             foreach (var id in jsonTrees) if (!r.trees.Find(CitySceneRefs.Name("Tree", id))) report.Add("R29", "Tree " + id, Vector2.zero, "decoração do JSON ausente na cena");
 
-            // R15: Waypoints antigos
+            // R26 em Waypoints: só waypoints gerados (os antigos foram removidos em 2026-11-13; R15 revogada)
+            foreach (Transform c in r.waypoints)
+                if (!CitySceneRefs.IsGenerated(c)) report.Add("R26", c.name, c.position, "objeto em Waypoints que não foi gerado pelo Build");
             if (baseline != null)
-            {
-                var present = new HashSet<string>(r.waypoints.Cast<Transform>().Where(t => !CitySceneRefs.IsGenerated(t)).Select(t => GlobalObjectId.GetGlobalObjectIdSlow(t.gameObject).ToString()));
-                foreach (var id in baseline.legacyWaypoints) if (!present.Contains(id)) report.Add("R15", "Waypoints", Vector2.zero, "Waypoint pré-existente ausente: " + id);
                 foreach (var d in baseline.Diff(r)) report.Add("R28", "câmera", Vector2.zero, d);
-            }
-            else report.notes.Add("R15/R28 não verificados: sem scene_baseline.json.");
+            else report.notes.Add("R28 não verificada: sem scene_baseline.json.");
 
             // R30: Y-sort
             CheckSort(report, r.houses, scene.structures.ToDictionary(s => CitySceneRefs.Name(s.type, s.id), s => (Vector2)s.bottomCenter));

@@ -189,3 +189,11 @@ Como ficou:
   - Espaço entre casas calculado por bairro para respeitar a proporção.
 - **GPS:** `allWaypoints` agora inclui também os cruzamentos (antes só entradas), porque o caminho passa por eles.
 - **Semente:** 509173474, escolhida por mim entre 12 sorteadas (sem avisos e mais casas).
+
+## 2026-11-13 — Waypoints antigos removidos
+
+- Pedido do usuário: **remover os 3 Waypoints antigos** (`Waypoint`, `Waypoint(Clone)` ×2), que não estavam em nenhuma rua da cidade nova.
+- O Build faz isso como migração (remove de `Waypoints` tudo o que não é `[CG]`).
+- R15 foi revogada e a R26 passou a valer também para `Waypoints`.
+- Removida também a lista deles no `scene_baseline.json`.
+- Efeito colateral: o campo `selectedWp` da ferramenta `WaypointCreator` (cena, `Scripts/WaypointCreator`) apontava para um deles e ficou vazio.
