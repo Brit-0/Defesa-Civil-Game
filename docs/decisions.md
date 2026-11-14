@@ -197,3 +197,14 @@ Como ficou:
 - R15 foi revogada e a R26 passou a valer também para `Waypoints`.
 - Removida também a lista deles no `scene_baseline.json`.
 - Efeito colateral: o campo `selectedWp` da ferramenta `WaypointCreator` (cena, `Scripts/WaypointCreator`) apontava para um deles e ficou vazio.
+
+## 2026-11-13 — Camada dos Workers por Y (mesclar Houses + Trees + Workers)
+
+- Pedido: os Workers (spawnados em `Workers`) devem ficar na frente ou atrás conforme o y, como casas e árvores.
+- Escolha do usuário (formulário): **mesclar Houses + Trees + Workers** numa só ordem de desenho.
+- Como: Canvas aninhado com Override Sorting em cada estrutura, decoração e Worker, com o componente `YSortCanvas` (`Assets/_Project/Scripts/Runtime/Sorting`).
+  - Os Workers recalculam a ordem todo frame (`dynamic`).
+  - O prefab `Worker.prefab` recebeu o Canvas e o componente.
+  - Os empties continuam como estavam. A ordem entre eles deixou de importar para o desenho.
+- Efeito: `Trees` deixa de ficar sempre sobre `Houses`; agora vale o y da base (R30 reescrita).
+- Também: o `scene_baseline.json` foi recapturado porque a cor de fundo da Main Camera na cena salva já era preta (alteração feita no Editor, não pelo gerador).

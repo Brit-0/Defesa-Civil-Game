@@ -89,6 +89,26 @@ namespace DefesaCivil.CityGen.Tests
             Assert.IsTrue(wps.All(w => w.neighbors.Count > 0), "todo waypoint gerado tem ao menos um vizinho");
         }
 
+        [Test] public void DrawOrderFollowsYAcrossHousesTreesAndWorkers()
+        {
+            Build();
+            var items = new List<(float y, int order, int kind)>();
+            foreach (Transform c in ts.refs.houses) { var ys = c.GetComponent<YSortCanvas>(); Assert.IsNotNull(ys, c.name); Assert.IsTrue(c.GetComponent<Canvas>().overrideSorting); Assert.IsNotNull(c.GetComponent<UnityEngine.UI.GraphicRaycaster>(), "estrutura clicável"); items.Add((ys.BaseY(), c.GetComponent<Canvas>().sortingOrder, 0)); }
+            foreach (Transform c in ts.refs.trees) { var ys = c.GetComponent<YSortCanvas>(); Assert.IsNotNull(ys, c.name); items.Add((ys.BaseY(), c.GetComponent<Canvas>().sortingOrder, 1)); }
+            // worker simulado: mais ao sul que tudo → na frente de tudo; mais ao norte → atrás de tudo
+            var w = new GameObject("W", typeof(RectTransform)); w.transform.SetParent(ts.uiRoot, false);
+            var wc = w.AddComponent<Canvas>(); var wy = w.AddComponent<YSortCanvas>(); wy.kind = YSortCanvas.Kind_Worker; wy.dynamic = true;
+            float minY = items.Min(i => i.y), maxY = items.Max(i => i.y);
+            w.transform.position = new Vector3(0, minY - 3f, 0); wy.Apply();
+            Assert.Greater(wc.sortingOrder, items.Max(i => i.order), "ao sul de tudo: na frente");
+            w.transform.position = new Vector3(0, maxY + 3f, 0); wy.Apply();
+            Assert.Less(wc.sortingOrder, items.Min(i => i.order), "ao norte de tudo: atrás");
+            // ordem estritamente monotônica no y (itens com y maior têm ordem menor)
+            foreach (var a in items) foreach (var b in items.Take(40))
+                if (a.y > b.y + 0.05f) Assert.Less(a.order, b.order);
+            Assert.Less(items.Max(i => i.order), YSortCanvas.OverlayOrder);
+        }
+
         [Test] public void YSortedSiblings()
         {
             Build();

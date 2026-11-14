@@ -82,7 +82,7 @@ namespace DefesaCivil.CityGen.Tests
         [Test] public void R30_WrongOrder()
         {
             var first = ts.refs.houses.GetChild(0);
-            first.SetAsLastSibling();
+            first.GetComponent<Canvas>().sortingOrder += 500;
             Assert.IsTrue(V().Has("R30"));
         }
 

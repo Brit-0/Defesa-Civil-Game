@@ -1,5 +1,5 @@
 {
-    "capturedAt": "2026-11-13T04:58:55Z",
+    "capturedAt": "2026-11-14T00:42:50Z",
     "mainCamera": [
         "Transform.m_ObjectHideFlags=0",
         "Transform.m_CorrespondingSourceObject=null",
@@ -33,9 +33,9 @@
         "Camera.m_Enabled=True",
         "Camera.m_ClearFlags=2",
         "Camera.m_BackGroundColor=",
-        "Camera.m_BackGroundColor.r=0.19215686619281769",
-        "Camera.m_BackGroundColor.g=0.30196079611778259",
-        "Camera.m_BackGroundColor.b=0.47450980544090271",
+        "Camera.m_BackGroundColor.r=0",
+        "Camera.m_BackGroundColor.g=0",
+        "Camera.m_BackGroundColor.b=0",
         "Camera.m_BackGroundColor.a=1",
         "Camera.m_projectionMatrixMode=1",
         "Camera.m_GateFitMode=2",

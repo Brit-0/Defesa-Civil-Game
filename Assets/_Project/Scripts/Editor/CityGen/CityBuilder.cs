@@ -36,6 +36,25 @@ namespace DefesaCivil.CityGen
 
         void Record(Object o) { if (undo) Undo.RecordObject(o, "City Build"); }
         void Created(GameObject go) { if (undo) Undo.RegisterCreatedObjectUndo(go, "City Build"); }
+        T Add<T>(GameObject g) where T : Component => undo ? Undo.AddComponent<T>(g) : g.AddComponent<T>();
+
+        /// <summary>
+        /// Ordem de desenho por Y (Canvas aninhado + YSortCanvas). Estruturas precisam de GraphicRaycaster para receber
+        /// cliques, já que o Canvas aninhado tira os Graphics do raycaster do Canvas raiz.
+        /// </summary>
+        bool EnsureYSort(GameObject go, int kind, float offsetU, bool raycaster)
+        {
+            bool changed = false;
+            var canvas = go.GetComponent<Canvas>();
+            if (!canvas) { canvas = Add<Canvas>(go); changed = true; }
+            var ys = go.GetComponent<YSortCanvas>();
+            if (!ys) { ys = Add<YSortCanvas>(go); changed = true; }
+            if (raycaster && !go.GetComponent<UnityEngine.UI.GraphicRaycaster>()) { Add<UnityEngine.UI.GraphicRaycaster>(go); changed = true; }
+            if (ys.kind != kind || !Approx(ys.baseOffsetU, offsetU) || ys.dynamic) { Record(ys); ys.kind = kind; ys.baseOffsetU = offsetU; ys.dynamic = false; changed = true; }
+            if (!canvas.overrideSorting || canvas.sortingOrder != ys.ComputeOrder()) { Record(canvas); ys.Apply(); changed = true; }
+            return changed;
+        }
+
         void SetSibling(Transform t, int i) { if (undo) Undo.SetSiblingIndex(t, i, "City Build"); else t.SetSiblingIndex(i); }
 
         public BuildResult Run()
@@ -228,6 +247,7 @@ namespace DefesaCivil.CityGen
                     changed = true;
                 }
 
+                if (EnsureYSort(t.gameObject, YSortCanvas.Kind_House, cs.padBottomU, true)) changed = true;
                 var house = t.GetComponent<House>();
                 houses[key] = house;
                 if (house is Location) locations.Add(house);
@@ -381,6 +401,7 @@ namespace DefesaCivil.CityGen
                     img.raycastTarget = false; // decisão: decorações não recebem cliques
                     changed = true;
                 }
+                if (EnsureYSort(t.gameObject, YSortCanvas.Kind_Tree, cs.padBottomU, false)) changed = true;
                 if (!created) Changed(changed);
             }
             foreach (var kv in existing) Destroy(kv.Value.gameObject, "id fora do JSON");

@@ -36,6 +36,8 @@ namespace DefesaCivil.CityGen
                     if (poly) sb.Append("|path=" + string.Join(";", poly.GetPath(0).Select(V)));
                     var house = c.GetComponent<House>();
                     if (house) sb.Append("|entry=" + (house.entry ? house.entry.name : "null"));
+                    var ysc = c.GetComponent<YSortCanvas>();
+                    if (ysc) sb.Append("|order=" + c.GetComponent<Canvas>().sortingOrder);
                     var wp = c.GetComponent<Waypoint>();
                     if (wp) sb.Append("|nb=" + string.Join(",", wp.neighbors.Select(n => n ? n.name : "null")));
                     lines.Add(sb.ToString());

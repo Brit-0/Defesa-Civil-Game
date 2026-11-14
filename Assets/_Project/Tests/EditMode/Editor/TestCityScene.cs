@@ -10,6 +10,7 @@ namespace DefesaCivil.CityGen.Tests
     public class TestCityScene
     {
         public Scene scene;
+        public Transform uiRoot;
         bool reused;
         public CitySceneRefs refs;
         public GameObject bgCanvas;
@@ -43,6 +44,7 @@ namespace DefesaCivil.CityGen.Tests
             var crt = (RectTransform)canvas.transform;
             crt.sizeDelta = new Vector2(1920, 1080); crt.localScale = Vector3.one * 0.01f; crt.position = new Vector3(t.center.x, t.center.y, 90f);
             var cont = NewRect("UIContainer", canvas.transform);
+            t.uiRoot = cont;
             NewRect("PolygonsDisplay", cont).gameObject.AddComponent<RawImage>();
             NewRect("Houses", cont); NewRect("Trees", cont); NewRect("Waypoints", cont);
             var oldWp = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Systems/Navigation/Waypoint.prefab"), cont.Find("Waypoints"));

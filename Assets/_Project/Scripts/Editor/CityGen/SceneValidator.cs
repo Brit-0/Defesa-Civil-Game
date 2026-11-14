@@ -65,10 +65,9 @@ namespace DefesaCivil.CityGen
                 foreach (var d in baseline.Diff(r)) report.Add("R28", "câmera", Vector2.zero, d);
             else report.notes.Add("R28 não verificada: sem scene_baseline.json.");
 
-            // R30: Y-sort
-            CheckSort(report, r.houses, scene.structures.ToDictionary(s => CitySceneRefs.Name(s.type, s.id), s => (Vector2)s.bottomCenter));
-            CheckSort(report, r.trees, scene.decorations.ToDictionary(d => CitySceneRefs.Name("Tree", d.id), d => (Vector2)d.bottomCenter));
-            if (r.trees.GetSiblingIndex() < r.houses.GetSiblingIndex()) report.Add("R30", "Trees", Vector2.zero, "Trees antes de Houses (seria desenhado atrás)");
+            // R30: ordem de desenho por Y (Canvas aninhado + YSortCanvas) em Houses e Trees
+            CheckSort(report, r.houses, YSortCanvas.Kind_House, scene.structures.ToDictionary(s => CitySceneRefs.Name(s.type, s.id), s => (Vector2)s.bottomCenter));
+            CheckSort(report, r.trees, YSortCanvas.Kind_Tree, scene.decorations.ToDictionary(d => CitySceneRefs.Name("Tree", d.id), d => (Vector2)d.bottomCenter));
 
             // R34: enquadramento
             var bb = CityGeometry.BoundingBox(scene.polygons.Select(p => (IList<Vector2>)CityGeometry.ToVectors(p.points)));
@@ -93,15 +92,16 @@ namespace DefesaCivil.CityGen
             return report;
         }
 
-        static void CheckSort(ValidationReport rep, Transform parent, Dictionary<string, Vector2> bottoms)
+        static void CheckSort(ValidationReport rep, Transform parent, int kind, Dictionary<string, Vector2> bottoms)
         {
-            var list = parent.Cast<Transform>().Where(c => bottoms.ContainsKey(c.name)).ToList();
-            for (int i = 1; i < list.Count; i++)
-                if (bottoms[list[i].name].y > bottoms[list[i - 1].name].y + 1e-3f)
-                {
-                    rep.Add("R30", list[i].name, bottoms[list[i].name], $"desenhado na frente de {list[i - 1].name}, que está mais ao sul");
-                    return;
-                }
+            foreach (Transform c in parent)
+            {
+                if (!bottoms.TryGetValue(c.name, out var b)) continue;
+                var ys = c.GetComponent<YSortCanvas>(); var cv = c.GetComponent<Canvas>();
+                if (ys == null || cv == null || !cv.overrideSorting) { rep.Add("R30", c.name, b, "sem Canvas aninhado com Override Sorting + YSortCanvas"); continue; }
+                int expected = YSortCanvas.OrderFor(b.y, kind);
+                if (Mathf.Abs(cv.sortingOrder - expected) > 1) rep.Add("R30", c.name, b, $"sortingOrder {cv.sortingOrder} ≠ esperado {expected} para y {b.y:0.##}");
+            }
         }
 
         /// <summary>Reconstrói o layout a partir da cena (posições medidas nos objetos reais).</summary>
