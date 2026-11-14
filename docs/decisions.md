@@ -162,3 +162,30 @@ Escolhas minhas dentro dessa liberdade (nenhuma é PLACEHOLDER; todas podem ser 
   - MapRender 640×360.
 - **Semente:** 293574367, escolhida por mim entre 5 sementes sorteadas, pelas prévias.
 - **Ferramenta nova:** `CityPreview` gera um PNG do layout sem tocar na cena.
+
+## 2026-11-13 — Cidade v3: duas fileiras, sem carros, waypoints ligados
+
+Pedido do usuário:
+- "faça os polygons conterem também uma fileira superior de casas (usando os sprites final _N), com os waypoints na rua de cima";
+- "tire também todos os sprites de carros (TODOS) e substitua por estruturas normais";
+- "linke todos os waypoints (...) colocando-os na lista neighbors. dois waypoints ligados diretamente devem ter um ao outro nas próprias listas (mas nunca eles mesmos)".
+
+Como ficou:
+- **Duas fileiras por quarteirão:**
+  - Embaixo: fachada para a rua ao sul, sprites `_S`, waypoint na rua de baixo.
+  - Em cima: fachada para a rua ao norte, sprites `_N`, waypoint na rua de cima.
+  - Quintal entre elas: cerca ou sebe, árvores e flores.
+  - Vale para residencial, comercial, industrial e depósitos. Parque e bosque não têm estruturas.
+- **Nenhum sprite da pasta `Carros/`** (carros, caminhões, viaturas, caixas, destroços). Onde havia carros entram estruturas comuns do bairro. O pátio dos depósitos usa contêineres e tanque, da pasta Industrial.
+- **Waypoints:**
+  - Um de entrada por estrutura e um em cada cruzamento de ruas (`[CG] Waypoint Junction ###`).
+  - Ao longo de cada rua, cada waypoint fica ligado ao vizinho imediato, nos dois sentidos, nunca a si mesmo.
+  - O JSON guarda `junctions` e `links` (versão 3); o Build preenche `neighbors`.
+  - Os 3 Waypoints antigos (R15) não fazem parte da malha nova e ficaram como estavam.
+- **Escolhas minhas para caber tudo:**
+  - 4 faixas de quarteirões com 7,2–7,5 u de profundidade.
+  - Cidade com ~47–49 u de largura.
+  - 70–78 casas planejadas (o resultado fica em 50–80, R01).
+  - Espaço entre casas calculado por bairro para respeitar a proporção.
+- **GPS:** `allWaypoints` agora inclui também os cruzamentos (antes só entradas), porque o caminho passa por eles.
+- **Semente:** 509173474, escolhida por mim entre 12 sorteadas (sem avisos e mais casas).

@@ -1,4 +1,42 @@
-# Relatório do Build — cidade v2 (2026-11-13)
+# Relatório do Build — cidade v3 (2026-11-13)
+
+Pedido: fileira superior de casas com sprites `_N` e waypoints na rua de cima; nenhum sprite de carro; todos os waypoints ligados aos vizinhos pela rua.
+
+- **Layout:** `city_layout.json` (versão 3), semente `509173474`, escolhida entre 12 sorteadas.
+- **Build:** 1º 34 criados, 493 atualizados, 167 removidos; 2º sem mudança (R29).
+- **Validação:** 0 erros e 0 avisos, também com a cena **reaberta do disco** depois de salvar. O Build agora faz essa conferência sozinho.
+- **Testes EditMode:** 81 passando.
+
+| Item | Qtd |
+|---|---|
+| House (Suburban / Commercial / Industrial) | 70 (40 / 19 / 11) |
+| Guard / Warehouse | 1 / 2 |
+| Fileira de baixo (`_S`, entrada na rua de baixo) / de cima (`_N`, entrada na rua de cima) | 35 / 38 |
+| Decorações | 221, nenhuma da pasta Carros |
+| Polígonos | 17 = 15 quarteirões + parque + bosque |
+| Waypoints gerados | 105 = 73 entradas + 32 cruzamentos, 121 ligações |
+
+**Grafo de waypoints, conferido na cena salva:**
+- nenhum vizinho nulo;
+- nenhum waypoint na própria lista;
+- nenhuma ligação repetida ou de mão única;
+- todo waypoint tem ao menos um vizinho.
+
+`Pathfinder.FindPath` da Guarda até cada uma das 73 estruturas: todas com caminho, o maior com 20 waypoints. Os 3 Waypoints antigos (R15) não fazem parte da malha nova e ficaram como estavam.
+
+**Correção feita no caminho:** na primeira gravação, `neighbors` foi para o disco com referências nulas. Em memória estava certo, mas as alterações nas instâncias de prefab não tinham sido registradas como override antes de salvar. O Build agora registra os overrides e revalida a cena reaberta.
+
+**Imagens** (`docs/reports/build/`):
+
+| Arquivo | O que mostra |
+|---|---|
+| `v3_00_previa_layout.png` | Prévia do layout em PNG |
+| `v3_06_grafo_waypoints.png` | Mesma prévia com o grafo: entradas em azul, cruzamentos em vermelho, ligações em amarelo |
+| `v3_01` a `v3_05` | Play Mode: visão geral, parque, quarteirão residencial com as duas fileiras, indústria com a Guarda, bosque |
+
+---
+
+# (histórico) Relatório do Build — cidade v2 (2026-11-13)
 
 Pedido do usuário: ruas com a mesma largura, cidade bonita e natural, estruturas mais perto da rua ao sul, liberdade para ignorar regras anteriores. Só a organização nos empties foi mantida obrigatória.
 
