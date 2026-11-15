@@ -12,6 +12,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2871834745512797032, guid: e871174820cb757499015537eb91b875, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -94
+      objectReference: {fileID: 0}
+    - target: {fileID: 2871834745512797032, guid: e871174820cb757499015537eb91b875, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 403
+      objectReference: {fileID: 0}
     - target: {fileID: 4674568238996248893, guid: e871174820cb757499015537eb91b875, type: 3}
       propertyPath: m_Name
       value: Guard

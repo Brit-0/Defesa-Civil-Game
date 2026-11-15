@@ -8,6 +8,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2871834745512797032, guid: e871174820cb757499015537eb91b875, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -64
+      objectReference: {fileID: 0}
+    - target: {fileID: 2871834745512797032, guid: e871174820cb757499015537eb91b875, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 388
+      objectReference: {fileID: 0}
     - target: {fileID: 4674568238996248893, guid: e871174820cb757499015537eb91b875, type: 3}
       propertyPath: m_Name
       value: Warehouse
@@ -159,7 +167,7 @@ MonoBehaviour:
     type: 0
     guard: {fileID: 0}
   callDisplay: {fileID: 8682693671651139900}
-  workTime: 0
+  workTime: 2
   progressCircle: {fileID: 3975623888420564941}
   progressIcon: {fileID: 7637653429652687737}
   complete: {fileID: 8822054703772370514}
