@@ -109,8 +109,8 @@ clique na casa  -> House.ResolveCompletion()
 
 | # | Onde | Problema | Tarefa |
 |---|---|---|---|
-| B1 | `AnalyticsManager.cs`, `Waypoint.cs`, `WaypointCreator.cs` | `using UnityEditor` / `Handles` fora de `#if UNITY_EDITOR`. **O build do jogador não compila.** | T01 |
-| B2 | `GPS.cs`, `InfoPanel.cs` | `using static UnityEngine.Rendering.DebugUI` e `using Unity.VisualScripting` sem uso. | T01 |
+| ~~B1~~ | `AnalyticsManager.cs`, `Waypoint.cs`, `WaypointCreator.cs` | CORRIGIDO em 16/11 (`75ed78a`): `using UnityEditor` / `Handles` / `Selection` agora só dentro de `#if UNITY_EDITOR`. Falta confirmar com o build Windows (U2). | T01 |
+| ~~B2~~ | `GPS.cs`, `InfoPanel.cs` | CORRIGIDO em 16/11 (`75ed78a`): `using static UnityEngine.Rendering.DebugUI` e `using Unity.VisualScripting` removidos. | T01 |
 | B3 | `Tweener.cs` | IDs globais de DOTween (`"HoverEnter"`, `"TweenHold"`): `DOTween.Complete(id)` afeta todas as casas. `Hold` completa `"TweenHover"`, que não existe. | T10 |
 | B4 | `GuardManager.RetrieveTeam` | Usa `teamSize` (valor da UI) em vez de `call.workersSent` para marcar o último trabalhador. | T04 |
 | B5 | `GuardManager` | Um único `currentCall`/`selectedGuard`. `CancelCall` não confere `context.performed`, então dispara 3 vezes por tecla. | T04 |

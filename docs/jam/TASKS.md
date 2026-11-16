@@ -11,7 +11,7 @@ Meta do dia: jogar 5 minutos de ponta a ponta. Terremoto quebra casas, eu conser
 | Status | ID | Tarefa | Agente | Depende | Pronto quando |
 |---|---|---|---|---|---|
 | [x] | T00 | Kickoff de git: criar `jam` a partir da `main`, copiar `docs/jam/CLAUDE-jam.md` para `CLAUDE.md`, commit, push, criar `jam-sistemas` e `jam-feel`. Feito em 16/11 (conferido com `git ls-remote`: as 3 branches no remoto, `main` intacta). A verificação do MCP do Unity saiu daqui e virou a U1, porque depende do PC com o Unity. | A | — | 3 branches no remoto. |
-| [ ] | T01 | Corrigir bloqueios de build (B1, B2 de `ARCHITECTURE.md`) e gerar build Windows de fumaça. | A | T00 | Executável abre e mostra a cidade. |
+| [x] | T01 | Corrigir bloqueios de build (B1, B2 de `ARCHITECTURE.md`). Código feito em 16/11 (commit `75ed78a`) e conferido sem o Unity: 24 arquivos de runtime varridos, 6 usos de API de Editor, todos dentro de `#if UNITY_EDITOR`, 0 fora. **Falta a prova real, que é o build Windows de fumaça: virou a U2.** | A | T00 | Nenhum `UnityEditor` fora de `#if UNITY_EDITOR` no runtime. |
 | [ ] | T02 | Build WebGL de fumaça. Medir FPS e tempo de carga; relatar. | A | T01 | Relatório curto com go/no-go em `DECISIONS.md`. |
 | [ ] | T03 | `GameEvents`, `GameState`, `GameManager`, `LocationsManager` (registro de casas). **Merge imediato na `jam`.** | B | T01 | Compila; C já consegue assinar eventos. |
 | [ ] | T04 | Refatorar `House` (`SetState`, `ApplyProblem`) e `GuardManager`; corrigir B4 a B8 e B10; disparar os eventos de chamado. | B | T03 | Fluxo atual funciona igual, com eventos saindo no log. |
