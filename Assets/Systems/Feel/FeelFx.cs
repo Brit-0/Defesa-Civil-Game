@@ -5,6 +5,15 @@ using UnityEngine.UI;
 //Efeitos pequenos feitos só de Image e DOTween. Provisórios até a arte de VFX chegar (ART_REQUESTS.md).
 public static class FeelFx
 {
+    //O mesmo estouro a partir de um ponto do mundo (tamanho e distância continuam em unidades do pai)
+    public static void BurstAt(Transform parent, Vector3 worldPosition, int count, Color color, float size, float distance, float duration, float upBias = 0f, Sprite sprite = null)
+    {
+        Vector2 center = parent.InverseTransformPoint(worldPosition);
+        if (parent is RectTransform rect) center -= rect.rect.center;
+
+        Burst(parent, center, count, color, size, distance, duration, upBias, sprite);
+    }
+
     //Estouro de quadradinhos (poeira, brilho) a partir de um ponto local do pai
     public static void Burst(Transform parent, Vector2 center, int count, Color color, float size, float distance, float duration, float upBias = 0f, Sprite sprite = null)
     {
