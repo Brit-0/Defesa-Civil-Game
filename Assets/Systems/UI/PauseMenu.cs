@@ -60,7 +60,9 @@ public class PauseMenu : MonoBehaviour
         Vector2 top = new Vector2(.5f, 1f);
         Vector2 bottom = new Vector2(.5f, 0f);
 
-        Button pause = FeelUI.CreateRoundButton("PauseBtn", parent, pauseButtonText, buttonSize, pauseButtonColor, 36f);
+        //Kit pixel: botão redondo com o ícone de pausa no lugar do "II"
+        FeelUITheme px = FeelUI.Pixel;
+        Button pause = FeelUI.CreateRoundButton("PauseBtn", parent, pauseButtonText, buttonSize, pauseButtonColor, 36f, px != null ? px.iconPause : null);
         FeelUI.Place((RectTransform)pause.transform, buttonAnchor, center, buttonPosition, buttonSize);
         pause.onClick.AddListener(Toggle);
         pauseButton = pause.gameObject;
@@ -73,14 +75,23 @@ public class PauseMenu : MonoBehaviour
         dim.raycastTarget = true;
         FeelUI.Stretch(dim.rectTransform);
 
-        panel = FeelUI.CreatePanel("Panel", screen, frameColor).rectTransform;
-        FeelUI.Place(panel, center, center, Vector2.zero, panelSize);
-        FeelUI.Stretch(FeelUI.CreatePanel("Back", panel, panelColor).rectTransform, border);
+        if (px != null)
+        {
+            panel = FeelUI.CreateWindow("Panel", screen).rectTransform;
+            FeelUI.Place(panel, center, center, Vector2.zero, panelSize);
+        }
+        else
+        {
+            panel = FeelUI.CreatePanel("Panel", screen, frameColor).rectTransform;
+            FeelUI.Place(panel, center, center, Vector2.zero, panelSize);
+            FeelUI.Stretch(FeelUI.CreatePanel("Back", panel, panelColor).rectTransform, border);
+        }
 
         TMP_Text titleLbl = FeelUI.CreateText("Title", panel, title, titleSize, titleColor);
         FeelUI.Place(titleLbl.rectTransform, top, center, new Vector2(0f, -90f), new Vector2(panelSize.x, titleSize * 1.2f));
 
-        Button resume = FeelUI.CreateButton("ResumeBtn", panel, resumeText, optionSize, resumeColor);
+        //Continuar é a ação principal: o botão dourado
+        Button resume = FeelUI.CreateButton("ResumeBtn", panel, resumeText, optionSize, resumeColor, 40f, true);
         FeelUI.Place((RectTransform)resume.transform, center, center, new Vector2(0f, 10f), optionSize);
         resume.onClick.AddListener(Resume);
 

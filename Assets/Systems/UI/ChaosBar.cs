@@ -22,6 +22,8 @@ public class ChaosBar : MonoBehaviour
     [SerializeField] private Color dangerColor = new Color(.9f, .22f, .2f);
     [SerializeField] private Color labelColor = Color.white;
     [SerializeField] private Color dangerLabelColor = new Color(1f, .9f, .5f);
+    //Marcas de 25% no trilho (kit pixel)
+    [SerializeField] private Color tickColor = new Color(0f, 0f, 0f, .35f);
 
     [Header("PULSE")]
     [SerializeField, Range(0f, 1f)] private float pulseThreshold = .6f;
@@ -51,25 +53,64 @@ public class ChaosBar : MonoBehaviour
         if (parent == null) return;
 
         Vector2 top = new Vector2(.5f, 1f);
-        bar = FeelUI.CreatePanel("Bar", parent, frameColor).rectTransform;
+        FeelUITheme px = FeelUI.Pixel;
+        bar = (px != null ? FeelUI.CreateSliced("Bar", parent, px.barFrame, Color.white) : FeelUI.CreatePanel("Bar", parent, frameColor)).rectTransform;
         FeelUI.Place(bar, top, new Vector2(.5f, .5f), new Vector2(0f, -(topMargin + size.y * .5f)), size);
         group = bar.gameObject.AddComponent<CanvasGroup>();
         group.blocksRaycasts = false;
 
-        Image back = FeelUI.CreatePanel("Back", bar, backColor);
-        FeelUI.Stretch(back.rectTransform, border);
+        //No kit pixel a moldura e o trilho escuro já vêm no sprite: o preenchimento entra 3 pixels para dentro
+        Image back = px != null ? FeelUI.CreateImage("Back", bar, Color.clear) : FeelUI.CreatePanel("Back", bar, backColor);
+        FeelUI.Stretch(back.rectTransform, px != null ? 3f * FeelUI.PixelSize : border);
 
-        fill = FeelUI.CreatePanel("Fill", back.transform, calmColor);
+        fill = px != null ? FeelUI.CreateSliced("Fill", back.transform, px.barFill, calmColor) : FeelUI.CreatePanel("Fill", back.transform, calmColor);
         fillRect = fill.rectTransform;
         fillRect.anchorMin = Vector2.zero;
         fillRect.anchorMax = new Vector2(0f, 1f);
         fillRect.offsetMin = Vector2.zero;
         fillRect.offsetMax = Vector2.zero;
 
+        if (px != null) BuildTicks(back.rectTransform, px);
+
+        //Kit pixel: sombra de 1 pixel embaixo do rótulo, para "CAOS" se ler em cima do amarelo
+        if (px != null)
+        {
+            TMP_Text shadow = FeelUI.CreateText("Shadow", bar, title, fontSize, FeelUI.PixelInk);
+            FeelUI.Stretch(shadow.rectTransform);
+            shadow.rectTransform.anchoredPosition = new Vector2(FeelUI.PixelSize, -FeelUI.PixelSize);
+        }
+
         label = FeelUI.CreateText("Lbl", bar, title, fontSize, labelColor);
         FeelUI.Stretch(label.rectTransform);
         //O rótulo fica por cima do preenchimento, que muda de cor
         FeelUI.Outline(label);
+    }
+
+    //Marcas de 25 em 25% e a do perigo em vermelho, mais o ícone de alerta pendurado na ponta esquerda
+    private void BuildTicks(RectTransform track, FeelUITheme px)
+    {
+        float pixel = FeelUI.PixelSize;
+
+        for (int i = 1; i < 4; i++)
+        {
+            Image tick = FeelUI.CreateImage("Tick", track, tickColor);
+            RectTransform rect = tick.rectTransform;
+            rect.anchorMin = new Vector2(i * .25f, 0f);
+            rect.anchorMax = new Vector2(i * .25f, 1f);
+            rect.sizeDelta = new Vector2(pixel, 0f);
+        }
+
+        Image danger = FeelUI.CreateImage("DangerMark", track, dangerColor);
+        danger.rectTransform.anchorMin = new Vector2(pulseThreshold, 0f);
+        danger.rectTransform.anchorMax = new Vector2(pulseThreshold, 1f);
+        danger.rectTransform.sizeDelta = new Vector2(pixel, 0f);
+
+        if (px.iconChaos == null) return;
+
+        Image icon = FeelUI.CreateIcon("Icon", bar, px.iconChaos);
+        RectTransform iconRect = icon.rectTransform;
+        iconRect.anchorMin = iconRect.anchorMax = new Vector2(0f, .5f);
+        iconRect.anchoredPosition = new Vector2(pixel, pixel * .5f);
     }
 
     private void Start()

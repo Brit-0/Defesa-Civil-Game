@@ -17,16 +17,20 @@ public class Tweener : MonoBehaviour
 
     //Um tween de escala por instância: o novo mata só o anterior deste transform
     private Tween scaleTween;
+    //Mão do cursor ligada por este objeto (casa ou botão): some junto se ele desligar com o mouse em cima
+    private bool hovered;
 
     public void HoverEnter()
     {
-        //CursorController.SetHover();
+        hovered = true;
+        CursorController.SetHover();
         ScaleTo(hoverScale, hoverTime);
     }
 
     public void HoverExit()
     {
-        //CursorController.Reset();
+        hovered = false;
+        CursorController.Reset();
         ScaleTo(1f, hoverTime);
     }
 
@@ -53,6 +57,12 @@ public class Tweener : MonoBehaviour
 
     private void OnDisable()
     {
+        if (hovered)
+        {
+            hovered = false;
+            CursorController.Reset();
+        }
+
         if (scaleTween == null) return;
 
         scaleTween.Kill();

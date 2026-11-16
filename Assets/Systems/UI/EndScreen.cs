@@ -96,6 +96,7 @@ public class EndScreen : MonoBehaviour
     private RectTransform panel;
     private CanvasGroup group;
     private Image ribbonFill;
+    private Image[] ribbonIcons;
     private RectTransform ribbon;
     private TextAnimator_TMP titleAnimator;
     private TMP_Text subtitleLbl;
@@ -136,18 +137,50 @@ public class EndScreen : MonoBehaviour
         fxLayer = FeelUI.CreateRect("Fx", screen);
         FeelUI.Stretch(fxLayer);
 
-        panel = FeelUI.CreatePanel("Panel", screen, frameColor).rectTransform;
-        FeelUI.Place(panel, center, center, Vector2.zero, panelSize);
-        FeelUI.Stretch(FeelUI.CreatePanel("Back", panel, panelColor).rectTransform, border);
+        //Kit pixel: janela com rebites e a faixa de rabo de andorinha tingida de verde ou vermelho
+        FeelUITheme px = FeelUI.Pixel;
+        float pixel = FeelUI.PixelSize;
 
-        //Faixa do título atravessando o topo do painel
-        ribbon = FeelUI.CreatePanel("Ribbon", panel, edgeColor).rectTransform;
-        FeelUI.Place(ribbon, top, center, Vector2.zero, ribbonSize);
-        ribbonFill = FeelUI.CreatePanel("Fill", ribbon, wonColor);
-        FeelUI.Stretch(ribbonFill.rectTransform, border);
+        if (px != null)
+        {
+            panel = FeelUI.CreateWindow("Panel", screen).rectTransform;
+            FeelUI.Place(panel, center, center, Vector2.zero, panelSize);
+
+            //Altura do sprite em pixels inteiros: o V das pontas não estica
+            Vector2 size = new Vector2(ribbonSize.x, px.ribbon.rect.height * pixel);
+            ribbonFill = FeelUI.CreateSliced("Ribbon", panel, px.ribbon, wonColor);
+            ribbon = ribbonFill.rectTransform;
+            FeelUI.Place(ribbon, top, center, Vector2.zero, size);
+
+            //Estrela na vitória, fogo na derrota, perto das pontas
+            ribbonIcons = new Image[2];
+            for (int i = 0; i < 2; i++)
+            {
+                ribbonIcons[i] = FeelUI.CreateIcon("Badge", ribbon, px.iconStar);
+                ribbonIcons[i].rectTransform.anchoredPosition = new Vector2((i == 0 ? -1f : 1f) * (size.x * .5f - 16f * pixel - 30f), pixel);
+            }
+        }
+        else
+        {
+            panel = FeelUI.CreatePanel("Panel", screen, frameColor).rectTransform;
+            FeelUI.Place(panel, center, center, Vector2.zero, panelSize);
+            FeelUI.Stretch(FeelUI.CreatePanel("Back", panel, panelColor).rectTransform, border);
+
+            //Faixa do título atravessando o topo do painel
+            ribbon = FeelUI.CreatePanel("Ribbon", panel, edgeColor).rectTransform;
+            FeelUI.Place(ribbon, top, center, Vector2.zero, ribbonSize);
+            ribbonFill = FeelUI.CreatePanel("Fill", ribbon, wonColor);
+            FeelUI.Stretch(ribbonFill.rectTransform, border);
+        }
 
         TMP_Text title = FeelUI.CreateText("Title", ribbon, "", titleSize, textColor);
         FeelUI.Stretch(title.rectTransform, border * 2f);
+        //Na faixa pixel o texto fica entre as estrelas e acima da sombra de baixo
+        if (px != null)
+        {
+            title.rectTransform.offsetMin = new Vector2(20f * pixel + 60f, 4f * pixel);
+            title.rectTransform.offsetMax = new Vector2(-(20f * pixel + 60f), -2f * pixel);
+        }
         FeelUI.Outline(title, .3f);
         title.enableAutoSizing = true;
         title.fontSizeMin = titleSize * .5f;
@@ -163,13 +196,25 @@ public class EndScreen : MonoBehaviour
         statValues = new TMP_Text[names.Length];
         for (int i = 0; i < names.Length; i++)
         {
-            RectTransform row = FeelUI.CreatePanel("Stat" + i, panel, rowColor).rectTransform;
+            RectTransform row = FeelUI.CreateInset("Stat" + i, panel, rowColor).rectTransform;
             FeelUI.Place(row, top, center, new Vector2(0f, statTop - statSpacing * i), statRowSize);
             statRows[i] = row;
 
+            //Kit pixel: relógio, casa e moeda na frente de cada linha
+            float textLeft = 28f;
+            Sprite rowIcon = px == null ? null : i == 0 ? px.iconClock : i == 1 ? px.iconHouse : px.iconCoin;
+            if (rowIcon != null)
+            {
+                Image iconImage = FeelUI.CreateIcon("Icon", row, rowIcon);
+                RectTransform iconRect = iconImage.rectTransform;
+                iconRect.anchorMin = iconRect.anchorMax = new Vector2(0f, .5f);
+                iconRect.anchoredPosition = new Vector2(20f + iconRect.sizeDelta.x * .5f, 0f);
+                textLeft = 20f + iconRect.sizeDelta.x + 18f;
+            }
+
             TMP_Text nameLbl = FeelUI.CreateText("Name", row, names[i], statSize, textColor, TextAlignmentOptions.Left);
             FeelUI.Stretch(nameLbl.rectTransform, 24f);
-            nameLbl.rectTransform.offsetMin = new Vector2(28f, 0f);
+            nameLbl.rectTransform.offsetMin = new Vector2(textLeft, 0f);
 
             TMP_Text valueLbl = FeelUI.CreateText("Value", row, "", statSize, valueColor, TextAlignmentOptions.Right);
             FeelUI.Stretch(valueLbl.rectTransform);
@@ -182,7 +227,7 @@ public class EndScreen : MonoBehaviour
         buttonHolder = FeelUI.CreateRect("ButtonHolder", panel);
         FeelUI.Place(buttonHolder, new Vector2(.5f, 0f), center, new Vector2(0f, buttonBottom + buttonSize.y * .5f), buttonSize);
 
-        Button restart = FeelUI.CreateButton("RestartBtn", buttonHolder, restartText, buttonSize, buttonColor);
+        Button restart = FeelUI.CreateButton("RestartBtn", buttonHolder, restartText, buttonSize, buttonColor, 40f, true);
         restart.onClick.AddListener(Restart);
 
         screen.gameObject.SetActive(false);
@@ -197,7 +242,8 @@ public class EndScreen : MonoBehaviour
 
         for (int i = 0; i < rayCount; i++)
         {
-            RectTransform ray = FeelUI.CreatePanel("Ray" + i, rays, rayColor).rectTransform;
+            //No kit pixel a faixa é reta (o canto arredondado do RoundRectangle não combina com o pixel)
+            RectTransform ray = (FeelUI.Pixel != null ? FeelUI.CreateImage("Ray" + i, rays, rayColor) : FeelUI.CreatePanel("Ray" + i, rays, rayColor)).rectTransform;
             ray.anchorMin = ray.anchorMax = new Vector2(.5f, .5f);
             ray.pivot = new Vector2(0f, .5f);
             ray.sizeDelta = new Vector2(rayLength, rayWidth);
@@ -245,6 +291,10 @@ public class EndScreen : MonoBehaviour
 
         dim.color = won ? wonDimColor : lostDimColor;
         ribbonFill.color = won ? wonColor : lostColor;
+        if (ribbonIcons != null && FeelUI.Pixel != null)
+        {
+            foreach (Image badge in ribbonIcons) badge.sprite = won ? FeelUI.Pixel.iconStar : FeelUI.Pixel.iconFire;
+        }
         subtitleLbl.text = won ? wonSubtitle : lostSubtitle;
 
         foreach (RectTransform row in statRows) row.localScale = new Vector3(1f, 0f, 1f);

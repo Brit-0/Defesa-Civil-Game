@@ -49,7 +49,8 @@ public class ButtonPress : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         Image background = selectable != null ? selectable.targetGraphic as Image : GetComponent<Image>();
         if (background == null) return;
 
-        flash = FeelUI.CreateImage("ClickFlash", background.transform, flashColor, background.sprite);
+        //O sprite pixel já vem colorido: o clarão usa a máscara branca do mesmo formato
+        flash = FeelUI.CreateImage("ClickFlash", background.transform, flashColor, FeelUI.Silhouette(background.sprite));
         flash.type = background.type;
         flash.pixelsPerUnitMultiplier = background.pixelsPerUnitMultiplier;
         flash.preserveAspect = background.preserveAspect;

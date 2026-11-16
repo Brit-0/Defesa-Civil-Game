@@ -38,7 +38,31 @@ public class UpgradeButtonJuice : MonoBehaviour
         baseScale = transform.localScale;
         baseRotation = transform.localRotation;
 
+        //O botão é do prefab do MEGABRAIN: veste com o kit pixel antes de copiar o formato para o brilho
+        FeelUITheme px = FeelUI.Pixel;
+        if (px != null && px.skinSceneHud)
+        {
+            FeelUI.SkinButton(GetComponent<Selectable>());
+            PixelSkin.SkinTree(transform);
+        }
+
         BuildGlow();
+    }
+
+    //Ícone do Pixel Lab (Assets/Arts/UI/Pixel/Icons/upgrade_<id>.png) no lugar do provisório do UpgradeData.
+    //Vai no overrideSprite, porque o UpgradeButton reescreve o sprite a cada Refresh.
+    private void ApplyLabIcon()
+    {
+        FeelUITheme theme = FeelUI.Theme;
+        if (theme == null || button == null || button.Data == null) return;
+
+        Sprite labIcon = theme.LabIconFor("upgrade_" + button.Data.id);
+        Transform iconChild = transform.Find("Icon");
+        Image icon = iconChild != null ? iconChild.GetComponent<Image>() : null;
+        if (labIcon == null || icon == null) return;
+
+        icon.overrideSprite = labIcon;
+        icon.preserveAspect = true;
     }
 
     //Uma Image por cima do fundo e por baixo do conteúdo, com a mesma forma do botão
@@ -48,7 +72,8 @@ public class UpgradeButtonJuice : MonoBehaviour
 
         if (background != null && background.sprite != null)
         {
-            glow = FeelUI.CreateImage("Glow", transform, glowColor, background.sprite);
+            //O sprite pixel já vem colorido: o brilho usa a máscara branca do mesmo formato
+            glow = FeelUI.CreateImage("Glow", transform, glowColor, FeelUI.Silhouette(background.sprite));
             glow.type = background.type;
             glow.pixelsPerUnitMultiplier = background.pixelsPerUnitMultiplier;
         }
@@ -93,6 +118,7 @@ public class UpgradeButtonJuice : MonoBehaviour
     private void Start()
     {
         Refresh(false);
+        ApplyLabIcon();
     }
 
     private void OnMoneyChanged(int before, int after)

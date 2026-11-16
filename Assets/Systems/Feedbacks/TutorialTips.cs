@@ -88,22 +88,35 @@ public class TutorialTips : MonoBehaviour
 
         BuildPointer(parent);
 
-        bar = FeelUI.CreatePanel("Tip", parent, frameColor).rectTransform;
-        FeelUI.Place(bar, new Vector2(.5f, 0f), center, new Vector2(0f, HiddenY), size);
-        FeelUI.Stretch(FeelUI.CreatePanel("Back", bar, backColor).rectTransform, border);
+        //Kit pixel: a moldura dourada já traz o fundo; as bolinhas são o sprite aceso e o apagado
+        FeelUITheme px = FeelUI.Pixel;
+        float edge = px != null ? 5f * FeelUI.PixelSize : border;
+        float dot = px != null && px.dotOn != null ? px.dotOn.rect.width * FeelUI.PixelSize : dotSize;
+
+        if (px != null)
+        {
+            bar = FeelUI.CreateSliced("Tip", parent, px.goldFrame, Color.white).rectTransform;
+            FeelUI.Place(bar, new Vector2(.5f, 0f), center, new Vector2(0f, HiddenY), size);
+        }
+        else
+        {
+            bar = FeelUI.CreatePanel("Tip", parent, frameColor).rectTransform;
+            FeelUI.Place(bar, new Vector2(.5f, 0f), center, new Vector2(0f, HiddenY), size);
+            FeelUI.Stretch(FeelUI.CreatePanel("Back", bar, backColor).rectTransform, border);
+        }
 
         //Três bolinhas à esquerda: os passos da primeira volta (abrir, enviar, receber)
         dots = new Image[3];
-        float left = border * 4f + dotSize * .5f;
+        float left = edge * (px != null ? 2f : 4f) + dot * .5f;
         for (int i = 0; i < dots.Length; i++)
         {
-            dots[i] = FeelUI.CreateCircle("Dot" + i, bar, dotOffColor);
-            FeelUI.Place(dots[i].rectTransform, new Vector2(0f, .5f), center, new Vector2(left + i * (dotSize + dotSpacing), 0f), Vector2.one * dotSize);
+            dots[i] = px != null ? FeelUI.CreateIcon("Dot" + i, bar, px.dotOff) : FeelUI.CreateCircle("Dot" + i, bar, dotOffColor);
+            FeelUI.Place(dots[i].rectTransform, new Vector2(0f, .5f), center, new Vector2(left + i * (dot + dotSpacing), 0f), Vector2.one * dot);
         }
 
         TMP_Text text = FeelUI.CreateText("Lbl", bar, "", fontSize, textColor);
-        FeelUI.Stretch(text.rectTransform, border * 4f);
-        text.rectTransform.offsetMin = new Vector2(left + dots.Length * (dotSize + dotSpacing), border * 4f);
+        FeelUI.Stretch(text.rectTransform, edge * (px != null ? 2f : 4f));
+        text.rectTransform.offsetMin = new Vector2(left + dots.Length * (dot + dotSpacing), edge * (px != null ? 1.5f : 4f));
         //Dica comprida encolhe para caber na faixa
         text.enableAutoSizing = true;
         text.fontSizeMin = fontSize * .5f;
@@ -119,16 +132,29 @@ public class TutorialTips : MonoBehaviour
         pointer = FeelUI.CreateRect("TipPointer", parent);
         FeelUI.Stretch(pointer);
 
-        ring = FeelUI.CreateImage("Ring", pointer, frameColor, FeelUI.Theme != null ? FeelUI.Theme.button2 : null);
+        //Kit pixel: aro dourado e seta pixel (sem o kit, o aro do Button2 e o V de duas barras)
+        FeelUITheme px = FeelUI.Pixel;
+        bool pixelRing = px != null && px.ring != null;
+        ring = FeelUI.CreateImage("Ring", pointer, pixelRing ? Color.white : frameColor, pixelRing ? px.ring : FeelUI.Theme != null ? FeelUI.Theme.button2 : null);
         if (ring.sprite == null) ring.sprite = FeelUI.Theme != null ? FeelUI.Theme.circle : null;
+        //O aro pixel é 9-slice: cresce com a altura da casa e o pixel continua de 3 unidades
+        if (pixelRing) FeelUI.Slice(ring);
         ring.rectTransform.anchorMin = ring.rectTransform.anchorMax = new Vector2(.5f, .5f);
 
         chevron = FeelUI.CreateRect("Chevron", pointer);
         chevron.anchorMin = chevron.anchorMax = new Vector2(.5f, .5f);
         chevron.sizeDelta = Vector2.one * chevronSize.x;
 
-        AddChevronBars(outlineColor, 4f);
-        AddChevronBars(frameColor, 0f);
+        if (px != null && px.iconArrowDown != null)
+        {
+            Image arrow = FeelUI.CreateIcon("Arrow", chevron, px.iconArrowDown);
+            FeelUI.Stretch(arrow.rectTransform);
+        }
+        else
+        {
+            AddChevronBars(outlineColor, 4f);
+            AddChevronBars(frameColor, 0f);
+        }
 
         pointer.gameObject.SetActive(false);
     }
@@ -257,7 +283,16 @@ public class TutorialTips : MonoBehaviour
             dot.DOKill();
             dot.transform.DOKill();
             dot.transform.localScale = Vector3.one;
-            dot.color = i <= current ? frameColor : dotOffColor;
+            FeelUITheme px = FeelUI.Pixel;
+            if (px != null && px.dotOn != null)
+            {
+                dot.sprite = i <= current ? px.dotOn : px.dotOff;
+                dot.color = Color.white;
+            }
+            else
+            {
+                dot.color = i <= current ? frameColor : dotOffColor;
+            }
 
             if (i == current)
             {

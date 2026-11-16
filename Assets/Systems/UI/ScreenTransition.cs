@@ -133,7 +133,8 @@ public class ScreenTransition : MonoBehaviour
             for (int x = 0; x < columns; x++)
             {
                 int i = y * columns + x;
-                Image disc = FeelUI.CreateCircle("Disc", root, discColor);
+                //Kit pixel: disco de pixels grossos (o Circle liso destoa da UI pixel)
+                Image disc = FeelUI.Pixel != null && FeelUI.Pixel.disc != null ? FeelUI.CreateImage("Disc", root, discColor, FeelUI.Pixel.disc) : FeelUI.CreateCircle("Disc", root, discColor);
                 discImages[i] = disc;
                 discs[i] = disc.rectTransform;
                 FeelUI.Place(discs[i], center, center, origin + new Vector2(x, y) * cellSize, Vector2.one * cellSize * coverScale);

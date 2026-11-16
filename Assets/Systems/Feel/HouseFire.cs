@@ -109,16 +109,22 @@ public class HouseFire : MonoBehaviour
             FeelUI.Place(sprite.rectTransform, center, center, new Vector2(0f, size.y * settings.flameBase), Vector2.one * size.y * settings.spriteSize);
         }
 
-        Image back = FeelUI.CreatePanel("Timer", root, settings.timerBackColor);
-        FeelUI.Place(back.rectTransform, center, center, new Vector2(0f, size.y * settings.timerY), new Vector2(size.x * settings.timerWidth, size.y * settings.timerHeight));
+        Vector2 timerSize = new Vector2(size.x * settings.timerWidth, size.y * settings.timerHeight);
+        bool pixel = FeelUI.Pixel != null;
+
+        //Kit pixel: barra reta com contorno de 1 pixel (a barra tem 5 pixels de altura). A casa fica no Canvas do
+        //mundo, onde a moldura de 3 pixels do HUD não cabe; quadrado puro fica nítido em qualquer zoom
+        Image back = pixel ? FeelUI.CreateImage("Timer", root, FeelUI.PixelInk) : FeelUI.CreatePanel("Timer", root, settings.timerBackColor);
+        FeelUI.Place(back.rectTransform, center, center, new Vector2(0f, size.y * settings.timerY), timerSize);
         timerGroup = back.gameObject.AddComponent<CanvasGroup>();
 
-        timerFillImage = FeelUI.CreatePanel("Fill", back.transform, settings.timerFullColor);
+        timerFillImage = pixel ? FeelUI.CreateImage("Fill", back.transform, settings.timerFullColor) : FeelUI.CreatePanel("Fill", back.transform, settings.timerFullColor);
         timerFill = timerFillImage.rectTransform;
         timerFill.anchorMin = Vector2.zero;
         timerFill.anchorMax = Vector2.one;
-        timerFill.offsetMin = Vector2.one * settings.timerBorder;
-        timerFill.offsetMax = -Vector2.one * settings.timerBorder;
+        float inset = pixel ? timerSize.y / 5f : settings.timerBorder;
+        timerFill.offsetMin = Vector2.one * inset;
+        timerFill.offsetMax = -Vector2.one * inset;
     }
 
     private void OnDisable()
