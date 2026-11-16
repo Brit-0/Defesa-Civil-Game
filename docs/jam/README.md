@@ -14,7 +14,9 @@ Incremental de gestão de desastres: terremotos, tempestades e incêndios quebra
 | `ARCHITECTURE.md` | Como o código está hoje, convenções de estilo, bugs conhecidos e a arquitetura-alvo (contratos entre sistemas). |
 | `AGENTS.md` | Os 3 agentes, branches, quem é dono de quais arquivos, fluxo de git. |
 | `TASKS.md` | Backlog por dia, com agente responsável e critério de pronto. |
-| `PROMPTS.md` | Prompts prontos para colar em cada agente. |
+| `PROMPTS.md` | Prompts originais do organizador (A1, A2, B1, C1). B1 e C1 foram substituídos. |
+| `PROMPTS_PRONTOS.md` | **Prompts em uso**, revisados pelo MEGABRAIN: B, C, o do MEGABRAIN no Unity, e a pasta do B (`git worktree`). |
+| `STATUS_B.md`, `STATUS_C.md` | Status, pedidos e dúvidas de cada agente para o MEGABRAIN. |
 | `ART_REQUESTS.md` | Lista de arte e áudio a produzir fora do projeto. |
 | `DECISIONS.md` | Registro de decisões da jam (data, quem decidiu). |
 | `CLAUDE-jam.md` | Novo `CLAUDE.md`. O kickoff copia para a raiz **dentro da branch `jam`**. |

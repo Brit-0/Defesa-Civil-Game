@@ -60,7 +60,7 @@ Regra: **só edite o que é seu.** Precisa de mudança em arquivo de outro dono?
 | `Assets/Audio/**` | C |
 | Prefabs novos de UI/VFX (em `Systems/UI/` e `Systems/Feel/`) | C |
 | `Assets/Systems/Camera/CameraController.cs` | Ninguém, sem pedido do usuário |
-| `docs/jam/**` | MEGABRAIN (desde 16/11). B e C só editam `TASKS.md` (status das próprias tarefas e pedidos). |
+| `docs/jam/**` | MEGABRAIN (desde 16/11). B edita só `docs/jam/STATUS_B.md`; C edita só `docs/jam/STATUS_C.md` e as capturas em `docs/jam/reference/feel/`. |
 | `CLAUDE.md` | MEGABRAIN |
 
 Exceções combinadas:
@@ -89,7 +89,7 @@ Regras fixas:
 - **Nunca reescrever histórico** (sem rebase, sem force push, sem amend em commit publicado).
 - `git add` só dos caminhos da tarefa; nunca `git add .` às cegas. Sempre incluir os `.meta` dos arquivos novos.
 - **Quem cria arquivo sem o Unity aberto escreve o `.meta` à mão, no mesmo commit** (modelo em `ARCHITECTURE.md`, seção 6.4.1). Arquivo novo sem `.meta` ganha um GUID diferente em cada PC e quebra as referências da cena.
-- `TASKS.md` é editado pelos três. Para não dar conflito: B e C mudam só o Status das próprias linhas e acrescentam linhas no fim de "Pedidos entre agentes"; ninguém reescreve o texto das tarefas além do MEGABRAIN.
+- **`TASKS.md` é editado só pelo MEGABRAIN.** B registra status, pedidos e dúvidas em `docs/jam/STATUS_B.md`; C em `docs/jam/STATUS_C.md`. Onde este documento, o `CLAUDE.md` ou um prompt antigo disser "Pedidos entre agentes no `TASKS.md`", leia "o seu `STATUS_*.md`". Motivo: dois agentes acrescentando linhas no fim do mesmo arquivo, em branches diferentes, dão conflito de merge em toda integração.
 - Não commitar `Library/`, `Temp/`, `Logs/`, `UserSettings/`, `*.csproj` (já estão no `.gitignore`).
 - Conflito em `.unity`, `.prefab` ou `.asset`: **parar e avisar**. Não resolver à mão.
 - Integrar cedo e sempre: pelo menos uma integração na `jam` a cada 2 a 3 horas de trabalho.

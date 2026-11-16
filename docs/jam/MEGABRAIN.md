@@ -1,6 +1,8 @@
 # MASTER PROMPT — MEGABRAIN
 
 > Cole tudo abaixo da linha na sessão do MEGABRAIN, aberta na pasta raiz do repositório, com o Unity Editor aberto no projeto.
+>
+> **Estado em 16/11, depois da primeira sessão (sem Unity):** as ações 1, 2, 6 e 7 da seção 9 e a parte de git e código da ação 4 estão feitas. Faltam as que dependem do Editor (ações 3, 5 e os builds da 4): são as pendências U1 a U8 do `TASKS.md`, com prompt pronto em `PROMPTS_PRONTOS.md`. Mudanças de processo desde este texto: B e C registram status e pedidos em `STATUS_B.md` e `STATUS_C.md` (o `TASKS.md` é só do MEGABRAIN), e quem cria arquivo sem o Unity escreve o `.meta` à mão. As decisões estão em `DECISIONS.md`, seção "Revisão do MEGABRAIN".
 
 ---
 

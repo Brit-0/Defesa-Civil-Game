@@ -1,5 +1,7 @@
 # Prompts para os agentes
 
+> **Atualização de 16/11 (MEGABRAIN):** os prompts **B1 e C1 abaixo foram substituídos** pelos de `PROMPTS_PRONTOS.md`. Use os de lá. Do A1, a parte de git e a correção de build já foram feitas; o que falta (MCP, builds, capturas) está no prompt do MEGABRAIN no Unity, também em `PROMPTS_PRONTOS.md`. O A2 continua valendo, com uma troca: os pedidos de B e C ficam em `STATUS_B.md` e `STATUS_C.md`, não no `TASKS.md`.
+
 O usuário só precisa: abrir o Unity com o projeto (agentes A e C), abrir o terminal na pasta certa, rodar `claude` e colar o prompt. Cada prompt já inclui git, verificação e relatório.
 
 Ordem do Dia 1: **A1 primeiro e sozinho** (cria as branches e conserta o build). Depois **B1** e **C1** em paralelo. Quando B avisar que o T03 foi para o remoto, A integra.

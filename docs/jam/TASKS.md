@@ -1,7 +1,7 @@
 # Backlog da jam
 
 Status: `[ ]` a fazer · `[~]` em andamento · `[x]` pronto · `[!]` bloqueado.
-Cada agente atualiza só a coluna Status das próprias tarefas e a seção "Pedidos entre agentes".
+**Só o MEGABRAIN edita este arquivo.** B e C registram status, pedidos e dúvidas no próprio arquivo (`STATUS_B.md`, `STATUS_C.md`); o MEGABRAIN passa para cá a cada integração.
 Agentes: **A** MEGABRAIN (cena, integração, builds) · **B** Sistemas · **C** Feel & UI.
 
 Revisado pelo MEGABRAIN em 16/11 (motivos em `DECISIONS.md`). O que depende do Unity Editor está marcado com **U1 a U8** e detalhado na seção "Pendências do Unity".
@@ -81,6 +81,7 @@ Meta do dia: nada novo depois do meio-dia. Só ajuste, correção e entrega.
 
 ## Pedidos entre agentes
 
-Formato: `- [ ] (de → para) pedido — contexto`
+- Do B para o MEGABRAIN: `STATUS_B.md`. Do C para o MEGABRAIN: `STATUS_C.md`.
+- Do MEGABRAIN para B e C (bugs de playtest, erros de compilação, mudanças): aqui embaixo. Formato: `- [ ] (MEGABRAIN → B) pedido — contexto`
 
 _(vazio)_

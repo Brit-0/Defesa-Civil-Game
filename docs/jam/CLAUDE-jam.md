@@ -18,14 +18,14 @@ Desastres (terremoto, tempestade, incêndio) quebram casas. O jogador despacha t
 - Pixel art: PPU 32, Point, sem compressão.
 
 ## Regras
-1. **A decisão final é sempre do MEGABRAIN** (o agente da branch `jam`). Agentes B e C: dúvida de jogabilidade ou de sistema vai para ele, registrada em "Pedidos entre agentes" no `TASKS.md`; não deduza, e siga para a próxima tarefa desbloqueada enquanto espera. O MEGABRAIN decide e registra em `docs/jam/DECISIONS.md`.
-2. **Só edite arquivos do seu papel** (`AGENTS.md`). Somente o Agente A edita `Gameplay.unity` e prefabs existentes. Precisa de algo de outro dono? Registre em "Pedidos entre agentes" no `TASKS.md`.
+1. **A decisão final é sempre do MEGABRAIN** (o agente da branch `jam`). Agentes B e C: dúvida de jogabilidade ou de sistema vai para ele, registrada no seu `docs/jam/STATUS_B.md` ou `STATUS_C.md`; não deduza, e siga para a próxima tarefa desbloqueada enquanto espera. O MEGABRAIN decide e registra em `docs/jam/DECISIONS.md`.
+2. **Só edite arquivos do seu papel** (`AGENTS.md`). Somente o Agente A edita `Gameplay.unity` e prefabs existentes. Precisa de algo de outro dono? Registre no seu `docs/jam/STATUS_B.md` ou `STATUS_C.md`. O `TASKS.md` é editado só pelo MEGABRAIN.
 3. **Git:** trabalhe só na sua branch (`jam`, `jam-sistemas` ou `jam-feel`). Commits pequenos em português. Nunca reescreva histórico. `git add` só dos caminhos da tarefa, com os `.meta` (sem o Unity aberto, escreva o `.meta` à mão: `ARCHITECTURE.md`, seção 6.4.1). Conflito em `.unity`/`.prefab`/`.asset`: pare e avise.
 4. **Sem números de balanceamento no código.** Valores ficam em `BalanceData` e nos ScriptableObjects.
 5. **Sistemas disparam `GameEvents`; apresentação (feel, áudio, HUD) só escuta.** Não chame efeitos de dentro da lógica.
 6. **Nada de `UnityEditor` em runtime.** Código de Editor em pasta `Editor/` ou `#if UNITY_EDITOR`. Nada de threads ou disco (WebGL).
 7. Não alterar `CameraController.cs` nem regerar a cidade (`Tools/City/*`, objetos `[CG] ...`) sem pedido do usuário.
-8. Execute sozinho o que estiver ao alcance (git, MCP do Unity, compilar, Play Mode, capturas). Ao terminar: console sem erros, `TASKS.md` atualizado, push.
+8. Execute sozinho o que estiver ao alcance (git, MCP do Unity, compilar, Play Mode, capturas). Ao terminar: console sem erros, status atualizado (MEGABRAIN no `TASKS.md`; B e C no próprio `STATUS_*.md`), push.
 9. Tudo que o jogador faz precisa de resposta visual e sonora. Se uma feature entra sem feedback, ela não está pronta.
 
 ## Convenções de código

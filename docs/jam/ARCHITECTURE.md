@@ -185,7 +185,7 @@ O que a apresentação (C) pode **ler** dos sistemas, além dos eventos. O B man
 
 | Onde | Membro |
 |---|---|
-| `House` | `currentState`, `damageAmount`, `currentCall`, `entry`, `FireTimeLeft01` (1 = acabou de pegar fogo, 0 = apagou) |
+| `House` | `currentState`, `damageAmount`, `currentCall`, `entry`, `FireTimeLeft01` (1 = acabou de pegar fogo, 0 = apagou), `externalFeedback` (o `HouseFeedback` do C liga; com ele ligado, `House` não mexe mais na rachadura do shader) |
 | `Call` | `house`, `guard`, `type`, `workersSent` |
 | `GameManager.Instance` | `State`, `ElapsedTime`, `HousesRepaired`, `TotalMoneyEarned`, `StartGame()`, `Pause()`, `Resume()`, `Restart()` |
 | `ChaosManager.Instance` | `Chaos` (0..1) |

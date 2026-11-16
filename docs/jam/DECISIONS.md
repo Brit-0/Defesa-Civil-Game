@@ -59,6 +59,11 @@ Feita lendo os docs e o código, sem abrir o Editor (o PC desta sessão não tem
 - T00 e T01 foram divididos: a parte de git e código está pronta; MCP, builds, capturas, menu de dados e cena viraram as pendências U1 a U8 do `TASKS.md`. — não dava para fazer sem o Editor, e misturar deixava o status mentiroso.
 - T16 (planilha do organizador) vira a seção 13 do GDD, feita pelo MEGABRAIN, com todos os valores PLACEHOLDER. — o B precisa de números hoje para o `BalanceData`; a calibragem de verdade é o T25, jogando.
 - Sons provisórios só CC0, com origem anotada. — a textura de rachadura já entrou com licença incerta; não repetir no áudio.
+- `TASKS.md` passa a ser editado só pelo MEGABRAIN; B e C escrevem status, pedidos e dúvidas em `STATUS_B.md` e `STATUS_C.md`. — dois agentes acrescentando linhas no fim do mesmo arquivo em branches diferentes dão conflito de merge em toda integração, e quem resolveria é o usuário, que é iniciante em git.
+- Prompts de B e C reescritos em `PROMPTS_PRONTOS.md`, cada um com o Dia 1 detalhado e o Dia 2 já em fila. — um agente parado esperando prompt custa mais que um prompt longo; e o C não espera aviso de ninguém: o T03 está liberado quando `GameEvents.cs` aparece na `jam`.
+- `GameManager` nasce com `autoStart` ligado; o MEGABRAIN desliga quando o menu do C (T29) entrar. — a partida abre em `Menu`, mas o menu só chega no Dia 2 e o Dia 1 precisa ser jogável.
+- `House.externalFeedback`: com o `HouseFeedback` do C no prefab, `House` para de trocar a rachadura a seco. — sem isso lógica e apresentação escrevem no mesmo parâmetro do shader.
+- O menu `Tools/Jam/Create Default Data` nasce no T05 e cresce a cada tarefa, em vez de aparecer só no T09. — o MEGABRAIN precisa dos assets para testar cada entrega no Play.
 
 **Jogo**
 - Material inicial 5. — o primeiro conserto não pode exigir ida ao Armazém.
