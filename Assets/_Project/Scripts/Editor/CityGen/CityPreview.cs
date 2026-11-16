@@ -11,19 +11,18 @@ namespace DefesaCivil.CityGen
     /// </summary>
     public static class CityPreview
     {
-        static readonly Color32 StreetColor = new Color32(26, 23, 34, 255);
-        static readonly Color32 GroundColor = new Color32(86, 86, 86, 255);
-
         public static void Render(CityLayout l, SpriteCatalog cat, string pngPath, int ppu = 32, bool waypointGraph = false)
         {
             var geo = LayoutValidator.BuildGeo(l);
             var area = geo.limiter;
             int W = Mathf.CeilToInt(area.width * ppu), H = Mathf.CeilToInt(area.height * ppu);
             var img = new Color32[W * H];
-            for (int i = 0; i < img.Length; i++) img[i] = StreetColor;
+            for (int i = 0; i < img.Length; i++) img[i] = CityPalette.Street;
 
-            foreach (var poly in geo.All)
+            foreach (var pd in l.polygons)
             {
+                var poly = CityGeometry.ToVectors(pd.points);
+                var ground = CityPalette.Ground(pd);
                 if (poly.Count < 3) continue;
                 var bb = CityGeometry.BoundingBox(new[] { (IList<Vector2>)poly });
                 int xa = Mathf.Max(0, Mathf.FloorToInt((bb.xMin - area.xMin) * ppu)), xb = Mathf.Min(W - 1, Mathf.CeilToInt((bb.xMax - area.xMin) * ppu));
@@ -32,7 +31,7 @@ namespace DefesaCivil.CityGen
                     for (int x = xa; x <= xb; x++)
                     {
                         var p = new Vector2(area.xMin + (x + 0.5f) / ppu, area.yMin + (y + 0.5f) / ppu);
-                        if (CityGeometry.PointInPolygon(p, poly, 0f)) img[y * W + x] = GroundColor;
+                        if (CityGeometry.PointInPolygon(p, poly, 0f)) img[y * W + x] = ground;
                     }
             }
 

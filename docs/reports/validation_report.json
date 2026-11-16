@@ -1,13 +1,13 @@
 {
     "mode": "cena",
-    "createdAt": "2026-11-14T00:42:52Z",
+    "createdAt": "2026-11-16T15:36:33Z",
     "errors": 0,
     "warnings": 0,
     "notes": [
-        "R08 (parcial): semente 509173474 (não verificável na cena).",
+        "R08 (parcial): semente 1459385285 (não verificável na cena).",
         "Validação da cena reaberta do disco após salvar.",
-        "R08 (parcial): semente 509173474 (não verificável na cena).",
-        "Build: criados 0, atualizados 294, removidos 0, sem mudança 232. 2º Build: criados 0, atualizados 0, removidos 0, sem mudança 526."
+        "R08 (parcial): semente 1459385285 (não verificável na cena).",
+        "Build: criados 19, atualizados 501, removidos 0, sem mudança 23. 2º Build: criados 0, atualizados 0, removidos 0, sem mudança 543."
     ],
     "violations": []
 }

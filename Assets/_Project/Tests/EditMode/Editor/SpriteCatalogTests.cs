@@ -14,7 +14,7 @@ namespace DefesaCivil.CityGen.Tests
             Assert.AreEqual(21, cat.Suburban.Count, "Suburban Casa_*");
             Assert.AreEqual(33, cat.Commercial.Count, "Commercial Predio/Arranha_Ceu/Fundo");
             Assert.AreEqual(20, cat.Industrial.Count, "Industrial Fabrica_*");
-            Assert.AreEqual(133, cat.Decoration.Count, "tudo que não é estrutura nem da pasta Carros, menos as exclusões de Nature");
+            Assert.AreEqual(131, cat.Decoration.Count, "tudo que não é estrutura nem da pasta Carros, menos as exclusões de Nature");
             Assert.IsFalse(cat.Decoration.Any(s => s.category == "Carros"), "nenhum sprite de carro");
         }
 

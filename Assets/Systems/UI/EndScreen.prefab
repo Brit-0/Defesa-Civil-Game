@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8414491783536205574
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8165173637428675268}
+  - component: {fileID: 5399577568624031492}
+  m_Layer: 0
+  m_Name: EndScreen
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8165173637428675268
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8414491783536205574}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &5399577568624031492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8414491783536205574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6715e59316f198642b23a9d939e1654, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EndScreen
+  wonTitle: CIDADE SALVA!
+  wonSubtitle: A Defesa Civil deu conta do recado.
+  lostTitle: O CAOS VENCEU
+  lostSubtitle: A cidade ficou tempo demais sem socorro.
+  timeFormat: 'Tempo: {0:00}:{1:00}'
+  housesFormat: 'Casas consertadas: {0}'
+  moneyFormat: 'Dinheiro arrecadado: {0}'
+  restartText: REINICIAR
+  panelSize: {x: 860, y: 600}
+  border: 6
+  titleSize: 84
+  subtitleSize: 30
+  statSize: 44
+  statSpacing: 62
+  buttonSize: {x: 340, y: 88}
+  dimColor: {r: 0, g: 0, b: 0, a: 0.72}
+  frameColor: {r: 0.34901962, g: 0.29803923, b: 0.3882353, a: 1}
+  panelColor: {r: 0.16078432, g: 0.14901961, b: 0.18431373, a: 1}
+  wonColor: {r: 0.45, g: 0.9, b: 0.5, a: 1}
+  lostColor: {r: 0.95, g: 0.3, b: 0.25, a: 1}
+  textColor: {r: 1, g: 1, b: 1, a: 1}
+  subtitleColor: {r: 0.75, g: 0.78, b: 0.85, a: 1}
+  buttonColor: {r: 0.34901962, g: 0.29803923, b: 0.3882353, a: 1}
+  showDelay: 0.9
+  fadeTime: 0.35
+  popTime: 0.4
+  statInterval: 0.15
+  countTime: 0.6
+  statSoundVolume: 0.5
