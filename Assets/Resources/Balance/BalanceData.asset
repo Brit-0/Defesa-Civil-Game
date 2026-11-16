@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 389bbeadba4a42888e3e0f149f19dfce, type: 3}
+  m_Name: BalanceData
+  m_EditorClassIdentifier: Assembly-CSharp::BalanceData
+  startWorkers: 3
+  startMaterial: 5
+  startMoney: 0
+  workerSpeed: 1
+  dispatchInterval: 0.8
+  materialPerWorker: 1
+  autoDispatchInterval: 1
+  workTimePerDamage: 5
+  minWorkTime: 2
+  fireWorkTime: 4
+  restockTime: 5
+  moneyPerDamage: 10
+  fireReward: 15
+  minDamage: 1
+  maxDamage: 3
+  fireDuration: 25
+  fireBurnoutDamage: 3
+  chaosWeightDamaged: 1
+  chaosWeightFire: 2
+  chaosLimit: 20
+  chaosRisePerSecond: 0.06
+  chaosFallPerSecond: 0.1
+  firstDisasterDelay: 6
+  firstDisasterHouses: 2
+  disasterIntervalStart: 35
+  disasterIntervalEnd: 12
+  disasterRampDuration: 600
+  disasterHousesStart: 3
+  disasterHousesEnd: 9
+  warningTime: 3
+  earthquakeWeight: 50
+  stormWeight: 35
+  fireWeight: 15
+  stormUnlockTime: 90
+  fireUnlockTime: 180
+  earthquakeWaveDelayPerUnit: 0.15
+  stormDuration: 8
+  lightningFireChance: 0.2
+  stormMinDamage: 1
+  stormMaxDamage: 2
+  fireMinHouses: 1
+  fireMaxHouses: 2
+  incomeInterval: 10
+  incomePerHouse: 0.5

@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3932768937960038583
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1849031633543833823}
+  - component: {fileID: 5319221469586236395}
+  m_Layer: 0
+  m_Name: MainMenu
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1849031633543833823
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3932768937960038583}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &5319221469586236395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3932768937960038583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddc0646d5f8fad464cce33cd2fe1e28c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MainMenu
+  title: <wave>DEFESA CIVIL</wave>
+  subtitle: "Mantenha a cidade de p\xE9."
+  howToPlay: '1. Clique numa casa com problema para abrir um chamado
+
+    2. Escolha a base, monte a equipe e envie
+
+    3. Receba o pagamento e compre melhorias antes que o caos tome a cidade'
+  playText: JOGAR
+  bandHeight: 300
+  bandY: 200
+  bandMargin: 90
+  titleSize: 150
+  subtitleSize: 40
+  howToPlaySize: 30
+  buttonSize: {x: 380, y: 104}
+  buttonY: -150
+  howToPlayY: -340
+  dimColor: {r: 0, g: 0, b: 0, a: 0.4}
+  bandColor: {r: 0.16078432, g: 0.14901961, b: 0.18431373, a: 1}
+  titleColor: {r: 1, g: 0.82, b: 0.3, a: 1}
+  subtitleColor: {r: 1, g: 1, b: 1, a: 1}
+  howToPlayColor: {r: 0.86, g: 0.88, b: 0.93, a: 1}
+  buttonColor: {r: 0.34901962, g: 0.29803923, b: 0.3882353, a: 1}
+  fadeTime: 0.35
+  dropTime: 0.6
+  buttonPulseScale: 1.06
+  buttonPulseTime: 0.6

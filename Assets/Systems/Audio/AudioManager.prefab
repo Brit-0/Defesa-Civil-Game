@@ -1,0 +1,114 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3969282497213893957
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5064730578836499345}
+  - component: {fileID: 63031897623772246}
+  - component: {fileID: 4714345301810107532}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5064730578836499345
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3969282497213893957}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &63031897623772246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3969282497213893957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2624dcca1f5308665f3c5acf9076a85f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  sfx:
+    click: {fileID: 8300000, guid: 8589fc3d79f74e43513c624807562239, type: 3}
+    hover: {fileID: 8300000, guid: 3508c8f7ae7d0b288cbf999d3c45c560, type: 3}
+    buy: {fileID: 8300000, guid: 531d557265fb85b4018779f9a4c2e3a7, type: 3}
+    error: {fileID: 8300000, guid: a990de7b1622a2ea44c56c31fc200720, type: 3}
+    dispatch: {fileID: 8300000, guid: 60e17f862e66b1453d1325917f1c216a, type: 3}
+    hammer: {fileID: 8300000, guid: efe867cae1c3ea82270c61a9fa396386, type: 3}
+    repaired: {fileID: 8300000, guid: a483e28a0c9cfad94a9557ad090e9ada, type: 3}
+    coin: {fileID: 8300000, guid: b338e9bfbb186a704655caa356043387, type: 3}
+    siren: {fileID: 8300000, guid: 716f06e4c333ea8c205297a062a76abc, type: 3}
+    earthquake: {fileID: 8300000, guid: 2377dffb9d38c512a57fe78530f4829f, type: 3}
+    thunder: {fileID: 8300000, guid: acd219ac0ce70062ecb1a64bca583527, type: 3}
+    extinguish: {fileID: 8300000, guid: 6c6b5eba6eeac9dd4195768bcdea2e62, type: 3}
+    victory: {fileID: 8300000, guid: b20dfbe4d1b3a339830b95640dfdca78, type: 3}
+    defeat: {fileID: 8300000, guid: 4916768896aede3adb1462b9121a85c3, type: 3}
+    rainLoop: {fileID: 8300000, guid: 0d5019a4c50c6a4a4710ab6c6fa115ac, type: 3}
+    fireLoop: {fileID: 8300000, guid: 3054bda24f8727d00e5f383c8438fd6e, type: 3}
+  poolSize: 12
+  sfxVolume: 1
+  minRepeatInterval: 0.05
+  calmMusic: {fileID: 8300000, guid: 8f877e7629d1e27723fc99ed8d58b639, type: 3}
+  tenseMusic: {fileID: 8300000, guid: 3569f0ccfab6e617700394cce89e1045, type: 3}
+  musicVolume: 0.45
+  tensionFadeTime: 2
+  playMusicOnStart: 1
+  persistAcrossReload: 1
+--- !u!114 &4714345301810107532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3969282497213893957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7da9987faf35ea56aaaebaa7d5108b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameAudio
+  clickVolume: 0.7
+  buyVolume: 0.9
+  errorVolume: 0.8
+  dispatchVolume: 0.8
+  readyVolume: 0.45
+  coinVolume: 1
+  incomeVolume: 0.5
+  repeatHammer: 1
+  hammerVolume: 0.4
+  hammerInterval: 0.55
+  hammerPitchVariation: 0.15
+  sirenVolume: 0.7
+  earthquakeVolume: 1
+  thunderVolume: 0.9
+  rainVolume: 0.6
+  fireVolume: 0.5
+  extinguishVolume: 0.8
+  loopFadeTime: 1
+  tensionStartChaos: 0.35
+  tensionFullChaos: 0.7
+  menuMusicLevel: 0.7
+  pausedMusicLevel: 0.35
+  endMusicLevel: 0.3
+  musicLevelFadeTime: 0.6
+  dangerChaos: 0.6
+  dangerSirenVolume: 0.2
+  dangerSirenInterval: 9
+  startVolume: 0.8
+  endVolume: 1
