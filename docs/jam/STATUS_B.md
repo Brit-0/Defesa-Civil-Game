@@ -24,6 +24,18 @@ Formato: `- [x] T03 — o que entrou, hash do commit`
 - [x] T25 (simulador) — `docs/jam/sim/`: simulador em Python das regras do código (envio, caminhada pela rua, Armazém, fogo, desastres, caos, repasse, upgrades, automação), lendo os números direto de `BalanceData.cs` e `JamDataMenu.cs`. Detalhes e tabela na seção "Simulador de balanceamento", abaixo. Hash: `a9e0c1a`.
 - [x] T25 (valores) — padrões novos do `BalanceData` e dos upgrades do menu de dados, calibrados pelo simulador: com os valores do GDD nem um jogador bom passa dos 4 minutos; com os novos, ignorar perde aos 4:33, o jogador bom vence 100% das partidas aos 12:02 e o médio vence 76% aos 13:48. Checagem de tipos: 0 erros nos dois modos. Hash: `903ee33`. **Pedido: rodar `Tools/Jam/Reset Data To Defaults` depois do merge** (os `.asset` da integração guardam os valores antigos).
 - [x] Polimento — terremoto para a onda quando a partida acaba (antes, casas continuavam quebrando atrás da tela final); aba de equipe e "Escolha a base" fecham na vitória e na derrota, e os botões da aba não enviam fora de `Playing`; estoque de trabalhadores, material e dinheiro nunca fica abaixo de 0 (o setter segura em 0 e põe um erro no console; nenhum caminho conhecido chega lá, é rede de segurança); Reiniciar volta direto para a partida, sem o menu; `Location` sem `infoPanel` não dá `NullReferenceException` no hover. Conferido no código: `Restart` mata os tweens (o `AudioManager` persistente do C não usa DOTween, nada dele é cortado), zera `inputBlocks` e `selectBaseMode`, e todos os sistemas que assinam `GameEvents` saem no `OnDisable`. Checagem de tipos: 0 erros nos dois modos. Hash: `89c2d41`.
+- [x] Gameloop (pedido do Pietro, 16/11), detalhes em `GAMELOOP_REVISAO.md`.
+  - Tutorial de 13 passos, com seta, aro, PULAR e só na primeira partida.
+  - META fixa no canto (`GoalTracker`).
+  - Três mini games, que pagam mais que o automático e nunca são obrigatórios: ponto certo, mutirão no incêndio e escorar no aviso do terremoto.
+  - Ritmo: `DisasterForecasted` com as casas-alvo e terremoto forte a cada 5 desastres.
+  - Incremental: marcos com voluntários, bônus de ocorrência e `RepairStreak`.
+  - Tudo liga por código (`GameloopBootstrap`), sem cena.
+  - `BalanceData.asset` e `Upgrades/*.asset` editados à mão com os valores novos.
+  - Simulador: bom vence em 8:06 (8:43 sem mini games); médio em 9:27 (9:59); ignorar perde aos 4:00.
+  - Checagem de tipos: 0 erros nos dois modos (runtime 69 fontes, editor 72).
+  - Pedidos ao MEGABRAIN e ao C no `TASKS.md`, em "Pedidos entre agentes", a pedido do Pietro.
+  - Hash: `5c39ca6`.
 
 ## Assets do menu de dados
 
@@ -126,11 +138,27 @@ O menu cria também as pastas `Balance`, `Disasters` e `Upgrades` dentro de `Ass
 
 **T22, nível 4.** Comprar os 4 níveis de Automação. Depois de um terremoto, sem clicar em nada: a cada 1 s sai `TeamDispatched` para uma casa (as de dano menor antes), o material e os trabalhadores descem, e com o nível 3 a recompensa entra sozinha. Com o material zerado: as casas quebradas ficam esperando, sem `ActionDenied` no console; incêndio continua sendo atendido (não gasta material). Mandar gente ao Armazém continua sendo clique do jogador; quando o material entra, os consertos voltam a sair sozinhos. Clicar numa casa que ainda espera continua funcionando (envia na hora).
 
-**T25 (valores).** Depois do merge, `Tools/Jam/Reset Data To Defaults` e confira no `BalanceData.asset`: `workerSpeed` 2,5, `restockTime` 3, `moneyPerDamage` 15, `fireReward` 20, `chaosLimit` 22, `disasterIntervalStart` 45, `disasterIntervalEnd` 20, `disasterHousesEnd` 6, `disasterRampDuration` 780; na aba, Carrinho por 25, Automação por 80, Repasse por 150 e Centro de Operações por 2.500. Jogando sem clicar em nada, a derrota vem perto dos 4 min e meio.
+**T25 (valores).** Desde o `5c39ca6` os `.asset` já vêm com os valores novos (o Reset não é mais preciso). Confira no `BalanceData.asset`: `workerSpeed` 2,5, `restockTime` 3, `moneyPerDamage` 15, `fireReward` 20, `chaosLimit` 22, `disasterIntervalStart` 45, `disasterIntervalEnd` 20, `disasterHousesEnd` 6, `disasterRampDuration` 780; na aba, Carrinho por 25, Automação por 80, Repasse por 150 e Centro de Operações por 2.500. Jogando sem clicar em nada, a derrota vem perto dos 4 min e meio.
 
 **Polimento.** (1) Deixe o caos encher no meio de um terremoto grande (tempo acelerado ajuda): depois de `GameStateChanged Lost`, nenhum `HouseStateChanged` novo no console. (2) Abra um chamado (aba de equipe aberta) e perca ou vença: a aba e o texto "Escolha a base" somem; o botão Enviar não manda ninguém depois do fim. (3) Reiniciar na tela final ou na pausa: a cena recarrega já em `Playing` (o menu não aparece), com 3 trabalhadores, 5 de material, 0 de dinheiro e o primeiro terremoto aos 6 s. (4) Passar o mouse num Armazém ou na Guarda sem `infoPanel` ligado não gera erro.
 
+**Gameloop (`5c39ca6`).** Rode `Tools/Jam/Reset Tutorial` e dê Play.
+1. **Cartão inicial:** aparece com COMEÇAR e PULAR, e o primeiro terremoto só cai depois de COMEÇAR.
+2. **Passos 2 a 7:** a seta e o aro seguem a casa quebrada, a base, o ENVIAR e o material.
+3. **Ponto certo:** o círculo de progresso da casa ganha a faixa dourada.
+   - Clicar quando o círculo está nela: "NO PONTO! +50%" e o trabalho termina.
+   - Clicar fora: "FORA DO PONTO" e o progresso volta 20%.
+4. **Meta e passo final:** a META no canto inferior esquerdo conta o dinheiro, e o passo 13 libera o jogo.
+5. **Segunda partida:** Reiniciar não mostra o tutorial de novo.
+6. **Escorar:** no aviso de terremoto, aros laranja nas casas-alvo.
+   - Clicar numa delas: "ESCORADA!" e −1 material.
+   - Se a casa fica de pé: "FICOU DE PÉ! +40".
+7. **Mutirão:** com a equipe num incêndio, cada clique na casa adianta 10%, e 5 cliques dão "HEROICO!".
+8. **Terremoto forte (o 6º desastre):** aviso de 6 s e o dobro de casas.
+
 ## Pedidos ao MEGABRAIN
+
+- [ ] (Gameloop) Os pedidos desta entrega estão no `TASKS.md`, em "Pedidos entre agentes" (o Pietro pediu que ficassem lá): nada obrigatório na cena; compilar, `Reset Tutorial`, Play e as quatro capturas.
 
 O que criar e ligar na cena e nos prefabs. Formato: `- [ ] objeto, componente, cada campo e para onde aponta — por quê`
 
@@ -150,7 +178,7 @@ O que criar e ligar na cena e nos prefabs. Formato: `- [ ] objeto, componente, c
 - [ ] (Dia 2) Nenhum objeto novo de cena no Dia 2: incêndio, tempestade, repasse, vitória e automação rodam nos componentes que já foram pedidos acima (`GameManager`, `LocationsManager`, `DisasterManager`, `ChaosManager`, `UpgradesManager`) e nos que já estão na cena (`GuardManager`, `ResourcesManager`, casas).
 - [ ] (T21, para o C) `House.FireTimeLeft01` está pronto para o temporizador visível do fogo (T26): 1 = acabou de pegar fogo, 0 = apagou; congela quando sai `WorkStarted`. A `House` não desenha temporizador nenhum.
 
-- [ ] (T25, U6) Depois de integrar a `jam-sistemas`, rodar `Tools/Jam/Reset Data To Defaults` (pede confirmação) e commitar os `.asset` de `Balance/` e `Upgrades/`. — o `Create Default Data` nunca mexe em asset que já existe, então os da integração continuam com os valores antigos do GDD, e o jogo carrega os `.asset`, não os padrões da classe. O Reset não toca nos ícones. Se algum valor já tiver sido ajustado à mão no Inspector, anotar antes, porque o Reset sobrescreve.
+- [x] (T25, U6) **Não precisa mais:** o `5c39ca6` editou os `.asset` de `Balance/` e `Upgrades/` à mão com os valores novos (o simulador com `--assets` dá o mesmo que os padrões da classe). Pedido antigo, para registro: depois de integrar a `jam-sistemas`, rodar `Tools/Jam/Reset Data To Defaults` (pede confirmação) e commitar os `.asset` de `Balance/` e `Upgrades/`. — o `Create Default Data` nunca mexe em asset que já existe, então os da integração continuam com os valores antigos do GDD, e o jogo carrega os `.asset`, não os padrões da classe. O Reset não toca nos ícones. Se algum valor já tiver sido ajustado à mão no Inspector, anotar antes, porque o Reset sobrescreve.
 - [ ] (T25) Atualizar a seção 13 e a linha da meta na seção 7 do `GDD.md` com os valores novos (tabela "Valores que mudaram", acima) e registrar em `DECISIONS.md`, se concordar. — o `GDD.md` é do MEGABRAIN; o B não edita.
 
 ## Dúvidas para o MEGABRAIN
