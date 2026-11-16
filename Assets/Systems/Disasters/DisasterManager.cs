@@ -10,6 +10,8 @@ public class DisasterManager : MonoBehaviour
 
     private const string DisastersPath = "Disasters";
 
+    private static readonly DisasterType[] disasterTypes = { DisasterType.Earthquake, DisasterType.Storm, DisasterType.Fire };
+
     private DisasterData[] disasters;
     private bool isFirstDisaster = true;
     private bool isRunning;
@@ -56,6 +58,11 @@ public class DisasterManager : MonoBehaviour
         return GameManager.Instance != null && GameManager.Instance.State == GameState.Playing;
     }
 
+    private static bool IsPaused()
+    {
+        return GameManager.Instance != null && GameManager.Instance.State == GameState.Paused;
+    }
+
     #region TIMELINE
 
     // 0 no começo da partida, 1 quando a rampa termina.
@@ -82,10 +89,43 @@ public class DisasterManager : MonoBehaviour
         countdown = Mathf.Max(0f, GetRampedInterval() - Stats.Balance.warningTime);
     }
 
-    // O primeiro desastre é sempre um terremoto (o tutorial). Na v1 só existe terremoto.
+    // O primeiro desastre é sempre um terremoto (o tutorial). Depois, sorteio por peso entre os tipos já liberados.
     private DisasterData PickDisaster()
     {
-        return FindDisaster(DisasterType.Earthquake);
+        if (isFirstDisaster)
+        {
+            DisasterData earthquake = FindDisaster(DisasterType.Earthquake);
+            if (earthquake != null) return earthquake;
+        }
+
+        DisasterData picked = null;
+        float totalWeight = 0f;
+        foreach (DisasterType type in disasterTypes)
+        {
+            DisasterData disaster = FindDisaster(type);
+            float weight = disaster != null ? GetWeight(type) : 0f;
+            if (weight <= 0f) continue;
+
+            // Sorteio por peso numa passada só: cada tipo toma o lugar com chance peso ÷ peso acumulado.
+            totalWeight += weight;
+            if (Random.value * totalWeight <= weight) picked = disaster;
+        }
+        return picked;
+    }
+
+    // Peso do tipo no sorteio. Vale 0 enquanto o tipo não foi liberado pelo tempo de partida.
+    private static float GetWeight(DisasterType type)
+    {
+        BalanceData balance = Stats.Balance;
+        float elapsed = GameManager.Instance != null ? GameManager.Instance.ElapsedTime : 0f;
+
+        return type switch
+        {
+            DisasterType.Earthquake => balance.earthquakeWeight,
+            DisasterType.Storm => elapsed >= balance.stormUnlockTime ? balance.stormWeight : 0f,
+            DisasterType.Fire => elapsed >= balance.fireUnlockTime ? balance.fireWeight : 0f,
+            _ => 0f,
+        };
     }
 
     private DisasterData FindDisaster(DisasterType type)
@@ -112,6 +152,12 @@ public class DisasterManager : MonoBehaviour
             {
                 case DisasterType.Earthquake:
                     yield return Earthquake(disaster, houseCount, nearGuard);
+                    break;
+                case DisasterType.Storm:
+                    yield return Storm(disaster, houseCount);
+                    break;
+                case DisasterType.Fire:
+                    IsolatedFire(disaster);
                     break;
                 default:
                     break;
@@ -187,6 +233,82 @@ public class DisasterManager : MonoBehaviour
     private static float DistanceTo(House house, Vector3 point)
     {
         return LocationsManager.Distance(house.transform.position, point);
+    }
+
+    #endregion
+
+    #region STORM
+
+    // Raios espalhados pela cidade ao longo da duração. Cada raio cai numa casa intacta sorteada na hora:
+    // quebra a casa ou, com a chance do BalanceData, põe fogo nela.
+    private IEnumerator Storm(DisasterData disaster, int strikeCount)
+    {
+        LocationsManager locations = LocationsManager.Instance;
+        if (locations == null || locations.Houses.Count == 0 || strikeCount <= 0) yield break;
+
+        BalanceData balance = Stats.Balance;
+        float interval = balance.stormDuration / strikeCount;
+
+        GameEvents.RaiseDisasterStarted(disaster, GetCityCenter());
+
+        for (int i = 0; i < strikeCount; i++)
+        {
+            yield return new WaitForSeconds(interval);
+
+            // A pausa segura o raio; partida encerrada acaba com a tempestade.
+            while (IsPaused()) yield return null;
+            if (!IsPlaying()) break;
+
+            List<House> candidates = locations.GetIntactHouses();
+            if (candidates.Count == 0) continue;
+
+            House house = candidates[Random.Range(0, candidates.Count)];
+            GameEvents.RaiseLightningStruck(house.transform.position);
+            if (Random.value < balance.lightningFireChance) house.ApplyProblem(State.OnFire, 0);
+            else house.ApplyProblem(State.Damaged, Random.Range(balance.stormMinDamage, balance.stormMaxDamage + 1));
+        }
+
+        GameEvents.RaiseDisasterEnded(disaster);
+    }
+
+    // A tempestade cobre a cidade inteira: o ponto do evento é o meio das casas.
+    private static Vector3 GetCityCenter()
+    {
+        List<House> houses = LocationsManager.Instance.Houses;
+        Vector3 sum = Vector3.zero;
+        foreach (House house in houses)
+        {
+            sum += house.transform.position;
+        }
+        return sum / houses.Count;
+    }
+
+    #endregion
+
+    #region FIRE
+
+    // Incêndio isolado: poucas casas intactas sorteadas pegam fogo de uma vez.
+    private static void IsolatedFire(DisasterData disaster)
+    {
+        if (LocationsManager.Instance == null) return;
+
+        List<House> candidates = LocationsManager.Instance.GetIntactHouses();
+        if (candidates.Count == 0) return;
+
+        BalanceData balance = Stats.Balance;
+        int fireCount = Mathf.Min(Random.Range(balance.fireMinHouses, balance.fireMaxHouses + 1), candidates.Count);
+
+        for (int i = 0; i < fireCount; i++)
+        {
+            int index = Random.Range(0, candidates.Count);
+            House house = candidates[index];
+            candidates.RemoveAt(index);
+
+            if (i == 0) GameEvents.RaiseDisasterStarted(disaster, house.transform.position);
+            house.ApplyProblem(State.OnFire, 0);
+        }
+
+        GameEvents.RaiseDisasterEnded(disaster);
     }
 
     #endregion

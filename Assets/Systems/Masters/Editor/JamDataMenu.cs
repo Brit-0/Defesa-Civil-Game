@@ -38,6 +38,8 @@ public static class JamDataMenu
         CreateBalance(overwrite, ref created, ref updated);
 
         CreateDisaster("Earthquake", "earthquake", DisasterType.Earthquake, "Terremoto", overwrite, ref created, ref updated);
+        CreateDisaster("Storm", "storm", DisasterType.Storm, "Tempestade", overwrite, ref created, ref updated);
+        CreateDisaster("Fire", "fire", DisasterType.Fire, "Incêndio", overwrite, ref created, ref updated);
 
         // Tabela da seção 7 do GDD: asset, id, nome, descrição, ordem, níveis, custo base, crescimento, efeito por nível.
         CreateUpgrade("Workers", UpgradeIds.Workers, "Contratar trabalhador", "+1 trabalhador", 0, 12, 30, 1.45f, 1f, overwrite, ref created, ref updated);
