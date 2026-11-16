@@ -12,7 +12,7 @@ Formato: `- [x] T03 — o que entrou, hash do commit`
 
 ## Hashes
 
-_(preenchido a cada push)_
+- T03: `c4037be`
 
 ## Pedidos ao MEGABRAIN
 
