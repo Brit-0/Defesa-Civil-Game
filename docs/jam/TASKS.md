@@ -10,7 +10,7 @@ Meta do dia: jogar 5 minutos de ponta a ponta. Terremoto quebra casas, eu conser
 
 | Status | ID | Tarefa | Agente | Depende | Pronto quando |
 |---|---|---|---|---|---|
-| [ ] | T00 | Kickoff: criar `jam` a partir da `main`, copiar `docs/jam/CLAUDE-jam.md` para `CLAUDE.md`, commit, push, criar `jam-sistemas` e `jam-feel`, verificar MCP do Unity. | A | — | 3 branches no remoto; MCP responde. |
+| [x] | T00 | Kickoff de git: criar `jam` a partir da `main`, copiar `docs/jam/CLAUDE-jam.md` para `CLAUDE.md`, commit, push, criar `jam-sistemas` e `jam-feel`. Feito em 16/11 (conferido com `git ls-remote`: as 3 branches no remoto, `main` intacta). A verificação do MCP do Unity saiu daqui e virou a U1, porque depende do PC com o Unity. | A | — | 3 branches no remoto. |
 | [ ] | T01 | Corrigir bloqueios de build (B1, B2 de `ARCHITECTURE.md`) e gerar build Windows de fumaça. | A | T00 | Executável abre e mostra a cidade. |
 | [ ] | T02 | Build WebGL de fumaça. Medir FPS e tempo de carga; relatar. | A | T01 | Relatório curto com go/no-go em `DECISIONS.md`. |
 | [ ] | T03 | `GameEvents`, `GameState`, `GameManager`, `LocationsManager` (registro de casas). **Merge imediato na `jam`.** | B | T01 | Compila; C já consegue assinar eventos. |
