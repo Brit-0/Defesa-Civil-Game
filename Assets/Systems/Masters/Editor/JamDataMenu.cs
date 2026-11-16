@@ -9,6 +9,7 @@ public static class JamDataMenu
     private const string ResourcesFolder = "Assets/Resources";
     private const string BalanceFolder = "Balance";
     private const string BalanceAsset = "BalanceData";
+    private const string DisastersFolder = "Disasters";
 
     [MenuItem("Tools/Jam/Create Default Data")]
     public static void CreateDefaultData()
@@ -30,6 +31,8 @@ public static class JamDataMenu
         int updated = 0;
 
         CreateBalance(overwrite, ref created, ref updated);
+
+        CreateDisaster("Earthquake", "earthquake", DisasterType.Earthquake, "Terremoto", overwrite, ref created, ref updated);
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
@@ -54,6 +57,25 @@ public static class JamDataMenu
         Object.DestroyImmediate(defaults);
         EditorUtility.SetDirty(asset);
         updated++;
+    }
+
+    #endregion
+
+    #region DISASTERS
+
+    // O menu conhece id, type e displayName. O ícone é ligado à mão e nunca é tocado.
+    private static void CreateDisaster(string assetName, string id, DisasterType type, string displayName, bool overwrite, ref int created, ref int updated)
+    {
+        DisasterData asset = LoadOrCreate<DisasterData>(DisastersFolder, assetName, out bool isNew);
+        if (!isNew && !overwrite) return;
+
+        asset.id = id;
+        asset.type = type;
+        asset.displayName = displayName;
+        EditorUtility.SetDirty(asset);
+
+        if (isNew) created++;
+        else updated++;
     }
 
     #endregion
