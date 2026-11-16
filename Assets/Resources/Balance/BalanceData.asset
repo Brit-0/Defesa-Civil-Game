@@ -15,33 +15,33 @@ MonoBehaviour:
   startWorkers: 3
   startMaterial: 5
   startMoney: 0
-  workerSpeed: 1
+  workerSpeed: 2.5
   dispatchInterval: 0.8
   materialPerWorker: 1
   autoDispatchInterval: 1
   workTimePerDamage: 5
   minWorkTime: 2
   fireWorkTime: 4
-  restockTime: 5
-  moneyPerDamage: 10
-  fireReward: 15
+  restockTime: 3
+  moneyPerDamage: 15
+  fireReward: 20
   minDamage: 1
   maxDamage: 3
   fireDuration: 25
   fireBurnoutDamage: 3
   chaosWeightDamaged: 1
   chaosWeightFire: 2
-  chaosLimit: 20
+  chaosLimit: 22
   chaosRisePerSecond: 0.06
   chaosFallPerSecond: 0.1
   firstDisasterDelay: 6
   firstDisasterHouses: 2
-  disasterIntervalStart: 35
-  disasterIntervalEnd: 12
-  disasterRampDuration: 600
+  disasterIntervalStart: 45
+  disasterIntervalEnd: 20
+  disasterRampDuration: 780
   disasterHousesStart: 3
-  disasterHousesEnd: 9
-  warningTime: 3
+  disasterHousesEnd: 6
+  warningTime: 4
   earthquakeWeight: 50
   stormWeight: 35
   fireWeight: 15

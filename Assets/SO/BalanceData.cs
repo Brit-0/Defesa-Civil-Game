@@ -61,7 +61,24 @@ public class BalanceData : ScriptableObject
     [Tooltip("Casas por desastre, na mesma rampa.")]
     public int disasterHousesStart = 3;
     public int disasterHousesEnd = 6; // GDD: 9
-    public float warningTime = 3f;
+    public float warningTime = 4f; // T25: 3 (GAMELOOP_REVISAO: 1 s a mais para ler o alvo e escorar)
+
+    [Header("STRONG EARTHQUAKE (GAMELOOP_REVISAO)")]
+    [Tooltip("A cada N desastres (sem contar o primeiro) vem um terremoto forte. 0 desliga.")]
+    public int strongDisasterEvery = 5;
+    [Tooltip("Casas do terremoto forte = casas da rampa x este valor.")]
+    public float strongDisasterHouseMultiplier = 2f;
+    [Tooltip("Aviso mais longo: dá tempo de se preparar.")]
+    public float strongDisasterWarningTime = 6f;
+    [Tooltip("Segundos a mais de calma depois do terremoto forte.")]
+    public float strongDisasterCalm = 20f;
+
+    [Header("OCCURRENCE CLEARED (GAMELOOP_REVISAO)")]
+    [Tooltip("Bônus por casa quando todas as casas de um desastre voltam a ficar intactas.")]
+    public int clearBonusPerHouse = 8;
+    [Tooltip("Encerrar a ocorrência em até estes segundos depois do início multiplica o bônus.")]
+    public float fastClearTime = 60f;
+    public float fastClearMultiplier = 2f;
 
     [Header("DISASTER TYPES")]
     [Tooltip("Pesos do sorteio entre os tipos já liberados.")]
@@ -90,4 +107,39 @@ public class BalanceData : ScriptableObject
     public float incomeInterval = 10f;
     [Tooltip("Repasse = incomePerHouse x nível x casas intactas x (1 - caos), arredondado.")]
     public float incomePerHouse = 0.5f;
+
+    [Header("MILESTONES (GAMELOOP_REVISAO)")]
+    [Tooltip("Casas consertadas que viram marco. Cada marco traz voluntários (trabalhadores grátis).")]
+    public int[] milestoneRepairs = { 5, 15, 30, 50, 80 };
+    public int volunteersPerMilestone = 1;
+
+    [Header("MINI GAME: PONTO CERTO (GAMELOOP_REVISAO)")]
+    [Tooltip("Onde a janela de acerto começa, em fração do progresso do trabalho (sorteado entre os dois).")]
+    public float critWindowMin = 0.35f;
+    public float critWindowMax = 0.7f;
+    [Tooltip("Tamanho da janela, em fração do progresso.")]
+    public float critWindowSize = 0.18f;
+    [Tooltip("Acerto: o trabalho termina na hora e paga este tanto a mais (no Armazém, material a mais).")]
+    public float critRewardBonus = 0.5f;
+    [Tooltip("Erro: o progresso volta este tanto. Uma tentativa por trabalho.")]
+    public float missPenalty = 0.2f;
+
+    [Header("MINI GAME: MUTIRÃO NO INCÊNDIO (GAMELOOP_REVISAO)")]
+    [Tooltip("Cada clique na casa em chamas com a equipe trabalhando adianta este tanto do trabalho.")]
+    public float fireClickProgress = 0.1f;
+    [Tooltip("Cliques no mesmo incêndio para o bônus de herói.")]
+    public int fireHeroClicks = 5;
+    public float fireHeroBonus = 0.5f;
+
+    [Header("MINI GAME: ESCORAR NO AVISO (GAMELOOP_REVISAO)")]
+    [Tooltip("Material gasto para escorar uma casa no alvo do terremoto, durante o aviso.")]
+    public int shoreMaterialCost = 1;
+    [Tooltip("Dano que a escora tira. Se o dano zera, a casa fica de pé.")]
+    public int shoreDamageReduction = 2;
+    [Tooltip("Dinheiro quando a casa escorada fica de pé.")]
+    public int shoreHeldReward = 40;
+
+    [Header("REPAIR STREAK (GAMELOOP_REVISAO)")]
+    [Tooltip("Consertos coletados com até estes segundos de intervalo contam como sequência (o som sobe de tom).")]
+    public float streakWindow = 5f;
 }

@@ -1,8 +1,10 @@
 """Jogadores-robô do simulador: tempo de reação, tempo por clique e a ordem em que compram upgrades.
 
-Custo de cada ação em cliques, como no jogo (GDD, seção 7):
-  despacho nível 0: casa + base + '+' por trabalhador + Enviar; nível 1 tira a base; nível 2 em diante, 1 clique
-  Armazém: igual ao nível 0 (no nível 1 em diante a base sai sozinha; a equipe é sempre escolhida)
+Custo de cada ação em cliques, como no jogo (GDD, seção 7, e GAMELOOP_REVISAO):
+  despacho nível 0: casa + base + Enviar (a aba já abre com a equipe sugerida; cada '+'/'-' de ajuste é um
+  clique a mais); nível 1 tira a base; nível 2 em diante, 1 clique
+  Armazém: igual ao nível 0 com a equipe que repõe o que falta (no nível 1 em diante a base sai sozinha)
+  mini games: ponto certo = mira + 1 clique; mutirão = mira + cliques rápidos; escorar = 1 clique por casa no aviso
   coleta: 1 clique (nível 3 coleta sozinho); compra: abrir a aba + clicar no botão
 A cada ação soma-se a "mira" (achar a casa na tela, mover a câmera); escolher a base à mão (nível 0) é uma
 segunda mira, porque a Guarda raramente está na mesma parte da tela que a casa.
@@ -13,8 +15,10 @@ from sim import DANIFICADA, FOGO, INTACTA
 
 
 class Jogador:
-    def __init__(self, nome, reacao, clique, mira, plano, equipe="espalha", estoque_alvo=0, para_em=None):
+    def __init__(self, nome, reacao, clique, mira, plano, equipe="espalha", estoque_alvo=0, para_em=None,
+                 mini=True, acerto=0.8):
         self.nome = nome
+        self.mini, self.acerto = mini, acerto  # joga os mini games? chance de acertar o ponto certo
         self.reacao, self.clique, self.mira = reacao, clique, mira
         self.plano = list(plano)
         self.equipe = equipe              # "espalha", "sugerida" ou "um"
@@ -24,14 +28,48 @@ class Jogador:
         self.cliques = 0
 
     def copia(self):
-        return Jogador(self.nome, self.reacao, self.clique, self.mira, self.plano, self.equipe, self.estoque_alvo, self.para_em)
+        return Jogador(self.nome, self.reacao, self.clique, self.mira, self.plano, self.equipe, self.estoque_alvo, self.para_em,
+                       self.mini, self.acerto)
 
     def _gastar(self, jogo, cliques, miras=1):
         self.cliques += cliques
         self.ocupado_ate = jogo.t + self.mira * miras + self.clique * cliques
 
+    def _livre(self, jogo):
+        return jogo.t >= self.ocupado_ate and (self.para_em is None or jogo.t < self.para_em)
+
+    def tenta_mini(self, jogo, cliques):
+        """Mini game na hora certa: só se estiver livre. Cliques de mutirão são rápidos (metade do tempo)."""
+        if not self.mini or not self._livre(jogo):
+            return False
+        self.cliques += cliques
+        self.ocupado_ate = jogo.t + self.mira + self.clique * (cliques if cliques == 1 else cliques * 0.5)
+        return True
+
+    def escorar(self, jogo, alvos, aviso):
+        """No aviso do terremoto: escora primeiro as casas que ficam de pé (dano <= redução), com o material que há."""
+        if not self.mini or (self.para_em is not None and jogo.t >= self.para_em):
+            return
+        custo = jogo.b["shoreMaterialCost"]
+        por_casa = self.clique + self.mira * 0.5
+        tempo = aviso - self.reacao - max(0.0, self.ocupado_ate - jogo.t)
+        feitas = 0
+        for c, _dano, _atraso in sorted(alvos, key=lambda a: a[1]):
+            if tempo < por_casa or jogo.material < custo:
+                break
+            if c.estado != INTACTA or c.escorada:
+                continue
+            c.escorada = True
+            jogo.material -= custo
+            jogo.escoradas += 1
+            tempo -= por_casa
+            feitas += 1
+        if feitas:
+            self.cliques += feitas
+            self.ocupado_ate = max(self.ocupado_ate, jogo.t) + self.reacao + feitas * por_casa
+
     def agir(self, jogo):
-        if jogo.t < self.ocupado_ate or (self.para_em is not None and jogo.t >= self.para_em):
+        if not self._livre(jogo):
             return
         if self._coletar(jogo) or self._comprar(jogo) or self._despachar(jogo) or self._repor(jogo):
             return
@@ -79,11 +117,12 @@ class Jogador:
                 n = jogo.equipe_sugerida(c)
             else:  # espalha: divide a gente livre entre os chamados que esperam, até a equipe sugerida
                 n = max(1, min(jogo.equipe_sugerida(c), jogo.workers // len(espera)))
+            ajuste = abs(n - jogo.equipe_sugerida(c))  # a aba abre com a sugerida; '+'/'-' para mudar
             if jogo.enviar(c, n):
                 if automacao >= 2:
                     self._gastar(jogo, 1)
                 else:
-                    self._gastar(jogo, (3 if automacao == 0 else 2) + n, miras=2 if automacao == 0 else 1)
+                    self._gastar(jogo, (3 if automacao == 0 else 2) + ajuste, miras=2 if automacao == 0 else 1)
                 return True
         return False
 
@@ -100,10 +139,11 @@ class Jogador:
         if livre is None:
             return False
         n = min(jogo.workers, max(1, math.ceil(precisa / jogo.material_por_trabalhador())))
+        ajuste = abs(n - jogo.equipe_sugerida(livre))
         if not jogo.enviar(livre, n):
             return False
         nivel0 = jogo.nivel("automation") == 0
-        self._gastar(jogo, (3 if nivel0 else 2) + n, miras=2 if nivel0 else 1)
+        self._gastar(jogo, (3 if nivel0 else 2) + ajuste, miras=2 if nivel0 else 1)
         return True
 
 
@@ -128,7 +168,11 @@ def perfis(plano_bom="carrinho"):
     return {
         "ignora": None,
         "bom": Jogador("bom", reacao=1.0, clique=0.35, mira=1.0, plano=plano, equipe="espalha", estoque_alvo=6),
-        "médio": Jogador("médio", reacao=2.0, clique=0.5, mira=1.6, plano=plano, equipe="sugerida"),
+        "bom, sem mini games": Jogador("bom-inc", reacao=1.0, clique=0.35, mira=1.0, plano=plano, equipe="espalha",
+                                       estoque_alvo=6, mini=False),
+        "médio": Jogador("médio", reacao=2.0, clique=0.5, mira=1.6, plano=plano, equipe="sugerida", acerto=0.55),
+        "médio, sem mini games": Jogador("médio-inc", reacao=2.0, clique=0.5, mira=1.6, plano=plano,
+                                         equipe="sugerida", mini=False),
         "bom, larga aos 6 min": Jogador("bom6", reacao=1.0, clique=0.35, mira=1.0, plano=plano, equipe="espalha",
                                         estoque_alvo=6, para_em=360),
     }

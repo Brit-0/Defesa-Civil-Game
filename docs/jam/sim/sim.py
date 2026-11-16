@@ -1,141 +1,36 @@
-"""Simulador de balanceamento da jam Defesa Civil (Agente B, T25), sem o Unity.
+"""Simulador de balanceamento da jam Defesa Civil (Agente B, T25; revisão do gameloop B3), sem o Unity.
 
 Reproduz as regras do código C# (GuardManager, House, Warehouse, DisasterManager, ChaosManager,
-ResourcesManager, UpgradesManager, Stats). Os números vêm dos próprios arquivos C#: os padrões de
-Assets/SO/BalanceData.cs e a tabela de upgrades de Assets/Systems/Masters/Editor/JamDataMenu.cs
-(ou, com --assets, dos .asset que o menu de dados criou). O mapa vem do city_layout.json: posição de
-cada casa e o grafo de ruas, o mesmo dos waypoints da cena; a caminhada é a distância pela rua.
+ResourcesManager, UpgradesManager, GameManager, Stats). Os números vêm dos próprios arquivos C# (dados.py):
+os padrões de Assets/SO/BalanceData.cs e a tabela de upgrades de JamDataMenu.cs (ou, com --assets, dos .asset).
+O mapa vem do city_layout.json: posição de cada casa e o grafo de ruas; a caminhada é a distância pela rua.
 
 O jogador é um robô com tempo de reação e tempo por clique (perfis em perfis.py). Passo de 0,1 s.
+Revisão do gameloop: terremoto forte, bônus de ocorrência encerrada, marcos com voluntários e os três
+mini games (ponto certo, mutirão no incêndio, escorar no aviso), que disputam a atenção do robô.
 """
 import heapq
-import json
 import math
 import random
-import re
-from pathlib import Path
 
-RAIZ = Path(__file__).resolve().parents[3]
-BALANCE_CS = RAIZ / "Assets/SO/BalanceData.cs"
-MENU_CS = RAIZ / "Assets/Systems/Masters/Editor/JamDataMenu.cs"
-MAPA_PADRAO = RAIZ / "Assets/_Project/Data/Cities/city_layout.json"
+from dados import (BALANCE_CS, MAPA_PADRAO, MENU_CS, RAIZ, aplicar_ajustes, ler_assets,  # noqa: F401
+                   ler_balance, ler_mapa, ler_upgrades)
 
 INTACTA, DANIFICADA, FOGO = "I", "D", "F"
-
-
-# ---------------------------------------------------------------- dados
-
-def ler_balance(caminho=BALANCE_CS):
-    """Padrões dos campos do BalanceData.cs (int ou float)."""
-    texto = Path(caminho).read_text(encoding="utf-8")
-    valores = {}
-    for tipo, nome, valor in re.findall(r"public\s+(int|float)\s+(\w+)\s*=\s*(-?[\d.]+)f?\s*;", texto):
-        valores[nome] = int(valor) if tipo == "int" else float(valor)
-    return valores
-
-
-def ler_upgrades(caminho=MENU_CS):
-    """Tabela de upgrades do JamDataMenu.cs: id -> maxLevel, baseCost, costGrowth, effectPerLevel."""
-    texto = Path(caminho).read_text(encoding="utf-8")
-    padrao = (r'CreateUpgrade\("\w+",\s*UpgradeIds\.(\w+),\s*"[^"]*",\s*"[^"]*",\s*(\d+),\s*(\d+),'
-              r'\s*(\d+),\s*([\d.]+)f,\s*([\d.]+)f')
-    ups = {}
-    for nome, ordem, maximo, base, cresc, efeito in re.findall(padrao, texto):
-        ups[nome.lower()] = dict(order=int(ordem), maxLevel=int(maximo), baseCost=int(base),
-                                 costGrowth=float(cresc), effectPerLevel=float(efeito))
-    return ups
-
-
-def _ler_yaml_simples(caminho):
-    valores = {}
-    for linha in Path(caminho).read_text(encoding="utf-8").splitlines():
-        m = re.match(r"\s{2}(\w+):\s*(.*)$", linha)
-        if m:
-            valores[m.group(1)] = m.group(2).strip()
-    return valores
-
-
-def ler_assets(pasta_resources, balance, ups):
-    """Sobrepõe os padrões com os .asset de Assets/Resources (o que o jogo carrega de verdade)."""
-    pasta = Path(pasta_resources)
-    arquivo = pasta / "Balance/BalanceData.asset"
-    if arquivo.exists():
-        for chave, valor in _ler_yaml_simples(arquivo).items():
-            if chave in balance:
-                balance[chave] = type(balance[chave])(float(valor))
-    for arquivo in sorted((pasta / "Upgrades").glob("*.asset")):
-        dados = _ler_yaml_simples(arquivo)
-        uid = dados.get("id")
-        if uid:
-            ups[uid] = dict(order=int(dados.get("order", 0)), maxLevel=int(dados["maxLevel"]),
-                            baseCost=int(dados["baseCost"]), costGrowth=float(dados["costGrowth"]),
-                            effectPerLevel=float(dados["effectPerLevel"]))
-    return balance, ups
-
-
-def aplicar_ajustes(balance, ups, ajustes):
-    """--set campo=valor (BalanceData) ou --set id.campo=valor (upgrade)."""
-    for ajuste in ajustes or []:
-        chave, valor = ajuste.split("=", 1)
-        if "." in chave:
-            uid, campo = chave.split(".", 1)
-            ups[uid][campo] = type(ups[uid][campo])(float(valor))
-        else:
-            if chave not in balance:
-                raise KeyError(f"BalanceData não tem o campo {chave}")
-            balance[chave] = type(balance[chave])(float(valor))
-    return balance, ups
-
-
-def ler_mapa(caminho=MAPA_PADRAO):
-    """Casas, Guarda e Armazéns com a distância pela rua até a entrada da Guarda."""
-    dados = json.loads(Path(caminho).read_text(encoding="utf-8"))
-    nos = {}
-    for s in dados["structures"]:
-        nos[f"{s['type']} {s['id']}"] = (s["entry"]["x"], s["entry"]["y"])
-    for j in dados["junctions"]:
-        nos[f"Junction {j['id']}"] = (j["position"]["x"], j["position"]["y"])
-    vizinhos = {nome: [] for nome in nos}
-    for link in dados["links"]:
-        a, b = link["a"], link["b"]
-        peso = math.dist(nos[a], nos[b])
-        vizinhos[a].append((b, peso))
-        vizinhos[b].append((a, peso))
-
-    guarda = next(s for s in dados["structures"] if s["type"] == "Guard")
-    origem = f"Guard {guarda['id']}"
-    dist = {origem: 0.0}
-    fila = [(0.0, origem)]
-    while fila:
-        d, no = heapq.heappop(fila)
-        if d > dist[no]:
-            continue
-        for viz, peso in vizinhos[no]:
-            if d + peso < dist.get(viz, math.inf):
-                dist[viz] = d + peso
-                heapq.heappush(fila, (d + peso, viz))
-
-    def item(s):
-        return dict(nome=f"{s['type']} {s['id']}", pos=(s["bottomCenter"]["x"], s["bottomCenter"]["y"]),
-                    dist=dist[f"{s['type']} {s['id']}"])
-
-    return dict(guarda=(guarda["bottomCenter"]["x"], guarda["bottomCenter"]["y"]),
-                casas=[item(s) for s in dados["structures"] if s["type"] == "House"],
-                armazens=sorted((item(s) for s in dados["structures"] if s["type"] == "Warehouse"),
-                                key=lambda a: a["dist"]))
-
 
 # ---------------------------------------------------------------- jogo
 
 class Local:
     __slots__ = ("nome", "pos", "dist", "armazem", "estado", "dano", "fogo", "equipe", "trabalhando",
-                 "pronta", "enviados", "pago", "desde")
+                 "pronta", "enviados", "pago", "desde", "bonus", "critico", "trabalho", "ocorrencia", "escorada")
 
     def __init__(self, dados, armazem=False):
         self.nome, self.pos, self.dist, self.armazem = dados["nome"], dados["pos"], dados["dist"], armazem
         self.estado, self.dano, self.fogo = INTACTA, 0, 0.0
-        self.equipe = self.trabalhando = self.pronta = False
-        self.enviados = self.pago = 0
+        self.equipe = self.trabalhando = self.pronta = self.critico = self.escorada = False
+        self.enviados = self.pago = self.trabalho = 0
+        self.bonus = 0.0       # Call.rewardBonus (crítico, herói)
+        self.ocorrencia = None  # o desastre que quebrou a casa (bônus quando todas voltam)
         self.desde = 0.0  # quando o chamado abriu ou o trabalho terminou (para o tempo de reação)
 
 
@@ -159,6 +54,9 @@ class Jogo:
         self.consertos = self.ganho_total = self.renda_total = self.negados = 0
         self.compras = []  # (minuto, id, nível)
         self.desastres = []  # (minuto, tipo, casas)
+        # Revisão do gameloop
+        self.n_desastres, self.calma, self.marcos = 0, 0.0, 0
+        self.bonus_ocorrencia = self.criticos = self.erros = self.herois = self.escoradas = self.de_pe = 0
 
     # --- valores (Stats)
     def efeito(self, uid):
@@ -182,6 +80,9 @@ class Jogo:
         return c.dano if (not c.armazem and c.estado == DANIFICADA) else 0
 
     def equipe_sugerida(self, c):
+        if c.armazem:  # Stats.GetRestockNeed: material que falta para as casas sem equipe, menos o estoque
+            falta = sum(x.dano for x in self.casas if x.estado == DANIFICADA and not x.equipe) - self.material
+            return max(1, min(math.ceil(max(1, falta) / self.material_por_trabalhador()), self.workers))
         return max(1, min(max(1, c.dano), self.workers))
 
     def tempo_trabalho(self, c):
@@ -193,7 +94,7 @@ class Jogo:
 
     def recompensa(self, c):
         base = self.b["fireReward"] if c.estado == FOGO else self.b["moneyPerDamage"] * c.dano
-        return round(base * (1 + self.efeito("reward")))
+        return round(base * (1 + self.efeito("reward") + c.bonus))
 
     # --- agenda
     def agendar(self, quando, funcao, *args):
@@ -206,8 +107,8 @@ class Jogo:
             return False
         c.dano = max(self.b["minDamage"], severidade) if problema == DANIFICADA else 0
         c.fogo = self.b["fireDuration"] if problema == FOGO else 0.0
-        c.equipe = c.trabalhando = c.pronta = False
-        c.estado, c.desde = problema, self.t
+        c.equipe = c.trabalhando = c.pronta = c.critico = False
+        c.estado, c.desde, c.bonus = problema, self.t, 0.0
         return True
 
     def negado(self, c, n):
@@ -228,6 +129,8 @@ class Jogo:
         self.workers -= n
         self.material -= gasto
         c.enviados, c.pago, c.equipe = n, gasto, True
+        if c.armazem:  # cada ida ao Armazém é um chamado novo
+            c.bonus, c.critico = 0.0, False
         chegada = self.t + (n - 1) * self.b["dispatchInterval"] + c.dist / self.velocidade()
         self.agendar(chegada, self.comecar, c)
         return True
@@ -244,27 +147,104 @@ class Jogo:
             self.material -= falta
             c.pago += falta
         c.trabalhando = True
-        self.agendar(self.t + self.tempo_trabalho(c), self.terminar, c)
+        c.trabalho += 1
+        duracao = self.tempo_trabalho(c)
+        self.agendar(self.t + duracao, self.terminar, c, c.trabalho)
+        if self.jogador is None:
+            return
+        # Mini games: o robô tenta se estiver livre na hora (disputam a atenção com despachos e coletas).
+        if c.estado == FOGO:
+            self.agendar(self.t + self.jogador.reacao, self.mini_fogo, c, c.trabalho, self.t, duracao)
+        else:
+            janela = self.rng.uniform(self.b["critWindowMin"], self.b["critWindowMax"]) + self.b["critWindowSize"] / 2
+            self.agendar(self.t + duracao * janela, self.mini_ponto, c, c.trabalho, janela, duracao)
 
-    def terminar(self, c):
+    def terminar(self, c, trabalho=None):
+        if trabalho is not None and (trabalho != c.trabalho or not c.trabalhando):
+            return  # o mini game já adiantou ou atrasou este trabalho
         c.trabalhando, c.pronta, c.desde = False, True, self.t
         if self.nivel("automation") >= 3:
             self.coletar(c)
+
+    # --- mini games (House: TryCritical, FireClick)
+    def mini_ponto(self, c, trabalho, janela, duracao):
+        if trabalho != c.trabalho or not c.trabalhando or not self.jogador.tenta_mini(self, 1):
+            return
+        c.trabalho += 1
+        if self.rng.random() < self.jogador.acerto:
+            c.critico, c.bonus = True, c.bonus + self.b["critRewardBonus"]
+            self.criticos += 1
+            self.terminar(c)
+        else:
+            self.erros += 1
+            self.agendar(self.t + duracao * (1 - janela + self.b["missPenalty"]), self.terminar, c, c.trabalho)
+
+    def mini_fogo(self, c, trabalho, inicio, duracao):
+        cliques = self.b["fireHeroClicks"]
+        if trabalho != c.trabalho or not c.trabalhando or not self.jogador.tenta_mini(self, cliques):
+            return
+        c.trabalho += 1
+        c.bonus += self.b["fireHeroBonus"]
+        self.herois += 1
+        restante = max(0.0, 1 - (self.t - inicio) / duracao - cliques * self.b["fireClickProgress"])
+        self.agendar(self.t + duracao * restante, self.terminar, c, c.trabalho)
 
     def coletar(self, c):
         if not c.pronta:
             return
         c.pronta = False
         if c.armazem:
-            self.material += c.enviados * self.material_por_trabalhador()
+            trazido = c.enviados * self.material_por_trabalhador()
+            self.material += trazido + (math.ceil(trazido * self.b["critRewardBonus"]) if c.critico else 0)
         else:
             ganho = self.recompensa(c)
             c.estado, c.dano = INTACTA, 0
-            self.money += ganho
-            self.ganho_total += ganho
+            self.ganhar(ganho)
             self.consertos += 1
+            self.marco()
+            self.ocorrencia_consertada(c)
         c.equipe = False
         self.voltar(c, c.enviados)
+
+    def ganhar(self, valor):
+        self.money += valor
+        self.ganho_total += valor
+
+    # --- revisão do gameloop (GameManager.CheckMilestone, DisasterManager.CheckOccurrences)
+    def marco(self):
+        marcos = self.b.get("milestoneRepairs", [])
+        if self.marcos < len(marcos) and self.consertos >= marcos[self.marcos]:
+            self.marcos += 1
+            self.workers += self.b["volunteersPerMilestone"]
+
+    def ocorrencia_consertada(self, c):
+        o, c.ocorrencia = c.ocorrencia, None
+        if o is None:
+            return
+        o["consertadas"] += 1
+        self.fechar_ocorrencia(o)
+
+    def fechar_ocorrencia(self, o):
+        if not o["terminou"] or o["pago"] or o["consertadas"] < len(o["casas"]):
+            return
+        o["pago"] = True
+        rapido = self.t - o["inicio"] <= self.b["fastClearTime"]
+        bonus = self.b["clearBonusPerHouse"] * len(o["casas"]) * (self.b["fastClearMultiplier"] if rapido else 1)
+        bonus = round(bonus * (1 + self.efeito("reward")))
+        self.ganhar(bonus)
+        self.bonus_ocorrencia += bonus
+
+    def nova_ocorrencia(self):
+        return dict(casas=[], consertadas=0, inicio=self.t, terminou=False, pago=False)
+
+    def atingir(self, o, c, problema, severidade):
+        if self.aplicar(c, problema, severidade):
+            o["casas"].append(c)
+            c.ocorrencia = o
+
+    def encerrar(self, o):
+        o["terminou"] = True
+        self.fechar_ocorrencia(o)
 
     def voltar(self, c, n):
         for i in range(n):
@@ -325,58 +305,96 @@ class Jogo:
         if tipo is None:
             self.proximo_desastre()
             return
-        n = self.b["firstDisasterHouses"] if self.primeiro else self.casas_por_desastre()
+        b = self.b
+        forte = False
+        if not self.primeiro:  # IsStrongTurn: a cada N desastres, um terremoto forte com aviso longo
+            self.n_desastres += 1
+            forte = b["strongDisasterEvery"] > 0 and self.n_desastres % b["strongDisasterEvery"] == 0
+        n = b["firstDisasterHouses"] if self.primeiro else self.casas_por_desastre()
+        if forte:
+            tipo, n = "terremoto", round(n * b["strongDisasterHouseMultiplier"])
+        aviso = b["strongDisasterWarningTime"] if forte else b["warningTime"]
+        alvos = self.alvos_terremoto(n, self.primeiro) if tipo == "terremoto" else None
+        if alvos and self.jogador is not None:  # Forecast: o aviso já mostra as casas; o robô escora no aviso
+            self.jogador.escorar(self, alvos, aviso)
         self.desastre_rodando = True
-        self.agendar(self.t + self.b["warningTime"], self.executar, tipo, n, self.primeiro)
+        self.agendar(self.t + aviso, self.executar, tipo, n, alvos, forte)
         self.primeiro = False
 
-    def executar(self, tipo, n, perto_da_guarda):
-        self.desastres.append((self.t / 60, tipo, n))
+    def executar(self, tipo, n, alvos, forte):
+        self.desastres.append((self.t / 60, tipo + (" forte" if forte else ""), n))
+        if forte:
+            self.calma = self.b["strongDisasterCalm"]
+        o = self.nova_ocorrencia()
         if tipo == "terremoto":
-            self.terremoto(n, perto_da_guarda)
+            self.terremoto(alvos, o)
         elif tipo == "tempestade":
             intervalo = self.b["stormDuration"] / n
             for i in range(n):
-                self.agendar(self.t + intervalo * (i + 1), self.raio)
-            self.agendar(self.t + intervalo * n, self.proximo_desastre)
+                self.agendar(self.t + intervalo * (i + 1), self.raio, o)
+            self.agendar(self.t + intervalo * n, self.fim_desastre, o)
         else:
             intactas = [c for c in self.casas if c.estado == INTACTA]
             k = min(self.rng.randint(self.b["fireMinHouses"], self.b["fireMaxHouses"]), len(intactas))
             for c in self.rng.sample(intactas, k):
-                self.aplicar(c, FOGO, 0)
-            self.proximo_desastre()
+                self.atingir(o, c, FOGO, 0)
+            self.fim_desastre(o)
 
-    def terremoto(self, n, perto_da_guarda):
+    def alvos_terremoto(self, n, perto_da_guarda):
+        """(casa, dano) do mais perto ao mais longe do epicentro, escolhidos já no aviso."""
         if perto_da_guarda:
             epicentro = self.guarda
         else:
             intactas = [c for c in self.casas if c.estado == INTACTA] or self.casas
             epicentro = self.rng.choice(intactas).pos
-        alvos = sorted(self.casas, key=lambda c: math.dist(c.pos, epicentro))[:n]
-        raio = math.dist(alvos[-1].pos, epicentro)
+        casas = sorted(self.casas, key=lambda c: math.dist(c.pos, epicentro))[:n]
+        raio = math.dist(casas[-1].pos, epicentro)
         maximo, minimo = self.b["maxDamage"], self.b["minDamage"]
-        atraso = 0.0
-        for c in alvos:
+        alvos = []
+        for c in casas:
             d = math.dist(c.pos, epicentro)
             queda = math.floor(d / raio * (maximo - minimo + 1)) if raio > 0 else 0
-            atraso = d * self.b["earthquakeWaveDelayPerUnit"]
-            self.agendar(self.t + atraso, self.aplicar, c, DANIFICADA, max(minimo, min(maximo, maximo - queda)))
-        self.agendar(self.t + atraso, self.proximo_desastre)
+            alvos.append((c, max(minimo, min(maximo, maximo - queda)), d * self.b["earthquakeWaveDelayPerUnit"]))
+        return alvos
 
-    def raio(self):
+    def terremoto(self, alvos, o):
+        atraso = 0.0
+        for c, dano, atraso in alvos:
+            self.agendar(self.t + atraso, self.onda, o, c, dano)
+        self.agendar(self.t + atraso, self.fim_desastre, o)
+
+    def onda(self, o, c, dano):
+        if c.escorada:  # House.ResolveShoring: a escora tira dano; se zera, a casa fica de pé e paga
+            c.escorada = False
+            dano -= self.b["shoreDamageReduction"]
+            if dano <= 0:
+                if c.estado == INTACTA:
+                    self.de_pe += 1
+                    self.ganhar(self.b["shoreHeldReward"])
+                return
+        self.atingir(o, c, DANIFICADA, dano)
+
+    def raio(self, o):
         intactas = [c for c in self.casas if c.estado == INTACTA]
         if not intactas:
             return
         c = self.rng.choice(intactas)
         if self.rng.random() < self.b["lightningFireChance"]:
-            self.aplicar(c, FOGO, 0)
+            self.atingir(o, c, FOGO, 0)
         else:
-            self.aplicar(c, DANIFICADA, self.rng.randint(self.b["stormMinDamage"], self.b["stormMaxDamage"]))
+            self.atingir(o, c, DANIFICADA, self.rng.randint(self.b["stormMinDamage"], self.b["stormMaxDamage"]))
+
+    def fim_desastre(self, o):
+        self.encerrar(o)
+        for c in self.casas:
+            c.escorada = False  # ClearShoring
+        self.proximo_desastre()
 
     def proximo_desastre(self):
         b = self.b
         intervalo = b["disasterIntervalStart"] + (b["disasterIntervalEnd"] - b["disasterIntervalStart"]) * self.rampa()
-        self.contagem = max(0.0, intervalo - b["warningTime"])
+        self.contagem = max(0.0, intervalo - b["warningTime"]) + self.calma
+        self.calma = 0.0
         self.desastre_rodando = False
 
     # --- relógios por quadro

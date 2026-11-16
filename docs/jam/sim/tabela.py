@@ -72,6 +72,20 @@ def buscar_planos(balance, ups, mapa, quantos, sementes, limite):
 CABECALHO = ("| Jogador | Vence | Perde | Tempo até vencer, mediana (p10–p90) | Tempo até perder | Consertos | "
              "Dinheiro ganho | Do repasse | Pico do caos |\n|---|---|---|---|---|---|---|---|---|")
 
+CABECALHO_MINI = ("| Jogador | Cliques/min | Pontos certos (erros) | Heróis no fogo | Escoradas (de pé) | "
+                  "Bônus de ocorrência | Marcos | Terremotos fortes |\n|---|---|---|---|---|---|---|---|")
+
+
+def linha_mini(nome, jogos):
+    """Revisão do gameloop: quanto o jogador joga (cliques por minuto) e o que os mini games e marcos rendem."""
+    def med(f):
+        return statistics.median(f(j) for j in jogos)
+    cpm = med(lambda j: j.jogador.cliques / max(1.0, j.t / 60) if j.jogador else 0)
+    fortes = med(lambda j: sum(1 for d in j.desastres if d[1].endswith("forte")))
+    return (f"| {nome} | {cpm:.0f} | {med(lambda j: j.criticos):.0f} ({med(lambda j: j.erros):.0f}) | "
+            f"{med(lambda j: j.herois):.0f} | {med(lambda j: j.escoradas):.0f} ({med(lambda j: j.de_pe):.0f}) | "
+            f"{med(lambda j: j.bonus_ocorrencia):.0f} | {med(lambda j: j.marcos):.0f} | {fortes:.0f} |")
+
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -106,7 +120,9 @@ def main():
         for minuto, tipo, n in jogo.desastres:
             print(f"{mmss(minuto * 60)} {tipo} ({n})")
         print(f"fim: {jogo.fim} aos {mmss(jogo.t)}; consertos {jogo.consertos}; ganho {jogo.ganho_total}; "
-              f"negados {jogo.negados}; cliques {jogador.cliques if jogador else 0}")
+              f"negados {jogo.negados}; cliques {jogador.cliques if jogador else 0}; pontos certos {jogo.criticos} "
+              f"(erros {jogo.erros}); heróis {jogo.herois}; escoradas {jogo.escoradas} (de pé {jogo.de_pe}); "
+              f"bônus de ocorrência {jogo.bonus_ocorrencia}; marcos {jogo.marcos}")
         return
 
     if a.busca:
@@ -120,8 +136,14 @@ def main():
             print(linha_tabela(f"bom, plano {nome}", rodar_perfil(balance, ups, mapa, jogador, a.sementes, a.limite)))
         return
 
-    for nome, jogador in perfis(a.plano).items():
-        print(linha_tabela(nome, rodar_perfil(balance, ups, mapa, jogador, a.sementes, a.limite)))
+    resultados = {nome: rodar_perfil(balance, ups, mapa, jogador, a.sementes, a.limite)
+                  for nome, jogador in perfis(a.plano).items()}
+    for nome, jogos in resultados.items():
+        print(linha_tabela(nome, jogos))
+    print("\n" + CABECALHO_MINI)
+    for nome, jogos in resultados.items():
+        if jogos[0].jogador is not None:
+            print(linha_mini(nome, jogos))
 
 
 if __name__ == "__main__":

@@ -119,9 +119,47 @@ public class GameManager : MonoBehaviour
 
     #region COUNTERS
 
+    public int Streak { get; private set; }
+    private float lastRepairTime = float.NegativeInfinity;
+    private int milestonesReached;
+
     private void OnCallResolved(Call call, int moneyEarned)
     {
-        if (call != null && call.type == CallType.Problem) HousesRepaired++;
+        if (call == null || call.type != CallType.Problem) return;
+
+        HousesRepaired++;
+        UpdateStreak(call);
+        CheckMilestone();
+    }
+
+    // Consertos coletados em sequência: a apresentação sobe o tom do som a cada passo (GAMELOOP_REVISAO).
+    private void UpdateStreak(Call call)
+    {
+        Streak = ElapsedTime - lastRepairTime <= Stats.Balance.streakWindow ? Streak + 1 : 1;
+        lastRepairTime = ElapsedTime;
+        GameEvents.RaiseRepairStreak(Streak, call.house != null ? call.house.transform.position : Vector3.zero);
+    }
+
+    // Marcos de casas consertadas: voluntários da cidade entram para a equipe (GAMELOOP_REVISAO).
+    private void CheckMilestone()
+    {
+        int[] milestones = Stats.Balance.milestoneRepairs;
+        if (milestones == null || milestonesReached >= milestones.Length || HousesRepaired < milestones[milestonesReached]) return;
+
+        milestonesReached++;
+        int volunteers = Stats.Balance.volunteersPerMilestone;
+        if (volunteers > 0 && ResourcesManager.Instance != null) ResourcesManager.Workers += volunteers;
+        GameEvents.RaiseMilestoneReached(HousesRepaired, volunteers);
+    }
+
+    // Próximo marco (casas consertadas) ou 0 quando não há mais.
+    public int NextMilestone
+    {
+        get
+        {
+            int[] milestones = Stats.Balance.milestoneRepairs;
+            return milestones != null && milestonesReached < milestones.Length ? milestones[milestonesReached] : 0;
+        }
     }
 
     private void OnMoneyChanged(int before, int after)

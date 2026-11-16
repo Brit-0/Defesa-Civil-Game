@@ -13,6 +13,9 @@ public class Call
     public int materialSpent;
     public CallType type;
     public CityGuard guard;
+    // Mini games (GAMELOOP_REVISAO): fração a mais na recompensa (acerto no ponto certo, herói do incêndio).
+    public float rewardBonus;
+    public bool critical;
 }
 
 public enum CallType
@@ -138,7 +141,8 @@ public class GuardManager : MonoBehaviour
         selectBaseMode = false;
         selectedGuard = guard;
         FeedbacksManager.HideText();
-        TeamSize = 0;
+        // A aba já abre com a equipe sugerida: o + e o - viram ajuste fino, Enviar resolve (GAMELOOP_REVISAO).
+        TeamSize = Mathf.Min(Stats.GetSuggestedTeam(currentCall), ResourcesManager.Workers);
         callTab.SetActive(true);
     }
 

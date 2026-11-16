@@ -1,0 +1,113 @@
+"""Leitura dos dados do simulador: BalanceData.cs, JamDataMenu.cs, os .asset de Resources e o mapa da cidade."""
+import heapq
+import json
+import math
+import re
+from pathlib import Path
+
+RAIZ = Path(__file__).resolve().parents[3]
+BALANCE_CS = RAIZ / "Assets/SO/BalanceData.cs"
+MENU_CS = RAIZ / "Assets/Systems/Masters/Editor/JamDataMenu.cs"
+MAPA_PADRAO = RAIZ / "Assets/_Project/Data/Cities/city_layout.json"
+
+
+def ler_balance(caminho=BALANCE_CS):
+    """Padrões dos campos do BalanceData.cs (int, float ou int[])."""
+    texto = Path(caminho).read_text(encoding="utf-8")
+    valores = {}
+    for tipo, nome, valor in re.findall(r"public\s+(int|float)\s+(\w+)\s*=\s*(-?[\d.]+)f?\s*;", texto):
+        valores[nome] = int(valor) if tipo == "int" else float(valor)
+    for nome, corpo in re.findall(r"public\s+int\[\]\s+(\w+)\s*=\s*\{([^}]*)\}\s*;", texto):
+        valores[nome] = [int(x) for x in re.findall(r"-?\d+", corpo)]
+    return valores
+
+
+def ler_upgrades(caminho=MENU_CS):
+    """Tabela de upgrades do JamDataMenu.cs: id -> maxLevel, baseCost, costGrowth, effectPerLevel."""
+    texto = Path(caminho).read_text(encoding="utf-8")
+    padrao = (r'CreateUpgrade\("\w+",\s*UpgradeIds\.(\w+),\s*"[^"]*",\s*"[^"]*",\s*(\d+),\s*(\d+),'
+              r'\s*(\d+),\s*([\d.]+)f,\s*([\d.]+)f')
+    ups = {}
+    for nome, ordem, maximo, base, cresc, efeito in re.findall(padrao, texto):
+        ups[nome.lower()] = dict(order=int(ordem), maxLevel=int(maximo), baseCost=int(base),
+                                 costGrowth=float(cresc), effectPerLevel=float(efeito))
+    return ups
+
+
+def _ler_yaml_simples(caminho):
+    valores = {}
+    for linha in Path(caminho).read_text(encoding="utf-8").splitlines():
+        m = re.match(r"\s{2}(\w+):\s*(.*)$", linha)
+        if m:
+            valores[m.group(1)] = m.group(2).strip()
+    return valores
+
+
+def ler_assets(pasta_resources, balance, ups):
+    """Sobrepõe os padrões com os .asset de Assets/Resources (o que o jogo carrega de verdade)."""
+    pasta = Path(pasta_resources)
+    arquivo = pasta / "Balance/BalanceData.asset"
+    if arquivo.exists():
+        for chave, valor in _ler_yaml_simples(arquivo).items():
+            if chave in balance and not isinstance(balance[chave], list):
+                balance[chave] = type(balance[chave])(float(valor))
+    for arquivo in sorted((pasta / "Upgrades").glob("*.asset")):
+        dados = _ler_yaml_simples(arquivo)
+        uid = dados.get("id")
+        if uid:
+            ups[uid] = dict(order=int(dados.get("order", 0)), maxLevel=int(dados["maxLevel"]),
+                            baseCost=int(dados["baseCost"]), costGrowth=float(dados["costGrowth"]),
+                            effectPerLevel=float(dados["effectPerLevel"]))
+    return balance, ups
+
+
+def aplicar_ajustes(balance, ups, ajustes):
+    """--set campo=valor (BalanceData) ou --set id.campo=valor (upgrade)."""
+    for ajuste in ajustes or []:
+        chave, valor = ajuste.split("=", 1)
+        if "." in chave:
+            uid, campo = chave.split(".", 1)
+            ups[uid][campo] = type(ups[uid][campo])(float(valor))
+        else:
+            if chave not in balance:
+                raise KeyError(f"BalanceData não tem o campo {chave}")
+            balance[chave] = type(balance[chave])(float(valor))
+    return balance, ups
+
+
+def ler_mapa(caminho=MAPA_PADRAO):
+    """Casas, Guarda e Armazéns com a distância pela rua até a entrada da Guarda."""
+    dados = json.loads(Path(caminho).read_text(encoding="utf-8"))
+    nos = {}
+    for s in dados["structures"]:
+        nos[f"{s['type']} {s['id']}"] = (s["entry"]["x"], s["entry"]["y"])
+    for j in dados["junctions"]:
+        nos[f"Junction {j['id']}"] = (j["position"]["x"], j["position"]["y"])
+    vizinhos = {nome: [] for nome in nos}
+    for link in dados["links"]:
+        a, b = link["a"], link["b"]
+        peso = math.dist(nos[a], nos[b])
+        vizinhos[a].append((b, peso))
+        vizinhos[b].append((a, peso))
+
+    guarda = next(s for s in dados["structures"] if s["type"] == "Guard")
+    origem = f"Guard {guarda['id']}"
+    dist = {origem: 0.0}
+    fila = [(0.0, origem)]
+    while fila:
+        d, no = heapq.heappop(fila)
+        if d > dist[no]:
+            continue
+        for viz, peso in vizinhos[no]:
+            if d + peso < dist.get(viz, math.inf):
+                dist[viz] = d + peso
+                heapq.heappush(fila, (d + peso, viz))
+
+    def item(s):
+        return dict(nome=f"{s['type']} {s['id']}", pos=(s["bottomCenter"]["x"], s["bottomCenter"]["y"]),
+                    dist=dist[f"{s['type']} {s['id']}"])
+
+    return dict(guarda=(guarda["bottomCenter"]["x"], guarda["bottomCenter"]["y"]),
+                casas=[item(s) for s in dados["structures"] if s["type"] == "House"],
+                armazens=sorted((item(s) for s in dados["structures"] if s["type"] == "Warehouse"),
+                                key=lambda a: a["dist"]))

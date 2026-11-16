@@ -15,6 +15,8 @@ public abstract class Location : House
 
     public override void OnPointerClick(PointerEventData eventData)
     {
+        // Ponto certo também vale no Armazém com a equipe carregando (GAMELOOP_REVISAO).
+        if (TrySkillClick(eventData)) return;
         if (!CanClick(eventData)) return;
 
         if (isComplete)
