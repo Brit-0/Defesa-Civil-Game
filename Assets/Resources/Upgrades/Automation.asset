@@ -18,6 +18,6 @@ MonoBehaviour:
   icon: {fileID: 1626110622, guid: 2b89dc3da1935ac58d86d65e37cc4924, type: 3}
   order: 5
   maxLevel: 4
-  baseCost: 150
-  costGrowth: 2.6
+  baseCost: 80
+  costGrowth: 2
   effectPerLevel: 1

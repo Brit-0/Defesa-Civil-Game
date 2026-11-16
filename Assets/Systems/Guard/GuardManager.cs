@@ -13,6 +13,9 @@ public class Call
     public int materialSpent;
     public CallType type;
     public CityGuard guard;
+    // Mini games (GAMELOOP_REVISAO): fração a mais na recompensa (acerto no ponto certo, herói do incêndio).
+    public float rewardBonus;
+    public bool critical;
 }
 
 public enum CallType
@@ -59,11 +62,19 @@ public class GuardManager : MonoBehaviour
     private void OnEnable()
     {
         GameEvents.UpgradePurchased += OnUpgradePurchased;
+        GameEvents.GameStateChanged += OnGameStateChanged;
     }
 
     private void OnDisable()
     {
         GameEvents.UpgradePurchased -= OnUpgradePurchased;
+        GameEvents.GameStateChanged -= OnGameStateChanged;
+    }
+
+    // Partida encerrada: a aba de equipe e o "Escolha a base" não ficam abertos atrás da tela final.
+    private void OnGameStateChanged(GameState state)
+    {
+        if (state == GameState.Won || state == GameState.Lost) CloseCall();
     }
 
     private void Update()
@@ -130,12 +141,16 @@ public class GuardManager : MonoBehaviour
         selectBaseMode = false;
         selectedGuard = guard;
         FeedbacksManager.HideText();
-        TeamSize = 0;
+        // A aba já abre com a equipe sugerida: o + e o - viram ajuste fino, Enviar resolve (GAMELOOP_REVISAO).
+        TeamSize = Mathf.Min(Stats.GetSuggestedTeam(currentCall), ResourcesManager.Workers);
         callTab.SetActive(true);
     }
 
     public void CallSendTeam()
     {
+        // Os botões da aba não passam pelo clique das casas: fora de Playing não enviam ninguém.
+        if (GameManager.InputBlocked) return;
+
         TrySendTeam(currentCall, selectedGuard, TeamSize);
     }
 
@@ -305,7 +320,7 @@ public class GuardManager : MonoBehaviour
 
     public void IncreaseTeamSize()
     {
-        if (currentCall == null) return;
+        if (currentCall == null || GameManager.InputBlocked) return;
 
         if (TeamSize + 1 > ResourcesManager.Workers)
         {

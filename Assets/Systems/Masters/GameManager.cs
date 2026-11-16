@@ -19,6 +19,8 @@ public class GameManager : MonoBehaviour
     private float playTimeScale = 1f;
 
     private static int inputBlocks;
+    // Reiniciar pela tela final ou pela pausa volta direto para a partida, sem passar pelo menu de novo.
+    private static bool restartRequested;
     // O mundo só aceita clique em Playing. Sem GameManager na cena, nada é bloqueado.
     public static bool InputBlocked => inputBlocks > 0 || (Instance != null && Instance.State != GameState.Playing);
 
@@ -41,8 +43,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // Enquanto o menu do Agente C não existe, a partida começa sozinha.
-        if (autoStart) StartGame();
+        // autoStart: a partida começa sozinha (sem o menu do Agente C). Depois de um Restart também.
+        bool startNow = autoStart || restartRequested;
+        restartRequested = false;
+        if (startNow) StartGame();
         else GameEvents.RaiseGameStateChanged(State);
     }
 
@@ -98,6 +102,7 @@ public class GameManager : MonoBehaviour
         DOTween.KillAll();
         Time.timeScale = 1f;
         inputBlocks = 0;
+        restartRequested = true;
         GuardManager.selectBaseMode = false;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
@@ -114,9 +119,47 @@ public class GameManager : MonoBehaviour
 
     #region COUNTERS
 
+    public int Streak { get; private set; }
+    private float lastRepairTime = float.NegativeInfinity;
+    private int milestonesReached;
+
     private void OnCallResolved(Call call, int moneyEarned)
     {
-        if (call != null && call.type == CallType.Problem) HousesRepaired++;
+        if (call == null || call.type != CallType.Problem) return;
+
+        HousesRepaired++;
+        UpdateStreak(call);
+        CheckMilestone();
+    }
+
+    // Consertos coletados em sequência: a apresentação sobe o tom do som a cada passo (GAMELOOP_REVISAO).
+    private void UpdateStreak(Call call)
+    {
+        Streak = ElapsedTime - lastRepairTime <= Stats.Balance.streakWindow ? Streak + 1 : 1;
+        lastRepairTime = ElapsedTime;
+        GameEvents.RaiseRepairStreak(Streak, call.house != null ? call.house.transform.position : Vector3.zero);
+    }
+
+    // Marcos de casas consertadas: voluntários da cidade entram para a equipe (GAMELOOP_REVISAO).
+    private void CheckMilestone()
+    {
+        int[] milestones = Stats.Balance.milestoneRepairs;
+        if (milestones == null || milestonesReached >= milestones.Length || HousesRepaired < milestones[milestonesReached]) return;
+
+        milestonesReached++;
+        int volunteers = Stats.Balance.volunteersPerMilestone;
+        if (volunteers > 0 && ResourcesManager.Instance != null) ResourcesManager.Workers += volunteers;
+        GameEvents.RaiseMilestoneReached(HousesRepaired, volunteers);
+    }
+
+    // Próximo marco (casas consertadas) ou 0 quando não há mais.
+    public int NextMilestone
+    {
+        get
+        {
+            int[] milestones = Stats.Balance.milestoneRepairs;
+            return milestones != null && milestonesReached < milestones.Length ? milestones[milestonesReached] : 0;
+        }
     }
 
     private void OnMoneyChanged(int before, int after)
@@ -145,6 +188,7 @@ public class GameManager : MonoBehaviour
     {
         Instance = null;
         inputBlocks = 0;
+        restartRequested = false;
     }
 
 #if UNITY_EDITOR

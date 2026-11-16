@@ -51,6 +51,21 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     private float fireTimeLeft;
     public float FireTimeLeft01 => currentState == State.OnFire && Stats.Balance.fireDuration > 0f ? Mathf.Clamp01(fireTimeLeft / Stats.Balance.fireDuration) : 0f;
 
+    // Trabalho no local (0 a 1). Anda sozinho; os mini games adiantam ou atrasam.
+    private float workProgress;
+    private float workDuration;
+    public float WorkProgress01 => IsWorking ? workProgress : 0f;
+    public Image ProgressCircle => progressCircle;
+
+    // Mini game do ponto certo (GAMELOOP_REVISAO): uma tentativa por trabalho, na janela sorteada.
+    public bool CritAvailable { get; private set; }
+    public float CritWindowStart { get; private set; }
+    public float CritWindowSize => Stats.Balance.critWindowSize;
+    // Mutirão no incêndio: cliques neste incêndio.
+    public int FireClicks { get; private set; }
+    // Escorada no aviso do terremoto.
+    public bool IsShored { get; private set; }
+
     static readonly int crackFade = Shader.PropertyToID("_TextureLayer1Fade");
     //static readonly int outlineFade = Shader.PropertyToID("_OuterOutlineFade");
 
@@ -62,6 +77,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     protected virtual void Update()
     {
         TickFire();
+        TickWork();
     }
 
     public void Energize()
@@ -115,6 +131,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
     public virtual void OnPointerClick(PointerEventData eventData)
     {
+        if (TrySkillClick(eventData)) return;
         if (!CanClick(eventData)) return;
 
         if (isComplete)
@@ -190,17 +207,44 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
         IsWorking = true;
         callDisplay.SetActive(false);
+        workProgress = 0f;
+        workDuration = Stats.GetWorkTime(currentCall);
         progressCircle.fillAmount = 0f;
         Sprite icon = GetIconByCallType(currentCall);
         progressIcon.sprite = icon;
         progressIcon.enabled = icon != null;
         progressCircle.gameObject.SetActive(true);
+
+        // Ponto certo vale no conserto e no Armazém; incêndio é mutirão de cliques.
+        BalanceData balance = Stats.Balance;
+        CritAvailable = currentState != State.OnFire;
+        CritWindowStart = Random.Range(balance.critWindowMin, balance.critWindowMax);
+        FireClicks = 0;
+
         GameEvents.RaiseWorkStarted(currentCall);
-        progressCircle.DOFillAmount(1f, Stats.GetWorkTime(currentCall)).SetEase(Ease.Linear).SetLink(gameObject).OnComplete(CompleteWork);
+    }
+
+    // O círculo de progresso anda no tempo da partida: a pausa segura o trabalho.
+    private void TickWork()
+    {
+        if (!IsWorking) return;
+        if (GameManager.Instance != null && GameManager.Instance.State != GameState.Playing) return;
+
+        AdvanceWork(workDuration > 0f ? Time.deltaTime / workDuration : 1f);
+    }
+
+    private void AdvanceWork(float amount)
+    {
+        workProgress = Mathf.Clamp01(workProgress + amount);
+        progressCircle.fillAmount = workProgress;
+        if (workProgress >= 1f) CompleteWork();
     }
 
     private void CompleteWork()
     {
+        if (!IsWorking) return;
+
+        CritAvailable = false;
         IsWorking = false;
         isComplete = true;
         interactable = true;
@@ -232,7 +276,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
                 ResourcesManager.Money += moneyEarned;
                 break;
             case CallType.Restock:
-                ResourcesManager.BuildMaterial += call.workersSent * Stats.MaterialPerWorker;
+                ResourcesManager.BuildMaterial += Stats.GetRestockAmount(call);
                 break;
             default:
                 break;
@@ -301,6 +345,98 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         fireTimeLeft = 0f;
         damageAmount = Stats.Balance.fireBurnoutDamage;
         SetState(State.Damaged);
+    }
+
+    #endregion
+
+    #region MINI GAMES
+
+    // Mini games (GAMELOOP_REVISAO): cliques de habilidade que nunca são obrigatórios e pagam mais que o automático.
+    // Valem com a equipe trabalhando (mesmo com a casa travada para o despacho) e no aviso do terremoto.
+    protected bool TrySkillClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left || GameManager.InputBlocked) return false;
+
+        if (IsWorking)
+        {
+            if (currentState == State.OnFire) FireClick();
+            else TryCritical();
+            return true;
+        }
+
+        if (DisasterManager.Instance != null && DisasterManager.Instance.CanShore(this))
+        {
+            TryShore();
+            return true;
+        }
+
+        return false;
+    }
+
+    // Ponto certo: clicar com o progresso dentro da janela termina o trabalho na hora e paga mais.
+    // Fora da janela o progresso volta um pouco. Uma tentativa por trabalho.
+    private void TryCritical()
+    {
+        if (!CritAvailable) return;
+
+        CritAvailable = false;
+        BalanceData balance = Stats.Balance;
+        bool hit = workProgress >= CritWindowStart && workProgress <= CritWindowStart + balance.critWindowSize;
+        if (hit)
+        {
+            currentCall.critical = true;
+            currentCall.rewardBonus += balance.critRewardBonus;
+            GameEvents.RaiseSkillCheck(this, SkillResult.Critical);
+            AdvanceWork(1f);
+            return;
+        }
+
+        workProgress = Mathf.Max(0f, workProgress - balance.missPenalty);
+        progressCircle.fillAmount = workProgress;
+        GameEvents.RaiseSkillCheck(this, SkillResult.Miss);
+    }
+
+    // Mutirão: cada clique no incêndio com a equipe trabalhando adianta o trabalho; muitos cliques viram bônus de herói.
+    private void FireClick()
+    {
+        BalanceData balance = Stats.Balance;
+        FireClicks++;
+        bool hero = FireClicks == balance.fireHeroClicks;
+        if (hero) currentCall.rewardBonus += balance.fireHeroBonus;
+
+        GameEvents.RaiseSkillCheck(this, hero ? SkillResult.FireHero : SkillResult.FireClick);
+        AdvanceWork(balance.fireClickProgress);
+    }
+
+    // Escorar: no aviso do terremoto, casa no alvo gasta material agora para levar menos dano (ou nenhum).
+    private void TryShore()
+    {
+        int cost = Stats.Balance.shoreMaterialCost;
+        if (ResourcesManager.BuildMaterial < cost)
+        {
+            GameEvents.RaiseActionDenied(DeniedReason.NoMaterial, transform.position);
+            return;
+        }
+
+        ResourcesManager.BuildMaterial -= cost;
+        IsShored = true;
+        GameEvents.RaiseSkillCheck(this, SkillResult.Shored);
+    }
+
+    // Chamado pelo terremoto quando a onda chega na casa escorada.
+    public void ResolveShoring(bool held)
+    {
+        IsShored = false;
+        if (!held) return;
+
+        int reward = Stats.Balance.shoreHeldReward;
+        if (reward > 0) ResourcesManager.Money += reward;
+        GameEvents.RaiseSkillCheck(this, SkillResult.ShoreHeld);
+    }
+
+    public void ClearShoring()
+    {
+        IsShored = false;
     }
 
     #endregion

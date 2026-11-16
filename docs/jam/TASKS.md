@@ -113,6 +113,38 @@ Nada disto pôde ser feito na sessão de 16/11, porque o PC dela não tem o Unit
 - Do B para o MEGABRAIN: `STATUS_B.md`. Do C para o MEGABRAIN: `STATUS_C.md`.
 - Do MEGABRAIN para B e C (bugs de playtest, erros de compilação, mudanças): aqui embaixo. Formato: `- [ ] (MEGABRAIN → B) pedido — contexto`
 
-- [ ] (MEGABRAIN → B) `BalanceData.cs`: padrão de `workerSpeed` de 1 para 2. — o asset já está em 2 (mapa v6 é bem maior); sem isso, `Create Default Data` com sobrescrita volta a 1.
+- [x] (MEGABRAIN → B) `BalanceData.cs`: padrão de `workerSpeed` de 1 para 2. — feito pelo B no T25 (2,5 na classe e no asset, `903ee33`).
 - [ ] (MEGABRAIN → C) Fogo com luz: uma `Light2D` laranja piscando em cada casa pegando fogo (a cena agora tem luz 2D e bloom leve, então ela vai brilhar). Raio perto de 3 u, intensidade de 1 a 1,5.
 - [ ] (MEGABRAIN → C) Bolhas de chamado legíveis no zoom aberto: o zoom agora vai até 16; manter a bolha com tamanho constante na tela (escala pelo `orthographicSize`).
+
+Pedidos da revisão do gameloop (`GAMELOOP_REVISAO.md`; o Pietro pediu que ficassem aqui, 16/11):
+
+- [ ] (B → MEGABRAIN) **Ligar o tutorial, a META e os mini games: nada a fazer na cena.** O `GameloopBootstrap` (`Assets/Systems/Tutorial/`) cria `MiniGameFeel`, `GoalTracker` e `Tutorial` sozinho em todo carregamento de cena que tenha `GameManager`, e o `Tutorial` desliga o `TutorialTips` de C em tempo de execução. Pedido:
+  1. Fazer o merge da `jam-sistemas`, compilar no Unity e mandar os erros para cá (U5). Pelo Roslyn, com as DLLs do 6000.6.7f1, deu 0 erros.
+  2. Rodar `Tools/Jam/Reset Tutorial` e dar Play.
+  3. Tirar quatro capturas e pôr em `analises-lilith/jogo-defesa-civil/resultados/`, no lugar das prévias `B3_previa_*`:
+     - o cartão inicial;
+     - o passo 2, com a seta na casa;
+     - um "NO PONTO!";
+     - os aros de escorar num aviso de terremoto.
+  4. Conferir no Play:
+     - os aros e a faixa dourada ficam no centro da casa, e não no pé dela (o pivô das casas não foi visto);
+     - a seta aponta para a borda quando a casa sai da tela;
+     - o PULAR encerra tudo, e uma segunda partida (Restart) não mostra o tutorial.
+
+  Opcional:
+  - pôr os três componentes num objeto `[Gameloop]` da cena (o bootstrap os acha e não duplica);
+  - apagar o objeto do `TutorialTips`.
+- [ ] (B → MEGABRAIN) **`BalanceData.asset` e `Upgrades/*.asset` editados à mão** (YAML) com os valores novos. Os 21 campos novos não estão no `.asset` e usam o padrão da classe. **Não rodar Reset Data To Defaults** (o pedido antigo do T25 caiu): os `.asset` e a classe já dão o mesmo no simulador. Se o Inspector mostrar outro número, vale o `.asset`.
+- [ ] (B → C) **Som e efeito dos eventos novos, só escutando** (os mini games já têm som e popup próprios em `MiniGameFeel`; não duplicar):
+  - **`RepairStreak(n, pos)`:** som da coleta com o tom subindo, `1 + 0.06 × (n−1)`, até 1,5. Pede um `AudioManager.PlaySfx` com tom fixo, porque hoje só há `pitchVariation`.
+  - **`MilestoneReached(consertos, voluntários)`:**
+    - fanfarra `Collectibles_Items_Powerup/jingle_chime_05_positive.wav`;
+    - texto grande "MARCO! +1 VOLUNTÁRIO" no centro;
+    - punch no contador de trabalhadores. A META já dá o soco dela.
+  - **`OccurrenceCleared(occ)`:**
+    - popup dourado com `occ.bonus` em `occ.position`;
+    - som `Collectibles_Items_Powerup/points_ticker_bonus_score_reward_jingle_01.wav`;
+    - quando `occ.fast` (x2), escrever "RÁPIDO! x2".
+  - **`DisasterForecasted(f)`:** círculo vermelho no chão em `f.position` com raio `f.radius` (0 fora do terremoto; aí, marcar `f.targets`) durante os `f.seconds` do aviso. Os aros laranja de escorar nas casas já são do `MiniGameFeel`.
+  - **`f.isStrong`:** banner "TERREMOTO FORTE" maior e mais longo, com um som grave.

@@ -28,6 +28,12 @@ public class GameEventsLogger : MonoBehaviour
         GameEvents.UpgradePurchased += OnUpgradePurchased;
         GameEvents.ChaosChanged += OnChaosChanged;
         GameEvents.GameStateChanged += OnGameStateChanged;
+
+        GameEvents.SkillCheck += OnSkillCheck;
+        GameEvents.DisasterForecasted += OnDisasterForecasted;
+        GameEvents.OccurrenceCleared += OnOccurrenceCleared;
+        GameEvents.MilestoneReached += OnMilestoneReached;
+        GameEvents.RepairStreak += OnRepairStreak;
     }
 
     private void OnDisable()
@@ -55,6 +61,12 @@ public class GameEventsLogger : MonoBehaviour
         GameEvents.UpgradePurchased -= OnUpgradePurchased;
         GameEvents.ChaosChanged -= OnChaosChanged;
         GameEvents.GameStateChanged -= OnGameStateChanged;
+
+        GameEvents.SkillCheck -= OnSkillCheck;
+        GameEvents.DisasterForecasted -= OnDisasterForecasted;
+        GameEvents.OccurrenceCleared -= OnOccurrenceCleared;
+        GameEvents.MilestoneReached -= OnMilestoneReached;
+        GameEvents.RepairStreak -= OnRepairStreak;
     }
 
     private void OnMoneyChanged(int before, int after) => Log($"MoneyChanged {before} -> {after}");
@@ -80,6 +92,12 @@ public class GameEventsLogger : MonoBehaviour
     private void OnUpgradePurchased(UpgradeData upgrade, int newLevel) => Log($"UpgradePurchased {NameOf(upgrade)} nível {newLevel}");
     private void OnChaosChanged(float chaos) => Log($"ChaosChanged {chaos:0.00}");
     private void OnGameStateChanged(GameState state) => Log($"GameStateChanged {state}");
+
+    private void OnSkillCheck(House house, SkillResult result) => Log($"SkillCheck {result} em {NameOf(house)}");
+    private void OnDisasterForecasted(DisasterForecast forecast) => Log($"DisasterForecasted {NameOf(forecast.disaster)}{(forecast.isStrong ? " FORTE" : "")}: {forecast.houses} casas, raio {forecast.radius:0.0}, em {forecast.position}");
+    private void OnOccurrenceCleared(Occurrence occurrence) => Log($"OccurrenceCleared {NameOf(occurrence.disaster)}: {occurrence.houses.Count} casas em {occurrence.clearTime:0} s, bônus {occurrence.bonus}{(occurrence.fast ? " (rápido)" : "")}");
+    private void OnMilestoneReached(int housesRepaired, int volunteers) => Log($"MilestoneReached {housesRepaired} casas, +{volunteers} voluntário(s)");
+    private void OnRepairStreak(int streak, Vector3 worldPosition) => Log($"RepairStreak {streak}");
 
     private static void Log(string message)
     {

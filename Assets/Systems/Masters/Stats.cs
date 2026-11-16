@@ -62,10 +62,30 @@ public static class Stats
     }
 
     // Equipe sugerida (GDD 3.1): 1 trabalhador por ponto de dano, limitada aos disponíveis, nunca abaixo do mínimo do chamado.
+    // No Armazém: gente para trazer o material que falta aos consertos que esperam equipe (GAMELOOP_REVISAO).
     public static int GetSuggestedTeam(Call call)
     {
-        int wanted = Mathf.Max(call.workersNeeded, call.house.damageAmount);
+        int wanted = call.type == CallType.Restock ? GetRestockNeed() : Mathf.Max(call.workersNeeded, call.house.damageAmount);
         return Mathf.Max(call.workersNeeded, Mathf.Min(wanted, ResourcesManager.Workers));
+    }
+
+    private static int GetRestockNeed()
+    {
+        if (LocationsManager.Instance == null) return 1;
+
+        int missing = -ResourcesManager.BuildMaterial;
+        foreach (House house in LocationsManager.Instance.Houses)
+        {
+            if (house.currentState == State.Damaged && !house.HasTeam) missing += house.damageAmount;
+        }
+        return Mathf.Max(1, Mathf.CeilToInt(missing / (float)Mathf.Max(1, MaterialPerWorker)));
+    }
+
+    // Bônus de ocorrência encerrada: por casa atingida, multiplicado se foi rápido.
+    public static int GetClearBonus(int houses, bool fast)
+    {
+        float bonus = Balance.clearBonusPerHouse * houses * (fast ? Balance.fastClearMultiplier : 1f);
+        return Mathf.RoundToInt(bonus * (1f + GetUpgradeEffect(UpgradeIds.Reward)));
     }
 
     // GDD 3.1: tempo = tempo por ponto de dano × dano ÷ equipe, com um mínimo. Armazém tem tempo fixo.
@@ -86,8 +106,15 @@ public static class Stats
         if (call.type != CallType.Problem) return 0;
 
         int reward = call.house.currentState == State.OnFire ? Balance.fireReward : Balance.moneyPerDamage * call.house.damageAmount;
-        // reward: +X% de dinheiro por conserto por nível.
-        return Mathf.RoundToInt(reward * (1f + GetUpgradeEffect(UpgradeIds.Reward)));
+        // reward: +X% de dinheiro por conserto por nível; mini games somam o bônus do chamado.
+        return Mathf.RoundToInt(reward * (1f + GetUpgradeEffect(UpgradeIds.Reward) + call.rewardBonus));
+    }
+
+    // Material que a ida ao Armazém traz; o acerto no ponto certo traz uma parte a mais.
+    public static int GetRestockAmount(Call call)
+    {
+        int amount = call.workersSent * MaterialPerWorker;
+        return call.critical ? amount + Mathf.CeilToInt(amount * Balance.critRewardBonus) : amount;
     }
 
     // Material que o envio gasta: só casa danificada usa material.
