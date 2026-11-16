@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-//DashedOdd acende os gomos que o Dashed apaga: trocar um pelo outro faz o tracejado andar
-public enum RingStyle { Solid, Dashed, Spiky, Broken, Zigzag, DashedOdd }
+//DashedOdd acende os gomos que o Dashed apaga: trocar um pelo outro faz o tracejado andar.
+//Segmented: 8 gomos cheios com um vão pequeno (progresso do conserto, 1 gomo por oitavo)
+public enum RingStyle { Solid, Dashed, Spiky, Broken, Zigzag, DashedOdd, Segmented }
 
 //Sprites de pixel art desenhados por código (Point, sem arquivo nem import) e as camadas do mundo onde os VFX moram.
 //Cores da paleta do kit pixel (docs/jam/ICONES_FALTANDO.md). O branco do sprite é tingido pela cor da Image; o contorno

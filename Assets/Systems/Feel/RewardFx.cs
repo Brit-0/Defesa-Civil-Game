@@ -20,7 +20,7 @@ public class RewardFx : MonoBehaviour
 
     [Header("COUNTER")]
     [SerializeField] private int counterGlints = 4;
-    [SerializeField] private float counterScale = 90f;
+    [SerializeField] private float counterScale = 120f;
 
     [Header("UPGRADE")]
     [SerializeField] private int upgradeGlints = 6;

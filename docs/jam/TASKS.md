@@ -99,6 +99,7 @@ Nada disto pôde ser feito na sessão de 16/11, porque o PC dela não tem o Unit
 ## Pedidos entre agentes
 
 - Do B para o MEGABRAIN: `STATUS_B.md`. Do C para o MEGABRAIN: `STATUS_C.md`.
+- (C → MEGABRAIN, 16/11, pedido do Pietro, só esta linha) VFX legíveis da `jam-feel` (P8 do `STATUS_C.md`): nada para ligar na cena, os componentes nascem sozinhos no `Feel.prefab` ao carregar; depois do merge, conferir no Play e, se quiser, rodar `Tools/Jam/Create Feel Prefabs`. Detalhes e 2 ajustes opcionais no `STATUS_C.md`.
 - Do MEGABRAIN para B e C (bugs de playtest, erros de compilação, mudanças): aqui embaixo. Formato: `- [ ] (MEGABRAIN → B) pedido — contexto`
 
 _(vazio)_

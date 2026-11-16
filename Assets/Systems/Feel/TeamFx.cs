@@ -12,14 +12,14 @@ public class TeamFx : MonoBehaviour
     [Header("ROUTE (tamanhos em pixels da arte)")]
     [SerializeField] private Color problemColor = PixelFx.Orange;
     [SerializeField] private Color restockColor = PixelFx.Gold;
-    [SerializeField] private float spacingPixels = 8f;
+    [SerializeField] private float spacingPixels = 10f;
     [SerializeField] private int chevronEvery = 4;
     [SerializeField] private int maxDotsPerRoute = 140;
 
     [Header("WAVE (pontos por segundo e largura da onda em pontos)")]
     [SerializeField] private float waveSpeed = 9f;
     [SerializeField] private float waveLength = 6f;
-    [SerializeField, Range(0f, 1f)] private float baseAlpha = .45f;
+    [SerializeField, Range(0f, 1f)] private float baseAlpha = .7f;
 
     [Header("FADE")]
     [SerializeField] private float drawTime = .5f;

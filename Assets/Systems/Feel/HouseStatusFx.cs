@@ -15,8 +15,8 @@ public class HouseStatusFx : MonoBehaviour
     public class Settings
     {
         [Header("RING (frações do tamanho da casa; no pé do prédio, sem encostar no vizinho)")]
-        public Vector2 ringSize = new Vector2(.9f, .45f);
-        public float ringY = -.36f;
+        public Vector2 ringSize = new Vector2(.9f, .5f);
+        public float ringY = -.42f;
         public int ringThickness = 2;
         [Tooltip("Com menos pixels de tela por pixel da arte que isto (zoom afastado), o aro engrossa e o halo acende mais")]
         public float farZoomPixels = 1.6f;
@@ -27,7 +27,7 @@ public class HouseStatusFx : MonoBehaviour
         public Color damageColor = PixelFx.LightGray;
         public Color stormColor = PixelFx.Blue;
         public Color progressColor = PixelFx.Gold;
-        public Color progressBackColor = new Color(.08f, .07f, .1f, .55f);
+        public Color progressBackColor = new Color(.08f, .07f, .1f, .7f);
         public Color readyColor = PixelFx.Green;
         public Color successColor = PixelFx.Gold;
         public Color failColor = PixelFx.Red;
@@ -141,9 +141,9 @@ public class HouseStatusFx : MonoBehaviour
         ring = FeelUI.CreateImage("Ring", persistent, Color.white, RingSprite(RingStyle.Solid, true));
         FeelUI.Place(ring.rectTransform, center, center, Vector2.zero, ringRect);
 
-        progressBack = FeelUI.CreateImage("ProgressBack", persistent, settings.progressBackColor, RingSprite(RingStyle.Dashed, true));
+        progressBack = FeelUI.CreateImage("ProgressBack", persistent, settings.progressBackColor, RingSprite(RingStyle.Segmented, true));
         FeelUI.Place(progressBack.rectTransform, center, center, Vector2.zero, ringRect);
-        progressFill = FeelUI.CreateImage("ProgressFill", persistent, settings.progressColor, RingSprite(RingStyle.Dashed, true));
+        progressFill = FeelUI.CreateImage("ProgressFill", persistent, settings.progressColor, RingSprite(RingStyle.Segmented, true));
         FeelUI.Place(progressFill.rectTransform, center, center, Vector2.zero, ringRect);
         progressFill.type = Image.Type.Filled;
         progressFill.fillMethod = Image.FillMethod.Radial360;
@@ -319,7 +319,7 @@ public class HouseStatusFx : MonoBehaviour
             case Phase.Ready: ring.sprite = RingSprite(RingStyle.Solid, true); break;
         }
 
-        progressBack.sprite = progressFill.sprite = RingSprite(RingStyle.Dashed, true);
+        progressBack.sprite = progressFill.sprite = RingSprite(RingStyle.Segmented, true);
         foreach (Image ping in pings) ping.sprite = RingSprite(RingStyle.Solid, false);
     }
 

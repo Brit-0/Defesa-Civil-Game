@@ -357,7 +357,7 @@ public class HouseFire : MonoBehaviour
 
         Vector2 at = new Vector2(Random.Range(-.5f, .5f) * size.x * settings.flameWidth * widthMul,
             size.y * (settings.flameBase + Random.Range(-.12f, .08f)));
-        Particle particle = Spawn(layer, at, settings.flameSize * sizeMul * grow, null);
+        Particle particle = Spawn(layer, at, settings.flameSize * sizeMul * grow, PixelFx.Flame);
 
         float time = settings.flameTime * Random.Range(.75f, 1f) * (layer == Layer.Back ? 1.1f : 1f);
         //Chama mais perto do meio sobe mais: forma de língua, não de muro
@@ -403,7 +403,8 @@ public class HouseFire : MonoBehaviour
 
         particle.image.sprite = shape;
         particle.rect.gameObject.SetActive(true);
-        particle.rect.sizeDelta = Vector2.one * side;
+        //A chama em gota é mais alta que larga; a fumaça redonda continua quadrada
+        particle.rect.sizeDelta = shape != null ? new Vector2(side * shape.rect.width / shape.rect.height, side) : Vector2.one * side;
         particle.rect.anchoredPosition = position;
         particle.rect.localScale = Vector3.one;
         particle.life = 0f;

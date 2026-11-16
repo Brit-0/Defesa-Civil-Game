@@ -111,6 +111,7 @@ public static partial class PixelFx
 
                     if (style == RingStyle.Dashed && Mathf.FloorToInt(turn * 16f) % 2 == 1) continue;
                     if (style == RingStyle.DashedOdd && Mathf.FloorToInt(turn * 16f) % 2 == 0) continue;
+                    if (style == RingStyle.Segmented && turn * 8f % 1f > .85f) continue;
                     if (style == RingStyle.Broken && (turn % .25f) > .19f && (turn % .25f) < .23f + (turn > .5f ? .01f : 0f)) continue;
 
                     p[y * w + x] = White;
@@ -276,16 +277,25 @@ public static partial class PixelFx
         for (int y = 0; y < h; y++) p[y] = new Color32(255, 255, 255, alpha[y]);
     });
 
-    //Divisa ">" de 2 pixels com contorno (direção da rota)
-    public static Sprite Chevron => Cached("Chevron", 8, 9, (p, w, h) =>
+    //Divisa ">" de traço grosso (3 pixels) com contorno: direção da rota, legível em cima da faixa amarela da rua
+    public static Sprite Chevron => Cached("Chevron", 9, 11, (p, w, h) =>
     {
         for (int y = 1; y < h - 1; y++)
         {
-            int tip = 5 - Mathf.Abs(y - 4);
-            for (int x = tip - 1; x <= tip; x++)
+            int tip = 6 - Mathf.Abs(y - 5);
+            for (int x = tip - 2; x <= tip; x++)
                 if (x >= 1 && x < w - 1) p[y * w + x] = White;
         }
         AddOutline(p, w, h);
+    });
+
+    //Língua de fogo de 6x8: base redonda e ponta fina para cima (chama em gota, não em quadrado)
+    public static Sprite Flame => Cached("Flame", 6, 8, (p, w, h) =>
+    {
+        int[] from = { 1, 0, 0, 0, 1, 2, 2, 3 };
+        int[] to = { 4, 5, 5, 5, 4, 4, 3, 3 };
+        for (int y = 0; y < h; y++)
+            for (int x = from[y]; x <= to[y]; x++) p[y * w + x] = White;
     });
 
     //Traço da onda do terremoto: length x 2 claro com contorno
@@ -298,10 +308,12 @@ public static partial class PixelFx
         });
     }
 
-    //Ponto da rota: 2x2 claro com contorno
-    public static Sprite Dot => Cached("Dot", 4, 4, (p, w, h) =>
+    //Ponto da rota: 4x4 de cantos redondos com contorno
+    public static Sprite Dot => Cached("Dot", 6, 6, (p, w, h) =>
     {
-        p[1 * w + 1] = p[1 * w + 2] = p[2 * w + 1] = p[2 * w + 2] = White;
+        for (int y = 1; y <= 4; y++)
+            for (int x = 1; x <= 4; x++)
+                if ((x != 1 && x != 4) || (y != 1 && y != 4)) p[y * w + x] = White;
         AddOutline(p, w, h);
     });
 
