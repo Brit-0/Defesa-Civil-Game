@@ -79,6 +79,21 @@ Meta do dia: nada novo depois do meio-dia. Só ajuste, correção e entrega.
 | ~~S3~~ | **Cortado em 16/11.** Propagação de incêndio. | — |
 | S4 | Melhor tempo salvo (PlayerPrefs) e exibido no menu. | B + C |
 
+## Pendências do Unity (U1 a U8)
+
+Nada disto pôde ser feito na sessão de 16/11, porque o PC dela não tem o Unity 6000.6.7f1 (só 6000.0 e 6000.4; abrir o projeto numa versão diferente reimporta e altera arquivos, então não foi aberto). Tudo é do MEGABRAIN, no PC onde o Unity está aberto no projeto. O prompt pronto está em `PROMPTS_PRONTOS.md`, seção 5.
+
+| Status | ID | O quê | Quando | Pronto quando |
+|---|---|---|---|---|
+| [ ] | U1 | MCP do Unity respondendo neste projeto. Na sessão sem Unity ele respondeu `No Pipeline instance found for project: C:\UnityProjects\My project (1)`: estava apontado para outro projeto e sem Editor aberto. O pacote `com.unity.ai.assistant` já está no `manifest.json`. | Já | Uma chamada real devolve a cena `Gameplay` e os filhos de `Scripts`. |
+| [ ] | U2 | Build Windows de fumaça em `Builds/Windows/` (pasta ignorada pelo git). É a prova real da T01. | Já | O executável abre e mostra a cidade; console sem erro de compilação. |
+| [ ] | U3 | Build WebGL de fumaça em `Builds/WebGL/` (é a T02). Precisa do módulo Web no 6000.6.7f1 (Unity Hub → Installs → Add modules). Medir tempo de carga, FPS parado e FPS com a câmera em movimento. | Já, depois da U2 | Go/no-go registrado em `DECISIONS.md`, pelo critério que está lá. |
+| [ ] | U4 | Capturas de referência em `docs/jam/reference/`: `01_hud_inicial.png` a `08_aba_upgrades.png` (lista na seção 4 do `MEGABRAIN.md`). Sem salvar a cena. | Já | 8 imagens commitadas. |
+| [ ] | U5 | Compilar cada entrega do B, que trabalha sem Unity, e devolver os erros em "Pedidos entre agentes". A primeira é o T03. | A cada push do B | `jam` compila depois de cada merge. |
+| [ ] | U6 | Dados: rodar `Tools/Jam/Create Default Data` a cada vez que o B aumentar o menu e commitar os `.asset` com os `.meta`. Ler na cena o `speed` do `GPS` e o `workTime` do `House.prefab` e conferir com a seção 13 do GDD. | A partir do T05 | Assets em `Assets/Resources/{Balance,Upgrades,Disasters}/`. |
+| [ ] | U7 | Cena e prefabs (é o T14): GameObjects dos managers novos em `Scripts/`, `ChaosBar` e `EndScreen` no `UICanvas`, esconder o Kit do HUD, desligar a ação do Tab, `HouseFeedback` no `House.prefab`, campos do `UpgradeButton.prefab`, e o que estiver em `STATUS_B.md` e `STATUS_C.md`. | Depois do T03–T13 | `jam` roda o loop completo no Play. |
+| [ ] | U8 | Play Mode: playtest de 10 minutos (T15). Conferir de propósito o B14 (abrir um segundo chamado enquanto a primeira equipe ainda sai da base) e o B16 (painel de informação do Armazém). | Depois da U7 | Lista de bugs em "Pedidos entre agentes". |
+
 ## Pedidos entre agentes
 
 - Do B para o MEGABRAIN: `STATUS_B.md`. Do C para o MEGABRAIN: `STATUS_C.md`.

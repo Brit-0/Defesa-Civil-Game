@@ -166,3 +166,65 @@ T27 (`WorkerFeel`: balanço ao andar, virar para a direção, pop em `WorkerSpaw
 
 AO TERMINAR CADA TAREFA: console do Unity sem erros, commit, push, STATUS_C.md atualizado. No fim da sessão, um relatório curto: tarefas entregues com hash, o que o MEGABRAIN precisa ligar na cena, dúvidas e o que assumiu.
 ````
+
+## 5. Prompt do MEGABRAIN no Unity (branch `jam`, PC onde o Unity está aberto)
+
+É o que sobrou do kickoff. Na sessão de 16/11 o MEGABRAIN rodou num PC sem o Unity 6000.6.7f1 e fez só o que não depende do Editor.
+
+### O que já está feito (não refazer)
+
+- Branches `jam`, `jam-sistemas` e `jam-feel` criadas e no remoto; `CLAUDE.md` da jam na raiz.
+- T01: `UnityEditor` só dentro de `#if UNITY_EDITOR` em `AnalyticsManager.cs`, `Waypoint.cs` e `WaypointCreator.cs`; usings sem uso removidos de `GPS.cs` e `InfoPanel.cs`. Conferido por varredura do código, **não por build**.
+- GDD e TASKS revisados; decisões em `DECISIONS.md`.
+- Prompts de B e C (seções 3 e 4).
+
+### O que depende do Unity
+
+| ID | O quê | Por que não deu sem o Editor |
+|---|---|---|
+| U1 | MCP do Unity respondendo neste projeto | Precisa do Editor aberto no projeto. Neste PC o MCP apontava para outro projeto (`C:\UnityProjects\My project (1)`). |
+| U2 | Build Windows de fumaça | Só o Editor 6000.6.7f1 compila o jogador. É a prova de que a T01 fechou. |
+| U3 | Build WebGL de fumaça, medição e go/no-go (T02) | Idem, e precisa do módulo Web instalado no 6000.6.7f1. |
+| U4 | 8 capturas de referência em `docs/jam/reference/` | Precisam do Play Mode. |
+| U5 | Compilar cada entrega do B | O B não tem Unity. |
+| U6 | Rodar `Tools/Jam/Create Default Data` e commitar os assets | Agente sem Unity não cria `.asset` com segurança. |
+| U7 | Montar a cena e os prefabs (T14) | Só o MEGABRAIN edita `Gameplay.unity`, e só pelo Editor. |
+| U8 | Playtest (T15) | Play Mode. |
+
+### Antes de colar
+
+1. No PC com o Unity, a pasta principal do projeto tem que estar na branch `jam` e atualizada: `git fetch`, `git switch jam`, `git pull`.
+2. O projeto tem que estar aberto no Unity **6000.6.7f1**. Não abra em outra versão: o Unity reimporta e altera arquivos do projeto.
+3. Para a U3, o 6000.6.7f1 precisa do módulo Web: Unity Hub → Installs → engrenagem do 6000.6.7f1 → Add modules → Web Build Support.
+
+Depois, terminal na pasta principal, `claude`, e colar:
+
+````
+Você é o MEGABRAIN, diretor técnico da game jam "Defesa Civil Game". Leia `docs/jam/MEGABRAIN.md` inteiro (é o seu master prompt: autoridade, regras e contexto) e depois, de `docs/jam/`: `GDD.md`, `ARCHITECTURE.md`, `AGENTS.md`, `TASKS.md`, `DECISIONS.md`, `PROMPTS_PRONTOS.md`, `STATUS_B.md` e `STATUS_C.md`. Uma sessão anterior sua, num PC sem o Unity, já fez a parte de git, a correção T01, a revisão do GDD e do TASKS e os prompts de B e C. Não refaça nada disso. Você está agora no PC com o Unity 6000.6.7f1 aberto no projeto, na branch `jam`. Execute sozinho, na ordem, e só pare se algo exigir uma ação minha.
+
+1. `git status` e `git pull`. Tem que estar na `jam`, sem mudança pendente. Se houver mudança pendente, me mostre antes de seguir.
+
+2. U1 — MCP do Unity: faça uma chamada real e me diga o nome da cena aberta e os filhos do GameObject `Scripts`. Se não responder, rode `claude mcp list`, diagnostique (Editor fechado, projeto errado, pacote faltando) e me diga exatamente o que fazer. Sem o MCP, pare aqui.
+
+3. Console do Unity: sem erros de compilação. Se houver, corrija só o necessário e liste o que mudou.
+
+4. U2 — build Windows de desenvolvimento em `Builds/Windows/`. Se falhar por código de Editor em runtime, corrija só o necessário (pasta `Editor/` ou `#if UNITY_EDITOR`) e liste. Abra o executável e confira que a cidade aparece. Marque a U2 no `TASKS.md`.
+
+5. U4 — capturas de referência, em Play Mode, salvas em `docs/jam/reference/`: `01_hud_inicial.png`, `02_casa_danificada.png` (use o botão `Break` ou `GenerateCall` do Odin numa casa), `03_escolha_base.png`, `04_aba_despacho.png`, `05_trabalhadores_andando.png`, `06_progresso.png`, `07_pronto_para_coletar.png`, `08_aba_upgrades.png`. Não salve a cena. Aproveite o Play para conferir duas suspeitas da leitura do código e anote o resultado no `TASKS.md`: B16 (o painel de informação do Armazém mostra o texto certo?) e B14 (abrir um segundo chamado enquanto a primeira equipe ainda sai da base trava a casa?). Leia também, no Inspector, o `speed` do `GPS` e o `workTime` do `House.prefab`, e atualize a seção 13 do `GDD.md` se forem diferentes do que está lá.
+
+6. U3 — build WebGL de fumaça em `Builds/WebGL/`. Não mexa nos `.meta` dos sprites. Se o módulo Web não estiver instalado, me avise e siga para o passo 7. Se o build sair: sirva localmente, abra no navegador e meça tempo de carga, FPS com a câmera parada e FPS com a câmera em movimento. Registre os números e o go/no-go em `docs/jam/DECISIONS.md`, pelo critério "WebGL: critério de go/no-go" que já está lá.
+
+7. Commit (só `docs/jam/` e o que você corrigiu, com os `.meta`) e `git push`. Mensagens em português.
+
+8. Entre na rotina de integração, que vem antes de qualquer trabalho seu:
+   - `git fetch`; `git merge --no-ff origin/jam-sistemas`; `git merge --no-ff origin/jam-feel`. Conflito em `.unity`, `.prefab` ou `.asset`: pare e me mostre.
+   - U5: espere compilar. Erro de compilação do Agente B (ele trabalha sem Unity): escreva o erro exato, com arquivo e linha, em "Pedidos entre agentes" no `TASKS.md`; se for trivial (um `using`, um nome trocado), corrija você mesmo na `jam` e avise lá.
+   - U6: se existir o menu `Tools/Jam/Create Default Data`, rode e commite os `.asset` com os `.meta`.
+   - U7: leia `STATUS_B.md` e `STATUS_C.md` e atenda os pedidos de cena e de prefab; passe o status das tarefas deles para o `TASKS.md`.
+   - Play Mode: jogue o loop, capture uma tela, liste bugs em "Pedidos entre agentes" com o agente de destino.
+   - Salve a cena, commit, push.
+
+9. Relatório curto para mim: resultado do MCP, dos dois builds e das medições; o que entrou na `jam`; decisões que você tomou e por quê; e o que você precisa de mim (prompts para colar em B ou C, arte, playtest).
+
+Regras: nunca reescrever histórico nem force push; nada na `main` antes da entrega; não alterar `CameraController.cs`; não regerar a cidade; nunca commitar chaves. Tudo em português.
+````

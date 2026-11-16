@@ -91,6 +91,11 @@ Feita lendo os docs e o código, sem abrir o Editor (o PC desta sessão não tem
 - Envio negado não tem resposta nenhuma (B17).
 - A fonte `ModernDOS` tem todos os acentos do português (207 caracteres no asset). — tira o risco de texto com quadradinhos.
 
+**O que ficou para o PC com o Unity**
+- MCP (U1), build Windows de fumaça (U2), build WebGL com medição (U3), capturas de referência (U4), compilação das entregas do B (U5), menu de dados (U6), cena (U7) e playtest (U8). Lista no `TASKS.md`, prompt em `PROMPTS_PRONTOS.md`, seção 5. — o PC da sessão só tem o Unity 6000.0 e 6000.4; abrir o projeto numa versão diferente reimporta e altera arquivos.
+- A T01 está conferida por varredura do código, não por build. Só a U2 prova que o jogador compila.
+- O MCP do Unity, neste PC, respondeu `No Pipeline instance found for project: C:\UnityProjects\My project (1)`: apontava para outro projeto e não havia Editor aberto com o pacote. No PC com o Unity, a primeira chamada tem que devolver a cena `Gameplay`.
+
 **WebGL: critério de go/no-go (para a U3)**
 - Go: carrega em até 20 s servido localmente, 50 FPS ou mais com a câmera parada e 40 ou mais com a câmera em movimento no PC do usuário, sem erro no console do navegador.
 - No-go no Dia 1 não cancela: repetir a medição no fim do Dia 2 (T32). Windows é a entrega garantida.
