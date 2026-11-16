@@ -1,5 +1,7 @@
 using Sirenix.OdinInspector;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 public class WaypointCreator : MonoBehaviour
