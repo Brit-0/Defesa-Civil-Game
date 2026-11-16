@@ -2,26 +2,66 @@
 
 Só o Agente C edita este arquivo. O MEGABRAIN lê a cada integração, atende os pedidos na cena e passa o status para o `TASKS.md`.
 
+**Sessão de 16/11 feita sem o Unity** (o 6000.6.7f1 não estava instalado no PC; a instalação pelo Hub falhou com "The install destination was invalid or missing"). Nada aqui rodou em Play Mode. O que foi conferido e o que falta está em "Pendente até o Unity abrir".
+
 ## Tarefas
 
 Formato: `- [x] T10 — o que entrou, hash do commit`
 
-_(vazio)_
+- [x] T10 — `Tweener`: um tween de escala por instância (mata só o próprio), sem IDs globais de texto; tempos em campos do Inspector com os valores antigos; roda com o jogo pausado. Métodos públicos iguais (`HoverEnter`, `HoverExit`, `Hold`, `Release`). `1e88c98`. Falta o teste no Play.
+- [x] T13 — `AudioManager` (pool de 12 AudioSources, `PlaySfx(clip, volume, variação de pitch)`, música em 2 camadas com `SetTension(0..1)`, loops de ambiente com `SetLoop`), 18 sons em `Assets/Audio/` com os nomes finais e o menu `Tools/Jam/Create Feel Prefabs`, que monta o `AudioManager.prefab`. `e4d6f2f` (código) e `510db65` (sons). Falta rodar o menu e o teste no Play.
 
 ## Pedidos ao MEGABRAIN
 
 O que criar e ligar na cena e nos prefabs. Formato: `- [ ] objeto ou prefab, componente, cada campo e para onde aponta — por quê`
 
-_(vazio)_
+- [ ] Rodar `Tools/Jam/Create Feel Prefabs` uma vez e commitar os `.prefab` criados com os `.meta` — os prefabs do C não foram escritos à mão; o menu monta cada um com os campos já ligados e não sobrescreve prefab que já existe (para refazer: `Tools/Jam/Recreate Feel Prefabs`).
+- [ ] `Assets/Systems/Audio/AudioManager.prefab` em `Scripts/` (raiz da cena também serve) — nenhum campo para ligar: os clipes entram por nome a partir de `Assets/Audio/`. Ele se solta do pai e fica vivo entre recargas da cena (`persistAcrossReload`), para a música não cortar no Reiniciar. Sem o prefab: GameObject vazio + componente `AudioManager` dá no mesmo (o `Reset` liga os clipes; ou menu de contexto "Preencher clipes de Assets/Audio").
+- [ ] Depois de importar os sons, conferir em `Assets/Audio/` que `Music_Calm` e `Music_Tense` ficaram com Load Type "Compressed In Memory" (ou Streaming no Windows) e os `Sfx_*` com "Decompress On Load" — os `.meta` foram escritos só com o GUID; o Unity completa com o padrão ao importar.
 
 ## Sons provisórios
 
 Formato: `- arquivo — origem (link) — licença`
 
-_(vazio)_
+**Mudança do Pietro em 16/11:** em vez de sons CC0, usar o pacote pago dele, **Gamemaster Audio - Pro Sound Collection v1.3 (16bit 48k)**, em `C:\Users\PIETRO\Projetos\sons-gamemaster\`. Licença: a do pacote comprado (uso em jogos; os arquivos soltos não podem ser redistribuídos). O repositório é privado; **se um dia ficar público, tirar `Assets/Audio/` do histórico ou trocar os sons**. Todos foram escolhidos pelo nome e por medida (duração, pico, energia entre 300 Hz e 5 kHz), não por escuta.
+
+Efeitos convertidos para mono, 44,1 kHz, 16 bit; música e ambiente em Ogg Vorbis estéreo. Pasta inteira: 4,0 MB.
+
+| Arquivo | Origem no pacote | Ajuste |
+|---|---|---|
+| `Sfx_Click.wav` | `User_Interface_Menu/ui_button_simple_click_02.wav` | — |
+| `Sfx_Hover.wav` | `User_Interface_Menu/ui_button_simple_click_06.wav` | — |
+| `Sfx_Dispatch.wav` | `User_Interface_Menu/ui_menu_button_confirm_02.wav` | — |
+| `Sfx_Hammer.wav` | `Metal/metal_hit_small_04.wav` | — |
+| `Sfx_Repaired.wav` | `Collectibles_Items_Powerup/chime_bell_positive_ring_01.wav` | — |
+| `Sfx_Coin.wav` | `Collectibles_Items_Powerup/collect_coin_05.wav` | — |
+| `Sfx_Buy.wav` | `Collectibles_Items_Powerup/cash_register_open_coins_cha_ching_01.wav` | — |
+| `Sfx_Error.wav` | `User_Interface_Menu/ui_menu_button_error_06.wav` | — |
+| `Sfx_Siren.wav` | `Alarms_Beeps_Siren/alarm_siren_loop_01.wav` | cortado em 3,0 s com fade no fim |
+| `Sfx_Earthquake.wav` | `Impacts_Smashable/rock_earthquake_impact_01.wav` | cortado em 3,6 s com fade no fim |
+| `Sfx_Thunder.wav` | `Animals_Nature_Ambiences/thunder_lightning_strike_rumble_01.wav` | cortado em 4,5 s com fade no fim |
+| `Sfx_Extinguish.wav` | `Explosion_Fire_Gas/fuse_stop_burn_out_bomb_dynamite_01.wav` | — |
+| `Sfx_Victory.wav` | `Collectibles_Items_Powerup/jingle_chime_06_positive.wav` | — |
+| `Sfx_Defeat.wav` | `Collectibles_Items_Powerup/game_over_dark_bell_chime_01.wav` | — |
+| `Amb_Rain.ogg` | `Animals_Nature_Ambiences/rain_medium_loop_01.wav` | loop de 6 s |
+| `Amb_Fire.ogg` | `Explosion_Fire_Gas/fire_burning_flames_crackle_loop_02.wav` | loop de 8 s |
+| `Music_Calm.ogg` | `zzzBonus_Music_16bit44kOnlyzzz/music_calm_green_lake_serenade.wav` | 92 s, nivelada a -18 LUFS |
+| `Music_Tense.ogg` | `zzzBonus_Music_16bit44kOnlyzzz/music_cinematic_darkness_falls.wav` | 48 s, nivelada a -18 LUFS |
+
+As duas músicas são faixas diferentes (o pacote não tem a mesma base em versão calma e tensa), então não têm o mesmo andamento: o `SetTension` cruza o volume das duas. Para a música final de ART_REQUESTS.md basta trocar os dois arquivos.
 
 ## Dúvidas para o MEGABRAIN
 
 Formato: `- [ ] pergunta — o que eu assumi para seguir trabalhando`
 
-_(vazio)_
+- [ ] Os prefabs do C podem nascer de um menu de Editor, em vez de virem prontos no commit? — assumi que sim: sem o Unity não dá para criar `.prefab` com segurança, e é o mesmo padrão do `Tools/Jam/Create Default Data` do B. Os componentes também funcionam sem prefab (acham o que precisam sozinhos).
+
+## Pendente até o Unity abrir
+
+Conferido sem o Unity: os scripts do C compilam junto com os de `Assets/Systems` e `Assets/SO` no compilador do Unity 6000.4.6f1 (Roslyn, C# 9, mesmas DLLs de UnityEngine, UI, TextMeshPro, Input System, URP, DOTween e Odin), em dois modos: jogador (sem `UnityEditor`) e Editor. Isso pega erro de tipo e de nome; não pega nada de importação, de cena nem de comportamento.
+
+- [ ] Abrir o projeto no 6000.6.7f1 e confirmar console sem erros (a API pode ter mudado entre o 6000.4 e o 6000.6).
+- [ ] Rodar `Tools/Jam/Create Feel Prefabs` e commitar os prefabs.
+- [ ] Testar cada tarefa no Play pelo critério de pronto dela e salvar as capturas em `docs/jam/reference/feel/` (regra 12): nenhuma captura foi feita.
+- [ ] T10: passar o mouse rápido por várias casas e conferir que nenhuma outra pula nem trava em escala errada.
+- [ ] T13: botão `DebugPlayAllSfx` do `AudioManager` (Odin, em Play) toca os 14 efeitos em fila; `DebugSetTension` com 0 e 1 cruza as músicas. Ouvir os sons: foram escolhidos sem escuta.
