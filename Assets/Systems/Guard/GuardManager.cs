@@ -1,14 +1,16 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using static UnityEngine.InputSystem.InputAction;
 
 [System.Serializable]
-public class Call 
+public class Call
 {
     public House house;
     public int workersNeeded = 1;
     public int workersSent;
+    public int materialSpent;
     public CallType type;
     public CityGuard guard;
 }
@@ -26,8 +28,6 @@ public class GuardManager : MonoBehaviour
     private CityGuard selectedGuard;
     private Call currentCall;
 
-    public int moneyPerCall = 10;
-    
     public static bool selectBaseMode;
 
     [Header("WORKERS")]
@@ -48,21 +48,76 @@ public class GuardManager : MonoBehaviour
     [Header("CALL")]
     [SerializeField] private GameObject callTab;
 
+    // Segundos de partida até o próximo despacho automático.
+    private float autoDispatchCountdown;
+
     private void Awake()
     {
         Instance = this;
     }
 
+    private void OnEnable()
+    {
+        GameEvents.UpgradePurchased += OnUpgradePurchased;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.UpgradePurchased -= OnUpgradePurchased;
+    }
+
+    private void Update()
+    {
+        TickAutoDispatch();
+    }
+
+    #region CALL FLOW
+
     public void OpenCall(Call call)
     {
+        if (call == null || call.house == null || call.house.HasTeam) return;
+
         currentCall = call;
-        selectBaseMode = true;
-        FeedbacksManager.ShowText("Escolha a base encarregada para o chamado");
+        selectedGuard = null;
+        callTab.SetActive(false);
+        GameEvents.RaiseCallOpened(call);
+
+        // Automação 1 (Central de rádio): a base mais próxima da casa é escolhida sozinha.
+        CityGuard nearestGuard = Stats.AutomationLevel >= AutomationLevels.AutoBase ? GetNearestGuard(call.house) : null;
+        if (nearestGuard == null)
+        {
+            selectBaseMode = true;
+            FeedbacksManager.ShowText("Escolha a base encarregada para o chamado");
+            return;
+        }
+
+        // Automação 2 (Protocolo padrão): a equipe sugerida sai num clique. No Armazém o jogador ainda escolhe a equipe.
+        if (Stats.AutomationLevel >= AutomationLevels.AutoTeam && call.type == CallType.Problem)
+        {
+            if (!TrySendTeam(call, nearestGuard, Stats.GetSuggestedTeam(call))) CloseCall();
+            return;
+        }
+
+        SelectBase(nearestGuard);
+    }
+
+    private static CityGuard GetNearestGuard(House house)
+    {
+        return LocationsManager.Instance != null ? LocationsManager.Instance.GetNearestGuard(house.transform.position) : null;
     }
 
     public void CancelCall(CallbackContext context)
     {
+        // O PlayerInput chama em started, performed e canceled: só performed conta (B5).
+        if (!context.performed) return;
+
+        CloseCall();
+    }
+
+    private void CloseCall()
+    {
         currentCall = null;
+        selectedGuard = null;
         selectBaseMode = false;
         FeedbacksManager.HideText();
         callTab.SetActive(false);
@@ -70,6 +125,8 @@ public class GuardManager : MonoBehaviour
 
     public void SelectBase(CityGuard guard)
     {
+        if (currentCall == null) return;
+
         selectBaseMode = false;
         selectedGuard = guard;
         FeedbacksManager.HideText();
@@ -79,27 +136,69 @@ public class GuardManager : MonoBehaviour
 
     public void CallSendTeam()
     {
-        StartCoroutine(SendTeam());
+        TrySendTeam(currentCall, selectedGuard, TeamSize);
     }
 
-    public IEnumerator SendTeam()
+    // Envio: a equipe inteira e o material saem do estoque aqui (GDD, seção 3). Negado dispara ActionDenied.
+    public bool TrySendTeam(Call call, CityGuard guard, int size)
     {
-        if (TeamSize < currentCall.workersNeeded) yield break;
-        if (currentCall.house.currentState == State.Damaged && currentCall.house.damageAmount > ResourcesManager.BuildMaterial) yield break;
+        if (call == null || call.house == null || guard == null) return false;
 
-        callTab.SetActive(false);
-        Call callForReference = currentCall;
-        currentCall = null;
-        callForReference.house.interactable = false;
-        callForReference.workersSent = TeamSize;
-        callForReference.guard = selectedGuard;
-
-        for (int i = 0; i < teamSize; i++)
+        House house = call.house;
+        if (house.HasTeam)
         {
-            Transform newWorker = Instantiate(workerPf, selectedGuard.entry.transform.position, Quaternion.identity, workersParent).transform;
-            ResourcesManager.Workers--;
-            StartCoroutine(GPS.main.FollowPath(newWorker, GPS.main.FindShortestPath(selectedGuard.entry, callForReference.house.entry), callForReference, i == teamSize - 1));
-            yield return new WaitForSeconds(.8f);
+            if (call == currentCall) CloseCall();
+            return false;
+        }
+
+        DeniedReason? denied = GetDeniedReason(call, size);
+        if (denied.HasValue)
+        {
+            GameEvents.RaiseActionDenied(denied.Value, house.transform.position);
+            return false;
+        }
+
+        int materialCost = Stats.GetMaterialCost(call);
+
+        // B10: sem caminho nada é debitado, a casa continua livre e com o chamado aberto.
+        List<Waypoint> path = GPS.main.FindShortestPath(guard.entry, house.entry);
+        if (path == null)
+        {
+            Debug.LogError($"Sem caminho entre {guard.name} e {house.name}: equipe não enviada.");
+            return false;
+        }
+
+        ResourcesManager.Workers -= size;
+        ResourcesManager.BuildMaterial -= materialCost;
+
+        call.workersSent = size;
+        call.materialSpent = materialCost;
+        call.guard = guard;
+        house.AssignTeam();
+
+        if (call == currentCall) CloseCall();
+
+        GameEvents.RaiseTeamDispatched(call);
+        StartCoroutine(SendTeam(call, guard, size, path));
+        return true;
+    }
+
+    // O que impede o envio agora; null quando há gente e material.
+    private static DeniedReason? GetDeniedReason(Call call, int size)
+    {
+        if (size < call.workersNeeded || size > ResourcesManager.Workers) return DeniedReason.NoWorkers;
+        if (Stats.GetMaterialCost(call) > ResourcesManager.BuildMaterial) return DeniedReason.NoMaterial;
+        return null;
+    }
+
+    // Tamanho, base e caminho chegam por parâmetro: abrir outro chamado no meio da saída não muda esta equipe (B14).
+    private IEnumerator SendTeam(Call call, CityGuard guard, int size, List<Waypoint> path)
+    {
+        for (int i = 0; i < size; i++)
+        {
+            Transform newWorker = Instantiate(workerPf, guard.entry.transform.position, Quaternion.identity, workersParent).transform;
+            StartCoroutine(GPS.main.FollowPath(newWorker, path, call, i == size - 1));
+            yield return new WaitForSeconds(Stats.DispatchInterval);
         }
     }
 
@@ -110,17 +209,109 @@ public class GuardManager : MonoBehaviour
 
     public IEnumerator RetrieveTeam(Call call)
     {
-        for (int i = 0; i < call.workersSent; i++)
+        int size = call.workersSent;
+        CityGuard guard = call.guard;
+        House house = call.house;
+
+        List<Waypoint> path = GPS.main.FindShortestPath(house.entry, guard.entry);
+        if (path == null)
         {
-            Transform newWorker = Instantiate(workerPf, call.house.entry.transform.position, Quaternion.identity, workersParent).transform;
-            StartCoroutine(GPS.main.FollowPath(newWorker, GPS.main.FindShortestPath(call.house.entry, call.guard.entry), call, i == teamSize - 1, true));
-            yield return new WaitForSeconds(.8f);
+            Debug.LogError($"Sem caminho de volta entre {house.name} e {guard.name}: equipe devolvida direto ao estoque.");
+            ResourcesManager.Workers += size;
+            yield break;
+        }
+
+        for (int i = 0; i < size; i++)
+        {
+            Transform newWorker = Instantiate(workerPf, house.entry.transform.position, Quaternion.identity, workersParent).transform;
+            StartCoroutine(GPS.main.FollowPath(newWorker, path, call, i == size - 1, true));
+            yield return new WaitForSeconds(Stats.DispatchInterval);
         }
     }
 
+    #endregion
+
+    #region AUTOMATION
+
+    private void OnUpgradePurchased(UpgradeData upgrade, int newLevel)
+    {
+        if (upgrade.id != UpgradeIds.Automation) return;
+
+        // Automação 3 (Coleta automática): o que já estava pronto esperando o clique é coletado na hora da compra.
+        if (newLevel >= AutomationLevels.AutoCollect) CollectAllCompleted();
+    }
+
+    private static void CollectAllCompleted()
+    {
+        if (LocationsManager.Instance == null) return;
+
+        foreach (House house in LocationsManager.Instance.Houses)
+        {
+            if (house.IsComplete) house.ResolveCompletion();
+        }
+        foreach (Warehouse warehouse in LocationsManager.Instance.Warehouses)
+        {
+            if (warehouse.IsComplete) warehouse.ResolveCompletion();
+        }
+    }
+
+    // Automação 4 (Despacho automático): um chamado por vez, no ritmo do BalanceData, enquanto houver gente e material.
+    private void TickAutoDispatch()
+    {
+        if (Stats.AutomationLevel < AutomationLevels.AutoDispatch) return;
+        if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) return;
+
+        autoDispatchCountdown -= Time.deltaTime;
+        if (autoDispatchCountdown > 0f) return;
+
+        autoDispatchCountdown = Stats.Balance.autoDispatchInterval;
+        AutoDispatchNextCall();
+    }
+
+    // Atende o chamado mais urgente que couber no estoque. Falta de gente ou de material não é erro do jogador:
+    // o chamado só espera, sem ActionDenied. O Armazém continua manual.
+    private void AutoDispatchNextCall()
+    {
+        if (LocationsManager.Instance == null) return;
+
+        List<House> waiting = LocationsManager.Instance.GetTroubledHouses();
+        waiting.RemoveAll(house => house.HasTeam || house.currentCall == null || house.currentCall.type != CallType.Problem);
+        waiting.Sort(CompareUrgency);
+
+        foreach (House house in waiting)
+        {
+            Call call = house.currentCall;
+            int size = Stats.GetSuggestedTeam(call);
+            if (GetDeniedReason(call, size).HasValue) continue;
+
+            CityGuard guard = GetNearestGuard(house);
+            if (guard != null && TrySendTeam(call, guard, size)) return;
+        }
+    }
+
+    // Fogo primeiro (o que está mais perto de apagar sozinho); depois os consertos de menor dano, que gastam menos.
+    private static int CompareUrgency(House a, House b)
+    {
+        bool aOnFire = a.currentState == State.OnFire;
+        bool bOnFire = b.currentState == State.OnFire;
+        if (aOnFire != bOnFire) return aOnFire ? -1 : 1;
+
+        return aOnFire ? a.FireTimeLeft01.CompareTo(b.FireTimeLeft01) : a.damageAmount.CompareTo(b.damageAmount);
+    }
+
+    #endregion
+
+    #region TEAM SIZE
+
     public void IncreaseTeamSize()
     {
-        if (TeamSize + 1 > ResourcesManager.Workers) return;
+        if (currentCall == null) return;
+
+        if (TeamSize + 1 > ResourcesManager.Workers)
+        {
+            GameEvents.RaiseActionDenied(DeniedReason.NoWorkers, currentCall.house.transform.position);
+            return;
+        }
         TeamSize++;
     }
 
@@ -129,4 +320,6 @@ public class GuardManager : MonoBehaviour
         if (TeamSize - 1 < 0) return;
         TeamSize--;
     }
+
+    #endregion
 }

@@ -7,7 +7,8 @@ using UnityEngine.UI;
 
 public enum Place { }
 
-public enum State 
+// A cena guarda currentState como número: nunca reordenar nem remover valores (B18).
+public enum State
 {
     Intact,
     PowerOutage,
@@ -28,20 +29,39 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     public bool isEnergized;
     public int damageAmount;
     [SerializeField] private TMP_Text damageAmountLbl;
+    // Ligado pelo HouseFeedback (Agente C): com ele, House não mexe mais na rachadura do shader.
+    public bool externalFeedback;
 
     [Header("CALL")]
     public Call currentCall;
     [SerializeField] private GameObject callDisplay;
-    [SerializeField] private float workTime;
     [SerializeField] private Image progressCircle;
     [SerializeField] private Image progressIcon;
     [SerializeField] private GameObject complete;
+    [SerializeField] private Sprite damagedIcon;
+    [SerializeField] private Sprite fireIcon;
     protected bool isComplete;
+
+    // Equipe a caminho, trabalhando ou esperando a coleta.
+    public bool HasTeam { get; private set; }
+    public bool IsWorking { get; private set; }
+    public bool IsComplete => isComplete;
+
+    // Incêndio (GDD, seção 4): 1 = acabou de pegar fogo, 0 = apagou. Fora de OnFire vale 0.
+    private float fireTimeLeft;
+    public float FireTimeLeft01 => currentState == State.OnFire && Stats.Balance.fireDuration > 0f ? Mathf.Clamp01(fireTimeLeft / Stats.Balance.fireDuration) : 0f;
+
+    static readonly int crackFade = Shader.PropertyToID("_TextureLayer1Fade");
     //static readonly int outlineFade = Shader.PropertyToID("_OuterOutlineFade");
 
-    private void Awake()
+    protected virtual void Awake()
     {
         sprite.material = new(sprite.material);
+    }
+
+    protected virtual void Update()
+    {
+        TickFire();
     }
 
     public void Energize()
@@ -54,9 +74,12 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
     }
 
-    
-
     #region INTERFACES
+
+    protected bool CanClick(PointerEventData eventData)
+    {
+        return eventData.button == PointerEventData.InputButton.Left && interactable && !GameManager.InputBlocked;
+    }
 
     public void OnPointerDown(PointerEventData eventData)
     {
@@ -84,7 +107,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
     public virtual void OnPointerExit(PointerEventData eventData)
     {
-        if (!interactable) return;
+        // Sai do hover mesmo sem poder interagir: a casa pode ter sido travada com o mouse em cima.
         tweener.HoverExit();
         //sprite.GetComponent<Image>().materialForRendering.SetFloat(outlineFade, 0f);
         //GPS.main.ResetPath();
@@ -92,7 +115,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
     public virtual void OnPointerClick(PointerEventData eventData)
     {
-        if (eventData.button != PointerEventData.InputButton.Left || !interactable) return;
+        if (!CanClick(eventData)) return;
 
         if (isComplete)
         {
@@ -100,7 +123,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
             return;
         }
 
-        if (currentState != State.Intact)
+        if (currentState != State.Intact && !HasTeam)
         {
             GuardManager.Instance.OpenCall(currentCall);
         }
@@ -113,32 +136,36 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     [Button]
     public void GenerateCall()
     {
-        Call newCall = new()
+        ApplyProblem(State.Damaged, Stats.GetRandomDamage());
+    }
+
+    [Button]
+    public void GenerateFire()
+    {
+        ApplyProblem(State.OnFire, 0);
+    }
+
+    // Único jeito de uma casa ganhar problema. Só age em casa comum e intacta (GDD, seção 4).
+    public bool ApplyProblem(State problem, int severity)
+    {
+        if (this is Location) return false;
+        if (currentState != State.Intact) return false;
+        if (problem != State.Damaged && problem != State.OnFire) return false;
+
+        damageAmount = problem == State.Damaged ? Mathf.Max(Stats.MinDamage, severity) : 0;
+        fireTimeLeft = problem == State.OnFire ? Stats.Balance.fireDuration : 0f;
+        currentCall = new()
         {
             house = this,
             type = CallType.Problem
         };
+        HasTeam = false;
+        IsWorking = false;
+        isComplete = false;
 
-        State problem = (State)Random.Range(1, 4);
-
-        switch (problem)
-        {
-            case State.Intact:
-                return;
-            case State.PowerOutage:
-                break;
-            case State.Damaged:
-                Break();
-                break;
-            case State.OnFire:
-                break;
-            default:
-                break;
-        }
-
-        currentState = problem;
-        currentCall = newCall;
+        SetState(problem);
         ShowCall();
+        return true;
     }
 
     private void ShowCall()
@@ -146,72 +173,109 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         callDisplay.SetActive(true);
     }
 
-    public void StartWorking()
+    // Chamado pelo GuardManager quando a equipe é enviada.
+    public void AssignTeam()
     {
-        callDisplay.SetActive(false);
-        progressCircle.fillAmount = 0f;
-        progressIcon.sprite = GetIconByCallType(currentCall);
-        progressCircle.gameObject.SetActive(true);
-        progressCircle.DOFillAmount(1f, workTime).SetEase(Ease.Linear).OnComplete(() =>
-        {
-            isComplete = true;
-            interactable = true;
-            progressCircle.gameObject.SetActive(false);
-            complete.SetActive(true);
-        });
+        HasTeam = true;
+        interactable = false;
     }
 
+    public void StartWorking()
+    {
+        if (!TryChargeMissingMaterial())
+        {
+            SendTeamBack();
+            return;
+        }
+
+        IsWorking = true;
+        callDisplay.SetActive(false);
+        progressCircle.fillAmount = 0f;
+        Sprite icon = GetIconByCallType(currentCall);
+        progressIcon.sprite = icon;
+        progressIcon.enabled = icon != null;
+        progressCircle.gameObject.SetActive(true);
+        GameEvents.RaiseWorkStarted(currentCall);
+        progressCircle.DOFillAmount(1f, Stats.GetWorkTime(currentCall)).SetEase(Ease.Linear).SetLink(gameObject).OnComplete(CompleteWork);
+    }
+
+    private void CompleteWork()
+    {
+        IsWorking = false;
+        isComplete = true;
+        interactable = true;
+        progressCircle.gameObject.SetActive(false);
+        complete.SetActive(true);
+        GameEvents.RaiseWorkCompleted(currentCall);
+
+        // Automação 3 (Coleta automática): a recompensa entra sozinha. Vale também para o Armazém.
+        if (Stats.AutomationLevel >= AutomationLevels.AutoCollect && !GameManager.InputBlocked) ResolveCompletion();
+    }
+
+    // Coleta. O material já saiu do estoque no envio, então a casa sempre é consertada.
     public void ResolveCompletion()
     {
-        complete.SetActive(false);
+        if (!isComplete) return;
 
-        switch (currentCall.type)
+        isComplete = false;
+        complete.SetActive(false);
+        callDisplay.SetActive(false);
+
+        Call call = currentCall;
+        int moneyEarned = 0;
+
+        switch (call.type)
         {
             case CallType.Problem:
-                switch (currentState)
-                {
-                    case State.Intact:
-                        break;
-                    case State.PowerOutage:
-                        break;
-                    case State.Damaged:
-                        if (ResourcesManager.BuildMaterial >= damageAmount)
-                        {
-                            ResourcesManager.BuildMaterial -= damageAmount;
-                            Repair();
-                        }
-                        break;
-                    case State.OnFire:
-                        break;
-                    default:
-                        break;
-                }
-                ResourcesManager.Money += GuardManager.Instance.moneyPerCall;
+                moneyEarned = Stats.GetReward(call);
+                SetState(State.Intact);
+                ResourcesManager.Money += moneyEarned;
                 break;
             case CallType.Restock:
-                ResourcesManager.BuildMaterial += currentCall.workersSent;
+                ResourcesManager.BuildMaterial += call.workersSent * Stats.MaterialPerWorker;
                 break;
             default:
                 break;
         }
 
-        callDisplay.SetActive(false);
+        HasTeam = false;
+        GuardManager.Instance.CallRetrieveTeam(call);
+        GameEvents.RaiseCallResolved(call, moneyEarned);
+        OnCallResolved();
+    }
+
+    protected virtual void OnCallResolved()
+    {
+
+    }
+
+    // O fogo apagou sozinho com a equipe a caminho: a casa virou Damaged e o conserto passa a gastar material, cobrado na chegada.
+    private bool TryChargeMissingMaterial()
+    {
+        int missingMaterial = Stats.GetMaterialCost(currentCall) - currentCall.materialSpent;
+        if (missingMaterial <= 0) return true;
+        if (missingMaterial > ResourcesManager.BuildMaterial) return false;
+
+        ResourcesManager.BuildMaterial -= missingMaterial;
+        currentCall.materialSpent += missingMaterial;
+        return true;
+    }
+
+    // Sem material para o conserto: a equipe volta para a base e o chamado fica aberto de novo.
+    private void SendTeamBack()
+    {
+        HasTeam = false;
+        interactable = true;
+        ShowCall();
+        GameEvents.RaiseActionDenied(DeniedReason.NoMaterial, transform.position);
         GuardManager.Instance.CallRetrieveTeam(currentCall);
-        isComplete = false;
     }
 
     private Sprite GetIconByCallType(Call call)
     {
         return call.type switch
         {
-            CallType.Problem => currentState switch
-            {
-                State.Intact => null,
-                State.PowerOutage => null,
-                State.Damaged => null,
-                State.OnFire => null,
-                _ => null,
-            },
+            CallType.Problem => currentState == State.OnFire ? fireIcon : damagedIcon,
             CallType.Restock => ResourcesManager.Instance.materialIcon,
             _ => null,
         };
@@ -219,23 +283,48 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
     #endregion
 
-    #region STATES
+    #region FIRE
 
-    [Button]
-    public void Break()
+    // O temporizador só para com a equipe trabalhando no local (ou com o fogo já apagado, esperando a coleta).
+    private void TickFire()
     {
-        currentState = State.Damaged;
-        damageAmount = Random.Range(1, 4);
-        damageAmountLbl.text = damageAmount.ToString();
-        damageAmountLbl.gameObject.SetActive(true);
-        sprite.material.SetFloat("_TextureLayer1Fade", 1f);
+        if (currentState != State.OnFire || IsWorking || isComplete) return;
+        if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) return;
+
+        fireTimeLeft -= Time.deltaTime;
+        if (fireTimeLeft <= 0f) BurnOut();
     }
 
-    public void Repair()
+    // Fogo ignorado apaga sozinho e deixa a casa danificada. O chamado continua o mesmo.
+    private void BurnOut()
     {
-        currentState = State.Intact;
-        damageAmountLbl.gameObject.SetActive(false);
-        sprite.material.SetFloat("_TextureLayer1Fade", 0f);
+        fireTimeLeft = 0f;
+        damageAmount = Stats.Balance.fireBurnoutDamage;
+        SetState(State.Damaged);
+    }
+
+    #endregion
+
+    #region STATES
+
+    // Único lugar que muda currentState.
+    public void SetState(State newState)
+    {
+        State before = currentState;
+        if (before == newState) return;
+
+        currentState = newState;
+        if (newState == State.Intact) damageAmount = 0;
+        RefreshStateVisual();
+        GameEvents.RaiseHouseStateChanged(this, before, newState);
+    }
+
+    private void RefreshStateVisual()
+    {
+        bool isDamaged = currentState == State.Damaged;
+        damageAmountLbl.text = damageAmount.ToString();
+        damageAmountLbl.gameObject.SetActive(isDamaged);
+        if (!externalFeedback) sprite.material.SetFloat(crackFade, isDamaged ? 1f : 0f);
     }
 
     #endregion
