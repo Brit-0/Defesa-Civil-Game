@@ -1,6 +1,7 @@
 using UnityEngine;
 
-// Todos os números de balanceamento do jogo. Os valores padrão são os da seção 13 do GDD (PLACEHOLDER até o T25).
+// Todos os números de balanceamento do jogo. Partiram da seção 13 do GDD e foram calibrados no T25 pelo simulador
+// docs/jam/sim (16/11): os que mudaram têm o valor do GDD no comentário. A calibragem final é com partida jogada.
 // Asset em Assets/Resources/Balance/BalanceData.asset, criado por Tools/Jam/Create Default Data e lido por Stats.
 [CreateAssetMenu(fileName = "BalanceData", menuName = "Scriptable Objects/BalanceData")]
 public class BalanceData : ScriptableObject
@@ -11,7 +12,7 @@ public class BalanceData : ScriptableObject
     public int startMoney = 0;
 
     [Header("WORKERS")]
-    public float workerSpeed = 1f;
+    public float workerSpeed = 2.5f; // GDD: 1 (a caminhada pela rua até uma casa é de 27 unidades na mediana)
     [Tooltip("Segundos entre um trabalhador e outro ao sair da base.")]
     public float dispatchInterval = 0.8f;
     [Tooltip("Material que cada trabalhador traz do Armazém.")]
@@ -26,11 +27,11 @@ public class BalanceData : ScriptableObject
     [Tooltip("Tempo para apagar um incêndio, dividido pela equipe, com o mesmo mínimo.")]
     public float fireWorkTime = 4f;
     [Tooltip("Tempo fixo de uma ida ao Armazém.")]
-    public float restockTime = 5f;
+    public float restockTime = 3f; // GDD: 5
 
     [Header("REWARD")]
-    public int moneyPerDamage = 10;
-    public int fireReward = 15;
+    public int moneyPerDamage = 15; // GDD: 10
+    public int fireReward = 20; // GDD: 15
 
     [Header("DAMAGE")]
     public int minDamage = 1;
@@ -46,7 +47,7 @@ public class BalanceData : ScriptableObject
     public float chaosWeightDamaged = 1f;
     public float chaosWeightFire = 2f;
     [Tooltip("Soma dos pesos que enche a barra de caos.")]
-    public float chaosLimit = 20f;
+    public float chaosLimit = 22f; // GDD: 20
     public float chaosRisePerSecond = 0.06f;
     public float chaosFallPerSecond = 0.10f;
 
@@ -54,12 +55,12 @@ public class BalanceData : ScriptableObject
     public float firstDisasterDelay = 6f;
     public int firstDisasterHouses = 2;
     [Tooltip("Intervalo entre desastres: cai em linha reta de Start a End ao longo de disasterRampDuration.")]
-    public float disasterIntervalStart = 35f;
-    public float disasterIntervalEnd = 12f;
-    public float disasterRampDuration = 600f;
+    public float disasterIntervalStart = 45f; // GDD: 35
+    public float disasterIntervalEnd = 20f; // GDD: 12
+    public float disasterRampDuration = 780f; // GDD: 600
     [Tooltip("Casas por desastre, na mesma rampa.")]
     public int disasterHousesStart = 3;
-    public int disasterHousesEnd = 9;
+    public int disasterHousesEnd = 6; // GDD: 9
     public float warningTime = 3f;
 
     [Header("DISASTER TYPES")]

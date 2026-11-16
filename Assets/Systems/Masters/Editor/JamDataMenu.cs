@@ -42,14 +42,15 @@ public static class JamDataMenu
         CreateDisaster("Fire", "fire", DisasterType.Fire, "Incêndio", overwrite, ref created, ref updated);
 
         // Tabela da seção 7 do GDD: asset, id, nome, descrição, ordem, níveis, custo base, crescimento, efeito por nível.
+        // Calibrados no T25 pelo simulador docs/jam/sim (GDD: Cart 60, Automation 150 e 2,6, Income 200, Goal 5.000).
         CreateUpgrade("Workers", UpgradeIds.Workers, "Contratar trabalhador", "+1 trabalhador", 0, 12, 30, 1.45f, 1f, overwrite, ref created, ref updated);
         CreateUpgrade("Speed", UpgradeIds.Speed, "Botas de corrida", "+12% de velocidade de caminhada", 1, 8, 25, 1.5f, 0.12f, overwrite, ref created, ref updated);
         CreateUpgrade("Tools", UpgradeIds.Tools, "Ferramentas melhores", "-10% de tempo de trabalho", 2, 8, 40, 1.5f, 0.1f, overwrite, ref created, ref updated);
-        CreateUpgrade("Cart", UpgradeIds.Cart, "Carrinho de mão", "+1 material por trabalhador no Armazém", 3, 4, 60, 1.8f, 1f, overwrite, ref created, ref updated);
+        CreateUpgrade("Cart", UpgradeIds.Cart, "Carrinho de mão", "+1 material por trabalhador no Armazém", 3, 4, 25, 1.8f, 1f, overwrite, ref created, ref updated);
         CreateUpgrade("Reward", UpgradeIds.Reward, "Seguro municipal", "+25% de dinheiro por conserto", 4, 10, 50, 1.55f, 0.25f, overwrite, ref created, ref updated);
-        CreateUpgrade("Automation", UpgradeIds.Automation, "Automação", "Cada nível tira um passo do despacho: base automática, equipe automática, coleta automática e despacho automático.", 5, 4, 150, 2.6f, 1f, overwrite, ref created, ref updated);
-        CreateUpgrade("Income", UpgradeIds.Income, "Repasse da Prefeitura", "A Prefeitura paga por casa intacta de tempos em tempos. Paga menos quando o caos está alto.", 6, 5, 200, 2f, 1f, overwrite, ref created, ref updated);
-        CreateUpgrade("Goal", UpgradeIds.Goal, "Centro de Operações", "Objetivo final: a cidade ganha uma central de Defesa Civil. Comprar é vencer.", 8, 1, 5000, 1f, 0f, overwrite, ref created, ref updated);
+        CreateUpgrade("Automation", UpgradeIds.Automation, "Automação", "Cada nível tira um passo do despacho: base automática, equipe automática, coleta automática e despacho automático.", 5, 4, 80, 2f, 1f, overwrite, ref created, ref updated);
+        CreateUpgrade("Income", UpgradeIds.Income, "Repasse da Prefeitura", "A Prefeitura paga por casa intacta de tempos em tempos. Paga menos quando o caos está alto.", 6, 5, 150, 2f, 1f, overwrite, ref created, ref updated);
+        CreateUpgrade("Goal", UpgradeIds.Goal, "Centro de Operações", "Objetivo final: a cidade ganha uma central de Defesa Civil. Comprar é vencer.", 8, 1, 2500, 1f, 0f, overwrite, ref created, ref updated);
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
