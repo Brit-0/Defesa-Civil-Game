@@ -94,6 +94,8 @@ Nada disto pôde ser feito na sessão de 16/11, porque o PC dela não tem o Unit
 | [ ] | U7 | Cena e prefabs (é o T14): GameObjects dos managers novos em `Scripts/`, `ChaosBar` e `EndScreen` no `UICanvas`, esconder o Kit do HUD, desligar a ação do Tab, `HouseFeedback` no `House.prefab`, campos do `UpgradeButton.prefab`, e o que estiver em `STATUS_B.md` e `STATUS_C.md`. | Depois do T03–T13 | `jam` roda o loop completo no Play. |
 | [ ] | U8 | Play Mode: playtest de 10 minutos (T15). Conferir de propósito o B14 (abrir um segundo chamado enquanto a primeira equipe ainda sai da base) e o B16 (painel de informação do Armazém). | Depois da U7 | Lista de bugs em "Pedidos entre agentes". |
 
+**Atenção antes da U7: branch `pc-felipe`.** Apareceu no remoto em 16/11 uma branch fora do combinado, saída da `main` (commit `2bb4426`, 09:10, "Removed wrong tree sprites"), que altera `Gameplay.unity` e apaga sprites de árvore. A `jam` ainda não tocou na cena: integrada agora, entra sem conflito; integrada depois da U7, vira conflito de cena. Não foi integrada na sessão sem Unity porque não dá para conferir a cena sem o Editor. Fazer no passo 3b do prompt do MEGABRAIN no Unity, e avisar quem usa essa branch que cena só se edita na `jam`.
+
 ## Pedidos entre agentes
 
 - Do B para o MEGABRAIN: `STATUS_B.md`. Do C para o MEGABRAIN: `STATUS_C.md`.

@@ -96,6 +96,8 @@ Feita lendo os docs e o código, sem abrir o Editor (o PC desta sessão não tem
 - A T01 está conferida por varredura do código, não por build. Só a U2 prova que o jogador compila.
 - O MCP do Unity, neste PC, respondeu `No Pipeline instance found for project: C:\UnityProjects\My project (1)`: apontava para outro projeto e não havia Editor aberto com o pacote. No PC com o Unity, a primeira chamada tem que devolver a cena `Gameplay`.
 
+- Branch `pc-felipe` (commit `2bb4426`, saída da `main`, altera `Gameplay.unity` e apaga sprites de árvore): integrar na `jam` antes de qualquer edição de cena, no PC com o Unity, conferindo que a cena abre. Não integrada às cegas nesta sessão. — é trabalho de outra pessoa na cena, fora das branches da jam; ignorar vira conflito de cena, e integrar sem abrir o Editor pode quebrar referências sem ninguém ver.
+
 **WebGL: critério de go/no-go (para a U3)**
 - Go: carrega em até 20 s servido localmente, 50 FPS ou mais com a câmera parada e 40 ou mais com a câmera em movimento no PC do usuário, sem erro no console do navegador.
 - No-go no Dia 1 não cancela: repetir a medição no fim do Dia 2 (T32). Windows é a entrega garantida.
