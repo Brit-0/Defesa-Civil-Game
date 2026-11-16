@@ -70,6 +70,18 @@ public static class Stats
 
     #endregion
 
+    #region CHAOS
+
+    // Peso de uma casa no caos: intacta não pesa; em chamas pesa mais que danificada.
+    public static float GetChaosWeight(State state)
+    {
+        if (state == State.Intact) return 0f;
+
+        return state == State.OnFire ? Balance.chaosWeightFire : Balance.chaosWeightDamaged;
+    }
+
+    #endregion
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
     {
