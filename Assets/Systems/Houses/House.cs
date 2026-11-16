@@ -47,12 +47,21 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     public bool IsWorking { get; private set; }
     public bool IsComplete => isComplete;
 
+    // Incêndio (GDD, seção 4): 1 = acabou de pegar fogo, 0 = apagou. Fora de OnFire vale 0.
+    private float fireTimeLeft;
+    public float FireTimeLeft01 => currentState == State.OnFire && Stats.Balance.fireDuration > 0f ? Mathf.Clamp01(fireTimeLeft / Stats.Balance.fireDuration) : 0f;
+
     static readonly int crackFade = Shader.PropertyToID("_TextureLayer1Fade");
     //static readonly int outlineFade = Shader.PropertyToID("_OuterOutlineFade");
 
     protected virtual void Awake()
     {
         sprite.material = new(sprite.material);
+    }
+
+    protected virtual void Update()
+    {
+        TickFire();
     }
 
     public void Energize()
@@ -130,6 +139,12 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         ApplyProblem(State.Damaged, Stats.GetRandomDamage());
     }
 
+    [Button]
+    public void GenerateFire()
+    {
+        ApplyProblem(State.OnFire, 0);
+    }
+
     // Único jeito de uma casa ganhar problema. Só age em casa comum e intacta (GDD, seção 4).
     public bool ApplyProblem(State problem, int severity)
     {
@@ -138,6 +153,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         if (problem != State.Damaged && problem != State.OnFire) return false;
 
         damageAmount = problem == State.Damaged ? Mathf.Max(Stats.MinDamage, severity) : 0;
+        fireTimeLeft = problem == State.OnFire ? Stats.Balance.fireDuration : 0f;
         currentCall = new()
         {
             house = this,
@@ -166,6 +182,12 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
     public void StartWorking()
     {
+        if (!TryChargeMissingMaterial())
+        {
+            SendTeamBack();
+            return;
+        }
+
         IsWorking = true;
         callDisplay.SetActive(false);
         progressCircle.fillAmount = 0f;
@@ -227,6 +249,28 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
     }
 
+    // O fogo apagou sozinho com a equipe a caminho: a casa virou Damaged e o conserto passa a gastar material, cobrado na chegada.
+    private bool TryChargeMissingMaterial()
+    {
+        int missingMaterial = Stats.GetMaterialCost(currentCall) - currentCall.materialSpent;
+        if (missingMaterial <= 0) return true;
+        if (missingMaterial > ResourcesManager.BuildMaterial) return false;
+
+        ResourcesManager.BuildMaterial -= missingMaterial;
+        currentCall.materialSpent += missingMaterial;
+        return true;
+    }
+
+    // Sem material para o conserto: a equipe volta para a base e o chamado fica aberto de novo.
+    private void SendTeamBack()
+    {
+        HasTeam = false;
+        interactable = true;
+        ShowCall();
+        GameEvents.RaiseActionDenied(DeniedReason.NoMaterial, transform.position);
+        GuardManager.Instance.CallRetrieveTeam(currentCall);
+    }
+
     private Sprite GetIconByCallType(Call call)
     {
         return call.type switch
@@ -235,6 +279,28 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
             CallType.Restock => ResourcesManager.Instance.materialIcon,
             _ => null,
         };
+    }
+
+    #endregion
+
+    #region FIRE
+
+    // O temporizador só para com a equipe trabalhando no local (ou com o fogo já apagado, esperando a coleta).
+    private void TickFire()
+    {
+        if (currentState != State.OnFire || IsWorking || isComplete) return;
+        if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) return;
+
+        fireTimeLeft -= Time.deltaTime;
+        if (fireTimeLeft <= 0f) BurnOut();
+    }
+
+    // Fogo ignorado apaga sozinho e deixa a casa danificada. O chamado continua o mesmo.
+    private void BurnOut()
+    {
+        fireTimeLeft = 0f;
+        damageAmount = Stats.Balance.fireBurnoutDamage;
+        SetState(State.Damaged);
     }
 
     #endregion

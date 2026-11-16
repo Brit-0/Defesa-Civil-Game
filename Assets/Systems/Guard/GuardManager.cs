@@ -10,6 +10,7 @@ public class Call
     public House house;
     public int workersNeeded = 1;
     public int workersSent;
+    public int materialSpent;
     public CallType type;
     public CityGuard guard;
 }
@@ -167,6 +168,7 @@ public class GuardManager : MonoBehaviour
         ResourcesManager.BuildMaterial -= materialCost;
 
         call.workersSent = size;
+        call.materialSpent = materialCost;
         call.guard = guard;
         house.AssignTeam();
 
