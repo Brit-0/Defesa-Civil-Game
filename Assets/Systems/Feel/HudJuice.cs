@@ -29,11 +29,27 @@ public class HudJuice : MonoBehaviour
     [SerializeField] private Color lossColor = new Color(1f, .4f, .35f);
     [SerializeField] private float colorTime = .45f;
 
+    [Header("TICK (o número cresce um pouco a cada valor novo da contagem)")]
+    [SerializeField] private float tickScale = .12f;
+    [SerializeField] private float tickTime = .12f;
+
+    [Header("DELTA (\"+3\" e \"-50\" saindo do contador, unidades do HUD)")]
+    [SerializeField] private bool showDelta = true;
+    [Tooltip("O ganho de dinheiro já tem o \"+N\" que voa da casa (MoneyPopups)")]
+    [SerializeField] private bool showMoneyGain = false;
+    [SerializeField] private Vector2 deltaOffset = new Vector2(0f, -46f);
+    [SerializeField] private float deltaFontSize = 34f;
+    [SerializeField] private float deltaDistance = 40f;
+    [SerializeField] private float deltaTime = .8f;
+
     private class Counter
     {
         public TMP_Text label;
         public Transform icon;
         public Vector3 iconScale;
+        public Vector3 labelScale;
+        public Tween tickTween;
+        public bool isMoney;
         public Color labelColor;
         public float displayed;
         public int shown;
@@ -74,7 +90,12 @@ public class HudJuice : MonoBehaviour
 
         counter.label = label;
         counter.icon = icon;
-        if (label != null) counter.labelColor = label.color;
+        counter.isMoney = counter == money;
+        if (label != null)
+        {
+            counter.labelColor = label.color;
+            counter.labelScale = label.transform.localScale;
+        }
         if (icon != null) counter.iconScale = icon.localScale;
     }
 
@@ -157,6 +178,31 @@ public class HudJuice : MonoBehaviour
 
         Punch(counter);
         Flash(counter, delta > 0 ? gainColor : lossColor);
+        ShowDelta(counter, delta);
+    }
+
+    //"+N" sobe ou "-N" desce embaixo do número e some
+    private void ShowDelta(Counter counter, int delta)
+    {
+        if (!showDelta || counter.label == null || (counter.isMoney && delta > 0 && !showMoneyGain)) return;
+
+        RectTransform layer = FeelUI.HudLayer("FeelPopups");
+        if (layer == null) return;
+
+        bool gain = delta > 0;
+        TMP_Text text = FeelUI.CreateText("Delta", layer, (gain ? "+" : "") + delta, deltaFontSize, gain ? gainColor : lossColor);
+        FeelUI.Outline(text);
+        RectTransform rect = text.rectTransform;
+        rect.sizeDelta = new Vector2(240f, deltaFontSize * 1.4f);
+        rect.anchoredPosition = FeelUI.HudPosition(counter.label.transform) + deltaOffset;
+
+        GameObject go = text.gameObject;
+        rect.localScale = Vector3.one * .5f;
+        DOTween.Sequence().SetUpdate(true).SetLink(go)
+            .Append(rect.DOScale(1f, deltaTime * .2f).SetEase(Ease.OutBack))
+            .Join(rect.DOAnchorPosY(rect.anchoredPosition.y + (gain ? deltaDistance : -deltaDistance), deltaTime).SetEase(Ease.OutCubic))
+            .Insert(deltaTime * .5f, text.DOFade(0f, deltaTime * .5f))
+            .OnComplete(() => Destroy(go));
     }
 
     //Depois de tudo que mexe no rótulo no frame (o ResourcesManager escreve o valor final direto)
@@ -174,9 +220,21 @@ public class HudJuice : MonoBehaviour
         int value = Mathf.RoundToInt(counter.displayed);
         if (value == counter.shown && !counter.forceWrite) return;
 
+        if (value != counter.shown && counter.countTween != null && counter.countTween.IsActive()) Tick(counter);
         counter.shown = value;
         counter.forceWrite = false;
         counter.label.text = value.ToString();
+    }
+
+    //Cada número novo da contagem dá um pulinho no rótulo; contagem rápida segura o número grande até parar
+    private void Tick(Counter counter)
+    {
+        if (tickScale <= 0f) return;
+
+        Transform label = counter.label.transform;
+        counter.tickTween?.Kill();
+        label.localScale = counter.labelScale * (1f + tickScale);
+        counter.tickTween = label.DOScale(counter.labelScale, tickTime).SetEase(Ease.OutQuad).SetUpdate(true).SetLink(gameObject);
     }
 
     //Pulo do ícone do dinheiro, para quando um popup "+N" chega nele

@@ -23,11 +23,11 @@ public class WorkerFeel : MonoBehaviour
     [Header("ARRIVE POP (o GPS destrói o trabalhador 0,1 s depois)")]
     [SerializeField] private float arrivePopTime = .1f;
     [SerializeField] private float arrivePopScale = 1.35f;
-    [SerializeField] private int puffCount = 5;
-    [SerializeField] private Color puffColor = new Color(1f, 1f, 1f, .85f);
-    [SerializeField] private float puffSize = .2f;
-    [SerializeField] private float puffDistance = .8f;
-    [SerializeField] private float puffTime = .35f;
+
+    [Header("PUFFS (poeira do FeelParticles; escala sobre a altura do trabalhador)")]
+    [SerializeField] private int puffCount = 6;
+    [SerializeField] private int spawnPuffCount = 3;
+    [SerializeField] private float puffScale = 1.2f;
 
     private class Walker
     {
@@ -77,6 +77,7 @@ public class WorkerFeel : MonoBehaviour
 
         walkers.Add(walker);
         Apply(walker, 0f);
+        Puff(walker, spawnPuffCount);
     }
 
     private void OnWorkerArrived(Transform worker, Call call)
@@ -86,11 +87,14 @@ public class WorkerFeel : MonoBehaviour
 
         walker.leaving = true;
 
-        if (walker.rect != null && worker.parent != null && puffCount > 0)
-        {
-            float size = walker.rect.rect.height;
-            FeelFx.BurstAt(worker.parent, worker.position, puffCount, puffColor, size * puffSize, size * puffDistance, puffTime, .3f);
-        }
+        Puff(walker, puffCount);
+    }
+
+    private void Puff(Walker walker, int count)
+    {
+        if (walker.rect == null || walker.transform.parent == null || count <= 0) return;
+
+        FeelParticles.EmitAt(FxKind.Dust, walker.transform.parent, walker.transform.position, walker.rect.rect.height * puffScale, count);
     }
 
     private Walker Find(Transform worker)

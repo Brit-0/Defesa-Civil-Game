@@ -67,17 +67,32 @@ public class DisasterBanner : MonoBehaviour
 
         Vector2 center = new Vector2(.5f, .5f);
 
-        frame = FeelUI.CreatePanel("Banner", parent, earthquakeColor);
+        //Kit pixel: moldura em cinza tingida pela cor do tipo, e o fundo escuro por dentro dela (4 pixels)
+        FeelUITheme px = FeelUI.Pixel;
+        float edge = px != null ? 4f * FeelUI.PixelSize : border;
+
+        frame = px != null ? FeelUI.CreateSliced("Banner", parent, px.tintFrame, earthquakeColor) : FeelUI.CreatePanel("Banner", parent, earthquakeColor);
         bar = frame.rectTransform;
         FeelUI.Place(bar, new Vector2(.5f, 1f), center, new Vector2(0f, HiddenY), size);
-        FeelUI.Stretch(FeelUI.CreatePanel("Back", bar, backColor).rectTransform, border);
+        Image back = px != null ? FeelUI.CreateImage("Back", bar, backColor) : FeelUI.CreatePanel("Back", bar, backColor);
+        FeelUI.Stretch(back.rectTransform, edge);
 
+        //No kit pixel o ícone de 16 px fica com o pixel do tamanho do resto da UI (3 unidades), sem misturar escalas
+        float slot = px != null ? 16f * FeelUI.PixelSize : iconSize;
         icon = FeelUI.CreateImage("Icon", bar, Color.white);
         icon.preserveAspect = true;
-        FeelUI.Place(icon.rectTransform, new Vector2(0f, .5f), center, new Vector2(border + 16f + iconSize * .5f, 0f), Vector2.one * iconSize);
+        FeelUI.Place(icon.rectTransform, new Vector2(0f, .5f), center, new Vector2(edge + 16f + slot * .5f, 0f), Vector2.one * slot);
+
+        //A contagem fica numa janelinha funda do lado direito
+        if (px != null)
+        {
+            Image countBox = FeelUI.CreateSliced("CountBox", bar, px.inset, Color.white);
+            float box = size.y - edge * 2f - 2f * FeelUI.PixelSize;
+            FeelUI.Place(countBox.rectTransform, new Vector2(1f, .5f), center, new Vector2(-(edge + 16f + size.y * .5f), 0f), new Vector2(box * 1.25f, box));
+        }
 
         countLbl = FeelUI.CreateText("Count", bar, "", countFontSize, textColor);
-        FeelUI.Place(countLbl.rectTransform, new Vector2(1f, .5f), center, new Vector2(-(border + 16f + size.y * .5f), 0f), Vector2.one * size.y);
+        FeelUI.Place(countLbl.rectTransform, new Vector2(1f, .5f), center, new Vector2(-(edge + 16f + size.y * .5f), 0f), Vector2.one * size.y);
 
         titleLbl = FeelUI.CreateText("Title", bar, "", fontSize, textColor);
         FeelUI.Stretch(titleLbl.rectTransform);
@@ -182,6 +197,8 @@ public class DisasterBanner : MonoBehaviour
         bar.parent.SetAsLastSibling();
 
         Sprite sprite = disaster != null ? disaster.icon : null;
+        //Sem ícone no DisasterData: o ícone pixel do tipo
+        if (sprite == null && disaster != null && FeelUI.Pixel != null) sprite = FeelUI.Pixel.IconFor(disaster.type);
         icon.sprite = sprite;
         icon.enabled = sprite != null;
 

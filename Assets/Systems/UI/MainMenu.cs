@@ -26,6 +26,9 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private float subtitleSize = 40f;
     [SerializeField] private float howToPlaySize = 30f;
     [SerializeField] private Vector2 buttonSize = new Vector2(380f, 104f);
+    //Emblema pixel (32x32) dos dois lados do título: escala sobre os 3 px por pixel e distância do centro
+    [SerializeField] private float emblemScale = 1.25f;
+    [SerializeField] private float emblemOffset = 600f;
     [SerializeField] private float buttonY = -150f;
     [SerializeField] private float howToPlayY = -340f;
 
@@ -42,6 +45,8 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private float dropTime = .6f;
     [SerializeField] private float buttonPulseScale = 1.06f;
     [SerializeField] private float buttonPulseTime = .6f;
+    [Tooltip("Jogar passa pela onda de discos do ScreenTransition")]
+    [SerializeField] private bool useTransition = true;
 
     private RectTransform screen;
     private RectTransform band;
@@ -71,7 +76,9 @@ public class MainMenu : MonoBehaviour
         dim.raycastTarget = true;
         FeelUI.Stretch(dim.rectTransform);
 
-        band = FeelUI.CreatePanel("Band", screen, bandColor).rectTransform;
+        //Kit pixel: janela com moldura e rebites (sem o kit, a faixa lisa na cor do painel)
+        FeelUITheme px = FeelUI.Pixel;
+        band = (px != null ? FeelUI.CreateWindow("Band", screen) : FeelUI.CreatePanel("Band", screen, bandColor)).rectTransform;
         band.anchorMin = new Vector2(0f, .5f);
         band.anchorMax = new Vector2(1f, .5f);
         band.pivot = center;
@@ -82,17 +89,27 @@ public class MainMenu : MonoBehaviour
         FeelUI.Place(titleLbl.rectTransform, center, center, new Vector2(0f, 30f), new Vector2(1600f, titleSize * 1.2f));
         titleAnimator = titleLbl.gameObject.AddComponent<TextAnimator_TMP>();
 
+        //Emblema da Defesa Civil dos dois lados do título
+        if (px != null && px.emblem != null)
+        {
+            for (int side = -1; side <= 1; side += 2)
+            {
+                Image emblem = FeelUI.CreateIcon("Emblem", band, px.emblem, emblemScale);
+                emblem.rectTransform.anchoredPosition = new Vector2(side * emblemOffset, 30f);
+            }
+        }
+
         TMP_Text subtitleLbl = FeelUI.CreateText("Subtitle", band, subtitle, subtitleSize, subtitleColor);
         FeelUI.Place(subtitleLbl.rectTransform, center, center, new Vector2(0f, -bandHeight * .5f + subtitleSize), new Vector2(1600f, subtitleSize * 1.4f));
 
         //O botão fica num suporte: a escala do botão é do Tweener (hover), a do suporte é do pulso
         buttonHolder = FeelUI.CreateRect("ButtonHolder", screen);
         FeelUI.Place(buttonHolder, center, center, new Vector2(0f, buttonY), buttonSize);
-        Button play = FeelUI.CreateButton("PlayBtn", buttonHolder, playText, buttonSize, buttonColor, 56f);
+        Button play = FeelUI.CreateButton("PlayBtn", buttonHolder, playText, buttonSize, buttonColor, 56f, true);
         play.onClick.AddListener(Play);
 
         //Faixa escura também atrás dos passos: direto por cima da cidade o texto pequeno some
-        RectTransform howBand = FeelUI.CreatePanel("HowBand", screen, bandColor).rectTransform;
+        RectTransform howBand = (px != null ? FeelUI.CreateWindow("HowBand", screen) : FeelUI.CreatePanel("HowBand", screen, bandColor)).rectTransform;
         howBand.anchorMin = new Vector2(0f, .5f);
         howBand.anchorMax = new Vector2(1f, .5f);
         howBand.pivot = center;
@@ -172,6 +189,11 @@ public class MainMenu : MonoBehaviour
 
     private void Play()
     {
-        if (GameManager.Instance != null) GameManager.Instance.StartGame();
+        if (GameManager.Instance == null || ScreenTransition.Busy) return;
+
+        //Some o botão para não aceitar o segundo clique durante a onda
+        group.interactable = false;
+        if (useTransition) ScreenTransition.Play(() => { if (GameManager.Instance != null) GameManager.Instance.StartGame(); });
+        else GameManager.Instance.StartGame();
     }
 }

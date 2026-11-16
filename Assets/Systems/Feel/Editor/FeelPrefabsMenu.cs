@@ -28,7 +28,7 @@ public static class FeelPrefabsMenu
         //Juice que só escuta eventos e acha o HUD pelo nome: solto em Scripts/
         EnsurePrefab(FeelFolder + "/Feel.prefab", "Feel", null,
             typeof(HudJuice), typeof(MoneyPopups), typeof(CameraShaker), typeof(WorkerFeel), typeof(ActionFeedback),
-            typeof(WeatherFx), typeof(ChaosVignette));
+            typeof(WeatherFx), typeof(ChaosVignette), typeof(FeelParticles));
 
         //HUD: soltos dentro do UICanvas (raiz com RectTransform). Cada um monta a própria UI no Awake.
         EnsurePrefab(UIFolder + "/ChaosBar.prefab", "ChaosBar", null, typeof(RectTransform), typeof(ChaosBar));
@@ -37,6 +37,9 @@ public static class FeelPrefabsMenu
         EnsurePrefab(UIFolder + "/PauseMenu.prefab", "PauseMenu", null, typeof(RectTransform), typeof(PauseMenu));
         EnsurePrefab(UIFolder + "/EndScreen.prefab", "EndScreen", null, typeof(RectTransform), typeof(EndScreen));
         EnsurePrefab(UIFolder + "/MainMenu.prefab", "MainMenu", null, typeof(RectTransform), typeof(MainMenu));
+
+        //Transição de tela: solta em Scripts/ (opcional; sem ela o jogo cria uma com os valores padrão)
+        EnsurePrefab(UIFolder + "/ScreenTransition.prefab", "ScreenTransition", null, typeof(RectTransform), typeof(ScreenTransition));
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();

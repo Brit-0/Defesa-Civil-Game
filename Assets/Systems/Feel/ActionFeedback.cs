@@ -27,6 +27,10 @@ public class ActionFeedback : MonoBehaviour
     [SerializeField] private float riseDistance = 50f;
     [SerializeField] private float riseTime = .55f;
 
+    [Header("BUTTONS")]
+    [Tooltip("Põe o ButtonPress (texto afunda e clarão no clique) em todo botão da cena, um frame depois do Start")]
+    [SerializeField] private bool pressFeelOnAllButtons = true;
+
     private readonly Stack<TMP_Text> pool = new Stack<TMP_Text>();
     private RectTransform layer;
 
@@ -48,6 +52,14 @@ public class ActionFeedback : MonoBehaviour
         foreach (UpgradeButton button in FindObjectsByType<UpgradeButton>(FindObjectsInactive.Include))
         {
             if (button.GetComponent<UpgradeButtonJuice>() == null) button.gameObject.AddComponent<UpgradeButtonJuice>();
+        }
+
+        //Texto que afunda no aperto e clarão no clique em todo botão da cena (os do C já nascem com isso)
+        if (!pressFeelOnAllButtons) yield break;
+
+        foreach (UnityEngine.UI.Button button in FindObjectsByType<UnityEngine.UI.Button>(FindObjectsInactive.Include))
+        {
+            if (button.GetComponent<ButtonPress>() == null) button.gameObject.AddComponent<ButtonPress>();
         }
     }
 

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
+//Categorias do mix: cada som cai numa, pelo campo da biblioteca em que está
+public enum SoundCategory { Interface, Gameplay, Disaster, Ambience, Music }
+
 [System.Serializable]
 public class SfxLibrary
 {
@@ -11,6 +14,8 @@ public class SfxLibrary
     public AudioClip hover;
     public AudioClip buy;
     public AudioClip error;
+    public AudioClip whoosh;
+    public AudioClip popup;
 
     [Header("CALLS")]
     public AudioClip dispatch;
@@ -27,6 +32,7 @@ public class SfxLibrary
     [Header("END")]
     public AudioClip victory;
     public AudioClip defeat;
+    public AudioClip confetti;
 
     [Header("LOOPS")]
     public AudioClip rainLoop;
@@ -43,13 +49,29 @@ public class AudioManager : MonoBehaviour
     [Header("SFX")]
     [SerializeField] private SfxLibrary sfx = new SfxLibrary();
     [SerializeField] private int poolSize = 12;
-    [SerializeField, Range(0f, 1f)] private float sfxVolume = 1f;
     [SerializeField] private float minRepeatInterval = .05f;
 
-    [Header("MUSIC")]
+    [Header("MIX (volume por categoria, vezes o master)")]
+    [SerializeField, Range(0f, 1f)] private float masterVolume = 1f;
+    [SerializeField, Range(0f, 1f)] private float interfaceVolume = .8f;
+    [SerializeField, Range(0f, 1f)] private float gameplayVolume = 1f;
+    [SerializeField, Range(0f, 1f)] private float disasterVolume = 1f;
+    [SerializeField, Range(0f, 1f)] private float ambienceVolume = .8f;
+    [SerializeField, Range(0f, 1f)] private float musicVolume = .45f;
+
+    [Header("DUCKING (a música abaixa sob sirene, tremor, trovão e vinhetas)")]
+    [SerializeField, Range(0f, 1f)] private float duckLevel = .45f;
+    [Tooltip("Só abaixa quando o som grande toca pelo menos neste volume (a sirene baixa do caos alto não abaixa)")]
+    [SerializeField, Range(0f, 1f)] private float duckMinVolume = .5f;
+    [SerializeField] private float duckAttackTime = .08f;
+    [SerializeField] private float duckMaxHold = 1.5f;
+    [SerializeField] private float duckReleaseTime = .9f;
+
+    [Header("MUSIC (calma e tensa cruzam pelo caos; perigo entra por cima perto do fim)")]
     [SerializeField] private AudioClip calmMusic;
     [SerializeField] private AudioClip tenseMusic;
-    [SerializeField, Range(0f, 1f)] private float musicVolume = .45f;
+    [SerializeField] private AudioClip dangerMusic;
+    [SerializeField, Range(0f, 1f)] private float dangerLayerVolume = .8f;
     [SerializeField] private float tensionFadeTime = 2f;
     [SerializeField] private bool playMusicOnStart = true;
 
@@ -59,21 +81,29 @@ public class AudioManager : MonoBehaviour
     private class LoopChannel
     {
         public AudioSource source;
-        public float targetVolume;
+        public float level;
+        public float targetLevel;
         public float fadeSpeed;
     }
 
     private readonly List<AudioSource> pool = new List<AudioSource>();
     private readonly List<LoopChannel> loops = new List<LoopChannel>();
     private readonly Dictionary<AudioClip, float> lastPlayTime = new Dictionary<AudioClip, float>();
+    private readonly Dictionary<AudioClip, SoundCategory> categories = new Dictionary<AudioClip, SoundCategory>();
+    private readonly HashSet<AudioClip> duckers = new HashSet<AudioClip>();
     private int nextSource;
     private AudioSource calmSource;
     private AudioSource tenseSource;
+    private AudioSource dangerSource;
     private float tension;
     private float targetTension;
+    private float danger;
+    private float targetDanger;
     private float musicLevel = 1f;
     private float targetMusicLevel = 1f;
     private float musicLevelSpeed = 1f;
+    private float duck = 1f;
+    private float duckUntil;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
@@ -99,6 +129,7 @@ public class AudioManager : MonoBehaviour
         }
 
         BuildSources();
+        BuildCategories();
     }
 
     private void Start()
@@ -113,27 +144,29 @@ public class AudioManager : MonoBehaviour
         if (Instance == this) Instance = null;
     }
 
+    private void OnValidate()
+    {
+        if (Instance == this) BuildCategories();
+    }
+
     private void Update()
     {
         if (Instance != this) return;
 
-        bool musicChanged = false;
+        float delta = Time.unscaledDeltaTime;
+        float fade = delta / Mathf.Max(.01f, tensionFadeTime);
 
-        if (!Mathf.Approximately(tension, targetTension))
-        {
-            tension = Mathf.MoveTowards(tension, targetTension, Time.unscaledDeltaTime / Mathf.Max(.01f, tensionFadeTime));
-            musicChanged = true;
-        }
+        tension = Mathf.MoveTowards(tension, targetTension, fade);
+        danger = Mathf.MoveTowards(danger, targetDanger, fade);
+        musicLevel = Mathf.MoveTowards(musicLevel, targetMusicLevel, delta * musicLevelSpeed);
 
-        if (!Mathf.Approximately(musicLevel, targetMusicLevel))
-        {
-            musicLevel = Mathf.MoveTowards(musicLevel, targetMusicLevel, Time.unscaledDeltaTime * musicLevelSpeed);
-            musicChanged = true;
-        }
+        bool ducking = Time.unscaledTime < duckUntil;
+        float duckTime = ducking ? duckAttackTime : duckReleaseTime;
+        duck = Mathf.MoveTowards(duck, ducking ? duckLevel : 1f, delta * (1f - duckLevel) / Mathf.Max(.01f, duckTime));
 
-        if (musicChanged) ApplyMusicVolumes();
-
-        UpdateLoops();
+        //Todo quadro: mexer no mix pelo Inspector durante o Play vale na hora
+        ApplyMusicVolumes();
+        UpdateLoops(delta);
     }
 
     private void BuildSources()
@@ -145,6 +178,7 @@ public class AudioManager : MonoBehaviour
 
         calmSource = CreateSource("Music Calm", true);
         tenseSource = CreateSource("Music Tense", true);
+        dangerSource = CreateSource("Music Danger", true);
     }
 
     private AudioSource CreateSource(string sourceName, bool loop)
@@ -159,16 +193,96 @@ public class AudioManager : MonoBehaviour
         return source;
     }
 
+    #region MIX
+
+    private void BuildCategories()
+    {
+        categories.Clear();
+        duckers.Clear();
+
+        Map(SoundCategory.Interface, sfx.click, sfx.hover, sfx.buy, sfx.error, sfx.whoosh, sfx.popup);
+        Map(SoundCategory.Gameplay, sfx.dispatch, sfx.hammer, sfx.repaired, sfx.coin, sfx.victory, sfx.defeat, sfx.confetti);
+        Map(SoundCategory.Disaster, sfx.siren, sfx.earthquake, sfx.thunder, sfx.extinguish);
+        Map(SoundCategory.Ambience, sfx.rainLoop, sfx.fireLoop);
+
+        foreach (AudioClip clip in new[] { sfx.siren, sfx.earthquake, sfx.thunder, sfx.victory, sfx.defeat })
+        {
+            if (clip != null) duckers.Add(clip);
+        }
+    }
+
+    private void Map(SoundCategory category, params AudioClip[] clips)
+    {
+        foreach (AudioClip clip in clips)
+        {
+            if (clip != null) categories[clip] = category;
+        }
+    }
+
+    //Volume final de uma categoria (já com o master)
+    public static float CategoryVolume(SoundCategory category)
+    {
+        return Instance != null ? Instance.Volume(category) : 1f;
+    }
+
+    //Para um menu de opções futuro: muda o volume de uma categoria na hora (Music também)
+    public static void SetCategoryVolume(SoundCategory category, float value)
+    {
+        if (Instance == null) return;
+
+        value = Mathf.Clamp01(value);
+        switch (category)
+        {
+            case SoundCategory.Interface: Instance.interfaceVolume = value; break;
+            case SoundCategory.Gameplay: Instance.gameplayVolume = value; break;
+            case SoundCategory.Disaster: Instance.disasterVolume = value; break;
+            case SoundCategory.Ambience: Instance.ambienceVolume = value; break;
+            case SoundCategory.Music: Instance.musicVolume = value; break;
+        }
+    }
+
+    public static void SetMasterVolume(float value)
+    {
+        if (Instance != null) Instance.masterVolume = Mathf.Clamp01(value);
+    }
+
+    private float Volume(SoundCategory category)
+    {
+        switch (category)
+        {
+            case SoundCategory.Interface: return masterVolume * interfaceVolume;
+            case SoundCategory.Disaster: return masterVolume * disasterVolume;
+            case SoundCategory.Ambience: return masterVolume * ambienceVolume;
+            case SoundCategory.Music: return masterVolume * musicVolume;
+            default: return masterVolume * gameplayVolume;
+        }
+    }
+
+    private SoundCategory CategoryOf(AudioClip clip)
+    {
+        return categories.TryGetValue(clip, out SoundCategory category) ? category : SoundCategory.Gameplay;
+    }
+
+    #endregion
+
     #region SFX
 
+    //A categoria sai do campo da biblioteca em que o clipe está (clipe de fora conta como Gameplay)
     public static void PlaySfx(AudioClip clip, float volume = 1f, float pitchVariation = 0f)
     {
         if (Instance == null || clip == null) return;
 
-        Instance.PlayFromPool(clip, volume, pitchVariation);
+        Instance.PlayFromPool(clip, Instance.CategoryOf(clip), volume, pitchVariation);
     }
 
-    private void PlayFromPool(AudioClip clip, float volume, float pitchVariation)
+    public static void PlaySfx(AudioClip clip, SoundCategory category, float volume = 1f, float pitchVariation = 0f)
+    {
+        if (Instance == null || clip == null) return;
+
+        Instance.PlayFromPool(clip, category, volume, pitchVariation);
+    }
+
+    private void PlayFromPool(AudioClip clip, SoundCategory category, float volume, float pitchVariation)
     {
         //O mesmo som disparado várias vezes no mesmo instante vira um só
         float now = Time.unscaledTime;
@@ -177,9 +291,22 @@ public class AudioManager : MonoBehaviour
 
         AudioSource source = GetFreeSource();
         source.clip = clip;
-        source.volume = Mathf.Clamp01(volume) * sfxVolume;
+        source.volume = Mathf.Clamp01(volume) * Volume(category);
         source.pitch = 1f + Random.Range(-pitchVariation, pitchVariation);
         source.Play();
+
+        if (volume >= duckMinVolume && duckers.Contains(clip)) Duck(Mathf.Min(clip.length, duckMaxHold));
+    }
+
+    //Abaixa a música por um tempo (os sons grandes já chamam sozinhos)
+    public static void DuckMusic(float seconds)
+    {
+        if (Instance != null) Instance.Duck(seconds);
+    }
+
+    private void Duck(float seconds)
+    {
+        duckUntil = Mathf.Max(duckUntil, Time.unscaledTime + seconds);
     }
 
     private AudioSource GetFreeSource()
@@ -203,6 +330,7 @@ public class AudioManager : MonoBehaviour
 
     #region MUSIC
 
+    //0 = só a calma, 1 = só a tensa (cruzamento)
     public static void SetTension(float value)
     {
         if (Instance == null) return;
@@ -210,7 +338,15 @@ public class AudioManager : MonoBehaviour
         Instance.targetTension = Mathf.Clamp01(value);
     }
 
-    //Volume geral da música, de 0 a 1 (menu, pausa, fim de partida), por cima do cruzamento das duas camadas
+    //0 a 1: a camada de perigo (um zumbido grave) sobe por cima das outras duas
+    public static void SetDanger(float value)
+    {
+        if (Instance == null) return;
+
+        Instance.targetDanger = Mathf.Clamp01(value);
+    }
+
+    //Volume geral da música, de 0 a 1 (menu, pausa, fim de partida), por cima do cruzamento das camadas
     public static void SetMusicLevel(float level, float fadeTime = .5f)
     {
         if (Instance == null) return;
@@ -224,8 +360,10 @@ public class AudioManager : MonoBehaviour
         if (Instance == null) return;
 
         Instance.ApplyMusicVolumes();
+        //As três começam juntas e ficam em loop; o volume decide qual se ouve
         Instance.StartLayer(Instance.calmSource, Instance.calmMusic);
         Instance.StartLayer(Instance.tenseSource, Instance.tenseMusic);
+        Instance.StartLayer(Instance.dangerSource, Instance.dangerMusic);
     }
 
     public static void StopMusic()
@@ -234,6 +372,7 @@ public class AudioManager : MonoBehaviour
 
         Instance.calmSource.Stop();
         Instance.tenseSource.Stop();
+        Instance.dangerSource.Stop();
     }
 
     private void StartLayer(AudioSource source, AudioClip clip)
@@ -246,10 +385,13 @@ public class AudioManager : MonoBehaviour
 
     private void ApplyMusicVolumes()
     {
+        float volume = Volume(SoundCategory.Music) * musicLevel * duck;
+
         //Cruzamento de potência constante: a soma das duas camadas não afunda no meio
         float angle = tension * Mathf.PI * .5f;
-        calmSource.volume = musicVolume * musicLevel * Mathf.Cos(angle);
-        tenseSource.volume = musicVolume * musicLevel * Mathf.Sin(angle);
+        calmSource.volume = volume * Mathf.Cos(angle);
+        tenseSource.volume = volume * Mathf.Sin(angle);
+        dangerSource.volume = volume * danger * dangerLayerVolume;
     }
 
     #endregion
@@ -278,22 +420,23 @@ public class AudioManager : MonoBehaviour
             loops.Add(channel);
         }
 
-        channel.targetVolume = Mathf.Clamp01(volume) * sfxVolume;
+        channel.targetLevel = Mathf.Clamp01(volume);
         channel.fadeSpeed = 1f / Mathf.Max(.01f, fadeTime);
 
-        if (channel.targetVolume > 0f && !channel.source.isPlaying) channel.source.Play();
+        if (channel.targetLevel > 0f && !channel.source.isPlaying) channel.source.Play();
     }
 
-    private void UpdateLoops()
+    private void UpdateLoops(float delta)
     {
+        float ambience = Volume(SoundCategory.Ambience);
+
         for (int i = 0; i < loops.Count; i++)
         {
             LoopChannel channel = loops[i];
-            if (Mathf.Approximately(channel.source.volume, channel.targetVolume)) continue;
+            channel.level = Mathf.MoveTowards(channel.level, channel.targetLevel, delta * channel.fadeSpeed);
+            channel.source.volume = channel.level * ambience;
 
-            channel.source.volume = Mathf.MoveTowards(channel.source.volume, channel.targetVolume, Time.unscaledDeltaTime * channel.fadeSpeed);
-
-            if (channel.source.volume <= 0f && channel.targetVolume <= 0f) channel.source.Stop();
+            if (channel.level <= 0f && channel.targetLevel <= 0f && channel.source.isPlaying) channel.source.Stop();
         }
     }
 
@@ -308,6 +451,12 @@ public class AudioManager : MonoBehaviour
     }
 
     [Button]
+    private void DebugSetDanger(float value)
+    {
+        SetDanger(value);
+    }
+
+    [Button]
     private void DebugPlayAllSfx()
     {
         StartCoroutine(PlayAllSfxRoutine());
@@ -317,15 +466,15 @@ public class AudioManager : MonoBehaviour
     {
         AudioClip[] clips =
         {
-            sfx.click, sfx.hover, sfx.buy, sfx.error, sfx.dispatch, sfx.hammer, sfx.repaired, sfx.coin,
-            sfx.siren, sfx.earthquake, sfx.thunder, sfx.extinguish, sfx.victory, sfx.defeat
+            sfx.click, sfx.hover, sfx.buy, sfx.error, sfx.whoosh, sfx.popup, sfx.dispatch, sfx.hammer, sfx.repaired, sfx.coin,
+            sfx.siren, sfx.earthquake, sfx.thunder, sfx.extinguish, sfx.victory, sfx.defeat, sfx.confetti
         };
 
         foreach (AudioClip clip in clips)
         {
             if (clip == null) continue;
 
-            Debug.Log("AudioManager: " + clip.name);
+            Debug.Log("AudioManager: " + clip.name + " (" + CategoryOf(clip) + ")");
             PlaySfx(clip);
             yield return new WaitForSecondsRealtime(clip.length + .2f);
         }
@@ -348,6 +497,8 @@ public class AudioManager : MonoBehaviour
         Fill(ref sfx.hover, "Sfx_Hover");
         Fill(ref sfx.buy, "Sfx_Buy");
         Fill(ref sfx.error, "Sfx_Error");
+        Fill(ref sfx.whoosh, "Sfx_Whoosh");
+        Fill(ref sfx.popup, "Sfx_Popup");
         Fill(ref sfx.dispatch, "Sfx_Dispatch");
         Fill(ref sfx.hammer, "Sfx_Hammer");
         Fill(ref sfx.repaired, "Sfx_Repaired");
@@ -358,10 +509,12 @@ public class AudioManager : MonoBehaviour
         Fill(ref sfx.extinguish, "Sfx_Extinguish");
         Fill(ref sfx.victory, "Sfx_Victory");
         Fill(ref sfx.defeat, "Sfx_Defeat");
+        Fill(ref sfx.confetti, "Sfx_Confetti");
         Fill(ref sfx.rainLoop, "Amb_Rain");
         Fill(ref sfx.fireLoop, "Amb_Fire");
         Fill(ref calmMusic, "Music_Calm");
         Fill(ref tenseMusic, "Music_Tense");
+        Fill(ref dangerMusic, "Music_Danger");
 
         UnityEditor.EditorUtility.SetDirty(this);
     }
