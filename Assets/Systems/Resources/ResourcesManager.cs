@@ -74,4 +74,37 @@ public class ResourcesManager : MonoBehaviour
         BuildMaterial = Stats.Balance.startMaterial;
         Money = Stats.Balance.startMoney;
     }
+
+    private void Update()
+    {
+        TickPassiveIncome();
+    }
+
+    #region PASSIVE INCOME
+
+    private float incomeTimer;
+
+    // Repasse da Prefeitura (GDD, seção 8): destravado pelo upgrade income, pago a cada incomeInterval em Playing.
+    private void TickPassiveIncome()
+    {
+        if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) return;
+
+        if (Stats.GetUpgradeLevel(UpgradeIds.Income) <= 0)
+        {
+            incomeTimer = 0f;
+            return;
+        }
+
+        incomeTimer += Time.deltaTime;
+        if (incomeTimer < Stats.Balance.incomeInterval) return;
+
+        incomeTimer = 0f;
+        int amount = Stats.GetPassiveIncome();
+        if (amount <= 0) return;
+
+        Money += amount;
+        GameEvents.RaisePassiveIncomePaid(amount);
+    }
+
+    #endregion
 }

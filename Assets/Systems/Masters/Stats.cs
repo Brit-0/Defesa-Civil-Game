@@ -93,6 +93,20 @@ public static class Stats
 
     #endregion
 
+    #region PASSIVE INCOME
+
+    // Repasse = valor por casa × nível do income × casas intactas × (1 − caos), arredondado.
+    public static int GetPassiveIncome()
+    {
+        if (LocationsManager.Instance == null) return 0;
+
+        int intactHouses = LocationsManager.Instance.GetIntactHouses().Count;
+        float chaos = ChaosManager.Instance != null ? ChaosManager.Instance.Chaos : 0f;
+        return Mathf.RoundToInt(Balance.incomePerHouse * GetUpgradeEffect(UpgradeIds.Income) * intactHouses * (1f - chaos));
+    }
+
+    #endregion
+
     #region CHAOS
 
     // Peso de uma casa no caos: intacta não pesa; em chamas pesa mais que danificada.
