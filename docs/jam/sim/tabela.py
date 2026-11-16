@@ -72,7 +72,7 @@ def buscar_planos(balance, ups, mapa, quantos, sementes, limite):
 CABECALHO = ("| Jogador | Vence | Perde | Tempo até vencer, mediana (p10–p90) | Tempo até perder | Consertos | "
              "Dinheiro ganho | Do repasse | Pico do caos |\n|---|---|---|---|---|---|---|---|---|")
 
-CABECALHO_MINI = ("| Jogador | Cliques/min | Pontos certos (erros) | Heróis no fogo | Escoradas (de pé) | "
+CABECALHO_MINI = ("| Jogador | Cliques/min | Pontos certos (erros) | Jatos apagados | Escoradas (de pé) | "
                   "Bônus de ocorrência | Marcos | Terremotos fortes |\n|---|---|---|---|---|---|---|---|")
 
 
@@ -85,6 +85,20 @@ def linha_mini(nome, jogos):
     return (f"| {nome} | {cpm:.0f} | {med(lambda j: j.criticos):.0f} ({med(lambda j: j.erros):.0f}) | "
             f"{med(lambda j: j.herois):.0f} | {med(lambda j: j.escoradas):.0f} ({med(lambda j: j.de_pe):.0f}) | "
             f"{med(lambda j: j.bonus_ocorrencia):.0f} | {med(lambda j: j.marcos):.0f} | {fortes:.0f} |")
+
+
+CABECALHO_FOGO = ("| Jogador | Jatos apagados | Fogos que cresceram | Gerador (nível) | Apagões (religou) | "
+                  "Segundos sem energia | Segundos em sobrecarga | Negados |\n|---|---|---|---|---|---|---|---|")
+
+
+def linha_fogo(nome, jogos):
+    """Fogo e energia (ENERGIA_FOGO.md): o jato, o fogo que cresce, o gerador e os apagões."""
+    def med(f):
+        return statistics.median(f(j) for j in jogos)
+    return (f"| {nome} | {med(lambda j: j.herois):.0f} | {med(lambda j: j.fogos_cresceram):.0f} | "
+            f"{med(lambda j: j.niveis.get('generator', 0)):.0f} | {med(lambda j: j.rede.apagoes):.0f} "
+            f"({med(lambda j: j.rede.religados):.0f}) | {med(lambda j: j.rede.segundos_sem_energia):.0f} | "
+            f"{med(lambda j: j.rede.sobrecarga_s):.0f} | {med(lambda j: j.negados):.0f} |")
 
 
 def main():
@@ -122,7 +136,8 @@ def main():
         print(f"fim: {jogo.fim} aos {mmss(jogo.t)}; consertos {jogo.consertos}; ganho {jogo.ganho_total}; "
               f"negados {jogo.negados}; cliques {jogador.cliques if jogador else 0}; pontos certos {jogo.criticos} "
               f"(erros {jogo.erros}); heróis {jogo.herois}; escoradas {jogo.escoradas} (de pé {jogo.de_pe}); "
-              f"bônus de ocorrência {jogo.bonus_ocorrencia}; marcos {jogo.marcos}")
+              f"bônus de ocorrência {jogo.bonus_ocorrencia}; marcos {jogo.marcos}; fogos que cresceram "
+              f"{jogo.fogos_cresceram}; apagões {jogo.rede.apagoes} (religou {jogo.rede.religados})")
         return
 
     if a.busca:
@@ -144,6 +159,9 @@ def main():
     for nome, jogos in resultados.items():
         if jogos[0].jogador is not None:
             print(linha_mini(nome, jogos))
+    print("\n" + CABECALHO_FOGO)
+    for nome, jogos in resultados.items():
+        print(linha_fogo(nome, jogos))
 
 
 if __name__ == "__main__":

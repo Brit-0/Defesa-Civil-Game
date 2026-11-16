@@ -4,7 +4,9 @@ Custo de cada ação em cliques, como no jogo (GDD, seção 7, e GAMELOOP_REVISA
   despacho nível 0: casa + base + Enviar (a aba já abre com a equipe sugerida; cada '+'/'-' de ajuste é um
   clique a mais); nível 1 tira a base; nível 2 em diante, 1 clique
   Armazém: igual ao nível 0 com a equipe que repõe o que falta (no nível 1 em diante a base sai sozinha)
-  mini games: ponto certo = mira + 1 clique; mutirão = mira + cliques rápidos; escorar = 1 clique por casa no aviso
+  mini games: ponto certo = mira + 1 clique; jato no fogo = meia mira + arrastar (meio clique por chama, fogo_energia.py);
+  escorar = 1 clique por casa no aviso
+  energia: RELIGAR no apagão = mira + 1 clique; gerador = compra (o robô compra antes de passar da capacidade)
   coleta: 1 clique (nível 3 coleta sozinho); compra: abrir a aba + clicar no botão
 A cada ação soma-se a "mira" (achar a casa na tela, mover a câmera); escolher a base à mão (nível 0) é uma
 segunda mira, porque a Guarda raramente está na mesma parte da tela que a casa.
@@ -71,7 +73,7 @@ class Jogador:
     def agir(self, jogo):
         if not self._livre(jogo):
             return
-        if self._coletar(jogo) or self._comprar(jogo) or self._despachar(jogo) or self._repor(jogo):
+        if self._religar(jogo) or self._coletar(jogo) or self._comprar(jogo) or self._despachar(jogo) or self._repor(jogo):
             return
         self.ocupado_ate = jogo.t + 0.25  # nada a fazer: olha de novo daqui a pouco
 
@@ -89,9 +91,31 @@ class Jogador:
         self._gastar(jogo, 1)
         return True
 
+    def _religar(self, jogo):
+        rede = jogo.rede
+        if not rede.apagao or jogo.t - rede.apagao_desde < self.reacao:
+            return False
+        rede.religar(jogo, pelo_jogador=True)
+        self._gastar(jogo, 1)
+        return True
+
+    def _gerador(self, jogo, proximo):
+        """Compra o gerador quando a rede já passou do limite ou a próxima compra passaria."""
+        rede, b = jogo.rede, jogo.b
+        if not rede.ligada or "generator" not in jogo.ups or proximo == "goal":
+            return False
+        extra = {"automation": b["automationDemandPerLevel"], "base2": b["baseDemand"], "depot2": b["depotDemand"]}.get(proximo, 0)
+        if rede.demanda + extra <= rede.capacidade or jogo.niveis["generator"] >= jogo.ups["generator"]["maxLevel"]:
+            return False
+        if jogo.comprar("generator"):
+            self._gastar(jogo, 2)
+        return True  # sem dinheiro: junta para o gerador antes da próxima compra
+
     def _comprar(self, jogo):
-        while self.plano and jogo.nivel(self.plano[0]) >= jogo.ups[self.plano[0]]["maxLevel"]:
+        while self.plano and jogo.niveis[self.plano[0]] >= jogo.ups[self.plano[0]]["maxLevel"]:
             self.plano.pop(0)
+        if self._gerador(jogo, self.plano[0] if self.plano else None):
+            return jogo.t < self.ocupado_ate
         if not self.plano or not jogo.comprar(self.plano[0]):
             return False
         self.plano.pop(0)

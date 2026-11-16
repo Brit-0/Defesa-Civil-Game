@@ -114,7 +114,8 @@ public class GuardManager : MonoBehaviour
 
     private static CityGuard GetNearestGuard(House house)
     {
-        return LocationsManager.Instance != null ? LocationsManager.Instance.GetNearestGuard(house.transform.position) : null;
+        // Só base com energia (ENERGIA_FOGO.md); antes de a energia entrar no jogo, todas têm.
+        return EnergyManager.NearestPoweredGuard(house.transform.position);
     }
 
     public void CancelCall(CallbackContext context)
@@ -166,7 +167,7 @@ public class GuardManager : MonoBehaviour
             return false;
         }
 
-        DeniedReason? denied = GetDeniedReason(call, size);
+        DeniedReason? denied = EnergyManager.DeniesDispatch(call, guard) ? DeniedReason.NoEnergy : GetDeniedReason(call, size);
         if (denied.HasValue)
         {
             GameEvents.RaiseActionDenied(denied.Value, house.transform.position);
