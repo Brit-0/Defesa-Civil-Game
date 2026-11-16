@@ -11,9 +11,10 @@ namespace DefesaCivil.CityGen
     /// calçada com meio-fio, faixa tracejada no meio das ruas, faixas de pedestre no centro, piso de cada bairro
     /// (grama, lajotas, concreto, praça), caminhos do parque, pátio hachurado na frente da Guarda e dos Armazéns e
     /// sombra de contato embaixo de cada sprite. Feito só com código e a paleta abaixo: nenhuma arte nova.
+    /// v6: miudezas (variação do gramado, desgaste do asfalto, bueiros, flores do pack) em CityGround.Details.cs.
     /// O CityBuilder mostra a textura no "[CG] Ground" (RawImage logo acima do PolygonsDisplay).
     /// </summary>
-    public static class CityGround
+    public static partial class CityGround
     {
         public const string TexturePath = "Assets/_Project/Data/Cities/city_ground.png";
         public const int Ppu = 32;
@@ -83,8 +84,9 @@ namespace DefesaCivil.CityGen
             cv.px = new Color32[cv.W * cv.H];
             float h = l.streetWidth / 2f;
 
-            // 1. asfalto
-            for (int y = 0; y < cv.H; y++) for (int x = 0; x < cv.W; x++) cv.px[y * cv.W + x] = Noise(x, y, 1, Asphalt, AsphaltLo, AsphaltHi, 7, 5);
+            // 1. asfalto com tom variando, remendos, rachaduras e manchas de óleo
+            for (int y = 0; y < cv.H; y++) for (int x = 0; x < cv.W; x++) cv.px[y * cv.W + x] = AsphaltAt(x, y);
+            StreetWear(cv);
 
             var blocks = l.polygons.Where(p => p.points.Count >= 3).Select(p => (poly: p, r: CityGeometry.BoundingBox(new[] { (IList<Vector2>)CityGeometry.ToVectors(p.points) }), zone: ZoneOf(l, p))).ToList();
 
@@ -100,7 +102,10 @@ namespace DefesaCivil.CityGen
                     if (d > Sidewalk) continue;
                     bool horizontalSide = dy > dx;
                     bool seam = horizontalSide ? x % 12 == 0 : y % 12 == 0;
-                    cv.Set(x, y, d > Sidewalk - 1.5f / Ppu ? Curb : seam ? WalkSeam : Walk);
+                    // lajotas gastas (mais claras ou escuras) e uma mancha aqui e ali
+                    uint slab = Hash(horizontalSide ? x / 12 : y / 12, horizontalSide ? y / 8 : x / 8, 13) % 13;
+                    var walk = slab == 0 ? WalkLo : slab == 1 ? WalkHi : Hash(x, y, 14) % 500 == 0 ? WalkSeam : Walk;
+                    cv.Set(x, y, d > Sidewalk - 1.5f / Ppu ? Curb : seam ? WalkSeam : walk);
                 }
             }
 
@@ -124,6 +129,9 @@ namespace DefesaCivil.CityGen
                     for (int k = -1; k <= 0; k++) { if (line.horizontal) cv.Set(t, c + k, Dash); else cv.Set(c + k, t, Dash); }
                 }
             }
+
+            // 4b. bueiros
+            Manholes(cv, lines, junctions, h);
 
             // 5. faixas de pedestre nos cruzamentos do centro (em volta de comércio e da praça cívica)
             var downtown = blocks.Where(b => b.zone == Zone.Commercial || b.zone == Zone.Civic).Select(b => b.r).ToList();
@@ -183,19 +191,11 @@ namespace DefesaCivil.CityGen
                 }
             }
 
-            // 8. sombra de contato: silhueta de cada sprite deslocada 2 px para a direita e para baixo
-            foreach (var (sprite, baseCenter) in l.structures.Select(s => (s.sprite, s.bottomCenter)).Concat(l.decorations.Select(d => (d.sprite, d.bottomCenter))))
-            {
-                var cs = cat.Get(sprite);
-                if (cs == null || cs.pixels == null) continue;
-                Vector2 c = cs.RectCenterFor(baseCenter);
-                int ox = cv.X(c.x - cs.widthU / 2f) + 2, oy = cv.Y(c.y - cs.heightU / 2f) - 2;
-                // só a faixa de baixo da silhueta (até 10 px acima da base) faz sombra no chão
-                int baseRow = Mathf.RoundToInt(cs.padBottomU * cs.pxW / Mathf.Max(0.01f, cs.widthU));
-                for (int y = 0; y < Mathf.Min(cs.pxH, baseRow + 10); y++)
-                    for (int x = 0; x < cs.pxW; x++)
-                        if (cs.pixels[y * cs.pxW + x].a > 128) cv.Mul(ox + x, oy + y, 0.8f);
-            }
+            // 8a. flores, capim e pedrinhas do pack carimbados no chão
+            ScatterSmalls(cv, l, cat, blocks);
+
+            // 8. sombras projetadas de estruturas e decorações, na direção oposta ao sol (CityGround.Details.cs)
+            CastShadows(cv, l, cat);
 
             var tex = new Texture2D(cv.W, cv.H, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point };
             tex.SetPixels32(cv.px);
@@ -226,6 +226,9 @@ namespace DefesaCivil.CityGen
                     {
                         int row = ly / 16; int sx = (lx + (row % 2) * 8) % 16;
                         c = sx == 0 || ly % 16 == 0 ? Grout : ((lx + (row % 2) * 8) / 16 + row) % 2 == 0 ? Tile : TileAlt;
+                        // lajota encardida e chiclete no piso
+                        if (sx != 0 && ly % 16 != 0 && Hash((lx + (row % 2) * 8) / 16, row, 15) % 11 == 0) c = Shade(c, 0.95f);
+                        if (Hash(x, y, 16) % 700 == 0) c = Grout;
                         break;
                     }
                     case Zone.Industrial:
@@ -252,11 +255,11 @@ namespace DefesaCivil.CityGen
                         bool edge = path && (Mathf.Abs(Mathf.Abs(wx - cx) - 0.7f) < 1.5f / Ppu && e >= 1f && Mathf.Abs(wy - cy) >= 0.55f
                             || Mathf.Abs(Mathf.Abs(wy - cy) - 0.55f) < 1.5f / Ppu && e >= 1f && Mathf.Abs(wx - cx) >= 0.7f
                             || e < 1f && e > 0.93f && Mathf.Abs(wx - cx) >= 0.7f && Mathf.Abs(wy - cy) >= 0.55f);
-                        c = edge ? SandEdge : path ? Sand : Noise(x, y, 5, Park, ParkLo, ParkHi, 9, 6);
+                        c = edge ? SandEdge : path ? Noise(x, y, 17, Sand, SandLo, Sand, 6, 0) : Grass(x, y, 5, Park, ParkLo, ParkHi, 9, 6, false);
                         break;
                     }
-                    case Zone.Woods: c = Noise(x, y, 6, Forest, ForestLo, ForestHi, 14, 8); break;
-                    default: c = Noise(x, y, 4, Lawn, LawnLo, LawnHi, 9, 6); break;
+                    case Zone.Woods: c = Grass(x, y, 6, Forest, ForestLo, ForestHi, 14, 8, true); break;
+                    default: c = Grass(x, y, 4, Lawn, LawnLo, LawnHi, 9, 6, false); break;
                 }
                 cv.Set(x, y, c);
             }
@@ -280,14 +283,19 @@ namespace DefesaCivil.CityGen
             }
             var imp = (TextureImporter)AssetImporter.GetAtPath(TexturePath);
             if (imp != null && (imp.filterMode != FilterMode.Point || imp.textureCompression != TextureImporterCompression.Uncompressed
-                || imp.mipmapEnabled || imp.npotScale != TextureImporterNPOTScale.None || imp.maxTextureSize < 2048 || imp.wrapMode != TextureWrapMode.Clamp))
+                || imp.mipmapEnabled || imp.npotScale != TextureImporterNPOTScale.None || imp.maxTextureSize < 4096 || imp.wrapMode != TextureWrapMode.Clamp
+                || imp.textureType != TextureImporterType.Sprite || imp.spriteImportMode != SpriteImportMode.Single || imp.spritePixelsPerUnit != Ppu))
             {
-                imp.textureType = TextureImporterType.Default;
+                // Sprite único: o RawImage usa a textura e o espelho [N] do chão usa o sprite (normais planas, CityBuilder.Lighting)
+                imp.textureType = TextureImporterType.Sprite;
+                imp.spriteImportMode = SpriteImportMode.Single;
+                imp.spritePixelsPerUnit = Ppu;
+                imp.alphaIsTransparency = false;
                 imp.filterMode = FilterMode.Point;
                 imp.textureCompression = TextureImporterCompression.Uncompressed;
                 imp.mipmapEnabled = false;
                 imp.npotScale = TextureImporterNPOTScale.None;
-                imp.maxTextureSize = 2048;
+                imp.maxTextureSize = 4096;
                 imp.wrapMode = TextureWrapMode.Clamp;
                 imp.SaveAndReimport();
             }

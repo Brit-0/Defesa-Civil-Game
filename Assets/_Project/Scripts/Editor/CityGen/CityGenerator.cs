@@ -172,7 +172,7 @@ namespace DefesaCivil.CityGen
             g.mushrooms = g.D("Cogumelo", "Cogumelo_Alto", "Cogumelo_Chapeu", "Cogumelo_Grupo");
             g.palms = g.D("Palmeira", "Palmeira_Cheia", "Palmeira_Cruz", "Palmeira_Curva");
             g.indProps = g.D("Chamine", "Chamine_Baixa", "Chamine_Listrada", "Caixa_Dagua", "Conteiner", "Tanque", "Turbina_Eolica");
-            g.indBack = g.D("Painel_Solar", "Cacamba_Lixo", "Barreira_Concreto", "Arbusto_Grande");
+            g.indBack = g.D("Painel_Solar", "Cacamba_Lixo", "Barreira_Concreto", "Arbusto_Grande", "Conteiner", "Painel_Solar_Plano", "Grade_Obra", "Cone");
         }
 
         // ------------------------------------------------------------------ malha de quarteirões
@@ -188,32 +188,36 @@ namespace DefesaCivil.CityGen
             float S = Street;
             float wOut = R1(g.Range(7.0f, 7.4f)), wIn = R1(g.Range(7.6f, 8.1f)), pw = R1(g.Range(12.4f, 13.2f));
             float d = R1(g.Range(7.2f, 7.5f));
-            var x = new float[5]; var w = new[] { wOut, wIn, pw, wIn, wOut };
-            for (int i = 1; i < 5; i++) x[i] = x[i - 1] + w[i - 1] + S;
-            const int Rows = 4;
+            var w = new[] { wOut, wIn, wIn, pw, wIn, wIn, wOut };
+            int Cols = w.Length, Mid = Cols / 2;
+            var x = new float[Cols];
+            for (int i = 1; i < Cols; i++) x[i] = x[i - 1] + w[i - 1] + S;
+            const int Rows = 6;
             var y = new float[Rows];
             for (int i = 1; i < Rows; i++) y[i] = y[i - 1] + d + S;
 
-            // faixa 0 = sul, faixa 3 = norte; coluna 0 = oeste, coluna 4 = leste
+            // faixa 0 = sul, faixa 5 = norte; coluna 0 = oeste, coluna 6 = leste (v6: 7x6, o dobro da área da v5)
             var plan = new[]
             {
-                new[] { Res, Res, Res, Res, Woods },
-                new[] { Res, Com, Park, Com, Res },
-                new[] { Res, Com, Civic, Com, Res },
-                new[] { Ind, Depot, Res, Depot, Ind },
+                new[] { Woods, Res, Res, Res, Res, Woods, Woods },
+                new[] { Res, Park, Res, Res, Res, Res, Woods },
+                new[] { Res, Res, Com, Park, Com, Res, Res },
+                new[] { Res, Com, Com, Civic, Com, Com, Res },
+                new[] { Ind, Res, Depot, Com, Depot, Res, Ind },
+                new[] { Ind, Ind, Res, Res, Res, Ind, Ind },
             };
             for (int row = 0; row < Rows; row++)
-                for (int col = 0; col < 5; col++)
+                for (int col = 0; col < Cols; col++)
                 {
                     string role = plan[row][col];
                     var b = new Block { r = Rect.MinMaxRect(x[col], y[row], x[col] + w[col], y[row] + d), role = role, row = row };
                     // o Warehouse fica na ponta do quarteirão mais perto do centro
-                    b.westEnd = role == Depot && col > 2;
-                    // esquinas voltadas para as duas ruas que ladeiam o parque recebem semáforo ou placa
+                    b.westEnd = role == Depot && col > Mid;
+                    // esquinas voltadas para as duas ruas que ladeiam a coluna do centro recebem semáforo ou placa
                     if (role != Park && role != Woods && role != Depot)
                     {
-                        b.eastItem = col == 1 || col == 2;
-                        b.westItem = col == 3 && g.Chance(0.3f);
+                        b.eastItem = col == Mid - 1 || col == Mid;
+                        b.westItem = col == Mid + 1 && g.Chance(0.3f);
                     }
                     g.blocks.Add(b);
                 }
@@ -231,13 +235,13 @@ namespace DefesaCivil.CityGen
         }
 
         /// <summary>
-        /// Distribui ~62–70 casas entre os bairros (56/29/15) e calcula o espaço médio entre casas de cada bairro
+        /// Distribui ~150–165 casas entre os bairros (58/26/16) e calcula o espaço médio entre casas de cada bairro
         /// para que a frente disponível acomode esse número. O que sobra vira quintal, árvores e equipamentos.
         /// </summary>
         static void PlanDensity(Gen g)
         {
-            int n = g.rng.Next(62, 70);
-            int nS = Mathf.RoundToInt(0.56f * n), nC = Mathf.RoundToInt(0.29f * n);
+            int n = g.rng.Next(150, 166);
+            int nS = Mathf.RoundToInt(0.58f * n), nC = Mathf.RoundToInt(0.26f * n);
             g.target[District.Suburban] = nS; g.target[District.Commercial] = nC; g.target[District.Industrial] = n - nS - nC;
             var minGap = new Dictionary<string, float> { { District.Suburban, 0.4f }, { District.Commercial, 0.25f }, { District.Industrial, 0.55f } };
             foreach (var d in g.target.Keys.ToList())
@@ -397,7 +401,7 @@ namespace DefesaCivil.CityGen
                     }
                 }
                 // na frente, perto da calçada
-                var front = (lamps && !north && g.Chance(0.25f) ? g.D("Poste_Curvo") : g.D("Flor_Margarida", "Flor_Sino", "Flor_Tulipa", "Planta_Baixa", "Planta_Alta", "Folhagem", "Vaso", "Arbusto_Pequeno"))
+                var front = (lamps && !north && g.Chance(0.4f) ? g.D("Poste_Curvo") : g.D("Flor_Margarida", "Flor_Sino", "Flor_Tulipa", "Planta_Baixa", "Planta_Alta", "Folhagem", "Vaso", "Arbusto_Pequeno"))
                     .NextWhere(t => t.visWU <= gw - 0.08f);
                 if (front != null && g.Chance(0.75f))
                 {
@@ -440,10 +444,10 @@ namespace DefesaCivil.CityGen
                 AddDeco(g, b, tree, x, baseY, TopOverhang, false, b.NorthBottom(x - tree.visWU / 2f, x + tree.visWU / 2f) + 0.9f);
             }
             // flores no quintal
-            int beds = Mathf.Max(1, Mathf.FloorToInt(b.r.width / 5f));
+            int beds = Mathf.Max(1, Mathf.FloorToInt(b.r.width / 3.5f));
             for (int i = 0; i < beds; i++)
             {
-                if (!g.Chance(0.6f)) continue;
+                if (!g.Chance(0.85f)) continue;
                 float x = g.Range(b.r.xMin + 1.0f, b.r.xMax - 1.0f);
                 var f = g.flowers.Next();
                 float y0 = b.SouthTop(x - 1f, x + 1f) + 0.15f, y1 = b.NorthBottom(x - 1f, x + 1f) - f.visHU - 0.1f;
@@ -535,8 +539,8 @@ namespace DefesaCivil.CityGen
                 // entre os prédios: canteiro, palmeira ou guarda-sol de vez em quando
                 Slot Between(float gp)
                 {
-                    if (!g.Chance(0.18f)) return null;
-                    var p = north ? g.T("Jardineira") : g.Pick(new[] { g.T("Guarda_Sol"), g.T("Jardineira") });
+                    if (!g.Chance(0.3f)) return null;
+                    var p = north ? g.Pick(new[] { g.T("Jardineira"), g.T("Vaso") }) : g.Pick(new[] { g.T("Guarda_Sol"), g.T("Jardineira"), g.T("Vaso") });
                     return p == null ? null : new Slot { cs = p, gapBefore = Mathf.Max(gp, 0.35f), jitter = 0.1f };
                 }
                 var slots = FillRow(g, b, north, District.Commercial, Pick, RowAvail(b, north), null, Between);
@@ -618,7 +622,7 @@ namespace DefesaCivil.CityGen
                 var p = g.indBack.Next();
                 float ya = b.SouthTop(x - p.visWU / 2f, x + p.visWU / 2f) + 0.12f, yb = b.NorthBottom(x - p.visWU / 2f, x + p.visWU / 2f) - 0.1f;
                 if (yb - ya >= p.visHU) AddDeco(g, b, p, x, ya + (yb - ya - p.visHU) * g.Range(0.3f, 0.7f), 0f, true);
-                x += p.visWU + g.Range(0.3f, 1.2f);
+                x += p.visWU + g.Range(0.2f, 0.7f);
             }
             CornerGarden(g, b, b.southSlots, false, g.pines);
             CornerGarden(g, b, b.northSlots, true, g.pines);
@@ -751,16 +755,20 @@ namespace DefesaCivil.CityGen
 
         static void StreetFurniture(Gen g)
         {
-            var sem = g.T("Semaforo"); var stop = g.T("Placa_Pare"); var lamp = g.T("Poste_Curvo");
+            var sem = g.T("Semaforo"); var stop = g.T("Placa_Pare"); var lamp = g.T("Poste_Curvo"); var sign = g.T("Placa_Rua");
             foreach (var b in g.blocks)
             {
                 // semáforos nos cruzamentos ao lado do parque; poste nas demais esquinas das ruas que atravessam
                 if (b.eastItem)
                 {
-                    var item = b.row >= 1 && b.row <= 2 ? sem : (g.Chance(0.6f) ? lamp : null);
+                    var item = b.row >= 2 && b.row <= 3 ? sem : (g.Chance(0.6f) ? lamp : null);
                     if (item != null) AddDeco(g, b, item, b.r.xMax - item.visWU / 2f - 0.08f, b.r.yMin + 0.05f, 10f);
                 }
                 if (b.westItem && stop != null) AddDeco(g, b, stop, b.r.xMin + stop.visWU / 2f + 0.08f, b.r.yMin + 0.05f, 10f);
+                // v6: poste na esquina de baixo à esquerda e placa de rua na da direita, nos bairros de casas e comércio
+                if (b.role != Res && b.role != Com) continue;
+                if (!b.westItem && lamp != null && g.Chance(0.5f)) AddDeco(g, b, lamp, b.r.xMin + lamp.visWU / 2f + 0.08f, b.r.yMin + 0.05f, 10f);
+                if (!b.eastItem && sign != null && g.Chance(0.5f)) AddDeco(g, b, sign, b.r.xMax - sign.visWU / 2f - 0.08f, b.r.yMin + 0.05f, 10f);
             }
         }
 

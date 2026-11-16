@@ -37,11 +37,11 @@ namespace DefesaCivil.CityGen.Tests
         {
             var l = CityGenerator.Generate(777, Center, cat, "t");
             int houses = l.structures.Count(s => s.type == StructureType.House);
-            Assert.That(houses, Is.InRange(50, 80));
+            Assert.That(houses, Is.InRange(LayoutValidator.MinHouses, LayoutValidator.MaxHouses));
             Assert.AreEqual(1, l.structures.Count(s => s.type == StructureType.Guard));
             Assert.AreEqual(2, l.structures.Count(s => s.type == StructureType.Warehouse));
             Assert.That(l.decorations.Count, Is.GreaterThanOrEqualTo(2 * houses));
-            Assert.AreEqual(2, l.polygons.Count(p => p.kind == PolygonKind.Plaza), "parque central + bosque");
+            Assert.AreEqual(6, l.polygons.Count(p => p.kind == PolygonKind.Plaza), "2 parques + 4 bosques");
             Assert.AreEqual(CityGenerator.Street, l.limiterMargin, "rua de contorno");
             Assert.AreEqual(777, l.seed);
             Assert.IsTrue(l.structures.Any(s => s.facing == Facing.North), "fileira de cima");

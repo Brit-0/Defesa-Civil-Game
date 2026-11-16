@@ -9,6 +9,8 @@ namespace DefesaCivil.CityGen
     {
         public const float SizeTolerance = 0.01f;
         public const float CenterTolerance = 0.5f;
+        /// <summary>Faixa de casas comuns (R01); v6: mapa 7x6.</summary>
+        public const int MinHouses = 120, MaxHouses = 200;
         /// <summary>A vista inicial sobe um pouco do meio do quarteirão da Guarda: as bolhas de chamado da fileira norte cabem na tela.</summary>
         public const float FocusLift = 0.35f;
         public const float StreetTolerance = 0.02f;
@@ -84,7 +86,7 @@ namespace DefesaCivil.CityGen
             int nHouse = houses.Count;
             int nGuard = l.structures.Count(s => s.type == StructureType.Guard);
             int nWare = l.structures.Count(s => s.type == StructureType.Warehouse);
-            if (nHouse < 50 || nHouse > 80) r.Add("R01", "Houses", Vector2.zero, $"{nHouse} House (esperado 50–80)");
+            if (nHouse < MinHouses || nHouse > MaxHouses) r.Add("R01", "Houses", Vector2.zero, $"{nHouse} House (esperado {MinHouses}–{MaxHouses})");
             if (nGuard != 1) r.Add("R02", "Houses", Vector2.zero, $"{nGuard} Guard (esperado 1)");
             if (nWare != 2) r.Add("R03", "Houses", Vector2.zero, $"{nWare} Warehouse (esperado 2)");
 

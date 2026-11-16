@@ -51,13 +51,17 @@ namespace DefesaCivil.CityGen
         {
             var now = new SceneBaseline(); now.Fill(r);
             var d = new List<string>();
-            Compare(d, "Main Camera", mainCamera, now.mainCamera);
+            Compare(d, "Main Camera (exceto o zoom do CameraController)", WithoutZoom(mainCamera), WithoutZoom(now.mainCamera));
             Compare(d, "PolygonCamera (exceto orthographicSize)", polygonCamera, now.polygonCamera);
             Compare(d, "PolygonsDisplay (exceto retângulo)", polygonsDisplayImage, now.polygonsDisplayImage);
             if (now.cameraControllerFileHash != cameraControllerFileHash) d.Add("CameraController.cs mudou");
             if (now.mapRenderFileHash != mapRenderFileHash) d.Add("MapRender.renderTexture mudou");
             return d;
         }
+
+        // v6 (pedido do Pietro, 16/11/2026): o zoom serializado do CameraController na cena acompanha o mapa maior; o código não muda
+        static readonly string[] ZoomFields = { "CameraController.zoom=", "CameraController.zoomMult=", "CameraController.minZoom=", "CameraController.maxZoom=" };
+        static List<string> WithoutZoom(List<string> lines) => lines.Where(x => !ZoomFields.Any(x.StartsWith)).ToList();
 
         static void Compare(List<string> d, string what, List<string> before, List<string> now)
         {

@@ -118,6 +118,22 @@ Feita lendo os docs e o código, sem abrir o Editor (o PC desta sessão não tem
 - Decisão: **go**, pelos três números do critério. — folga grande nos três. Ressalvas: o FPS está travado pelo monitor, o PC é forte e a medição foi do jogo antes da integração de B e C; repetir no T32 com o jogo completo (efeitos, áudio, cerca de 300 Canvas animados) e, se possível, numa máquina mais fraca.
 - Para o itch.io: o build usa Brotli sem fallback de descompressão; o itch.io entrega `.br` com o cabeçalho certo, então fica assim. Se a página não carregar lá, ligar `Decompression Fallback` no Player Settings.
 
+## 2026-11-16 — Mapa novo e visual (MEGABRAIN, pedidos do usuário)
+
+**Mapa v5 (commit `1a0af4d`)**
+- Cidade refeita do zero pelo gerador (`Tools/City`), com a Guarda no meio de uma praça cívica de frente para o parque central, o chão assado em pixel art (`CityGround`) e a vista inicial em cima da Guarda. — o usuário pediu mapa novo, legível e só com a arte existente.
+
+**Mapa v6: muito maior, mais bonito e com luz (pedido de 16/11, tarde)**
+- Grade de 7 colunas x 6 faixas (era 5 x 4): 155 casas, 570 decorações, chão de 67,5 x 53,4 u. Regras mudadas em `docs/city-rules.md`: R01 aceita de 120 a 200 casas; R32/R33 medem pela meia largura do sprite; R34 centra a vista no quarteirão da Guarda, 0,35 u acima.
+- Câmera: zoom inicial 8 (antes 5), mínimo 3, máximo 16, gravados nos campos do `CameraController` pela cena (o `CameraController.cs` não foi mexido). R28 ganhou essa exceção e o `SceneBaseline` ignora só esses quatro campos.
+- Escala: todo sprite fica no tamanho nativo, 32 px por unidade, como os pixels do chão. — densidade de pixel igual em tudo; esticar uma casa ou árvore misturaria pixels de tamanhos diferentes.
+- Luz 2D com normal map: as casas, árvores e o chão são `Image` de UI, que recebem a cor das `Light2D` mas não escrevem normal map. Cada uma ganhou um filho `[N]` com `SpriteRenderer` e o shader `DefesaCivil/Sprite Normals Only` (só o passo de normais, mesmo sprite, mesmo lugar): o relevo dos 266 `_n.png` já existentes passa a valer. Luzes: global fria como ambiente (0,68), um "sol" pontual muito longe a noroeste (age como luz direcional com normal map), luz quente em cada poste, azulada na Guarda e amarela nos Armazéns. Bloom leve no Global Volume (limiar 1,08, intensidade 0,4). O `HouseMAT` passou para a variante iluminada do Sprite Shaders Ultimate, então rachadura e tinta do Feel continuam.
+- Densidade sem custo em jogo: as miudezas (manchas de gramado, terra batida, tufos, florzinhas, folhas no bosque, remendos, rachaduras, manchas de óleo, bueiros, lajotas gastas e flores do pack carimbadas) são pixels do chão assado. Props de verdade a mais: postes e placas nas esquinas, vasos no comércio, pátio industrial mais cheio, mais canteiros de flores.
+- Sombras (pedido do usuário): o que fica parado (casas, prédios, árvores, props) tem sombra projetada assada no chão (`CityGround.CastShadows`): a silhueta de cada sprite deitada para sudeste, oposta ao sol do `CityBuilder` (noroeste), 0,42 u por unidade de altura, mais escura no pé (34%) e mais clara na ponta (16%), borda amaciada em 1 px. Quem se mexe (trabalhadores) usa o `ProjectedShadow`, um efeito de malha de UI que desenha a mesma silhueta achatada e inclinada embaixo da `Image`, na mesma chamada de desenho. — `ShadowCaster2D` com a luz do sol faria sombras compridas e custaria um passe por luz no WebGL com uns 700 objetos; assada não custa nada por quadro. Não há ciclo de dia no jogo, então a direção é fixa. Não há veículos em jogo.
+- Velocidade do trabalhador: `workerSpeed` 1 → 2 no `BalanceData.asset`. — o caminho mais longo saindo da Guarda tem 57 u; a 1 u/s um incêndio (25 s) queimava antes de a equipe chegar na metade do mapa. Pedido ao B para mudar o padrão da classe.
+- Texto de instrução (`FeedbackText`) descido para baixo da barra de CAOS e com contorno escuro (`Assets/_Project/Data/UI/ModernDOS Contorno.mat`). — ficava em cima da barra e sumia no chão claro.
+- Cortes: carros estacionados nas ruas (R20 manda decoração dentro de quarteirão e os trabalhadores andam pelas ruas); horta, plantação e acampamento seguem fora (exclusão pedida pelo usuário no catálogo).
+
 ## Pendências
 
 Design: nenhuma (P1 a P7 resolvidas; ver o fim do `GDD.md`). Do Unity: U1 a U8 no `TASKS.md`.

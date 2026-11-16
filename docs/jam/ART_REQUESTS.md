@@ -63,6 +63,17 @@ Prioridade: **P1** = necessário para o jogo fechar · **P2** = melhora muito ·
 | P2 | `Warehouse_S.png` | Armazém de materiais, fachada para o sul. Mesmo caso. |
 | P3 | `Goal_S.png` | Centro de Operações (aparece na vitória). |
 
+## Mobiliário urbano (`Assets/Arts/Houses/Roads/<Nome>/`, pedido do MEGABRAIN para o mapa v6)
+
+Cada sprite com o normal map ao lado (`<Nome>_n.png`, pela Forja ou pelo Lighter): a cena agora tem luz 2D e usa o relevo.
+
+| Prio | Arquivo | Descrição |
+|---|---|---|
+| P2 | `Banco/Banco.png` | Banco de praça, ~1 u de largura. A praça da Guarda e o parque só têm postes e canteiros. |
+| P2 | `Lixeira/Lixeira.png` | Lixeira de calçada, ~0,5 u. Para as esquinas do comércio. |
+| P3 | `Hidrante/Hidrante.png` | Hidrante vermelho, ~0,5 u. Combina com o tema. |
+| P3 | `Ponto_Onibus/Ponto_Onibus.png` | Ponto de ônibus, ~1,5 u. |
+
 ## Interface (`Assets/Arts/UI/`)
 
 | Prio | Arquivo | Descrição |

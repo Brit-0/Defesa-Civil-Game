@@ -24,7 +24,7 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 
 | ID | Severidade | Regra (critério mensurável) |
 |---|---|---|
-| R01 | erro | Nº de `House` em `UI/Canvas/UIContainer/Houses` entre 50 e 80, inclusive. |
+| R01 | erro | Nº de `House` em `UI/Canvas/UIContainer/Houses` entre 120 e 200, inclusive (v6: mapa 7x6). |
 | R02 | erro | Existe exatamente 1 `Guard`. |
 | R03 | erro | Existem exatamente 2 `Warehouse`. |
 | R04 | erro | Todas as estruturas são filhas diretas de `UI/Canvas/UIContainer/Houses`. Há 0 estruturas fora dele. |
@@ -76,7 +76,7 @@ Severidade: **erro** = obrigatório ("deve"); **aviso** = preferência ("tente",
 
 | ID | Severidade | Regra |
 |---|---|---|
-| R28 | erro | Ficam sem alteração em relação ao commit `ac210a1`: componentes da Main Camera, `CameraController.cs` e `MapRender` (incluindo a resolução de 640×360). Na PolygonCamera, só o `orthographicSize` pode mudar; no `PolygonsDisplay`, só o retângulo (âncoras, `sizeDelta` e posição). Ambos são ajustados pelo Build (R34). Sob a Main Camera, só mudam os filhos de `PolygonLayer` e o ortho da PolygonCamera. |
+| R28 | erro | Ficam sem alteração em relação ao commit `ac210a1`: componentes da Main Camera (exceto `zoom`, `minZoom`, `maxZoom` e `zoomMult` do CameraController na cena, que o Build ajusta ao mapa v6), `CameraController.cs` e `MapRender` (incluindo a resolução de 640×360). Na PolygonCamera, só o `orthographicSize` pode mudar; no `PolygonsDisplay`, só o retângulo (âncoras, `sizeDelta` e posição). Ambos são ajustados pelo Build (R34). Sob a Main Camera, só mudam os filhos de `PolygonLayer` e o ortho da PolygonCamera. |
 | R29 | erro | O layout é definido em `Assets/_Project/Data/Cities/city_layout.json` e aplicado por `Tools/City/Build`. Rodar o Build 2 vezes sem mudar o JSON não gera diferença na cena (idempotente). |
 | R30 | erro | Ordem de desenho por Y entre `Houses`, `Trees` e `Workers`, que são empties diferentes do mesmo Canvas: cada estrutura, decoração e Worker tem um Canvas aninhado (Override Sorting) com `YSortCanvas`, e `sortingOrder = 5000 − round(y_da_base × 50) × 3 + tipo` (tipo: House 0, Tree 1, Worker 2; tolerância 1). Quanto mais ao sul, mais à frente. Canvas filhos (painel de informação) ficam em 10000. Estruturas têm `GraphicRaycaster` para continuar clicáveis. |
 | R31 | erro | O `BoxCollider2D` de cada estrutura gerada cobre o retângulo do sprite em tamanho nativo (tolerância 0,01 u). |

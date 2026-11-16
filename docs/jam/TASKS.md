@@ -96,9 +96,23 @@ Nada disto pôde ser feito na sessão de 16/11, porque o PC dela não tem o Unit
 
 **Branch `pc-felipe`: integrada em 16/11 (merge `0edb447`).** Entrou sem conflito. Cena conferida no Editor antes e depois do merge: 1519 objetos, 221 árvores, 70 casas, 105 waypoints, 0 referência quebrada, 0 árvore sem sprite, console sem erro. A branch não ganhou commits depois do `2bb4426`. Observação: `Assets/_Project/Data/Cities/city_layout.json` ainda cita os dois sprites apagados (`Arvore_Quintal` e `Arvore_Quintal_Baixa`); só importa se a cidade for regerada. Falta avisar quem usa a `pc-felipe` que cena, daqui em diante, só na `jam`. Histórico: apareceu no remoto em 16/11 uma branch fora do combinado, saída da `main` (commit `2bb4426`, 09:10, "Removed wrong tree sprites"), que altera `Gameplay.unity` e apaga sprites de árvore. A `jam` ainda não tocou na cena: integrada agora, entra sem conflito; integrada depois da U7, vira conflito de cena. Não foi integrada na sessão sem Unity porque não dá para conferir a cena sem o Editor. Fazer no passo 3b do prompt do MEGABRAIN no Unity, e avisar quem usa essa branch que cena só se edita na `jam`.
 
+## Mapa novo e visual (pedidos do usuário, 16/11)
+
+| Status | ID | O quê | Pronto quando |
+|---|---|---|---|
+| [x] | M1 | Mapa v5 do zero, Guarda no centro, chão assado, vista inicial na Guarda (commit `1a0af4d`). | 0 erro de validação, testes EditMode passando. |
+| [x] | M2 | Mapa v6 muito maior (7 x 6 quarteirões, 155 casas, 570 decorações), câmera mais aberta (zoom 8, de 3 a 16). | 0 erro e 0 aviso de validação; 2º Build sem mudança. |
+| [x] | M3 | Luz 2D com normal map em casas, árvores e chão; sol, postes, Guarda, Armazéns; bloom leve. | Relevo visível no Play; testes passando. |
+| [x] | M4 | Densidade: miudezas no chão assado e props novos. | Conferido no Play. |
+| [x] | M4b | Sombras: projetadas e assadas no chão para tudo o que fica parado; `ProjectedShadow` nos trabalhadores. | Conferido no Play (capturas 14 e 15). |
+| [ ] | M5 | Playtest do loop no mapa v6 com capturas em `analises-lilith/jogo-defesa-civil/resultados/` (14_ em diante). | Loop inteiro jogado; bugs aqui embaixo. |
+| [ ] | M6 | WebGL com o mapa v6: medir FPS (meta 60). | Número registrado em `DECISIONS.md`. |
+
 ## Pedidos entre agentes
 
 - Do B para o MEGABRAIN: `STATUS_B.md`. Do C para o MEGABRAIN: `STATUS_C.md`.
 - Do MEGABRAIN para B e C (bugs de playtest, erros de compilação, mudanças): aqui embaixo. Formato: `- [ ] (MEGABRAIN → B) pedido — contexto`
 
-_(vazio)_
+- [ ] (MEGABRAIN → B) `BalanceData.cs`: padrão de `workerSpeed` de 1 para 2. — o asset já está em 2 (mapa v6 é bem maior); sem isso, `Create Default Data` com sobrescrita volta a 1.
+- [ ] (MEGABRAIN → C) Fogo com luz: uma `Light2D` laranja piscando em cada casa pegando fogo (a cena agora tem luz 2D e bloom leve, então ela vai brilhar). Raio perto de 3 u, intensidade de 1 a 1,5.
+- [ ] (MEGABRAIN → C) Bolhas de chamado legíveis no zoom aberto: o zoom agora vai até 16; manter a bolha com tamanho constante na tela (escala pelo `orthographicSize`).

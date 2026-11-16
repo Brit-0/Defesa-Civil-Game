@@ -15,7 +15,7 @@ MonoBehaviour:
   startWorkers: 3
   startMaterial: 5
   startMoney: 0
-  workerSpeed: 1
+  workerSpeed: 2
   dispatchInterval: 0.8
   materialPerWorker: 1
   autoDispatchInterval: 1

@@ -17,7 +17,7 @@ namespace DefesaCivil.CityGen
     /// Aplica o city_layout.json nos pais existentes da cena (docs/plan-citygen.md, seção c).
     /// Objetos gerados: nome "[CG] tipo id". Estratégia: atualizar por id.
     /// </summary>
-    public class CityBuilder
+    public partial class CityBuilder
     {
         public const string PolygonPrefabPath = "Assets/Systems/Houses/Polygon.prefab";
         public const float DisplayAspect = 16f / 9f; // MapRender 640×360
@@ -74,6 +74,7 @@ namespace DefesaCivil.CityGen
             FillGps();
             BuildDecorations();
             SortByBottom(refs.trees, layout.decorations.ToDictionary(d => CitySceneRefs.Name("Tree", d.id), d => (Vector2)d.bottomCenter));
+            BuildLighting();
             FlushPrefabOverrides();
             if (undo) Undo.CollapseUndoOperations(group);
             return res;
@@ -253,6 +254,7 @@ namespace DefesaCivil.CityGen
                 }
 
                 if (EnsureYSort(t.gameObject, YSortCanvas.Kind_House, cs.padBottomU, true)) changed = true;
+                if (LightHouse(t)) changed = true;
                 var house = t.GetComponent<House>();
                 houses[key] = house;
                 if (house is Location) locations.Add(house);
@@ -407,35 +409,11 @@ namespace DefesaCivil.CityGen
                     changed = true;
                 }
                 if (EnsureYSort(t.gameObject, YSortCanvas.Kind_Tree, cs.padBottomU, false)) changed = true;
+                if (LightDecoration(img)) changed = true;
                 if (!created) Changed(changed);
             }
             foreach (var kv in existing) Destroy(kv.Value.gameObject, "id fora do JSON");
         }
-
-        // ---------- Limiter (R27) ----------
-
-        void FitLimiter()
-        {
-            var bb = PolygonBox();
-            float m = layout.limiterMargin; // rua de contorno (R27)
-            bb = Rect.MinMaxRect(bb.xMin - m, bb.yMin - m, bb.xMax + m, bb.yMax + m);
-            var t = refs.limiter.transform;
-            var spriteSize = refs.limiter.sprite.bounds.size;
-            var parentScale = t.parent ? t.parent.lossyScale : Vector3.one;
-            var pos = new Vector3(bb.center.x, bb.center.y, t.position.z);
-            var scale = new Vector3(bb.width / spriteSize.x / parentScale.x, bb.height / spriteSize.y / parentScale.y, t.localScale.z);
-            bool changed = (t.position - pos).sqrMagnitude > 1e-10f || (t.localScale - scale).sqrMagnitude > 1e-10f;
-            if (changed)
-            {
-                Record(t);
-                t.position = pos; t.localScale = scale;
-            }
-            Changed(changed);
-        }
-
-        // ---------- chão assado (v5) ----------
-
-        public const string GroundName = CitySceneRefs.CgPrefix + "Ground";
 
         /// <summary>
         /// Assa o chão (CityGround) e mostra a textura num RawImage logo acima do PolygonsDisplay, cobrindo o Limiter.
@@ -474,42 +452,6 @@ namespace DefesaCivil.CityGen
                 Record(t);
                 t.anchorMin = half; t.anchorMax = half; t.pivot = half;
                 t.sizeDelta = size; t.position = pos;
-                changed = true;
-            }
-            Changed(changed);
-        }
-
-        // ---------- enquadramento dos chãos (R34) ----------
-
-        public static float RequiredOrtho(Rect bb, Vector2 center)
-        {
-            float halfW = Mathf.Max(Mathf.Abs(bb.xMin - center.x), Mathf.Abs(bb.xMax - center.x));
-            float halfH = Mathf.Max(Mathf.Abs(bb.yMin - center.y), Mathf.Abs(bb.yMax - center.y));
-            return Mathf.Max(halfH, halfW / DisplayAspect);
-        }
-
-        void FitPolygonFraming()
-        {
-            Vector2 c = refs.mainCamera.transform.position;
-            float ortho = RequiredOrtho(PolygonBox(), c);
-            bool changed = false;
-            if (!Approx(refs.polygonCamera.orthographicSize, ortho))
-            {
-                Record(refs.polygonCamera);
-                refs.polygonCamera.orthographicSize = ortho;
-                changed = true;
-            }
-            var rt = refs.polygonsDisplay;
-            var parentScale = rt.parent.lossyScale;
-            var size = new Vector2(2f * ortho * DisplayAspect / parentScale.x, 2f * ortho / parentScale.y);
-            var half = new Vector2(0.5f, 0.5f);
-            var pos = new Vector3(c.x, c.y, rt.position.z);
-            if (rt.anchorMin != half || rt.anchorMax != half || rt.pivot != half || !Approx(rt.sizeDelta, size) || ((Vector2)rt.position - c).sqrMagnitude > 1e-8f)
-            {
-                Record(rt);
-                rt.anchorMin = half; rt.anchorMax = half; rt.pivot = half;
-                rt.sizeDelta = size;
-                rt.position = pos;
                 changed = true;
             }
             Changed(changed);

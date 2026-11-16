@@ -53,7 +53,7 @@ namespace DefesaCivil.CityGen.Tests
         {
             var l = Base(); S(l, "001", StructureType.House, Sub, 3, 5.3f);
             Assert.IsTrue(V(l).Has("R01"));
-            for (int i = 2; i <= 50; i++) S(l, i.ToString("000"), StructureType.House, Sub, 3, 5.3f);
+            for (int i = 2; i <= LayoutValidator.MinHouses; i++) S(l, i.ToString("000"), StructureType.House, Sub, 3, 5.3f);
             Assert.IsFalse(V(l).Has("R01"));
         }
 
