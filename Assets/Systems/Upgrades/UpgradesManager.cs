@@ -15,6 +15,15 @@ public static class UpgradeIds
     public const string Goal = "goal";
 }
 
+// O que cada nível do upgrade automation liga (GDD, seção 7).
+public static class AutomationLevels
+{
+    public const int AutoBase = 1;      // Central de rádio: base escolhida sozinha
+    public const int AutoTeam = 2;      // Protocolo padrão: equipe dimensionada sozinha
+    public const int AutoCollect = 3;   // Coleta automática
+    public const int AutoDispatch = 4;  // Despacho automático
+}
+
 // Níveis, custo e compra dos upgrades. Adicionar um upgrade = criar um asset em Resources/Upgrades.
 public class UpgradesManager : MonoBehaviour
 {

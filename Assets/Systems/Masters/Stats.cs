@@ -61,6 +61,13 @@ public static class Stats
         return Random.Range(Balance.minDamage, Balance.maxDamage + 1);
     }
 
+    // Equipe sugerida (GDD 3.1): 1 trabalhador por ponto de dano, limitada aos disponíveis, nunca abaixo do mínimo do chamado.
+    public static int GetSuggestedTeam(Call call)
+    {
+        int wanted = Mathf.Max(call.workersNeeded, call.house.damageAmount);
+        return Mathf.Max(call.workersNeeded, Mathf.Min(wanted, ResourcesManager.Workers));
+    }
+
     // GDD 3.1: tempo = tempo por ponto de dano × dano ÷ equipe, com um mínimo. Armazém tem tempo fixo.
     public static float GetWorkTime(Call call)
     {

@@ -52,6 +52,16 @@ public class GuardManager : MonoBehaviour
         Instance = this;
     }
 
+    private void OnEnable()
+    {
+        GameEvents.UpgradePurchased += OnUpgradePurchased;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.UpgradePurchased -= OnUpgradePurchased;
+    }
+
     #region CALL FLOW
 
     public void OpenCall(Call call)
@@ -61,9 +71,30 @@ public class GuardManager : MonoBehaviour
         currentCall = call;
         selectedGuard = null;
         callTab.SetActive(false);
-        selectBaseMode = true;
-        FeedbacksManager.ShowText("Escolha a base encarregada para o chamado");
         GameEvents.RaiseCallOpened(call);
+
+        // Automação 1 (Central de rádio): a base mais próxima da casa é escolhida sozinha.
+        CityGuard nearestGuard = Stats.AutomationLevel >= AutomationLevels.AutoBase ? GetNearestGuard(call.house) : null;
+        if (nearestGuard == null)
+        {
+            selectBaseMode = true;
+            FeedbacksManager.ShowText("Escolha a base encarregada para o chamado");
+            return;
+        }
+
+        // Automação 2 (Protocolo padrão): a equipe sugerida sai num clique. No Armazém o jogador ainda escolhe a equipe.
+        if (Stats.AutomationLevel >= AutomationLevels.AutoTeam && call.type == CallType.Problem)
+        {
+            if (!TrySendTeam(call, nearestGuard, Stats.GetSuggestedTeam(call))) CloseCall();
+            return;
+        }
+
+        SelectBase(nearestGuard);
+    }
+
+    private static CityGuard GetNearestGuard(House house)
+    {
+        return LocationsManager.Instance != null ? LocationsManager.Instance.GetNearestGuard(house.transform.position) : null;
     }
 
     public void CancelCall(CallbackContext context)
@@ -183,6 +214,36 @@ public class GuardManager : MonoBehaviour
             yield return new WaitForSeconds(Stats.DispatchInterval);
         }
     }
+
+    #endregion
+
+    #region AUTOMATION
+
+    private void OnUpgradePurchased(UpgradeData upgrade, int newLevel)
+    {
+        if (upgrade.id != UpgradeIds.Automation) return;
+
+        // Automação 3 (Coleta automática): o que já estava pronto esperando o clique é coletado na hora da compra.
+        if (newLevel >= AutomationLevels.AutoCollect) CollectAllCompleted();
+    }
+
+    private static void CollectAllCompleted()
+    {
+        if (LocationsManager.Instance == null) return;
+
+        foreach (House house in LocationsManager.Instance.Houses)
+        {
+            if (house.IsComplete) house.ResolveCompletion();
+        }
+        foreach (Warehouse warehouse in LocationsManager.Instance.Warehouses)
+        {
+            if (warehouse.IsComplete) warehouse.ResolveCompletion();
+        }
+    }
+
+    #endregion
+
+    #region TEAM SIZE
 
     public void IncreaseTeamSize()
     {

@@ -185,6 +185,9 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         progressCircle.gameObject.SetActive(false);
         complete.SetActive(true);
         GameEvents.RaiseWorkCompleted(currentCall);
+
+        // Automação 3 (Coleta automática): a recompensa entra sozinha. Vale também para o Armazém.
+        if (Stats.AutomationLevel >= AutomationLevels.AutoCollect && !GameManager.InputBlocked) ResolveCompletion();
     }
 
     // Coleta. O material já saiu do estoque no envio, então a casa sempre é consertada.
