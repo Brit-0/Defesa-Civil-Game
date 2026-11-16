@@ -17,6 +17,10 @@ public class WeatherFx : MonoBehaviour
     [SerializeField] private float dropSpeed = 1500f;
     [SerializeField] private float rainFadeTime = 1f;
 
+    [Header("SPLASHES (respingos do FeelParticles pela tela, escala = altura da tela)")]
+    [SerializeField] private float splashesPerSecond = 30f;
+    [SerializeField] private float splashScale = 1f;
+
     [Header("RAIN TILE (opcional: textura com Wrap Mode Repeat; troca as gotas)")]
     [SerializeField] private Sprite rainTile;
     [SerializeField] private float tileScale = 4f;
@@ -31,12 +35,13 @@ public class WeatherFx : MonoBehaviour
     [SerializeField] private float boltThickness = 7f;
     [SerializeField] private float boltJitter = 60f;
     [SerializeField] private float boltTime = .25f;
-    [SerializeField] private int sparkCount = 8;
-    [SerializeField] private float sparkSize = 10f;
-    [SerializeField] private float sparkDistance = 70f;
+    [SerializeField] private int sparkCount = 12;
+    [Tooltip("Escala das faíscas do FeelParticles, em pixels da tela de referência")]
+    [SerializeField] private float sparkScale = 300f;
 
     private RectTransform layer;
     private CanvasGroup rainGroup;
+    private float splashDebt;
     private RectTransform[] drops;
     private RawImage tile;
     private Image flash;
@@ -175,6 +180,8 @@ public class WeatherFx : MonoBehaviour
 
         float delta = Time.deltaTime;
 
+        Splash(delta);
+
         if (tile != null)
         {
             Vector2 size = layer.rect.size;
@@ -203,6 +210,26 @@ public class WeatherFx : MonoBehaviour
         }
     }
 
+    //Respingos em pontos soltos da tela, dentro da chuva (somem com o fade dela)
+    private void Splash(float delta)
+    {
+        if (!raining || splashesPerSecond <= 0f) return;
+
+        splashDebt += splashesPerSecond * delta;
+        if (splashDebt < 1f) return;
+
+        Transform rain = rainGroup.transform;
+        Vector2 half = layer.rect.size * .5f;
+        float scale = layer.rect.height * splashScale;
+
+        while (splashDebt >= 1f)
+        {
+            splashDebt -= 1f;
+            Vector2 point = new Vector2(Random.Range(-half.x, half.x), Random.Range(-half.y, half.y));
+            FeelParticles.Emit(FxKind.Splash, rain, point, scale);
+        }
+    }
+
     private void OnLightningStruck(Vector3 worldPosition)
     {
         if (layer == null) return;
@@ -222,7 +249,7 @@ public class WeatherFx : MonoBehaviour
         boltGroup.alpha = 1f;
         boltGroup.DOFade(0f, boltTime).SetEase(Ease.InQuad).SetLink(boltGroup.gameObject);
 
-        if (sparkCount > 0) FeelFx.Burst(layer, target, sparkCount, boltColor, sparkSize, sparkDistance, boltTime * 2f, .4f);
+        if (sparkCount > 0) FeelParticles.Emit(FxKind.Sparks, layer, target, sparkScale, sparkCount);
     }
 
     //Raio em ziguezague do topo da tela até o ponto atingido

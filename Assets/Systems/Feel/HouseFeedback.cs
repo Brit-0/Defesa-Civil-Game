@@ -17,23 +17,27 @@ public class HouseFeedback : MonoBehaviour
     [SerializeField] private float shakeTime = .5f;
     [SerializeField] private int shakeVibrato = 18;
     [SerializeField] private float crackInTime = .35f;
-    [SerializeField] private int dustCount = 7;
-    [SerializeField] private Color dustColor = new Color(.78f, .72f, .62f, .9f);
-    [SerializeField] private float dustSize = .09f;
-    [SerializeField] private float dustDistance = .45f;
-    [SerializeField] private float dustTime = .6f;
+
+    [Header("PARTICLES (escala sobre o tamanho da casa; a receita fica no FeelParticles)")]
+    [SerializeField] private float dustScale = 1f;
+    [SerializeField] private float debrisScale = 1f;
+    [SerializeField] private float sparkleScale = 1f;
+    [SerializeField] private float steamScale = 1f;
+    [SerializeField] private float smokeScale = 1f;
 
     [Header("REPAIR (frações do tamanho da casa)")]
     [SerializeField] private float hopHeight = .12f;
     [SerializeField] private float hopTime = .35f;
     [SerializeField] private float crackOutTime = .25f;
-    [SerializeField] private int sparkleCount = 8;
-    [SerializeField] private Color sparkleColor = new Color(1f, .95f, .6f);
-    [SerializeField] private float sparkleSize = .06f;
-    [SerializeField] private float sparkleDistance = .6f;
-    [SerializeField] private float sparkleTime = .5f;
     [SerializeField] private float flashStrength = .8f;
     [SerializeField] private float flashTime = .3f;
+
+    [Header("WORK (equipe trabalhando na casa)")]
+    [SerializeField] private bool workParticles = true;
+    [SerializeField] private float workInterval = .55f;
+    [SerializeField] private float workScale = .6f;
+    [SerializeField] private int workDebrisCount = 2;
+    [SerializeField] private int workDustCount = 2;
 
     [Header("FIRE")]
     [SerializeField] private float igniteShakeStrength = .03f;
@@ -69,6 +73,8 @@ public class HouseFeedback : MonoBehaviour
     private Tween moveTween;
     private Tween flashTween;
     private HouseFire fireFx;
+    private bool working;
+    private float workTimer;
 
     private float HouseSize => transform is RectTransform rect ? rect.rect.height : 1f;
 
@@ -132,12 +138,45 @@ public class HouseFeedback : MonoBehaviour
     {
         GameEvents.HouseStateChanged += OnHouseStateChanged;
         GameEvents.ActionDenied += OnActionDenied;
+        GameEvents.WorkStarted += OnWorkStarted;
+        GameEvents.WorkCompleted += OnWorkCompleted;
     }
 
     private void OnDisable()
     {
         GameEvents.HouseStateChanged -= OnHouseStateChanged;
         GameEvents.ActionDenied -= OnActionDenied;
+        GameEvents.WorkStarted -= OnWorkStarted;
+        GameEvents.WorkCompleted -= OnWorkCompleted;
+        working = false;
+    }
+
+    private void OnWorkStarted(Call call)
+    {
+        if (call == null || call.house != house) return;
+
+        working = true;
+        workTimer = 0f;
+    }
+
+    private void OnWorkCompleted(Call call)
+    {
+        if (call != null && call.house == house) working = false;
+    }
+
+    //Enquanto a equipe trabalha, lascas e poeirinha no ritmo do martelo do GameAudio
+    private void Update()
+    {
+        if (!working || !workParticles) return;
+
+        workTimer -= Time.deltaTime;
+        if (workTimer > 0f) return;
+
+        workTimer = workInterval;
+        float size = HouseSize;
+        Vector2 spot = new Vector2(Random.Range(-.25f, .25f) * size, -size * .15f);
+        FeelParticles.Emit(FxKind.Debris, transform, spot, size * workScale * debrisScale, workDebrisCount);
+        FeelParticles.Emit(FxKind.Dust, transform, spot, size * workScale * dustScale, workDustCount);
     }
 
     //O GuardManager passa a posição da casa do chamado: ela treme no lugar do clique negado
@@ -153,15 +192,21 @@ public class HouseFeedback : MonoBehaviour
         ApplyMarkerColor(after);
         SetFire(after == State.OnFire);
 
+        if (after != State.Damaged && after != State.OnFire) working = false;
+
         switch (after)
         {
             case State.Damaged:
+                //Fogo ignorado: a fumaça preta sobe antes da rachadura
+                if (before == State.OnFire) FeelParticles.Emit(FxKind.Smoke, transform, Vector2.zero, HouseSize * smokeScale);
                 PlayBreak();
                 break;
             case State.OnFire:
                 Shake(igniteShakeStrength, igniteShakeTime);
+                FeelParticles.Emit(FxKind.Sparks, transform, Vector2.zero, HouseSize * sparkleScale, 6);
                 break;
             case State.Intact:
+                if (before == State.OnFire) FeelParticles.Emit(FxKind.Steam, transform, new Vector2(0f, HouseSize * .1f), HouseSize * steamScale);
                 PlayRepair();
                 break;
         }
@@ -170,10 +215,12 @@ public class HouseFeedback : MonoBehaviour
     private void PlayBreak()
     {
         float size = HouseSize;
+        Vector2 ground = new Vector2(0f, -size * .3f);
 
         Shake(shakeStrength, shakeTime);
         FadeCrack(1f, crackInTime);
-        FeelFx.Burst(transform, new Vector2(0f, -size * .3f), dustCount, dustColor, size * dustSize, size * dustDistance, dustTime, .35f);
+        FeelParticles.Emit(FxKind.Dust, transform, ground, size * dustScale);
+        FeelParticles.Emit(FxKind.Debris, transform, new Vector2(0f, size * .1f), size * debrisScale);
     }
 
     private void PlayRepair()
@@ -183,7 +230,7 @@ public class HouseFeedback : MonoBehaviour
         FadeCrack(0f, crackOutTime);
         Hop(size * hopHeight);
         Flash();
-        FeelFx.Burst(transform, Vector2.zero, sparkleCount, sparkleColor, size * sparkleSize, size * sparkleDistance, sparkleTime, .2f);
+        FeelParticles.Emit(FxKind.Sparks, transform, Vector2.zero, size * sparkleScale);
     }
 
     //Mexe só na posição do Visual: a escala é do Tweener (hover e clique)

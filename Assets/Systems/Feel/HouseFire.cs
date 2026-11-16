@@ -29,6 +29,12 @@ public class HouseFire : MonoBehaviour
         public float smokeSize = .16f;
         public float smokeRise = 1.1f;
         public float smokeTime = 1.5f;
+        [Tooltip("Fumaça redonda (Circle do jogo) em vez de quadradinho")]
+        public bool roundSmoke = true;
+
+        [Header("EMBERS (brasas do FeelParticles subindo)")]
+        public float embersPerSecond = 6f;
+        public float emberScale = 1f;
 
         [Header("TIMER")]
         public float timerWidth = .7f;
@@ -64,6 +70,7 @@ public class HouseFire : MonoBehaviour
     private Image timerFillImage;
     private float flameDebt;
     private float smokeDebt;
+    private float emberDebt;
     private float frameTime;
 
     private readonly List<Particle> live = new List<Particle>();
@@ -125,6 +132,7 @@ public class HouseFire : MonoBehaviour
         live.Clear();
         flameDebt = 0f;
         smokeDebt = 0f;
+        emberDebt = 0f;
     }
 
     private void Update()
@@ -167,22 +175,32 @@ public class HouseFire : MonoBehaviour
             {
                 flameDebt -= 1f;
                 Color from = Color.Lerp(settings.flameCoreColor, settings.flameColor, Random.value);
-                Spawn(from, WithAlpha(settings.flameColor, 0f), settings.flameSize, settings.flameRise, settings.flameTime, .2f);
+                Spawn(from, WithAlpha(settings.flameColor, 0f), settings.flameSize, settings.flameRise, settings.flameTime, .2f, null);
             }
         }
 
+        Sprite smokeSprite = settings.roundSmoke && FeelUI.Theme != null ? FeelUI.Theme.circle : null;
         smokeDebt += settings.smokePerSecond * delta;
         while (smokeDebt >= 1f)
         {
             smokeDebt -= 1f;
-            Spawn(settings.smokeColor, WithAlpha(settings.smokeColor, 0f), settings.smokeSize, settings.smokeRise, settings.smokeTime, 1.8f);
+            Spawn(settings.smokeColor, WithAlpha(settings.smokeColor, 0f), settings.smokeSize, settings.smokeRise, settings.smokeTime, 1.8f, smokeSprite);
+        }
+
+        emberDebt += settings.embersPerSecond * delta;
+        while (emberDebt >= 1f)
+        {
+            emberDebt -= 1f;
+            Vector2 spot = new Vector2(Random.Range(-.5f, .5f) * size.x * settings.flameWidth, size.y * settings.flameBase);
+            FeelParticles.Emit(FxKind.Embers, root, spot, size.y * settings.emberScale);
         }
     }
 
-    private void Spawn(Color from, Color to, float particleSize, float rise, float time, float endScale)
+    private void Spawn(Color from, Color to, float particleSize, float rise, float time, float endScale, Sprite shape)
     {
         Particle particle = idle.Count > 0 ? idle.Pop() : NewParticle();
 
+        particle.image.sprite = shape;
         particle.rect.gameObject.SetActive(true);
         particle.rect.sizeDelta = Vector2.one * size.y * particleSize * Random.Range(.7f, 1.2f);
         particle.rect.anchoredPosition = new Vector2(
