@@ -16,7 +16,8 @@ public class ActionFeedback : MonoBehaviour
     [SerializeField] private string maxLevelText = "Nível máximo!";
 
     [Header("DENIED POPUP (unidades do HUD, tela de referência 1920x1080)")]
-    [SerializeField] private float fontSize = 34f;
+    [SerializeField] private float fontSize = 38f;
+    [SerializeField] private float outlineWidth = .3f;
     [SerializeField] private Color textColor = new Color(1f, .42f, .36f);
     [SerializeField] private Vector2 offset = new Vector2(0f, 46f);
     [SerializeField] private Vector2 screenMargin = new Vector2(190f, 40f);
@@ -58,7 +59,7 @@ public class ActionFeedback : MonoBehaviour
         if (layer == null) layer = FeelUI.HudLayer("FeelPopups");
         if (layer == null) return;
 
-        TMP_Text label = pool.Count > 0 ? pool.Pop() : FeelUI.CreateText("Denied", layer, "", fontSize, textColor);
+        TMP_Text label = pool.Count > 0 ? pool.Pop() : NewLabel();
         RectTransform rect = label.rectTransform;
 
         //Dentro da tela, mesmo com o clique na borda (aba de upgrades)
@@ -84,6 +85,13 @@ public class ActionFeedback : MonoBehaviour
             label.gameObject.SetActive(false);
             pool.Push(label);
         });
+    }
+
+    private TMP_Text NewLabel()
+    {
+        TMP_Text label = FeelUI.CreateText("Denied", layer, "", fontSize, textColor);
+        FeelUI.Outline(label, outlineWidth);
+        return label;
     }
 
     private string TextFor(DeniedReason reason)

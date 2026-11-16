@@ -194,6 +194,13 @@ public static class FeelUI
         return label;
     }
 
+    //Contorno preto para texto que fica direto por cima da cidade (a fonte do jogo é SDF)
+    public static void Outline(TMP_Text label, float width = .25f)
+    {
+        label.outlineColor = Color.black;
+        label.outlineWidth = width;
+    }
+
     public static Button CreateButton(string objectName, Transform parent, string text, Vector2 size, Color color, float fontSize = 40f)
     {
         Image background = CreateImage(objectName, parent, color);

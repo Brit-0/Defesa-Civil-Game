@@ -68,6 +68,8 @@ public class ChaosBar : MonoBehaviour
 
         label = FeelUI.CreateText("Lbl", bar, title, fontSize, labelColor);
         FeelUI.Stretch(label.rectTransform);
+        //O rótulo fica por cima do preenchimento, que muda de cor
+        FeelUI.Outline(label);
     }
 
     private void Start()

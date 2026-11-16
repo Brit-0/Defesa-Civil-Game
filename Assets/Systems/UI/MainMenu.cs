@@ -90,6 +90,14 @@ public class MainMenu : MonoBehaviour
         Button play = FeelUI.CreateButton("PlayBtn", buttonHolder, playText, buttonSize, buttonColor, 56f);
         play.onClick.AddListener(Play);
 
+        //Faixa escura também atrás dos passos: direto por cima da cidade o texto pequeno some
+        RectTransform howBand = FeelUI.CreateImage("HowBand", screen, bandColor).rectTransform;
+        howBand.anchorMin = new Vector2(0f, .5f);
+        howBand.anchorMax = new Vector2(1f, .5f);
+        howBand.pivot = center;
+        howBand.sizeDelta = new Vector2(0f, howToPlaySize * 5.6f);
+        howBand.anchoredPosition = new Vector2(0f, howToPlayY);
+
         TMP_Text howLbl = FeelUI.CreateText("HowToPlay", screen, howToPlay, howToPlaySize, howToPlayColor);
         howLbl.lineSpacing = 20f;
         FeelUI.Place(howLbl.rectTransform, center, center, new Vector2(0f, howToPlayY), new Vector2(1700f, howToPlaySize * 5f));
