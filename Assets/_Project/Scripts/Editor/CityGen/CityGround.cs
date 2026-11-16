@@ -191,6 +191,9 @@ namespace DefesaCivil.CityGen
                 }
             }
 
+            // 7b. canteiro de terra no pé das plantas em chão duro (CityGround.Details.cs)
+            Planters(cv, l, cat, blocks);
+
             // 8a. flores, capim e pedrinhas do pack carimbados no chão
             ScatterSmalls(cv, l, cat, blocks);
 

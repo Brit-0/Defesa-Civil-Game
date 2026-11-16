@@ -18,6 +18,8 @@ namespace DefesaCivil.CityGen
         public float padLeftU, padBottomU, visWU, visHU;
         /// <summary>Pixels do sprite (linhas de baixo para cima), para a prévia em PNG.</summary>
         public Color32[] pixels; public int pxW, pxH;
+        /// <summary>Escala de exibição (decoração encolhida para a altura real); medidas e pixels já vêm nela.</summary>
+        public float scale = 1f;
 
         public SpriteRef ToRef() => new SpriteRef { guid = guid, name = name, path = path };
 
@@ -119,12 +121,55 @@ namespace DefesaCivil.CityGen
                         c.north[cs] = n;
                     }
                 }
-                else if (IsDecorationTexture(category, texture)) c.Decoration.Add(cs);
+                else if (IsDecorationTexture(category, texture))
+                {
+                    ApplyScale(cs, DecorationScale(texture));
+                    c.Decoration.Add(cs);
+                }
             }
             foreach (var l in new[] { c.Suburban, c.Commercial, c.Industrial, c.Decoration })
                 l.Sort((a, b) => string.CompareOrdinal(a.name, b.name));
             cached = c;
             return c;
+        }
+
+        /// <summary>
+        /// Altura real da decoração ao lado das casas (2,6 u em média): no pack, árvore tinha a altura de um sobrado,
+        /// arbusto a de um carro, flor e cone 1 u. Pedido do Pietro 16/11: plantas na proporção de verdade.
+        /// </summary>
+        static readonly (Regex re, float scale)[] DecorationScales =
+        {
+            (new Regex("^Palmeira"), 0.55f),
+            (new Regex("^(Arvore|Carvalho|Pinheiro)"), 0.62f),
+            (new Regex("^(Arbusto|Folhagem|Planta_|Capim|Vaso)"), 0.45f),
+            (new Regex("^Flor_"), 0.38f),
+            (new Regex("^Cogumelo"), 0.35f),
+            (new Regex("^(Toco|Tronco|Pedra)"), 0.5f),
+            (new Regex("^(Jardineira|Guarda_Sol)$"), 0.6f),
+            (new Regex("^(Estatua|Obelisco|Coluna)"), 0.8f),
+            (new Regex("^Cone$"), 0.4f),
+            (new Regex("^Barreira_Concreto$"), 0.55f),
+        };
+
+        public static float DecorationScale(string texture)
+        {
+            foreach (var (re, s) in DecorationScales)
+                if (re.IsMatch(texture)) return s;
+            return 1f;
+        }
+
+        /// <summary>Encolhe medidas e pixels (vizinho mais próximo) para a sombra e o carimbo no chão saírem no tamanho exibido.</summary>
+        static void ApplyScale(CatalogSprite cs, float s)
+        {
+            if (Mathf.Approximately(s, 1f)) return;
+            cs.scale = s;
+            cs.widthU *= s; cs.heightU *= s; cs.padLeftU *= s; cs.padBottomU *= s; cs.visWU *= s; cs.visHU *= s;
+            int w = Mathf.Max(1, Mathf.RoundToInt(cs.pxW * s)), h = Mathf.Max(1, Mathf.RoundToInt(cs.pxH * s));
+            var px = new Color32[w * h];
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x++)
+                    px[y * w + x] = cs.pixels[Mathf.Min(cs.pxH - 1, (int)((y + 0.5f) / s)) * cs.pxW + Mathf.Min(cs.pxW - 1, (int)((x + 0.5f) / s))];
+            cs.pixels = px; cs.pxW = w; cs.pxH = h;
         }
 
         /// <summary>Mede o retângulo visível (alfa > 8%) do sprite dentro do seu retângulo.</summary>

@@ -58,7 +58,8 @@ namespace DefesaCivil.CityGen.Tests
         [Test] public void R20_TreeInStreet()
         {
             var t = AnyTree;
-            t.position += new Vector3(0, -50f, 0);
+            // para fora de qualquer quarteirão: com -50 a árvore na escala real (16/11) caía inteira no quarteirão de baixo
+            t.position += new Vector3(0, -1000f, 0);
             Assert.IsTrue(V().Has("R20"));
         }
 

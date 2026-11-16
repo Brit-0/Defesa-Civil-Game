@@ -135,7 +135,7 @@ namespace DefesaCivil.CityGen
         }
 
         // sombra projetada: comprimento por unidade de altura, força no pé e na ponta
-        const float ShadowLength = 0.42f, ShadowFoot = 0.34f, ShadowTip = 0.16f;
+        const float ShadowLength = 0.32f, ShadowFoot = 0.34f, ShadowTip = 0.16f;
 
         /// <summary>
         /// Sombras projetadas: cada pixel opaco do sprite, a uma altura h acima da base, escurece o chão em
@@ -168,6 +168,21 @@ namespace DefesaCivil.CityGen
                         int i = gy * cv.W + gx;
                         if (shade[i] < s) shade[i] = s;
                     }
+                }
+            }
+            // sombra de contato: elipse no pé de cada decoração, para a sombra da copa não sair solta do tronco fino
+            foreach (var d in l.decorations)
+            {
+                var cs = cat.Get(d.sprite);
+                if (cs == null) continue;
+                float rx = Mathf.Clamp(cs.visWU * 0.36f, 0.1f, 0.6f), ry = Mathf.Clamp(rx * 0.38f, 0.05f, 0.16f);
+                Vector2 c = d.bottomCenter + dir.normalized * ry * 0.8f;
+                foreach (var (x, y) in cv.In(new Rect(c.x - rx, c.y - ry, 2 * rx, 2 * ry)))
+                {
+                    float ex = (cv.WX(x) - c.x) / rx, ey = (cv.WY(y) - c.y) / ry;
+                    if (ex * ex + ey * ey > 1f) continue;
+                    int i = y * cv.W + x;
+                    if (shade[i] < ShadowFoot) shade[i] = ShadowFoot;
                 }
             }
             // borda macia: metade do valor do pixel e metade da média 3x3 em volta
@@ -249,6 +264,38 @@ namespace DefesaCivil.CityGen
                     var p = cs.pixels[y * cs.pxW + x];
                     if (p.a > 128) cv.Set(ox + x, oy + y, new Color32(p.r, p.g, p.b, 255));
                 }
+        }
+
+        static readonly Color32 Soil = new Color32(112, 84, 60, 255), SoilLo = new Color32(96, 72, 52, 255);
+
+        static bool IsPlant(string texture) =>
+            texture.StartsWith("Arvore") || texture.StartsWith("Carvalho") || texture.StartsWith("Pinheiro") || texture.StartsWith("Palmeira")
+            || texture.StartsWith("Arbusto") || texture.StartsWith("Folhagem") || texture.StartsWith("Planta_") || texture.StartsWith("Capim") || texture.StartsWith("Flor_");
+
+        /// <summary>
+        /// Planta só nasce em terra: no pé de cada árvore, arbusto ou flor em chão duro (lajota do comércio, concreto da
+        /// indústria, praça da Guarda), um canteiro de terra com meio-fio, como os da calçada de verdade.
+        /// </summary>
+        static void Planters(Canvas cv, CityLayout l, SpriteCatalog cat, List<(PolygonData poly, Rect r, Zone zone)> blocks)
+        {
+            var hard = new HashSet<string>(blocks.Where(b => b.zone == Zone.Commercial || b.zone == Zone.Industrial || b.zone == Zone.Civic).Select(b => b.poly.id));
+            foreach (var d in l.decorations)
+            {
+                if (!hard.Contains(d.polygonId)) continue;
+                var cs = cat.Get(d.sprite);
+                if (cs == null || !IsPlant(cs.texture)) continue;
+                float hw = Mathf.Max(0.22f, cs.visWU * 0.42f), hh = Mathf.Clamp(cs.visWU * 0.14f, 0.12f, 0.2f);
+                var box = new Rect(d.bottomCenter.x - hw, d.bottomCenter.y - hh * 0.8f, 2 * hw, 2 * hh);
+                int x0 = cv.X(box.xMin), x1 = cv.X(box.xMax) - 1, y0 = cv.Y(box.yMin), y1 = cv.Y(box.yMax) - 1;
+                for (int y = y0; y <= y1; y++)
+                    for (int x = x0; x <= x1; x++)
+                    {
+                        int ex = Mathf.Min(x - x0, x1 - x), ey = Mathf.Min(y - y0, y1 - y);
+                        if (ex == 0 && ey == 0) continue; // canto arredondado
+                        bool rim = ex <= 1 || ey <= 1;
+                        cv.Set(x, y, rim ? (ey == 0 && y == y0 ? Shade(Curb, 0.85f) : Curb) : Hash(x, y, 61) % 6 == 0 ? SoilLo : Soil);
+                    }
+            }
         }
     }
 }
