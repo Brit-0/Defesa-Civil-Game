@@ -38,6 +38,8 @@ public class HouseFeedback : MonoBehaviour
     [SerializeField] private float workScale = .6f;
     [SerializeField] private int workDebrisCount = 2;
     [SerializeField] private int workDustCount = 2;
+    [Tooltip("Fagulhas de solda a cada batida, no alto da casa")]
+    [SerializeField] private int workWeldCount = 3;
 
     [Header("FIRE")]
     [SerializeField] private float igniteShakeStrength = .03f;
@@ -45,6 +47,10 @@ public class HouseFeedback : MonoBehaviour
 
     [Header("FIRE VISUAL (chamas, fumaça e temporizador)")]
     [SerializeField] private HouseFire.Settings fire = new HouseFire.Settings();
+
+    [Header("STATUS (anel de estado no chão: tipo, urgência, equipe, progresso, sucesso e falha)")]
+    [SerializeField] private bool statusRing = true;
+    [SerializeField] private HouseStatusFx.Settings status = new HouseStatusFx.Settings();
 
     [Header("ACTION DENIED")]
     [SerializeField] private float deniedShakeStrength = .035f;
@@ -73,6 +79,7 @@ public class HouseFeedback : MonoBehaviour
     private Tween moveTween;
     private Tween flashTween;
     private HouseFire fireFx;
+    private HouseStatusFx statusFx;
     private bool working;
     private float workTimer;
 
@@ -123,6 +130,8 @@ public class HouseFeedback : MonoBehaviour
             ApplyCrack();
         }
 
+        if (statusRing && statusFx == null) statusFx = HouseStatusFx.Attach(house, status);
+
         ApplyMarkerColor(house.currentState);
         SetFire(house.currentState == State.OnFire);
     }
@@ -130,7 +139,12 @@ public class HouseFeedback : MonoBehaviour
     //O fogo só é criado na primeira vez que a casa queima
     private void SetFire(bool on)
     {
-        if (on && fireFx == null) fireFx = HouseFire.Create(house, fire);
+        if (on && fireFx == null)
+        {
+            fireFx = HouseFire.Create(house, fire);
+            if (statusFx != null) statusFx.SetFire(fireFx);
+        }
+
         if (fireFx != null) fireFx.gameObject.SetActive(on);
     }
 
@@ -177,6 +191,10 @@ public class HouseFeedback : MonoBehaviour
         Vector2 spot = new Vector2(Random.Range(-.25f, .25f) * size, -size * .15f);
         FeelParticles.Emit(FxKind.Debris, transform, spot, size * workScale * debrisScale, workDebrisCount);
         FeelParticles.Emit(FxKind.Dust, transform, spot, size * workScale * dustScale, workDustCount);
+
+        //Solda no alto da casa: o conserto se vê de longe
+        Vector2 weld = new Vector2(Random.Range(-.2f, .2f) * size, size * Random.Range(.05f, .2f));
+        FeelParticles.Emit(FxKind.Weld, transform, weld, size * workScale, workWeldCount, 90f);
     }
 
     //O GuardManager passa a posição da casa do chamado: ela treme no lugar do clique negado

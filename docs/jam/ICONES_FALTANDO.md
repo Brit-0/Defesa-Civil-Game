@@ -2,6 +2,8 @@
 
 Pedido do Pietro em 16/11: todo ícone que o script do kit (`Tools/PixelUI/pixel_kit.py`) não desenha é gerado com a extensão **Pixel Lab do Aseprite em 64x64 px**, escolhendo a melhor geração de cada um, e entra no jogo por estes caminhos. Quem gera: a Lilith, no Aseprite do Pietro.
 
+**Situação (16/11):** os 8 da tabela já estão em `Assets/Arts/UI/Pixel/Icons/`, gerados pela API do Pixel Lab (`create-image-pixflux` 64x64, fundo transparente, paleta abaixo forçada por `color_image`, 69 candidatos ao todo) e retocados por script: contorno externo de 1 px `#141218` (fica 2 px e fechado) e a grama da torre do `upgrade_goal` trocada por pedra. Ícone novo: mesmo caminho, mesmo nome `upgrade_<id>.png`.
+
 ## Como entra no jogo
 
 1. Salvar o PNG em **`Assets/Arts/UI/Pixel/Icons/<nome>.png`** (nome exato da tabela, minúsculo, sem espaço). 64x64, fundo transparente.

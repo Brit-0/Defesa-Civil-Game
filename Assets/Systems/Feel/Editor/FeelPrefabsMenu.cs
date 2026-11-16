@@ -28,7 +28,8 @@ public static class FeelPrefabsMenu
         //Juice que só escuta eventos e acha o HUD pelo nome: solto em Scripts/
         EnsurePrefab(FeelFolder + "/Feel.prefab", "Feel", null,
             typeof(HudJuice), typeof(MoneyPopups), typeof(CameraShaker), typeof(WorkerFeel), typeof(ActionFeedback),
-            typeof(WeatherFx), typeof(ChaosVignette), typeof(FeelParticles));
+            typeof(WeatherFx), typeof(ChaosVignette), typeof(FeelParticles),
+            typeof(VfxQuality), typeof(DisasterFx), typeof(TeamFx), typeof(LandmarkFx), typeof(RewardFx), typeof(AmbientFx));
 
         //HUD: soltos dentro do UICanvas (raiz com RectTransform). Cada um monta a própria UI no Awake.
         EnsurePrefab(UIFolder + "/ChaosBar.prefab", "ChaosBar", null, typeof(RectTransform), typeof(ChaosBar));
