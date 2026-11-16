@@ -16,6 +16,8 @@ public class BalanceData : ScriptableObject
     public float dispatchInterval = 0.8f;
     [Tooltip("Material que cada trabalhador traz do Armazém.")]
     public int materialPerWorker = 1;
+    [Tooltip("Automação nível 4: segundos entre um despacho automático e o próximo.")]
+    public float autoDispatchInterval = 1f;
 
     [Header("WORK")]
     [Tooltip("Tempo de conserto = workTimePerDamage x dano / equipe, nunca menos que minWorkTime.")]

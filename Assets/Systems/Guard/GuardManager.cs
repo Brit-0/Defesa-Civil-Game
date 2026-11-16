@@ -48,6 +48,9 @@ public class GuardManager : MonoBehaviour
     [Header("CALL")]
     [SerializeField] private GameObject callTab;
 
+    // Segundos de partida até o próximo despacho automático.
+    private float autoDispatchCountdown;
+
     private void Awake()
     {
         Instance = this;
@@ -61,6 +64,11 @@ public class GuardManager : MonoBehaviour
     private void OnDisable()
     {
         GameEvents.UpgradePurchased -= OnUpgradePurchased;
+    }
+
+    private void Update()
+    {
+        TickAutoDispatch();
     }
 
     #region CALL FLOW
@@ -143,18 +151,14 @@ public class GuardManager : MonoBehaviour
             return false;
         }
 
-        if (size < call.workersNeeded || size > ResourcesManager.Workers)
+        DeniedReason? denied = GetDeniedReason(call, size);
+        if (denied.HasValue)
         {
-            GameEvents.RaiseActionDenied(DeniedReason.NoWorkers, house.transform.position);
+            GameEvents.RaiseActionDenied(denied.Value, house.transform.position);
             return false;
         }
 
         int materialCost = Stats.GetMaterialCost(call);
-        if (materialCost > ResourcesManager.BuildMaterial)
-        {
-            GameEvents.RaiseActionDenied(DeniedReason.NoMaterial, house.transform.position);
-            return false;
-        }
 
         // B10: sem caminho nada é debitado, a casa continua livre e com o chamado aberto.
         List<Waypoint> path = GPS.main.FindShortestPath(guard.entry, house.entry);
@@ -177,6 +181,14 @@ public class GuardManager : MonoBehaviour
         GameEvents.RaiseTeamDispatched(call);
         StartCoroutine(SendTeam(call, guard, size, path));
         return true;
+    }
+
+    // O que impede o envio agora; null quando há gente e material.
+    private static DeniedReason? GetDeniedReason(Call call, int size)
+    {
+        if (size < call.workersNeeded || size > ResourcesManager.Workers) return DeniedReason.NoWorkers;
+        if (Stats.GetMaterialCost(call) > ResourcesManager.BuildMaterial) return DeniedReason.NoMaterial;
+        return null;
     }
 
     // Tamanho, base e caminho chegam por parâmetro: abrir outro chamado no meio da saída não muda esta equipe (B14).
@@ -241,6 +253,50 @@ public class GuardManager : MonoBehaviour
         {
             if (warehouse.IsComplete) warehouse.ResolveCompletion();
         }
+    }
+
+    // Automação 4 (Despacho automático): um chamado por vez, no ritmo do BalanceData, enquanto houver gente e material.
+    private void TickAutoDispatch()
+    {
+        if (Stats.AutomationLevel < AutomationLevels.AutoDispatch) return;
+        if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) return;
+
+        autoDispatchCountdown -= Time.deltaTime;
+        if (autoDispatchCountdown > 0f) return;
+
+        autoDispatchCountdown = Stats.Balance.autoDispatchInterval;
+        AutoDispatchNextCall();
+    }
+
+    // Atende o chamado mais urgente que couber no estoque. Falta de gente ou de material não é erro do jogador:
+    // o chamado só espera, sem ActionDenied. O Armazém continua manual.
+    private void AutoDispatchNextCall()
+    {
+        if (LocationsManager.Instance == null) return;
+
+        List<House> waiting = LocationsManager.Instance.GetTroubledHouses();
+        waiting.RemoveAll(house => house.HasTeam || house.currentCall == null || house.currentCall.type != CallType.Problem);
+        waiting.Sort(CompareUrgency);
+
+        foreach (House house in waiting)
+        {
+            Call call = house.currentCall;
+            int size = Stats.GetSuggestedTeam(call);
+            if (GetDeniedReason(call, size).HasValue) continue;
+
+            CityGuard guard = GetNearestGuard(house);
+            if (guard != null && TrySendTeam(call, guard, size)) return;
+        }
+    }
+
+    // Fogo primeiro (o que está mais perto de apagar sozinho); depois os consertos de menor dano, que gastam menos.
+    private static int CompareUrgency(House a, House b)
+    {
+        bool aOnFire = a.currentState == State.OnFire;
+        bool bOnFire = b.currentState == State.OnFire;
+        if (aOnFire != bOnFire) return aOnFire ? -1 : 1;
+
+        return aOnFire ? a.FireTimeLeft01.CompareTo(b.FireTimeLeft01) : a.damageAmount.CompareTo(b.damageAmount);
     }
 
     #endregion
