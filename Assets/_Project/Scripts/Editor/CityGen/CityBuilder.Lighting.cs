@@ -261,8 +261,9 @@ namespace DefesaCivil.CityGen
             return true;
         }
 
-        // zoom do CameraController (valores da cena; o código fica intocado, R28): mapa v6 visto de mais longe
-        const float StartZoom = 8f, MinZoom = 3f, MaxZoom = 16f, ZoomStep = 0.3f;
+        // zoom do CameraController (valores da cena; o código fica intocado, R28): mapa v6 visto de mais longe; 12 (16/11,
+        // pedido do Pietro: zoom inicial mais aberto) põe a Guarda e os dois Armazéns na primeira tela
+        const float StartZoom = 12f, MinZoom = 3f, MaxZoom = 16f, ZoomStep = 0.3f;
 
         bool TuneCameraZoom()
         {

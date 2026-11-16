@@ -128,7 +128,11 @@ public class ExpansionManager : MonoBehaviour
     // Camada das placas no HUD, por baixo dos contadores e menus (como os pinos do MapMarkers).
     private bool MakeSignLayer()
     {
-        GameObject ui = GameObject.Find("UICanvas");
+        // o Canvas de tela chamado UICanvas; GameObject.Find("UICanvas") chegava a devolver o Canvas do mundo e as placas
+        // ficavam presas dentro da cidade, sem aparecer na borda (conferido no Play, 16/11)
+        Canvas ui = null;
+        foreach (Canvas c in FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+            if (c.isRootCanvas && c.renderMode != RenderMode.WorldSpace && c.name == "UICanvas") ui = c;
         if (ui == null)
         {
             Debug.LogWarning("Expansão desligada: sem UICanvas na cena para as placas dos terrenos.");

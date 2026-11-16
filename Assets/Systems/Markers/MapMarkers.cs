@@ -120,6 +120,7 @@ public class MapMarkers : MonoBehaviour
         GameEvents.DisasterStarted += OnDisasterStarted;
         GameEvents.DisasterEnded += OnDisasterEnded;
         GameEvents.HouseStateChanged += OnHouseStateChanged;
+        ExpansionEvents.LocationBuilt += OnLocationBuilt;
     }
 
     private void OnDisable()
@@ -127,6 +128,7 @@ public class MapMarkers : MonoBehaviour
         GameEvents.DisasterStarted -= OnDisasterStarted;
         GameEvents.DisasterEnded -= OnDisasterEnded;
         GameEvents.HouseStateChanged -= OnHouseStateChanged;
+        ExpansionEvents.LocationBuilt -= OnLocationBuilt;
         foreach (Pin p in pins)
         {
             ShowNative(p, true);
@@ -151,6 +153,13 @@ public class MapMarkers : MonoBehaviour
         edgeLayer = MakeLayer("MapMarkersEdge", money != null ? money.GetSiblingIndex() + 1 : 1);
 
         foreach (House house in FindObjectsByType<House>(FindObjectsSortMode.None)) pins.Add(MakePin(house));
+    }
+
+    // Base ou armazém construído num terreno da expansão (EXPANSAO.md): ganha placa e pino de borda como os do mapa.
+    private void OnLocationBuilt(Location location)
+    {
+        if (canvas == null || location == null || pins.Exists(p => p.house == location)) return;
+        pins.Add(MakePin(location));
     }
 
     // O HUD é o Canvas de tela chamado UICanvas; GameObject.Find("UICanvas") chegava a devolver o Canvas do mundo

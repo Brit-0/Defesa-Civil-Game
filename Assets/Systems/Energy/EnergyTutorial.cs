@@ -55,6 +55,9 @@ public class EnergyTutorial : MonoBehaviour
         Go(0);
     }
 
+    // Com o balão na mão: o Tutorial não mostra nem esconde dica por cima (MEGABRAIN, 16/11).
+    public bool Running => step >= 0 && step < StepCount;
+
     private void Go(int next)
     {
         step = next;

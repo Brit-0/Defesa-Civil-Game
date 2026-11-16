@@ -17,7 +17,7 @@ public class Tutorial : MonoBehaviour
     [SerializeField] private string cardBody = "Objetivo: conserte as casas que os desastres quebram e junte dinheiro para comprar o Centro de Operações, antes que o CAOS encha.\n<size=75%><color=#F2C14E>Vamos fazer o primeiro conserto juntos (1 minuto).</color></size>";
     [Tooltip("Tempo do jogo no passo do mini game: o conserto leva 2,5 s e o iniciante precisa ler e mirar")]
     [SerializeField, Range(.1f, 1f)] private float miniGameSlowMotion = .35f;
-    [SerializeField] private string fireTip = "MUTIRÃO: com a equipe no incêndio, <bounce>clique rápido</bounce> na casa para apagar antes. {0} cliques = bônus de herói!";
+    [SerializeField] private string fireTip = "JATO: quando a equipe chegar no incêndio, <bounce>arraste o mouse apertado</bounce> por cima das chamas antes do tempo acabar. Sobrou chama? O fogo cresce!";
     [SerializeField] private string strongTip = "<shake>TERREMOTO FORTE!</shake> O aviso é mais longo: escore as casas marcadas e prepare equipes.";
     [SerializeField] private float tipTime = 6f;
 
@@ -163,7 +163,8 @@ public class Tutorial : MonoBehaviour
         if (tipHideTime > 0f && Time.unscaledTime >= tipHideTime)
         {
             tipHideTime = -1f;
-            view.HideBubble();
+            // o tutorial de energia pode ter tomado o balão no meio da dica: escondê-lo travava o passo dele
+            if (!EnergyTutorialRunning()) view.HideBubble();
         }
 
         if (!running || index < 0 || index >= steps.Count) return;
@@ -444,7 +445,8 @@ public class Tutorial : MonoBehaviour
     // Dica de contexto: uma vez por jogador, só fora do tutorial, some sozinha.
     private void ShowTip(string key, string text)
     {
-        if (PlayerPrefs.GetInt(key, 0) == 1) return;
+        // o tutorial de energia usa o mesmo balão; a dica fica para a próxima vez
+        if (PlayerPrefs.GetInt(key, 0) == 1 || EnergyTutorialRunning()) return;
 
         PlayerPrefs.SetInt(key, 1);
         PlayerPrefs.Save();
@@ -452,6 +454,12 @@ public class Tutorial : MonoBehaviour
         view.ShowStep("DICA", text, null, null, false);
         PlayStep(0);
         tipHideTime = Time.unscaledTime + tipTime;
+    }
+
+    private static bool EnergyTutorialRunning()
+    {
+        EnergyTutorial energy = FindAnyObjectByType<EnergyTutorial>();
+        return energy != null && energy.Running;
     }
 
     #endregion
