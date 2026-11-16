@@ -61,8 +61,12 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     public bool CritAvailable { get; private set; }
     public float CritWindowStart { get; private set; }
     public float CritWindowSize => Stats.Balance.critWindowSize;
-    // Mutirão no incêndio: cliques neste incêndio.
-    public int FireClicks { get; private set; }
+    // Incêndio que cresce (ENERGIA_FOGO.md): nível de 1 ao máximo, 0 fora de OnFire.
+    // Jet é a janela do minigame do jato, aberta quando a equipe chega; null fora dela.
+    public int FireLevel { get; private set; }
+    public FireJet Jet { get; private set; }
+    private int fireChunks;  // partes de trabalho deste incêndio (uma por nível, mais uma por falha no jato)
+    private float jetChunk;  // progresso que cada chama apagada adianta
     // Escorada no aviso do terremoto.
     public bool IsShored { get; private set; }
 
@@ -179,8 +183,10 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         HasTeam = false;
         IsWorking = false;
         isComplete = false;
+        Jet = null;
 
         SetState(problem);
+        if (problem == State.OnFire) SetFireLevel(1);
         ShowCall();
         return true;
     }
@@ -209,26 +215,36 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         callDisplay.SetActive(false);
         workProgress = 0f;
         workDuration = Stats.GetWorkTime(currentCall);
+        // Fogo maior dá mais trabalho: uma parte por nível.
+        fireChunks = currentState == State.OnFire ? Mathf.Max(1, FireLevel) : 0;
+        if (fireChunks > 0) workDuration *= fireChunks;
         progressCircle.fillAmount = 0f;
         Sprite icon = GetIconByCallType(currentCall);
         progressIcon.sprite = icon;
         progressIcon.enabled = icon != null;
         progressCircle.gameObject.SetActive(true);
 
-        // Ponto certo vale no conserto e no Armazém; incêndio é mutirão de cliques.
+        // Ponto certo vale no conserto e no Armazém; o incêndio tem o jato.
         BalanceData balance = Stats.Balance;
         CritAvailable = currentState != State.OnFire;
         CritWindowStart = Random.Range(balance.critWindowMin, balance.critWindowMax);
-        FireClicks = 0;
 
         GameEvents.RaiseWorkStarted(currentCall);
+        if (currentState == State.OnFire) OpenJet();
     }
 
     // O círculo de progresso anda no tempo da partida: a pausa segura o trabalho.
+    // Com a janela do jato aberta o trabalho automático espera o jogador.
     private void TickWork()
     {
         if (!IsWorking) return;
         if (GameManager.Instance != null && GameManager.Instance.State != GameState.Playing) return;
+
+        if (Jet != null)
+        {
+            TickJet();
+            return;
+        }
 
         AdvanceWork(workDuration > 0f ? Time.deltaTime / workDuration : 1f);
     }
@@ -336,7 +352,59 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) return;
 
         fireTimeLeft -= Time.deltaTime;
+        // Esperando equipe o fogo cresce: um nível a cada parte igual do temporizador.
+        int level = FireRules.LevelFromTimer(FireTimeLeft01, FireEnergyData.Instance.fireMaxLevel);
+        if (level > FireLevel) SetFireLevel(level);
         if (fireTimeLeft <= 0f) BurnOut();
+    }
+
+    private void SetFireLevel(int level)
+    {
+        if (level == FireLevel) return;
+
+        FireLevel = level;
+        GameEvents.RaiseFireLevelChanged(this, level);
+    }
+
+    // A equipe chegou: chamas em volta da casa para apagar arrastando o mouse (FireMinigame).
+    private void OpenJet()
+    {
+        FireEnergyData data = FireEnergyData.Instance;
+        Jet = new FireJet(FireRules.FlamesFor(FireLevel, data.jetFlamesBase, data.jetFlamesPerLevel), data.jetTime);
+        jetChunk = (1f - workProgress) / Jet.Flames;
+        GameEvents.RaiseFireJetOpened(this);
+    }
+
+    // A janela fechou com chama sobrando: o fogo cresce e a equipe segue no trabalho automático, mais longo.
+    private void TickJet()
+    {
+        if (!Jet.Tick(Time.deltaTime)) return;
+
+        Jet = null;
+        FireRules.Grow(fireChunks, ref workProgress, ref workDuration);
+        fireChunks++;
+        progressCircle.fillAmount = workProgress;
+        if (FireLevel < FireEnergyData.Instance.fireMaxLevel) SetFireLevel(FireLevel + 1);
+        GameEvents.RaiseSkillCheck(this, SkillResult.FireGrew);
+    }
+
+    // Uma chama apagada pelo jato (FireMinigame). Todas apagadas: o fogo acaba na hora e paga o bônus.
+    public bool DouseFlame()
+    {
+        if (Jet == null || !IsWorking || !Jet.Douse()) return false;
+
+        if (!Jet.Succeeded)
+        {
+            GameEvents.RaiseSkillCheck(this, SkillResult.FireDouse);
+            AdvanceWork(jetChunk);
+            return true;
+        }
+
+        Jet = null;
+        currentCall.rewardBonus += FireEnergyData.Instance.jetOutBonus;
+        GameEvents.RaiseSkillCheck(this, SkillResult.FireOut);
+        AdvanceWork(1f);
+        return true;
     }
 
     // Fogo ignorado apaga sozinho e deixa a casa danificada. O chamado continua o mesmo.
@@ -357,10 +425,10 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     {
         if (eventData.button != PointerEventData.InputButton.Left || GameManager.InputBlocked) return false;
 
+        // No incêndio o clique na casa não faz nada: o jato é arrastar por cima das chamas (FireMinigame).
         if (IsWorking)
         {
-            if (currentState == State.OnFire) FireClick();
-            else TryCritical();
+            if (currentState != State.OnFire) TryCritical();
             return true;
         }
 
@@ -394,18 +462,6 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         workProgress = Mathf.Max(0f, workProgress - balance.missPenalty);
         progressCircle.fillAmount = workProgress;
         GameEvents.RaiseSkillCheck(this, SkillResult.Miss);
-    }
-
-    // Mutirão: cada clique no incêndio com a equipe trabalhando adianta o trabalho; muitos cliques viram bônus de herói.
-    private void FireClick()
-    {
-        BalanceData balance = Stats.Balance;
-        FireClicks++;
-        bool hero = FireClicks == balance.fireHeroClicks;
-        if (hero) currentCall.rewardBonus += balance.fireHeroBonus;
-
-        GameEvents.RaiseSkillCheck(this, hero ? SkillResult.FireHero : SkillResult.FireClick);
-        AdvanceWork(balance.fireClickProgress);
     }
 
     // Escorar: no aviso do terremoto, casa no alvo gasta material agora para levar menos dano (ou nenhum).
@@ -451,6 +507,11 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
         currentState = newState;
         if (newState == State.Intact) damageAmount = 0;
+        if (newState != State.OnFire)
+        {
+            Jet = null;
+            SetFireLevel(0);
+        }
         RefreshStateVisual();
         GameEvents.RaiseHouseStateChanged(this, before, newState);
     }

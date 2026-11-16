@@ -7,7 +7,8 @@ O mapa vem do city_layout.json: posição de cada casa e o grafo de ruas; a cami
 
 O jogador é um robô com tempo de reação e tempo por clique (perfis em perfis.py). Passo de 0,1 s.
 Revisão do gameloop: terremoto forte, bônus de ocorrência encerrada, marcos com voluntários e os três
-mini games (ponto certo, mutirão no incêndio, escorar no aviso), que disputam a atenção do robô.
+mini games (ponto certo, jato no incêndio, escorar no aviso), que disputam a atenção do robô.
+Fogo e energia (ENERGIA_FOGO.md, fogo_energia.py): o fogo cresce de nível; jato na chegada; rede de energia.
 """
 import heapq
 import math
@@ -15,6 +16,7 @@ import random
 
 from dados import (BALANCE_CS, MAPA_PADRAO, MENU_CS, RAIZ, aplicar_ajustes, ler_assets,  # noqa: F401
                    ler_balance, ler_mapa, ler_upgrades)
+from fogo_energia import Rede, abrir_jato, tick_fogo
 
 INTACTA, DANIFICADA, FOGO = "I", "D", "F"
 
@@ -22,13 +24,15 @@ INTACTA, DANIFICADA, FOGO = "I", "D", "F"
 
 class Local:
     __slots__ = ("nome", "pos", "dist", "armazem", "estado", "dano", "fogo", "equipe", "trabalhando",
-                 "pronta", "enviados", "pago", "desde", "bonus", "critico", "trabalho", "ocorrencia", "escorada")
+                 "pronta", "enviados", "pago", "desde", "bonus", "critico", "trabalho", "ocorrencia", "escorada",
+                 "nivel_fogo", "partes", "apagadas")
 
     def __init__(self, dados, armazem=False):
         self.nome, self.pos, self.dist, self.armazem = dados["nome"], dados["pos"], dados["dist"], armazem
         self.estado, self.dano, self.fogo = INTACTA, 0, 0.0
         self.equipe = self.trabalhando = self.pronta = self.critico = self.escorada = False
         self.enviados = self.pago = self.trabalho = 0
+        self.nivel_fogo = self.partes = self.apagadas = 0  # fogo: nível 1-3, partes de trabalho, chamas do jato
         self.bonus = 0.0       # Call.rewardBonus (crítico, herói)
         self.ocorrencia = None  # o desastre que quebrou a casa (bônus quando todas voltam)
         self.desde = 0.0  # quando o chamado abriu ou o trabalho terminou (para o tempo de reação)
@@ -57,6 +61,8 @@ class Jogo:
         # Revisão do gameloop
         self.n_desastres, self.calma, self.marcos = 0, 0.0, 0
         self.bonus_ocorrencia = self.criticos = self.erros = self.herois = self.escoradas = self.de_pe = 0
+        self.fogos_cresceram = 0
+        self.rede = Rede(self)
 
     # --- valores (Stats)
     def efeito(self, uid):
@@ -64,7 +70,8 @@ class Jogo:
         return u["effectPerLevel"] * self.niveis[uid] if u else 0.0
 
     def nivel(self, uid):
-        return self.niveis.get(uid, 0)
+        n = self.niveis.get(uid, 0)
+        return self.rede.automacao(n) if uid == "automation" else n  # Stats.AutomationLevel
 
     def custo(self, uid):
         u = self.ups[uid]
@@ -88,7 +95,7 @@ class Jogo:
     def tempo_trabalho(self, c):
         if c.armazem:
             return self.b["restockTime"]
-        total = self.b["fireWorkTime"] if c.estado == FOGO else self.b["workTimePerDamage"] * c.dano
+        total = self.b["fireWorkTime"] * max(1, c.partes) if c.estado == FOGO else self.b["workTimePerDamage"] * c.dano
         total *= max(0.0, 1 - self.efeito("tools"))
         return max(self.b["minWorkTime"], total / max(1, c.enviados))
 
@@ -107,6 +114,7 @@ class Jogo:
             return False
         c.dano = max(self.b["minDamage"], severidade) if problema == DANIFICADA else 0
         c.fogo = self.b["fireDuration"] if problema == FOGO else 0.0
+        c.nivel_fogo, c.partes = (1 if problema == FOGO else 0), 0
         c.equipe = c.trabalhando = c.pronta = c.critico = False
         c.estado, c.desde, c.bonus = problema, self.t, 0.0
         return True
@@ -116,6 +124,8 @@ class Jogo:
             return "NoWorkers"
         if self.custo_material(c) > self.material:
             return "NoMaterial"
+        if self.rede.nega(self, c):
+            return "NoEnergy"
         return None
 
     def enviar(self, c, n, automatico=False):
@@ -148,16 +158,16 @@ class Jogo:
             c.pago += falta
         c.trabalhando = True
         c.trabalho += 1
+        if c.estado == FOGO:  # House.OpenJet: o trabalho espera a janela do jato
+            abrir_jato(self, c)
+            return
         duracao = self.tempo_trabalho(c)
         self.agendar(self.t + duracao, self.terminar, c, c.trabalho)
         if self.jogador is None:
             return
-        # Mini games: o robô tenta se estiver livre na hora (disputam a atenção com despachos e coletas).
-        if c.estado == FOGO:
-            self.agendar(self.t + self.jogador.reacao, self.mini_fogo, c, c.trabalho, self.t, duracao)
-        else:
-            janela = self.rng.uniform(self.b["critWindowMin"], self.b["critWindowMax"]) + self.b["critWindowSize"] / 2
-            self.agendar(self.t + duracao * janela, self.mini_ponto, c, c.trabalho, janela, duracao)
+        # Mini game do ponto certo: o robô tenta se estiver livre na hora (disputa a atenção com despachos e coletas).
+        janela = self.rng.uniform(self.b["critWindowMin"], self.b["critWindowMax"]) + self.b["critWindowSize"] / 2
+        self.agendar(self.t + duracao * janela, self.mini_ponto, c, c.trabalho, janela, duracao)
 
     def terminar(self, c, trabalho=None):
         if trabalho is not None and (trabalho != c.trabalho or not c.trabalhando):
@@ -166,7 +176,7 @@ class Jogo:
         if self.nivel("automation") >= 3:
             self.coletar(c)
 
-    # --- mini games (House: TryCritical, FireClick)
+    # --- mini game do ponto certo (House: TryCritical); o jato está em fogo_energia.py
     def mini_ponto(self, c, trabalho, janela, duracao):
         if trabalho != c.trabalho or not c.trabalhando or not self.jogador.tenta_mini(self, 1):
             return
@@ -178,16 +188,6 @@ class Jogo:
         else:
             self.erros += 1
             self.agendar(self.t + duracao * (1 - janela + self.b["missPenalty"]), self.terminar, c, c.trabalho)
-
-    def mini_fogo(self, c, trabalho, inicio, duracao):
-        cliques = self.b["fireHeroClicks"]
-        if trabalho != c.trabalho or not c.trabalhando or not self.jogador.tenta_mini(self, cliques):
-            return
-        c.trabalho += 1
-        c.bonus += self.b["fireHeroBonus"]
-        self.herois += 1
-        restante = max(0.0, 1 - (self.t - inicio) / duracao - cliques * self.b["fireClickProgress"])
-        self.agendar(self.t + duracao * restante, self.terminar, c, c.trabalho)
 
     def coletar(self, c):
         if not c.pronta:
@@ -375,6 +375,7 @@ class Jogo:
         self.atingir(o, c, DANIFICADA, dano)
 
     def raio(self, o):
+        self.rede.raio(self, o)  # apagão no primeiro raio da tempestade
         intactas = [c for c in self.casas if c.estado == INTACTA]
         if not intactas:
             return
@@ -403,6 +404,7 @@ class Jogo:
         peso = 0.0
         for c in self.casas:
             if c.estado == FOGO:
+                tick_fogo(self, c)
                 if not c.trabalhando and not c.pronta:
                     c.fogo -= dt
                     if c.fogo <= 0:  # BurnOut
@@ -459,6 +461,7 @@ class Jogo:
             if self.fim:
                 break
             self.tick_desastres()
+            self.rede.tick(self)
             self.tick_renda()
             self.tick_despacho_automatico()
             if self.jogador is not None:

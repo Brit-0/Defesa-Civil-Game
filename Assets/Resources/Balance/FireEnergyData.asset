@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ac26936e7d34cfbb01b26eef60046f1, type: 3}
+  m_Name: FireEnergyData
+  m_EditorClassIdentifier: Assembly-CSharp::FireEnergyData
+  fireMaxLevel: 3
+  jetTime: 4.5
+  jetFlamesBase: 3
+  jetFlamesPerLevel: 1
+  jetOutBonus: 0.5
+  jetHitRadius: 46
+  unlockTime: 150
+  startCapacity: 5
+  baseDemand: 2
+  depotDemand: 1
+  automationDemandPerLevel: 1
+  stormBlackoutChance: 0.5
+  blackoutAutoRestore: 15

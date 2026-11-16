@@ -2,13 +2,16 @@ using System;
 using UnityEngine;
 
 public enum GameState { Menu, Playing, Paused, Won, Lost }
-public enum DeniedReason { NoWorkers, NoMaterial, NoMoney, MaxLevel }
+// NoEnergy: base ou depósito sem energia (ENERGIA_FOGO.md). Valor novo só no fim.
+public enum DeniedReason { NoWorkers, NoMaterial, NoMoney, MaxLevel, NoEnergy }
 // Mini games (GAMELOOP_REVISAO): o resultado de cada clique de habilidade numa casa.
-public enum SkillResult { Critical, Miss, FireClick, FireHero, Shored, ShoreHeld }
+// FireClick e FireHero eram do mutirão, trocado pelo jato (ENERGIA_FOGO.md): ficam sem uso para não mudar a ordem.
+public enum SkillResult { Critical, Miss, FireClick, FireHero, Shored, ShoreHeld, FireDouse, FireOut, FireGrew }
 
 // Contrato entre sistemas e apresentação (ARCHITECTURE.md, seção 6.1).
 // Sistemas chamam Raise...; feel, áudio e HUD só assinam (OnEnable) e desassinam (OnDisable).
-public static class GameEvents
+// Parcial: os eventos do fogo e da energia ficam em Systems/Energy/GameEvents.FireEnergy.cs.
+public static partial class GameEvents
 {
     // Economia
     public static event Action<int, int> MoneyChanged;          // (antes, depois)

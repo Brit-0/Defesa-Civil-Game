@@ -31,8 +31,8 @@ public class MiniGameFeel : MonoBehaviour
     [Header("TEXTS")]
     [SerializeField] private string criticalFormat = "NO PONTO! +{0}%";
     [SerializeField] private string missText = "FORA DO PONTO";
-    [SerializeField] private string fireClickFormat = "{0}/{1}";
-    [SerializeField] private string heroFormat = "HEROICO! +{0}%";
+    [SerializeField] private string fireOutFormat = "APAGOU! +{0}%";
+    [SerializeField] private string fireGrewText = "O FOGO CRESCEU!";
     [SerializeField] private string shoredText = "ESCORADA!";
     [SerializeField] private string shoreHeldFormat = "FICOU DE PÉ! +{0}";
     [SerializeField] private string shoreHint = "TERREMOTO VINDO: CLIQUE NAS CASAS MARCADAS PARA ESCORAR ({0} MATERIAL)";
@@ -185,13 +185,18 @@ public class MiniGameFeel : MonoBehaviour
                 Play(missClip, 1f);
                 combo = 0;
                 break;
-            case SkillResult.FireClick:
-                Popup(string.Format(fireClickFormat, house.FireClicks, balance.fireHeroClicks), at, fireColor, popupSize, false);
+            // Jato no incêndio (ENERGIA_FOGO.md): cada chama só toca o som subindo; o FireMinigame desenha o vapor.
+            case SkillResult.FireDouse:
                 PlayHit(fireClip);
                 break;
-            case SkillResult.FireHero:
-                Popup(string.Format(heroFormat, Percent(balance.fireHeroBonus)), at, heroColor, bigPopupSize, true);
+            case SkillResult.FireOut:
+                Popup(string.Format(fireOutFormat, Percent(FireEnergyData.Instance.jetOutBonus)), at, fireColor, bigPopupSize, true);
                 PlayHit(heroClip);
+                break;
+            case SkillResult.FireGrew:
+                Popup(fireGrewText, at, heroColor, popupSize, false);
+                Play(missClip, .8f);
+                combo = 0;
                 break;
             case SkillResult.Shored:
                 Popup(shoredText, at, shoreColor, popupSize, false);

@@ -1,4 +1,4 @@
-"""Leitura dos dados do simulador: BalanceData.cs, JamDataMenu.cs, os .asset de Resources e o mapa da cidade."""
+"""Leitura dos dados do simulador: BalanceData.cs, FireEnergyData.cs, JamDataMenu.cs, os .asset de Resources e o mapa."""
 import heapq
 import json
 import math
@@ -8,12 +8,16 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[3]
 BALANCE_CS = RAIZ / "Assets/SO/BalanceData.cs"
 MENU_CS = RAIZ / "Assets/Systems/Masters/Editor/JamDataMenu.cs"
+FIRE_ENERGY_CS = RAIZ / "Assets/SO/FireEnergyData.cs"  # jato e energia (ENERGIA_FOGO.md)
+GENERATOR_ASSET = RAIZ / "Assets/Resources/Upgrades/Generator.asset"  # fora do JamDataMenu: vem do .asset
 MAPA_PADRAO = RAIZ / "Assets/_Project/Data/Cities/city_layout.json"
 
 
 def ler_balance(caminho=BALANCE_CS):
-    """Padrões dos campos do BalanceData.cs (int, float ou int[])."""
+    """Padrões dos campos do BalanceData.cs (int, float ou int[]), mais os do FireEnergyData.cs."""
     texto = Path(caminho).read_text(encoding="utf-8")
+    if Path(caminho) == BALANCE_CS and FIRE_ENERGY_CS.exists():
+        texto += FIRE_ENERGY_CS.read_text(encoding="utf-8")
     valores = {}
     for tipo, nome, valor in re.findall(r"public\s+(int|float)\s+(\w+)\s*=\s*(-?[\d.]+)f?\s*;", texto):
         valores[nome] = int(valor) if tipo == "int" else float(valor)
@@ -31,6 +35,8 @@ def ler_upgrades(caminho=MENU_CS):
     for nome, ordem, maximo, base, cresc, efeito in re.findall(padrao, texto):
         ups[nome.lower()] = dict(order=int(ordem), maxLevel=int(maximo), baseCost=int(base),
                                  costGrowth=float(cresc), effectPerLevel=float(efeito))
+    if "generator" not in ups and GENERATOR_ASSET.exists():
+        ups.update(_upgrade_do_asset(GENERATOR_ASSET))
     return ups
 
 
@@ -46,19 +52,26 @@ def _ler_yaml_simples(caminho):
 def ler_assets(pasta_resources, balance, ups):
     """Sobrepõe os padrões com os .asset de Assets/Resources (o que o jogo carrega de verdade)."""
     pasta = Path(pasta_resources)
-    arquivo = pasta / "Balance/BalanceData.asset"
-    if arquivo.exists():
+    for nome in ("Balance/BalanceData.asset", "Balance/FireEnergyData.asset"):
+        arquivo = pasta / nome
+        if not arquivo.exists():
+            continue
         for chave, valor in _ler_yaml_simples(arquivo).items():
             if chave in balance and not isinstance(balance[chave], list):
                 balance[chave] = type(balance[chave])(float(valor))
     for arquivo in sorted((pasta / "Upgrades").glob("*.asset")):
-        dados = _ler_yaml_simples(arquivo)
-        uid = dados.get("id")
-        if uid:
-            ups[uid] = dict(order=int(dados.get("order", 0)), maxLevel=int(dados["maxLevel"]),
-                            baseCost=int(dados["baseCost"]), costGrowth=float(dados["costGrowth"]),
-                            effectPerLevel=float(dados["effectPerLevel"]))
+        ups.update(_upgrade_do_asset(arquivo))
     return balance, ups
+
+
+def _upgrade_do_asset(arquivo):
+    dados = _ler_yaml_simples(arquivo)
+    uid = dados.get("id")
+    if not uid:
+        return {}
+    return {uid: dict(order=int(dados.get("order", 0)), maxLevel=int(dados["maxLevel"]),
+                      baseCost=int(dados["baseCost"]), costGrowth=float(dados["costGrowth"]),
+                      effectPerLevel=float(dados["effectPerLevel"]))}
 
 
 def aplicar_ajustes(balance, ups, ajustes):

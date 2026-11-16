@@ -37,7 +37,8 @@ public static class Stats
         return UpgradesManager.Instance != null ? UpgradesManager.Instance.GetEffect(id) : 0f;
     }
 
-    public static int AutomationLevel => GetUpgradeLevel(UpgradeIds.Automation);
+    // Só vale o nível que tem energia (ENERGIA_FOGO.md); antes de a energia entrar no jogo, o nível comprado.
+    public static int AutomationLevel => EnergyManager.LimitAutomation(GetUpgradeLevel(UpgradeIds.Automation));
 
     #endregion
 
