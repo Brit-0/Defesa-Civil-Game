@@ -178,12 +178,12 @@ A implementar, em ordem de impacto:
 
 ## 13. Valores iniciais de balanceamento [DECISÃO, todos PLACEHOLDER]
 
-Substitui a planilha do T16. São o ponto de partida do `BalanceData` e do menu `Tools/Jam/Create Default Data`; a calibragem de verdade é o T25, com partida jogada. Nomes dos campos são sugestão para o Agente B.
+Substitui a planilha do T16. São o ponto de partida do `BalanceData` e do menu `Tools/Jam/Create Default Data`; a calibragem de verdade é o T25, com partida jogada. Nomes dos campos são sugestão para o Agente B. Valores que estavam na cena e nos prefabs em 16/11, antes do `BalanceData` (lidos na U4): `GPS.speed` 1; `workTime` 10 s fixo no `House.prefab` e 2 s no `Warehouse.prefab`; `moneyPerCall` 10; material inicial 0.
 
 | Campo | Valor | Nota |
 |---|---|---|
 | `startWorkers` / `startMaterial` / `startMoney` | 3 / 5 / 0 | |
-| `workerSpeed` | o valor que está hoje no `GPS` da cena | O MEGABRAIN lê no Unity e passa (U6). Até lá, 1. |
+| `workerSpeed` | 1 | Lido no `GPS` da cena em 16/11 (U4): `speed` = 1. Da Guarda até uma casa do centro são 13,3 unidades, cerca de 13 s de caminhada. |
 | `dispatchInterval` | 0,8 s | Intervalo entre um trabalhador e outro ao sair. Hoje é número solto no `GuardManager`. |
 | `workTimePerDamage` / `minWorkTime` | 5 s / 2 s | Tempo = 5 × dano ÷ equipe, nunca menos de 2 s. |
 | `fireWorkTime` | 4 s | Dividido pela equipe, mesmo mínimo. |

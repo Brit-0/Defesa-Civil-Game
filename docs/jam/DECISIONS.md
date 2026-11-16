@@ -102,6 +102,22 @@ Feita lendo os docs e o código, sem abrir o Editor (o PC desta sessão não tem
 - Go: carrega em até 20 s servido localmente, 50 FPS ou mais com a câmera parada e 40 ou mais com a câmera em movimento no PC do usuário, sem erro no console do navegador.
 - No-go no Dia 1 não cancela: repetir a medição no fim do Dia 2 (T32). Windows é a entrega garantida.
 
+## 2026-11-16 — MEGABRAIN no PC com o Unity (U1 a U8)
+
+**Ferramenta**
+- O Editor é controlado pelo `unity` CLI, com o pacote `com.unity.pipeline` 1.0.0 no `manifest.json` (commit `60693d2`), e não pelo MCP `unity-editor` da sessão. — o MCP da sessão está preso a outro projeto (`C:\UnityProjects\My project (1)`); o CLI atende este projeto com `--project-path` e dá cena, console, Play, capturas e builds. O pacote é de ferramenta: se pesar no build final, tirar do manifest antes da entrega.
+- O CLI avisa que há versão nova (1.0.0-beta.14 → 1.0.0). Não atualizei: a atualização pede aprovação do usuário.
+- Arquivos que o Unity 6000.6.7f1 regravou sozinho ao abrir e ao compilar (`UniversalRP.asset`, `UniversalRenderPipelineGlobalSettings.asset`, o `.slnx`) ficaram fora dos commits. — ninguém pediu essas mudanças e elas não afetam o jogo.
+
+**Branch `pc-felipe`**
+- Integrada na `jam` (merge `0edb447`) antes de qualquer edição de cena. — entrou sem conflito e a cena abriu igual: 221 árvores com sprite, 0 referência quebrada.
+
+**WebGL: GO (U3, build de fumaça de 16/11)**
+- Build WebGL sem erros em 473 s, 18 MB (Brotli), em `Builds/WebGL/`. Servido localmente com `Content-Encoding: br` e aberto no Chrome com a GPU do PC (RTX 5070 Ti, monitor de 240 Hz), canvas 960x600.
+- Medido: carga em 0,85 s; 240 FPS com a câmera parada (pior quadro 4,6 ms); 240 FPS com a câmera arrastada em círculo por 10 s (pior quadro 4,5 ms); 0 erro no console do navegador; 1 aviso (shader de upscaling FSR removido do build, sem efeito visível).
+- Decisão: **go**, pelos três números do critério. — folga grande nos três. Ressalvas: o FPS está travado pelo monitor, o PC é forte e a medição foi do jogo antes da integração de B e C; repetir no T32 com o jogo completo (efeitos, áudio, cerca de 300 Canvas animados) e, se possível, numa máquina mais fraca.
+- Para o itch.io: o build usa Brotli sem fallback de descompressão; o itch.io entrega `.br` com o cabeçalho certo, então fica assim. Se a página não carregar lá, ligar `Decompression Fallback` no Player Settings.
+
 ## Pendências
 
 Design: nenhuma (P1 a P7 resolvidas; ver o fim do `GDD.md`). Do Unity: U1 a U8 no `TASKS.md`.
