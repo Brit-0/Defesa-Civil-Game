@@ -38,7 +38,19 @@ public class GameAudio : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float tensionStartChaos = .35f;
     [SerializeField, Range(0f, 1f)] private float tensionFullChaos = .7f;
 
-    [Header("END")]
+    [Header("MUSIC LEVEL (por estado da partida)")]
+    [SerializeField, Range(0f, 1f)] private float menuMusicLevel = .7f;
+    [SerializeField, Range(0f, 1f)] private float pausedMusicLevel = .35f;
+    [SerializeField, Range(0f, 1f)] private float endMusicLevel = .3f;
+    [SerializeField] private float musicLevelFadeTime = .6f;
+
+    [Header("DANGER (sirene ao fundo com o caos alto)")]
+    [SerializeField, Range(0f, 1f)] private float dangerChaos = .6f;
+    [SerializeField, Range(0f, 1f)] private float dangerSirenVolume = .2f;
+    [SerializeField] private float dangerSirenInterval = 9f;
+
+    [Header("START AND END")]
+    [SerializeField, Range(0f, 1f)] private float startVolume = .8f;
     [SerializeField, Range(0f, 1f)] private float endVolume = 1f;
 
     private readonly HashSet<Call> working = new HashSet<Call>();
@@ -47,11 +59,20 @@ public class GameAudio : MonoBehaviour
     private EventSystem pointerEventSystem;
     private float hammerTimer;
     private int housesOnFire;
+    private float chaos;
+    private float nextDangerSiren;
+    private bool playing;
+    private bool cameFromMenu;
 
     private static SfxLibrary Sfx => AudioManager.Sfx;
 
+    //No reinício a cena traz outro AudioManager, que se destrói: o GameAudio dele não pode tocar em dobro
+    private bool IsDuplicate => TryGetComponent(out AudioManager own) && AudioManager.Instance != null && AudioManager.Instance != own;
+
     private void OnEnable()
     {
+        if (IsDuplicate) return;
+
         GameEvents.CallOpened += OnCallOpened;
         GameEvents.TeamDispatched += OnTeamDispatched;
         GameEvents.WorkStarted += OnWorkStarted;
@@ -98,6 +119,9 @@ public class GameAudio : MonoBehaviour
         AudioManager.SetLoop(Sfx?.fireLoop, 0f, loopFadeTime);
         AudioManager.SetLoop(Sfx?.rainLoop, 0f, loopFadeTime);
         AudioManager.SetTension(0f);
+        AudioManager.SetMusicLevel(1f, musicLevelFadeTime);
+        chaos = 0f;
+        playing = false;
     }
 
     private void Update()
@@ -107,6 +131,12 @@ public class GameAudio : MonoBehaviour
             AudioManager.PlaySfx(Sfx?.click, clickVolume, .05f);
         }
 
+        UpdateHammer();
+        UpdateDangerSiren();
+    }
+
+    private void UpdateHammer()
+    {
         if (!repeatHammer || working.Count == 0) return;
 
         hammerTimer -= Time.deltaTime;
@@ -114,6 +144,15 @@ public class GameAudio : MonoBehaviour
 
         hammerTimer = hammerInterval;
         AudioManager.PlaySfx(Sfx?.hammer, hammerVolume, hammerPitchVariation);
+    }
+
+    //Com o caos acima do limite de perigo, uma sirene baixa de tempos em tempos (GDD, seção 6)
+    private void UpdateDangerSiren()
+    {
+        if (!playing || chaos < dangerChaos || Time.time < nextDangerSiren) return;
+
+        nextDangerSiren = Time.time + dangerSirenInterval;
+        AudioManager.PlaySfx(Sfx?.siren, dangerSirenVolume);
     }
 
     //Clique em qualquer botão de UI ganha som sem precisar de componente no botão
@@ -241,25 +280,51 @@ public class GameAudio : MonoBehaviour
 
     #region PROGRESSION
 
-    private void OnChaosChanged(float chaos)
+    private void OnChaosChanged(float value)
     {
-        AudioManager.SetTension(Mathf.InverseLerp(tensionStartChaos, tensionFullChaos, chaos));
+        chaos = value;
+        AudioManager.SetTension(Mathf.InverseLerp(tensionStartChaos, tensionFullChaos, value));
     }
 
     private void OnGameStateChanged(GameState state)
     {
+        playing = state == GameState.Playing;
+
         switch (state)
         {
+            case GameState.Menu:
+                cameFromMenu = true;
+                AudioManager.SetTension(0f);
+                AudioManager.SetMusicLevel(menuMusicLevel, musicLevelFadeTime);
+                break;
+            case GameState.Playing:
+                AudioManager.SetMusicLevel(1f, musicLevelFadeTime);
+                //Só quando o jogador clicou em Jogar, não a cada volta da pausa
+                if (cameFromMenu) AudioManager.PlaySfx(Sfx?.dispatch, startVolume);
+                cameFromMenu = false;
+                break;
+            case GameState.Paused:
+                AudioManager.SetMusicLevel(pausedMusicLevel, musicLevelFadeTime);
+                break;
             case GameState.Won:
-                working.Clear();
+                EndMatch();
                 AudioManager.SetTension(0f);
                 AudioManager.PlaySfx(Sfx?.victory, endVolume);
                 break;
             case GameState.Lost:
-                working.Clear();
+                EndMatch();
                 AudioManager.PlaySfx(Sfx?.defeat, endVolume);
                 break;
         }
+    }
+
+    //Fim de partida: os loops param e a música abaixa para a vinheta de vitória ou derrota aparecer
+    private void EndMatch()
+    {
+        working.Clear();
+        AudioManager.SetLoop(Sfx?.fireLoop, 0f, loopFadeTime);
+        AudioManager.SetLoop(Sfx?.rainLoop, 0f, loopFadeTime);
+        AudioManager.SetMusicLevel(endMusicLevel, musicLevelFadeTime);
     }
 
     #endregion

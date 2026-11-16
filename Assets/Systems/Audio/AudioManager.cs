@@ -71,6 +71,9 @@ public class AudioManager : MonoBehaviour
     private AudioSource tenseSource;
     private float tension;
     private float targetTension;
+    private float musicLevel = 1f;
+    private float targetMusicLevel = 1f;
+    private float musicLevelSpeed = 1f;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
@@ -114,11 +117,21 @@ public class AudioManager : MonoBehaviour
     {
         if (Instance != this) return;
 
+        bool musicChanged = false;
+
         if (!Mathf.Approximately(tension, targetTension))
         {
             tension = Mathf.MoveTowards(tension, targetTension, Time.unscaledDeltaTime / Mathf.Max(.01f, tensionFadeTime));
-            ApplyMusicVolumes();
+            musicChanged = true;
         }
+
+        if (!Mathf.Approximately(musicLevel, targetMusicLevel))
+        {
+            musicLevel = Mathf.MoveTowards(musicLevel, targetMusicLevel, Time.unscaledDeltaTime * musicLevelSpeed);
+            musicChanged = true;
+        }
+
+        if (musicChanged) ApplyMusicVolumes();
 
         UpdateLoops();
     }
@@ -197,6 +210,15 @@ public class AudioManager : MonoBehaviour
         Instance.targetTension = Mathf.Clamp01(value);
     }
 
+    //Volume geral da música, de 0 a 1 (menu, pausa, fim de partida), por cima do cruzamento das duas camadas
+    public static void SetMusicLevel(float level, float fadeTime = .5f)
+    {
+        if (Instance == null) return;
+
+        Instance.targetMusicLevel = Mathf.Clamp01(level);
+        Instance.musicLevelSpeed = 1f / Mathf.Max(.01f, fadeTime);
+    }
+
     public static void PlayMusic()
     {
         if (Instance == null) return;
@@ -226,8 +248,8 @@ public class AudioManager : MonoBehaviour
     {
         //Cruzamento de potência constante: a soma das duas camadas não afunda no meio
         float angle = tension * Mathf.PI * .5f;
-        calmSource.volume = musicVolume * Mathf.Cos(angle);
-        tenseSource.volume = musicVolume * Mathf.Sin(angle);
+        calmSource.volume = musicVolume * musicLevel * Mathf.Cos(angle);
+        tenseSource.volume = musicVolume * musicLevel * Mathf.Sin(angle);
     }
 
     #endregion
