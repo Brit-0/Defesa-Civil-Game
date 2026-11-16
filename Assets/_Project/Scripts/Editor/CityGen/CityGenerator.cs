@@ -217,7 +217,8 @@ namespace DefesaCivil.CityGen
                     if (role != Park && role != Woods && role != Depot)
                     {
                         b.eastItem = col == Mid - 1 || col == Mid;
-                        b.westItem = col == Mid + 1 && g.Chance(0.3f);
+                        if (col == Mid + 1) g.Chance(0.3f); // sorteio antigo, mantido para a semente dar o mesmo bairro
+                        b.westItem = col == Mid || col == Mid + 1;
                     }
                     g.blocks.Add(b);
                 }
@@ -401,7 +402,7 @@ namespace DefesaCivil.CityGen
                     }
                 }
                 // na frente, perto da calçada
-                var front = (lamps && !north && g.Chance(0.4f) ? g.D("Poste_Curvo") : g.D("Flor_Margarida", "Flor_Sino", "Flor_Tulipa", "Planta_Baixa", "Planta_Alta", "Folhagem", "Vaso", "Arbusto_Pequeno"))
+                var front = (lamps && !north && g.Chance(0.4f) ? g.D("Poste_Novo") : g.D("Flor_Margarida", "Flor_Sino", "Flor_Tulipa", "Planta_Baixa", "Planta_Alta", "Folhagem", "Vaso", "Arbusto_Pequeno"))
                     .NextWhere(t => t.visWU <= gw - 0.08f);
                 if (front != null && g.Chance(0.75f))
                 {
@@ -564,7 +565,7 @@ namespace DefesaCivil.CityGen
             PlaceRow(g, b, new List<Slot> { hqSlot }, false);
             CommercialRow(g, b, true);
 
-            var lamp = g.T("Poste_Reto_Duplo") ?? g.T("Poste_Curvo_Duplo");
+            var lamp = g.T("Poste_Novo_Duplo") ?? g.T("Poste_Curvo_Duplo");
             var planter = g.T("Jardineira");
             var palm = g.palms.Next();
             float half = hq.visWU / 2f;
@@ -702,7 +703,7 @@ namespace DefesaCivil.CityGen
                 AddDeco(g, b, t, x1 - 0.85f + g.Range(-0.08f, 0.08f), y, 10f);
             }
             // postes nas entradas
-            var lamp = g.T("Poste_Curvo_Duplo");
+            var lamp = g.T("Poste_Novo_Duplo") ?? g.T("Poste_Curvo_Duplo");
             foreach (var sx in new[] { -1f, 1f })
             {
                 AddDeco(g, b, lamp, cx + sx * 1.75f, y0 + 0.12f, 10f);
@@ -755,20 +756,21 @@ namespace DefesaCivil.CityGen
 
         static void StreetFurniture(Gen g)
         {
-            var sem = g.T("Semaforo"); var stop = g.T("Placa_Pare"); var lamp = g.T("Poste_Curvo"); var sign = g.T("Placa_Rua");
+            var sem = g.T("Semaforo_Novo") ?? g.T("Semaforo"); var stop = g.T("Placa_Pare_Nova") ?? g.T("Placa_Pare");
+            var lamp = g.T("Poste_Novo") ?? g.T("Poste_Curvo"); var sign = g.T("Placa_Rua_Nova") ?? g.T("Placa_Rua");
             foreach (var b in g.blocks)
             {
-                // semáforos nos cruzamentos ao lado do parque; poste nas demais esquinas das ruas que atravessam
+                // v7: semáforo dos dois lados das duas avenidas do centro, em todo cruzamento
                 if (b.eastItem)
                 {
-                    var item = b.row >= 2 && b.row <= 3 ? sem : (g.Chance(0.6f) ? lamp : null);
-                    if (item != null) AddDeco(g, b, item, b.r.xMax - item.visWU / 2f - 0.08f, b.r.yMin + 0.05f, 10f);
+                    g.Chance(0.6f); // sorteio antigo (poste ou nada), mantido para a semente
+                    if (sem != null) AddDeco(g, b, sem, b.r.xMax - sem.visWU / 2f - 0.14f, b.r.yMin + 0.05f, 10f);
                 }
-                if (b.westItem && stop != null) AddDeco(g, b, stop, b.r.xMin + stop.visWU / 2f + 0.08f, b.r.yMin + 0.05f, 10f);
-                // v6: poste na esquina de baixo à esquerda e placa de rua na da direita, nos bairros de casas e comércio
+                if (b.westItem && sem != null) AddDeco(g, b, sem, b.r.xMin + sem.visWU / 2f + 0.14f, b.r.yMin + 0.05f, 10f);
+                // nas outras esquinas dos bairros de casas e comércio: placa de pare à esquerda e placa de rua à direita
                 if (b.role != Res && b.role != Com) continue;
-                if (!b.westItem && lamp != null && g.Chance(0.5f)) AddDeco(g, b, lamp, b.r.xMin + lamp.visWU / 2f + 0.08f, b.r.yMin + 0.05f, 10f);
-                if (!b.eastItem && sign != null && g.Chance(0.5f)) AddDeco(g, b, sign, b.r.xMax - sign.visWU / 2f - 0.08f, b.r.yMin + 0.05f, 10f);
+                if (!b.westItem && stop != null && g.Chance(0.5f)) AddDeco(g, b, stop, b.r.xMin + stop.visWU / 2f + 0.06f, b.r.yMin + 0.05f, 10f);
+                if (!b.eastItem && sign != null && g.Chance(0.5f)) AddDeco(g, b, sign, b.r.xMax - sign.visWU / 2f - 0.06f, b.r.yMin + 0.05f, 10f);
             }
         }
 

@@ -20,6 +20,7 @@ namespace DefesaCivil.CityGen
     {
         public const string LightsName = CitySceneRefs.CgPrefix + "Lights";
         public const string NormalsName = "[N]";
+        public const string GlowName = "[G]";
         public const string LightingDir = "Assets/_Project/Data/Lighting";
         const string HouseMatPath = "Assets/Shaders & Materials/HouseMAT.mat";
         const string LitSsuShader = "Sprite Shaders Ultimate/2D Lit URP SSU";
@@ -58,8 +59,10 @@ namespace DefesaCivil.CityGen
 
         public static Material WorldLitMaterial => LitMaterial("WorldLitMAT", "Universal Render Pipeline/2D/Sprite-Lit-Default");
         public static Material NormalsOnlyMaterial => LitMaterial("NormalsOnlyMAT", "DefesaCivil/Sprite Normals Only");
+        public static Material GlowMaterial => LitMaterial("GlowMAT", "DefesaCivil/Sprite Glow");
 
-        Material litCache, normalsCache;
+        Material litCache, normalsCache, glowCache;
+        Material Glow => glowCache ? glowCache : glowCache = GlowMaterial;
         Material Lit => litCache ? litCache : litCache = WorldLitMaterial;
         Material Normals => normalsCache ? normalsCache : normalsCache = NormalsOnlyMaterial;
 
@@ -77,6 +80,44 @@ namespace DefesaCivil.CityGen
             bool changed = false;
             if (img.material != Lit) { Record(img); img.material = Lit; changed = true; }
             if (EnsureNormals(img, img.GetComponent<Canvas>(), Normals)) changed = true;
+            if (EnsureGlow(img, img.GetComponent<Canvas>())) changed = true;
+            return changed;
+        }
+
+        /// <summary>
+        /// Filho [G]: o brilho da lâmpada (quadros _G da mesma folha), somado por cima e fora da luz 2D.
+        /// Semáforo (3 quadros) ganha o TrafficLightGlow, com a fase alternada pela posição.
+        /// </summary>
+        bool EnsureGlow(Image img, Canvas canvas)
+        {
+            var existing = img.transform.Find(GlowName);
+            string path = img.sprite ? AssetDatabase.GetAssetPath(img.sprite) : null;
+            var frames = string.IsNullOrEmpty(path) || !img.sprite.name.EndsWith("_S") ? null
+                : PixelPropsImporter.GlowFrames(path, img.sprite.name.Substring(0, img.sprite.name.Length - 2));
+            if (frames == null || frames.Count == 0 || canvas == null)
+            {
+                if (existing == null) return false;
+                Destroy(existing.gameObject, "sprite sem brilho");
+                return true;
+            }
+            bool changed = EnsureNormals(img, frames[0], canvas.sortingLayerID, canvas.sortingOrder + 1, Glow, GlowName);
+            var go = img.transform.Find(GlowName).gameObject;
+            var cycle = go.GetComponent<TrafficLightGlow>();
+            if (frames.Count < 3)
+            {
+                if (cycle) { if (undo) Undo.DestroyObjectImmediate(cycle); else Object.DestroyImmediate(cycle); changed = true; }
+                return changed;
+            }
+            if (!cycle) { cycle = Add<TrafficLightGlow>(go); changed = true; }
+            // semáforos de lados opostos da avenida ficam em fases opostas
+            var p = img.transform.position;
+            float offset = (Mathf.RoundToInt(p.x / 4f) + Mathf.RoundToInt(p.y / 4f)) % 2 == 0 ? 0f : (cycle.greenTime + cycle.yellowTime + cycle.redTime) / 2f;
+            if (cycle.green != frames[0] || cycle.yellow != frames[1] || cycle.red != frames[2] || !Approx(cycle.offset, offset))
+            {
+                Record(cycle);
+                cycle.green = frames[0]; cycle.yellow = frames[1]; cycle.red = frames[2]; cycle.offset = offset;
+                changed = true;
+            }
             return changed;
         }
 
@@ -114,13 +155,13 @@ namespace DefesaCivil.CityGen
         bool EnsureNormals(Image img, Canvas canvas, Material mat)
             => img.sprite != null && canvas != null && EnsureNormals(img, img.sprite, canvas.sortingLayerID, canvas.sortingOrder, mat);
 
-        bool EnsureNormals(Graphic img, Sprite sprite, int layer, int order, Material mat)
+        bool EnsureNormals(Graphic img, Sprite sprite, int layer, int order, Material mat, string childName = NormalsName)
         {
             bool changed = false;
-            var t = img.transform.Find(NormalsName);
+            var t = img.transform.Find(childName);
             if (t == null)
             {
-                var go = new GameObject(NormalsName, typeof(SpriteRenderer));
+                var go = new GameObject(childName, typeof(SpriteRenderer));
                 Created(go);
                 go.layer = img.gameObject.layer;
                 go.transform.SetParent(img.transform, false);
@@ -172,7 +213,8 @@ namespace DefesaCivil.CityGen
             {
                 var cs = cat.Get(d.sprite);
                 if (cs == null) continue;
-                specs["Lamp " + d.id] = new LightSpec { pos = (Vector2)d.bottomCenter + new Vector2(0f, 0.45f * cs.visHU), inner = 0.4f, outer = 3f, intensity = 1.3f, normalDistance = 1.2f, color = LampColor };
+                // a poça de luz fica no chão, embaixo da luminária
+                specs["Lamp " + d.id] = new LightSpec { pos = (Vector2)d.bottomCenter + new Vector2(0f, 0.3f), inner = 0.4f, outer = 3.2f, intensity = 1.3f, normalDistance = 1.2f, color = LampColor };
             }
             foreach (var s in layout.structures.Where(s => s.type != StructureType.House))
             {
