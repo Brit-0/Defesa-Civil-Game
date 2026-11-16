@@ -29,6 +29,14 @@ public class WorkerFeel : MonoBehaviour
     [SerializeField] private int spawnPuffCount = 3;
     [SerializeField] private float puffScale = 1.2f;
 
+    [Header("TRAIL (pegadas no chão; distâncias em alturas do trabalhador)")]
+    [SerializeField] private bool footprints = true;
+    [SerializeField] private float stepDistance = .32f;
+    [SerializeField] private float footSpread = .09f;
+    [SerializeField] private float footprintScale = .5f;
+    [Tooltip("A cada quantas pegadas sobe um pouco de poeira (0 = nunca)")]
+    [SerializeField] private int dustEvery = 5;
+
     private class Walker
     {
         public Transform transform;
@@ -42,6 +50,8 @@ public class WorkerFeel : MonoBehaviour
         public float age;
         public bool leaving;
         public float leaveAge;
+        public float travel;
+        public int steps;
     }
 
     private readonly List<Walker> walkers = new List<Walker>();
@@ -134,6 +144,7 @@ public class WorkerFeel : MonoBehaviour
 
         bool moving = delta > 0f && move.sqrMagnitude > 0f;
         if (moving && Mathf.Abs(move.x) > move.magnitude * turnThreshold) walker.facing = Mathf.Sign(move.x);
+        if (moving && !walker.leaving) Footprints(walker, position, move);
 
         //O balanço entra e sai aos poucos quando o trabalhador anda ou para
         walker.walk = Mathf.MoveTowards(walker.walk, moving ? 1f : 0f, blendSpeed * delta);
@@ -153,6 +164,31 @@ public class WorkerFeel : MonoBehaviour
 
         //Pulinho: baixar o pivô sobe o desenho sem tocar na posição
         if (walker.rect != null) walker.rect.pivot = walker.basePivot - new Vector2(0f, hopHeight * step);
+    }
+
+    //Rastro: uma pegada a cada passo, alternando o pé, no chão (embaixo das casas); some sozinha
+    private void Footprints(Walker walker, Vector3 position, Vector3 move)
+    {
+        if (!footprints || walker.rect == null || walker.transform.parent == null) return;
+
+        RectTransform ground = PixelFx.Ground;
+        if (ground == null) return;
+
+        float height = walker.rect.rect.height;
+        Vector3 localMove = walker.transform.parent.InverseTransformVector(move);
+        walker.travel += new Vector2(localMove.x, localMove.y).magnitude;
+        if (walker.travel < stepDistance * height) return;
+
+        walker.travel = 0f;
+        walker.steps++;
+
+        Vector2 at = PixelFx.ToLocal(ground, position);
+        Vector2 direction = PixelFx.ToLocal(ground, position + move) - at;
+        Vector2 side = direction.sqrMagnitude > 0f ? new Vector2(-direction.y, direction.x).normalized : Vector2.zero;
+        at += side * (walker.steps % 2 == 0 ? 1f : -1f) * footSpread * height;
+
+        FeelParticles.Emit(FxKind.Footstep, ground, at, height * footprintScale, 1);
+        if (dustEvery > 0 && walker.steps % dustEvery == 0) FeelParticles.Emit(FxKind.Dust, ground, at, height * puffScale * .5f, 1);
     }
 
     private float PopScale(Walker walker, float delta)

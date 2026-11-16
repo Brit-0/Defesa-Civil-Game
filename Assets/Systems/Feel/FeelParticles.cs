@@ -3,8 +3,9 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum FxKind { Dust, Debris, Sparks, Smoke, Embers, Steam, Confetti, Ash, Splash }
-public enum FxShape { Square, Circle, Strip }
+public enum FxKind { Dust, Debris, Sparks, Smoke, Embers, Steam, Confetti, Ash, Splash, Coin, Glint, Weld, Footstep, Burst }
+//Circle vira a bolha de pixel (PixelFx.Puff) quando a UI está em pixel art; os outros sprites são do PixelFx
+public enum FxShape { Square, Circle, Strip, Puff, Plus, Coin, Leaf, Glint }
 
 //Receita de um tipo de partícula. Tamanhos, velocidades e gravidade são frações do "scale" de quem emite
 //(a altura da casa, a altura da tela), para o mesmo efeito servir no mundo e no HUD.
@@ -56,16 +57,24 @@ public class FeelParticles : MonoBehaviour
     [SerializeField] private int maxParticles = 500;
     [SerializeField] private int prewarm = 60;
 
+    [Tooltip("Fração do maxParticles em cada nível do VfxQuality (Low, Medium, High)")]
+    [SerializeField] private Vector3 limitByLevel = new Vector3(.45f, .7f, 1f);
+
     [Header("PRESETS")]
-    [SerializeField] private FxPreset dust = DustPreset();
-    [SerializeField] private FxPreset debris = DebrisPreset();
-    [SerializeField] private FxPreset sparks = SparksPreset();
-    [SerializeField] private FxPreset smoke = SmokePreset();
-    [SerializeField] private FxPreset embers = EmbersPreset();
-    [SerializeField] private FxPreset steam = SteamPreset();
-    [SerializeField] private FxPreset confetti = ConfettiPreset();
-    [SerializeField] private FxPreset ash = AshPreset();
-    [SerializeField] private FxPreset splash = SplashPreset();
+    [SerializeField] private FxPreset dust = FxPresets.Dust();
+    [SerializeField] private FxPreset debris = FxPresets.Debris();
+    [SerializeField] private FxPreset sparks = FxPresets.Sparks();
+    [SerializeField] private FxPreset smoke = FxPresets.Smoke();
+    [SerializeField] private FxPreset embers = FxPresets.Embers();
+    [SerializeField] private FxPreset steam = FxPresets.Steam();
+    [SerializeField] private FxPreset confetti = FxPresets.Confetti();
+    [SerializeField] private FxPreset ash = FxPresets.Ash();
+    [SerializeField] private FxPreset splash = FxPresets.Splash();
+    [SerializeField] private FxPreset coin = FxPresets.Coin();
+    [SerializeField] private FxPreset glint = FxPresets.Glint();
+    [SerializeField] private FxPreset weld = FxPresets.Weld();
+    [SerializeField] private FxPreset footstep = FxPresets.Footstep();
+    [SerializeField] private FxPreset burst = FxPresets.Burst();
 
     private class Particle
     {
@@ -147,7 +156,19 @@ public class FeelParticles : MonoBehaviour
     }
 
     //Estouro a partir de um ponto local do pai (âncora no centro do pai). width espalha o nascimento numa faixa.
+    //A quantidade passa pelo VfxQuality (menos partículas no WebGL e quando o FPS cai).
     public static void Emit(FxKind kind, Transform parent, Vector2 localPosition, float scale, int count = -1, float direction = float.NaN, float width = 0f)
+    {
+        EmitInternal(kind, parent, localPosition, scale, count, direction, width, null);
+    }
+
+    //O mesmo estouro numa cor só (o que comunica o estado: verde sucesso, vermelho falha, azul tempestade)
+    public static void EmitColored(FxKind kind, Transform parent, Vector2 localPosition, float scale, Color color, int count = -1, float direction = float.NaN, float width = 0f)
+    {
+        EmitInternal(kind, parent, localPosition, scale, count, direction, width, color);
+    }
+
+    private static void EmitInternal(FxKind kind, Transform parent, Vector2 localPosition, float scale, int count, float direction, float width, Color? color)
     {
         if (parent == null || scale <= 0f) return;
 
@@ -155,14 +176,23 @@ public class FeelParticles : MonoBehaviour
         FxPreset preset = runner.PresetFor(kind);
         if (preset == null) return;
 
-        int amount = count >= 0 ? count : Random.Range(preset.count.x, preset.count.y + 1);
+        int amount = VfxQuality.Scale(count >= 0 ? count : Random.Range(preset.count.x, preset.count.y + 1));
         float angle = float.IsNaN(direction) ? preset.direction : direction;
 
         for (int i = 0; i < amount; i++)
         {
             Vector2 offset = Random.insideUnitCircle * preset.spawnRadius * scale;
             offset.x += Random.Range(-.5f, .5f) * width;
-            runner.Spawn(preset, parent, localPosition + offset, scale, angle);
+            runner.Spawn(preset, parent, localPosition + offset, scale, angle, color);
+        }
+    }
+
+    private int Limit
+    {
+        get
+        {
+            float fraction = VfxQuality.Level == VfxLevel.Low ? limitByLevel.x : VfxQuality.Level == VfxLevel.Medium ? limitByLevel.y : limitByLevel.z;
+            return Mathf.RoundToInt(maxParticles * fraction);
         }
     }
 
@@ -179,13 +209,32 @@ public class FeelParticles : MonoBehaviour
             case FxKind.Confetti: return confetti;
             case FxKind.Ash: return ash;
             case FxKind.Splash: return splash;
+            case FxKind.Coin: return coin;
+            case FxKind.Glint: return glint;
+            case FxKind.Weld: return weld;
+            case FxKind.Footstep: return footstep;
+            case FxKind.Burst: return burst;
             default: return dust;
         }
     }
 
-    private void Spawn(FxPreset preset, Transform parent, Vector2 position, float scale, float angle)
+    private static Sprite SpriteFor(FxShape shape)
     {
-        if (live.Count >= maxParticles) return;
+        switch (shape)
+        {
+            case FxShape.Circle: return FeelUI.Pixel != null ? PixelFx.Puff : FeelUI.Theme != null ? FeelUI.Theme.circle : null;
+            case FxShape.Puff: return PixelFx.Puff;
+            case FxShape.Plus: return PixelFx.Plus;
+            case FxShape.Coin: return PixelFx.Coin;
+            case FxShape.Leaf: return PixelFx.Leaf;
+            case FxShape.Glint: return PixelFx.Glint;
+            default: return null;
+        }
+    }
+
+    private void Spawn(FxPreset preset, Transform parent, Vector2 position, float scale, float angle, Color? color = null)
+    {
+        if (live.Count >= Limit) return;
 
         Particle particle = idle.Count > 0 ? idle.Pop() : NewParticle();
         if (particle.image == null) particle = NewParticle();
@@ -206,7 +255,7 @@ public class FeelParticles : MonoBehaviour
         particle.spin = Random.Range(-preset.spin, preset.spin);
         particle.swayPhase = Random.Range(0f, Mathf.PI * 2f);
         particle.tumble = Random.Range(4f, 10f);
-        particle.color = preset.colors != null && preset.colors.Length > 0 ? preset.colors[Random.Range(0, preset.colors.Length)] : Color.white;
+        particle.color = color ?? (preset.colors != null && preset.colors.Length > 0 ? preset.colors[Random.Range(0, preset.colors.Length)] : Color.white);
 
         Image image = particle.image;
         RectTransform rect = particle.rect;
@@ -214,10 +263,12 @@ public class FeelParticles : MonoBehaviour
         rect.gameObject.layer = parent.gameObject.layer;
         rect.SetAsLastSibling();
 
-        image.sprite = preset.shape == FxShape.Circle && FeelUI.Theme != null ? FeelUI.Theme.circle : null;
+        Sprite sprite = SpriteFor(preset.shape);
+        image.sprite = sprite;
         image.color = particle.color;
         rect.sizeDelta = preset.shape == FxShape.Strip ? new Vector2(size, size * .5f)
             : preset.alignToVelocity ? new Vector2(size * preset.stretch, size * .6f)
+            : sprite != null ? new Vector2(size, size * sprite.rect.height / sprite.rect.width)
             : Vector2.one * size;
 
         rect.gameObject.SetActive(true);
@@ -299,6 +350,8 @@ public class FeelParticles : MonoBehaviour
 
         //Confete: a tira vira de lado e volta, como papel caindo
         if (preset.shape == FxShape.Strip) scale.y *= Mathf.Max(.15f, Mathf.Abs(Mathf.Cos(particle.swayPhase + particle.age * particle.tumble)));
+        //Moeda: gira em pé (achata na largura e volta)
+        if (preset.shape == FxShape.Coin) scale.x *= Mathf.Max(.25f, Mathf.Abs(Mathf.Cos(particle.swayPhase + particle.age * particle.tumble)));
 
         rect.localScale = scale;
 
@@ -330,82 +383,6 @@ public class FeelParticles : MonoBehaviour
 
         Instance.live.Clear();
     }
-
-    #endregion
-
-    #region DEFAULT PRESETS
-
-    private static FxPreset DustPreset() => new FxPreset
-    {
-        shape = FxShape.Circle, count = new Vector2Int(9, 12), size = new Vector2(.08f, .15f), speed = new Vector2(.5f, 1.1f),
-        lifetime = new Vector2(.6f, 1f), spread = 200f, spawnRadius = .12f, gravity = -.2f, drag = 3.5f, endSize = 1.8f,
-        fadeOutFrom = .25f,
-        colors = new[] { new Color(.8f, .74f, .64f, .9f), new Color(.7f, .64f, .55f, .85f), new Color(.88f, .84f, .76f, .8f) }
-    };
-
-    private static FxPreset DebrisPreset() => new FxPreset
-    {
-        count = new Vector2Int(5, 8), size = new Vector2(.03f, .06f), speed = new Vector2(.9f, 1.5f), lifetime = new Vector2(.55f, .8f),
-        spread = 110f, gravity = 5f, drag = .4f, endSize = .8f, spin = 540f, fadeOutFrom = .7f,
-        colors = new[] { new Color(.45f, .36f, .3f), new Color(.6f, .5f, .42f), new Color(.35f, .33f, .36f) }
-    };
-
-    private static FxPreset SparksPreset() => new FxPreset
-    {
-        count = new Vector2Int(10, 14), size = new Vector2(.025f, .04f), speed = new Vector2(1.3f, 2.2f), lifetime = new Vector2(.35f, .6f),
-        gravity = 1.6f, drag = 4f, endSize = .3f, alignToVelocity = true, stretch = 3f, fadeOutFrom = .5f,
-        colors = new[] { new Color(1f, .95f, .6f), Color.white, new Color(1f, .82f, .35f) }
-    };
-
-    private static FxPreset SmokePreset() => new FxPreset
-    {
-        shape = FxShape.Circle, count = new Vector2Int(6, 9), size = new Vector2(.12f, .2f), speed = new Vector2(.25f, .5f),
-        lifetime = new Vector2(1.2f, 1.8f), spread = 70f, spawnRadius = .15f, gravity = -.3f, drag = 1f, endSize = 2.2f,
-        sway = .05f, swayFrequency = 2f, fadeIn = .1f, fadeOutFrom = .3f,
-        colors = new[] { new Color(.2f, .2f, .23f, .75f), new Color(.3f, .29f, .32f, .7f) }
-    };
-
-    private static FxPreset EmbersPreset() => new FxPreset
-    {
-        count = new Vector2Int(1, 1), size = new Vector2(.015f, .03f), speed = new Vector2(.5f, .9f), lifetime = new Vector2(.7f, 1.1f),
-        spread = 50f, gravity = -.6f, drag = .5f, endSize = .4f, sway = .06f, swayFrequency = 6f, fadeOutFrom = .5f,
-        colors = new[] { new Color(1f, .85f, .3f), new Color(1f, .6f, .15f) }, useEndColor = true, endColor = new Color(.9f, .2f, .1f)
-    };
-
-    private static FxPreset SteamPreset() => new FxPreset
-    {
-        shape = FxShape.Circle, count = new Vector2Int(8, 12), size = new Vector2(.1f, .16f), speed = new Vector2(.4f, .8f),
-        lifetime = new Vector2(.8f, 1.2f), spread = 100f, spawnRadius = .15f, gravity = -.5f, drag = 2f, endSize = 2f, fadeOutFrom = .2f,
-        colors = new[] { new Color(1f, 1f, 1f, .8f), new Color(.85f, .9f, .95f, .75f) }
-    };
-
-    //Confete e cinza são do HUD: scale = altura da tela de referência (1080)
-    private static FxPreset ConfettiPreset() => new FxPreset
-    {
-        shape = FxShape.Strip, count = new Vector2Int(60, 80), size = new Vector2(.012f, .02f), speed = new Vector2(.9f, 1.6f),
-        lifetime = new Vector2(2.5f, 4f), spread = 40f, gravity = .9f, drag = 1.5f, endSize = 1f, spin = 360f,
-        sway = .02f, swayFrequency = 4f, fadeOutFrom = .8f, unscaledTime = true,
-        colors = new[]
-        {
-            new Color(.95f, .3f, .25f), new Color(1f, .82f, .25f), new Color(.45f, .9f, .5f),
-            new Color(.35f, .65f, 1f), new Color(.95f, .5f, .8f), Color.white
-        }
-    };
-
-    private static FxPreset AshPreset() => new FxPreset
-    {
-        count = new Vector2Int(1, 1), size = new Vector2(.005f, .01f), speed = new Vector2(.03f, .08f), lifetime = new Vector2(4f, 6f),
-        spread = 60f, direction = 270f, gravity = .02f, drag = 0f, endSize = .6f, spin = 90f, sway = .02f, swayFrequency = 1.5f,
-        fadeIn = .2f, fadeOutFrom = .7f, unscaledTime = true,
-        colors = new[] { new Color(.55f, .53f, .56f, .8f), new Color(.35f, .33f, .36f, .8f) }
-    };
-
-    private static FxPreset SplashPreset() => new FxPreset
-    {
-        count = new Vector2Int(3, 4), size = new Vector2(.004f, .007f), speed = new Vector2(.05f, .1f), lifetime = new Vector2(.25f, .35f),
-        spread = 120f, gravity = .4f, drag = 1f, endSize = .5f, fadeOutFrom = .3f,
-        colors = new[] { new Color(.75f, .85f, 1f, .7f) }
-    };
 
     #endregion
 
