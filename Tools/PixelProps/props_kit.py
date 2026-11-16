@@ -211,7 +211,93 @@ def placa_rua():
     return 'Placa_Rua_Nova', a, [], w, h
 
 
+# ---------------------------------------------------------------- prédios de referência (Guarda e Armazém)
+# A arte é a do pack (Industrial/Fabrica_*), recolorida por script para o jogador achar de longe:
+# Guarda em azul com o emblema da Defesa Civil (disco laranja, triângulo azul) e mastro com bandeira;
+# Armazéns em ocre. Mesma folha de 8 direções da origem; o normal map é copiado.
+IND = os.path.join(ROOT, '..', 'Industrial')
+RAMP_GUARD = [(0.10, (10, 18, 44)), (0.28, (20, 40, 92)), (0.42, (30, 72, 158)), (0.58, (48, 108, 206)), (0.75, (112, 168, 240)), (0.95, (214, 232, 255))]
+RAMP_DEPOT = [(0.10, (40, 20, 8)), (0.28, (96, 52, 18)), (0.42, (164, 96, 30)), (0.58, (214, 142, 44)), (0.75, (244, 190, 92)), (0.95, (255, 236, 190))]
+
+
+def ramp_color(ramp, v):
+    if v <= ramp[0][0]:
+        return ramp[0][1]
+    for (v0, c0), (v1, c1) in zip(ramp, ramp[1:]):
+        if v <= v1:
+            k = (v - v0) / (v1 - v0)
+            return tuple(int(round(c0[i] + (c1[i] - c0[i]) * k)) for i in range(3))
+    return ramp[-1][1]
+
+
+def recolor(im, ramp):
+    """Troca o metal cinza-azulado do pack pela rampa; contorno preto e janelas quentes ficam."""
+    import colorsys
+    out = im.copy()
+    px = out.load()
+    for y in range(out.height):
+        for x in range(out.width):
+            r, g, b, a = px[x, y]
+            if a < 20:
+                continue
+            h, s, v = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
+            if v < 0.08 or not (s < 0.14 or 0.52 <= h <= 0.80):
+                continue
+            px[x, y] = ramp_color(ramp, v) + (a,)
+    return out
+
+
+def stamp(im, x, ytop, lines, colors):
+    for j, line in enumerate(lines):
+        for i, ch in enumerate(line):
+            if ch != '.':
+                im.putpixel((x + i, ytop + j), colors[ch] + (255,))
+
+
+EMBLEM = ['....KKKKK....',
+          '..KKoooooKK..',
+          '.KoooooooooK.',
+          '.KoooobooooK.',
+          'KooooobooooooK'[:13],
+          'KoooobbbooooK',
+          'KoooobbbooooK',
+          'KooobbbbbbooK'[:13],
+          'KoobbbbbbbooK',
+          '.KoooooooooK.',
+          '.KoooooooooK.',
+          '..KKoooooKK..',
+          '....KKKKK....']
+EMBLEM_C = {'K': (0, 0, 0), 'o': (0xff, 0x8a, 0x1e), 'b': (0x14, 0x3c, 0xa0)}
+MAST = ['.KKKKKKKKK.K.',
+        'KooooooooKKhK',
+        'KoooooooooKhK',
+        'KoobbooooKKhK',
+        'KooooooooK.hK'[:13],
+        '.KKKKKKKKKKhK',
+        '..........KhK', '..........KhK', '..........KhK', '..........KhK', '..........KhK', '..........KhK',
+        '..........KhK', '..........KhK', '..........KhK', '..........KhK', '..........KhK', '..........KhK',
+        '..........KhK', '..........KhK', '..........KhK', '..........KhK']
+MAST_C = {'K': (0, 0, 0), 'o': (0xff, 0x8a, 0x1e), 'b': (0x14, 0x3c, 0xa0), 'h': (0xd8, 0xe4, 0xff)}
+
+
+def landmarks():
+    made = []
+    for name, src, ramp in (('Fabrica_Guarda', 'Fabrica_A', RAMP_GUARD), ('Fabrica_Armazem_A', 'Fabrica_S', RAMP_DEPOT), ('Fabrica_Armazem_B', 'Fabrica_K', RAMP_DEPOT)):
+        im = recolor(Image.open(os.path.join(IND, src, src + '.png')).convert('RGBA'), ramp)
+        if name == 'Fabrica_Guarda':  # quadro _S (o de cima, 112 x 128): emblema no teto e mastro no canto de trás
+            stamp(im, 57, 44, EMBLEM, EMBLEM_C)
+            stamp(im, 80, 12, MAST, MAST_C)
+        d = os.path.join(IND, name)
+        os.makedirs(d, exist_ok=True)
+        im.save(os.path.join(d, name + '.png'))
+        Image.open(os.path.join(IND, src, src + '_n.png')).save(os.path.join(d, name + '_n.png'))
+        print('%s: de %s, folha %dx%d' % (name, src, im.width, im.height))
+        made.append(os.path.join(d, name + '.png'))
+    return made
+
+
 def build(preview=None):
+    landmarks()
     sheets = []
     for fn in (poste, poste_duplo, semaforo, placa_pare, placa_rua):
         name, art, glows, w, h = fn()

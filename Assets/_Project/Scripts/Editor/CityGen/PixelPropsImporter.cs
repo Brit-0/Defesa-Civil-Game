@@ -26,9 +26,47 @@ namespace DefesaCivil.CityGen
             new Prop { name = "Placa_Rua_Nova", frameW = 32, frames = new[] { "S" } },
         };
 
+        /// <summary>Prédios de referência: folha recolorida de uma fábrica do pack (mesmos quadros, nomes trocados).</summary>
+        static readonly (string name, string source)[] Clones =
+        {
+            ("Fabrica_Guarda", "Fabrica_A"), ("Fabrica_Armazem_A", "Fabrica_S"), ("Fabrica_Armazem_B", "Fabrica_K"),
+        };
+
+        static void ImportClones()
+        {
+            foreach (var (name, source) in Clones)
+            {
+                string dir = $"{SpriteCatalog.Root}/Industrial/{name}/{name}", src = $"{SpriteCatalog.Root}/Industrial/{source}/{source}.png";
+                if (!File.Exists(dir + ".png")) { Debug.LogWarning("[CityGen] Props: falta " + dir + ".png (rode Tools/PixelProps/props_kit.py)."); continue; }
+                AssetDatabase.ImportAsset(dir + "_n.png", ImportAssetOptions.ForceUpdate);
+                AssetDatabase.ImportAsset(dir + ".png", ImportAssetOptions.ForceUpdate);
+                var from = (TextureImporter)AssetImporter.GetAtPath(src);
+                var n = (TextureImporter)AssetImporter.GetAtPath(dir + "_n.png");
+                n.textureType = TextureImporterType.Default;
+                n.sRGBTexture = false;
+                n.alphaIsTransparency = false;
+                Common(n);
+                n.SaveAndReimport();
+
+                var t = (TextureImporter)AssetImporter.GetAtPath(dir + ".png");
+                var settings = new TextureImporterSettings();
+                from.ReadTextureSettings(settings);
+                t.SetTextureSettings(settings);
+                Common(t);
+#pragma warning disable 618
+                var sheet = from.spritesheet;
+                for (int i = 0; i < sheet.Length; i++) sheet[i].name = name + sheet[i].name.Substring(source.Length);
+                t.spritesheet = sheet;
+#pragma warning restore 618
+                t.secondarySpriteTextures = new[] { new SecondarySpriteTexture { name = "_NormalMap", texture = AssetDatabase.LoadAssetAtPath<Texture2D>(dir + "_n.png") } };
+                t.SaveAndReimport();
+            }
+        }
+
         [MenuItem("Tools/City/Importar Props Pixel")]
         public static void Import()
         {
+            ImportClones();
             int done = 0;
             foreach (var p in Props)
             {

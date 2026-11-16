@@ -13,7 +13,7 @@ namespace DefesaCivil.CityGen.Tests
         {
             Assert.AreEqual(21, cat.Suburban.Count, "Suburban Casa_*");
             Assert.AreEqual(33, cat.Commercial.Count, "Commercial Predio/Arranha_Ceu/Fundo");
-            Assert.AreEqual(20, cat.Industrial.Count, "Industrial Fabrica_*");
+            Assert.AreEqual(23, cat.Industrial.Count, "Industrial Fabrica_* (20 do pack + Guarda e 2 Armazéns recoloridos)");
             Assert.AreEqual(136, cat.Decoration.Count, "tudo que não é estrutura nem da pasta Carros, menos as exclusões de Nature (131 do pack + 5 props do props_kit.py)");
             Assert.IsFalse(cat.Decoration.Any(s => s.category == "Carros"), "nenhum sprite de carro");
         }

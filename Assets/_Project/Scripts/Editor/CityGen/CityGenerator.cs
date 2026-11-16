@@ -29,9 +29,12 @@ namespace DefesaCivil.CityGen
         public const float YardMin = 1.3f;       // quintal mínimo entre as duas fileiras
         const string Res = "Res", Com = "Com", Ind = "Ind", IndGuard = "IndGuard", Depot = "Depot", Park = "Park", Woods = "Woods", Civic = "Civic";
         /// <summary>Sprites reservados (v5): a Guarda é o centro de comando e os Armazéns são galpões; nenhuma casa usa.</summary>
-        const string GuardSprite = "Fabrica_A";
-        static readonly string[] WarehouseSprites = { "Fabrica_S", "Fabrica_K" };
-        static readonly HashSet<string> Landmarks = new HashSet<string> { GuardSprite, "Fabrica_S", "Fabrica_K" };
+        const string GuardSprite = "Fabrica_Guarda";
+        static readonly string[] WarehouseSprites = { "Fabrica_Armazem_A", "Fabrica_Armazem_B" };
+        /// <summary>v7: versões recoloridas por script (props_kit.py): Guarda azul com emblema e mastro, Armazéns em ocre.</summary>
+        static readonly HashSet<string> Landmarks = new HashSet<string> { GuardSprite, "Fabrica_Armazem_A", "Fabrica_Armazem_B" };
+        /// <summary>O mastro da Guarda passa da altura da fileira e entra no miolo da praça.</summary>
+        const float GuardMast = 0.7f;
 
         class Block
         {
@@ -559,7 +562,7 @@ namespace DefesaCivil.CityGen
         static void FillCivic(Gen g, Block b)
         {
             float cx = b.r.center.x;
-            var hq = g.T(GuardSprite) is { } a && a.visHU <= b.RowMaxH ? a
+            var hq = g.T(GuardSprite) is { } a && a.visHU <= b.RowMaxH + GuardMast ? a
                 : g.ind.NextWhere(c => c.visWU >= 2.6f && c.visHU <= b.RowMaxH) ?? g.ind.NextWhere(c => c.visHU <= b.RowMaxH);
             var hqSlot = new Slot { cs = hq, type = StructureType.Guard, x = cx };
             PlaceRow(g, b, new List<Slot> { hqSlot }, false);
