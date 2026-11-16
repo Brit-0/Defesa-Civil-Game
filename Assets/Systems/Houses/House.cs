@@ -186,6 +186,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
                     default:
                         break;
                 }
+                ResourcesManager.Money += GuardManager.Instance.moneyPerCall;
                 break;
             case CallType.Restock:
                 ResourcesManager.BuildMaterial += currentCall.workersSent;

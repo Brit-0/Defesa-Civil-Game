@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 46cf46df98816cb44bfbf3fd24e1fb37
+guid: 4b6678e9f2865c9a95a6d60e95106278
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -31,7 +31,7 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 8192
   textureSettings:
     serializedVersion: 2
     filterMode: 0
@@ -48,14 +48,12 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
-  spriteTessellationMethod: 0
   spriteTessellationDetail: -1
-  spriteGeometrySubdivision: -1
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
@@ -71,7 +69,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -84,23 +82,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 2048
+    maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -112,177 +97,177 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Fabrica_R_0
+      name: Fabrica_R_S
       rect:
         serializedVersion: 2
-        x: 11
-        y: 920
-        width: 106
-        height: 75
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 896
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b71fee1dd354ec74496d2a55d890afba
-      internalID: 1869247291
+      spriteID: 80a76f40812b5fbfb25ea4d1c0cd60f9
+      internalID: 351996244
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Fabrica_R_1
+      name: Fabrica_R_SW
       rect:
         serializedVersion: 2
-        x: 19
-        y: 780
-        width: 99
-        height: 109
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 768
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f6ae7e74c48bdbb4293c76827ac9f369
-      internalID: 410303450
+      spriteID: 955bb7bdb7795cab946c1cd311569475
+      internalID: 54519301
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Fabrica_R_2
+      name: Fabrica_R_W
       rect:
         serializedVersion: 2
-        x: 37
-        y: 645
-        width: 54
-        height: 114
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 640
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d93e70201ef63b84cb26f3a7a552aa9a
-      internalID: 1167010158
+      spriteID: cda4d10bf836536ea8e007fe2eb1a8a0
+      internalID: 1597727591
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Fabrica_R_3
+      name: Fabrica_R_NW
       rect:
         serializedVersion: 2
-        x: 22
-        y: 514
-        width: 98
-        height: 109
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 512
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4250db289cbec994e80c58194ddc8e4b
-      internalID: 4125279
+      spriteID: e2d78693fb745acb8858be38ab93ac9a
+      internalID: 1669280081
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Fabrica_R_4
+      name: Fabrica_R_N
       rect:
         serializedVersion: 2
-        x: 11
-        y: 407
-        width: 106
-        height: 63
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 384
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 018960ade536a164fa5ed97394699110
-      internalID: 296754444
+      spriteID: e3dc96a247c15010aee1cbe658bbb6ea
+      internalID: 910201198
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Fabrica_R_5
+      name: Fabrica_R_NE
       rect:
         serializedVersion: 2
-        x: 10
-        y: 257
-        width: 99
-        height: 91
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 256
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ee6fa8c9f32fe06438c959bd963f15c7
-      internalID: -265452169
+      spriteID: 5777e05bcd4c537c972b376e852ddd8d
+      internalID: 869401885
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Fabrica_R_6
+      name: Fabrica_R_E
       rect:
         serializedVersion: 2
-        x: 37
-        y: 131
-        width: 54
-        height: 96
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 128
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 780dad2467e1df1439d944d4cf6bc699
-      internalID: 1939462766
+      spriteID: 76fbfed29bcc59c7aebbaf7a54208658
+      internalID: 537435323
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Fabrica_R_7
+      name: Fabrica_R_SE
       rect:
         serializedVersion: 2
-        x: 8
-        y: 11
-        width: 98
-        height: 90
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 0
+        y: 0
+        width: 128
+        height: 128
+      alignment: 9
+      pivot: {x: 0.5, y: 0.34375}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f801075d29c6cd74da92f8963efa1cad
-      internalID: -1447625069
+      spriteID: b5d082fa551e5cee9394511feb776e24
+      internalID: 2011862494
       vertices: []
       indices: 
       edges: []
@@ -291,26 +276,26 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: fef3f084a5114c34e92556666088b1eb
+    spriteID: ba6737f9c3f95126acde3ec66669068a
     internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
-    secondaryTextures: []
+    secondaryTextures:
+    - texture: {fileID: 2800000, guid: bf8d54d713fa52e1821078b253e15661, type: 3}
+      name: _NormalMap
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      Fabrica_R_0: 1869247291
-      Fabrica_R_1: 410303450
-      Fabrica_R_2: 1167010158
-      Fabrica_R_3: 4125279
-      Fabrica_R_4: 296754444
-      Fabrica_R_5: -265452169
-      Fabrica_R_6: 1939462766
-      Fabrica_R_7: -1447625069
+      Fabrica_R_S: 351996244
+      Fabrica_R_SW: 54519301
+      Fabrica_R_W: 1597727591
+      Fabrica_R_NW: 1669280081
+      Fabrica_R_N: 910201198
+      Fabrica_R_NE: 869401885
+      Fabrica_R_E: 537435323
+      Fabrica_R_SE: 2011862494
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
