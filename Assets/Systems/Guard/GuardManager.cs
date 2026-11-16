@@ -27,8 +27,6 @@ public class GuardManager : MonoBehaviour
     private CityGuard selectedGuard;
     private Call currentCall;
 
-    public int moneyPerCall = 10;
-
     public static bool selectBaseMode;
 
     [Header("WORKERS")]
@@ -49,59 +47,10 @@ public class GuardManager : MonoBehaviour
     [Header("CALL")]
     [SerializeField] private GameObject callTab;
 
-    // Provisório: no T05 estes números passam para o BalanceData e são lidos por Stats.
-    [Header("PROVISIONAL BALANCE")]
-    [SerializeField] private float dispatchInterval = .8f;
-    [SerializeField] private float workTimePerDamage = 5f;
-    [SerializeField] private float minWorkTime = 2f;
-    [SerializeField] private float fireWorkTime = 4f;
-    [SerializeField] private int fireReward = 15;
-    [SerializeField] private int materialPerWorker = 1;
-    [SerializeField] private int minDamage = 1;
-    [SerializeField] private int maxDamage = 3;
-
-    public int MaterialPerWorker => materialPerWorker;
-    public int MinDamage => minDamage;
-
     private void Awake()
     {
         Instance = this;
     }
-
-    #region BALANCE
-
-    public int GetRandomDamage()
-    {
-        return Random.Range(minDamage, maxDamage + 1);
-    }
-
-    // GDD 3.1: tempo = tempo por ponto de dano × dano ÷ equipe, com um mínimo. Armazém tem tempo fixo.
-    public float GetWorkTime(Call call)
-    {
-        if (call.type == CallType.Restock) return call.house.RestockWorkTime;
-
-        int team = Mathf.Max(call.workersNeeded, call.workersSent);
-        float total = call.house.currentState == State.OnFire ? fireWorkTime : workTimePerDamage * call.house.damageAmount;
-        return Mathf.Max(minWorkTime, total / team);
-    }
-
-    // GDD 3.1: recompensa = dinheiro por ponto de dano × dano.
-    public int GetReward(Call call)
-    {
-        if (call.type != CallType.Problem) return 0;
-
-        return call.house.currentState == State.OnFire ? fireReward : moneyPerCall * call.house.damageAmount;
-    }
-
-    // Material que o envio gasta: só casa danificada usa material.
-    public int GetMaterialCost(Call call)
-    {
-        if (call.type != CallType.Problem || call.house.currentState != State.Damaged) return 0;
-
-        return call.house.damageAmount;
-    }
-
-    #endregion
 
     #region CALL FLOW
 
@@ -168,7 +117,7 @@ public class GuardManager : MonoBehaviour
             return false;
         }
 
-        int materialCost = GetMaterialCost(call);
+        int materialCost = Stats.GetMaterialCost(call);
         if (materialCost > ResourcesManager.BuildMaterial)
         {
             GameEvents.RaiseActionDenied(DeniedReason.NoMaterial, house.transform.position);
@@ -204,7 +153,7 @@ public class GuardManager : MonoBehaviour
         {
             Transform newWorker = Instantiate(workerPf, guard.entry.transform.position, Quaternion.identity, workersParent).transform;
             StartCoroutine(GPS.main.FollowPath(newWorker, path, call, i == size - 1));
-            yield return new WaitForSeconds(dispatchInterval);
+            yield return new WaitForSeconds(Stats.DispatchInterval);
         }
     }
 
@@ -231,7 +180,7 @@ public class GuardManager : MonoBehaviour
         {
             Transform newWorker = Instantiate(workerPf, house.entry.transform.position, Quaternion.identity, workersParent).transform;
             StartCoroutine(GPS.main.FollowPath(newWorker, path, call, i == size - 1, true));
-            yield return new WaitForSeconds(dispatchInterval);
+            yield return new WaitForSeconds(Stats.DispatchInterval);
         }
     }
 

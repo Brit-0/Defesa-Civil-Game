@@ -17,7 +17,6 @@ public class GPS : MonoBehaviour
 
 
     [Header("PLAYER")]
-    [SerializeField] private float speed;
     [SerializeField] private float arrivalDistance = 0.01f;
     [SerializeField] private float destroyDelay = .1f;
     [Header("LOCATIONS")]
@@ -50,7 +49,7 @@ public class GPS : MonoBehaviour
             {
                 while (Vector3.Distance(worker.position, waypoint.transform.position) > arrivalDistance)
                 {
-                    worker.position = Vector3.MoveTowards(worker.position, waypoint.transform.position, speed * Time.deltaTime);
+                    worker.position = Vector3.MoveTowards(worker.position, waypoint.transform.position, Stats.WorkerSpeed * Time.deltaTime);
 
                     yield return null;
                 }

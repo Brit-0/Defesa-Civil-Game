@@ -35,7 +35,6 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     [Header("CALL")]
     public Call currentCall;
     [SerializeField] private GameObject callDisplay;
-    [SerializeField] private float workTime;
     [SerializeField] private Image progressCircle;
     [SerializeField] private Image progressIcon;
     [SerializeField] private GameObject complete;
@@ -47,7 +46,6 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     public bool HasTeam { get; private set; }
     public bool IsWorking { get; private set; }
     public bool IsComplete => isComplete;
-    public float RestockWorkTime => workTime;
 
     static readonly int crackFade = Shader.PropertyToID("_TextureLayer1Fade");
     //static readonly int outlineFade = Shader.PropertyToID("_OuterOutlineFade");
@@ -129,7 +127,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     [Button]
     public void GenerateCall()
     {
-        ApplyProblem(State.Damaged, GuardManager.Instance.GetRandomDamage());
+        ApplyProblem(State.Damaged, Stats.GetRandomDamage());
     }
 
     // Único jeito de uma casa ganhar problema. Só age em casa comum e intacta (GDD, seção 4).
@@ -139,7 +137,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         if (currentState != State.Intact) return false;
         if (problem != State.Damaged && problem != State.OnFire) return false;
 
-        damageAmount = problem == State.Damaged ? Mathf.Max(GuardManager.Instance.MinDamage, severity) : 0;
+        damageAmount = problem == State.Damaged ? Mathf.Max(Stats.MinDamage, severity) : 0;
         currentCall = new()
         {
             house = this,
@@ -176,7 +174,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         progressIcon.enabled = icon != null;
         progressCircle.gameObject.SetActive(true);
         GameEvents.RaiseWorkStarted(currentCall);
-        progressCircle.DOFillAmount(1f, GuardManager.Instance.GetWorkTime(currentCall)).SetEase(Ease.Linear).SetLink(gameObject).OnComplete(CompleteWork);
+        progressCircle.DOFillAmount(1f, Stats.GetWorkTime(currentCall)).SetEase(Ease.Linear).SetLink(gameObject).OnComplete(CompleteWork);
     }
 
     private void CompleteWork()
@@ -204,12 +202,12 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         switch (call.type)
         {
             case CallType.Problem:
-                moneyEarned = GuardManager.Instance.GetReward(call);
+                moneyEarned = Stats.GetReward(call);
                 SetState(State.Intact);
                 ResourcesManager.Money += moneyEarned;
                 break;
             case CallType.Restock:
-                ResourcesManager.BuildMaterial += call.workersSent * GuardManager.Instance.MaterialPerWorker;
+                ResourcesManager.BuildMaterial += call.workersSent * Stats.MaterialPerWorker;
                 break;
             default:
                 break;

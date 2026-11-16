@@ -15,6 +15,7 @@ public class ResourcesManager : MonoBehaviour
         { 
             Instance.workers = value;
             Instance.workersLbl.text = value.ToString();
+            GameEvents.RaiseWorkersChanged(value);
         }
     }
 
@@ -42,6 +43,7 @@ public class ResourcesManager : MonoBehaviour
         { 
             Instance.buildMaterial = value;
             Instance.materialsLbl.text = value.ToString();
+            GameEvents.RaiseMaterialChanged(value);
         }
     }
 
@@ -54,8 +56,10 @@ public class ResourcesManager : MonoBehaviour
         get => Instance.money;
         set
         {
+            int before = Instance.money;
             Instance.money = value;
             Instance.moneyLbl.text = value.ToString();
+            GameEvents.RaiseMoneyChanged(before, value);
         }
     }
 
@@ -66,6 +70,8 @@ public class ResourcesManager : MonoBehaviour
 
     private void Start()
     {
-        Workers = 3;
+        Workers = Stats.Balance.startWorkers;
+        BuildMaterial = Stats.Balance.startMaterial;
+        Money = Stats.Balance.startMoney;
     }
 }
