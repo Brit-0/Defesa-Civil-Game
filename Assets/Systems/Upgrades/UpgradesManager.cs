@@ -171,18 +171,22 @@ public class UpgradesManager : MonoBehaviour
         int newLevel = GetLevel(upgrade) + 1;
         levels[upgrade.id] = newLevel;
 
-        ApplyImmediateEffect(upgrade);
         GameEvents.RaiseUpgradePurchased(upgrade, newLevel);
+        ApplyImmediateEffect(upgrade);
         return true;
     }
 
-    // A maioria dos efeitos é lida por Stats na hora do uso. Só o que muda estoque acontece aqui.
+    // A maioria dos efeitos é lida por Stats na hora do uso. Aqui fica só o que acontece no ato da compra.
     private static void ApplyImmediateEffect(UpgradeData upgrade)
     {
         switch (upgrade.id)
         {
             case UpgradeIds.Workers:
                 ResourcesManager.Workers += Mathf.RoundToInt(upgrade.effectPerLevel);
+                break;
+            // Centro de Operações: comprar o objetivo final é a vitória (GDD, seção 9).
+            case UpgradeIds.Goal:
+                if (GameManager.Instance != null) GameManager.Instance.Win();
                 break;
             default:
                 break;
