@@ -14,6 +14,23 @@ Formato: `- [x] T03 — o que entrou, hash do commit`
 - [x] T06 — `DisasterManager` v1 com Terremoto: só conta em `Playing`; primeiro desastre em `firstDisasterDelay` (aviso 3 s antes), com `firstDisasterHouses` casas e epicentro na Guarda; depois intervalo e número de casas pela rampa de `disasterRampDuration`; `DisasterWarning`, `DisasterStarted` com o epicentro, uma casa por vez em onda (`earthquakeWaveDelayPerUnit` × distância) com dano do máximo ao mínimo em faixas iguais do raio, `DisasterEnded`. Um desastre por vez; o intervalo conta a partir do fim do anterior. Guarda e Armazém nunca entram (a lista vem de `LocationsManager.Houses`, e `ApplyProblem` recusa `Location`). Menu de dados cria `Assets/Resources/Disasters/Earthquake.asset`. Checagem de tipos: 0 erros e 0 avisos. Hash: `a333b6e`.
 - [x] T07 — `ChaosManager`: `Instance`, `Chaos` (0 a 1) e `Target`; alvo = soma dos pesos das casas não intactas ÷ `chaosLimit`; sobe a `chaosRisePerSecond` e desce a `chaosFallPerSecond`; `ChaosChanged` só quando o valor muda (e uma vez no `Start`, com 0); em 1 chama `GameManager.Instance.Lose()`. Só roda em `Playing`. `Stats.GetChaosWeight(State)`. Checagem de tipos: 0 erros e 0 avisos. Hash: `de5d68d`.
 - [x] T08 — Upgrades: `UpgradesManager` (`Instance`, nível por id, `GetLevel`, `GetCost` = `baseCost × costGrowth^nível` arredondado, `CanBuy`, `TryBuy` que debita, sobe o nível e dispara `UpgradePurchased`; negado dispara `ActionDenied` com `NoMoney` ou `MaxLevel`; carrega `Resources.LoadAll<UpgradeData>("Upgrades")` e preenche a aba em runtime), `UpgradeButton` (ícone, nome, nível, custo; desabilita sem dinheiro ou no nível máximo; clique chama `TryBuy`), `UpgradeIds`. `Stats` aplica os efeitos: `speed` na `WorkerSpeed`, `tools` no `GetWorkTime`, `cart` no `MaterialPerWorker`, `reward` no `GetReward`; `workers` soma 1 trabalhador na hora da compra. Menu de dados cria os 5 `UpgradeData` com a tabela do GDD. Checagem de tipos: 0 erros e 0 avisos. Hash: `1489776`.
+- [x] T09 — menu de dados fechado. `Tools/Jam/Create Default Data` cria só o que falta e nunca altera asset que já existe; rodar duas vezes não cria nem muda nada (upgrade e desastre são reconhecidos pelo `id`, mesmo com o arquivo renomeado dentro da pasta; se já houver outra coisa no caminho, avisa e não sobrescreve). `Tools/Jam/Reset Data To Defaults` (com confirmação) reescreve os campos que o menu conhece e não toca nos ícones. A lista do que ele cria está em "Assets do menu de dados", abaixo. Checagem de tipos: 0 erros e 0 avisos. Hash: `ec070cd`.
+
+## Assets do menu de dados
+
+Lista para o MEGABRAIN conferir depois de rodar `Tools/Jam/Create Default Data` (cresce a cada tarefa do Dia 2):
+
+| Asset | Conteúdo |
+|---|---|
+| `Assets/Resources/Balance/BalanceData.asset` | Valores da seção 13 do GDD (os padrões da classe `BalanceData`). |
+| `Assets/Resources/Disasters/Earthquake.asset` | `id` earthquake, `type` Earthquake, `displayName` Terremoto. |
+| `Assets/Resources/Upgrades/Workers.asset` | `workers`, Contratar trabalhador, ordem 0, 12 níveis, base 30, crescimento 1,45, efeito 1. |
+| `Assets/Resources/Upgrades/Speed.asset` | `speed`, Botas de corrida, ordem 1, 8 níveis, base 25, crescimento 1,5, efeito 0,12. |
+| `Assets/Resources/Upgrades/Tools.asset` | `tools`, Ferramentas melhores, ordem 2, 8 níveis, base 40, crescimento 1,5, efeito 0,10. |
+| `Assets/Resources/Upgrades/Cart.asset` | `cart`, Carrinho de mão, ordem 3, 4 níveis, base 60, crescimento 1,8, efeito 1. |
+| `Assets/Resources/Upgrades/Reward.asset` | `reward`, Seguro municipal, ordem 4, 10 níveis, base 50, crescimento 1,55, efeito 0,25. |
+
+O menu cria também as pastas `Balance`, `Disasters` e `Upgrades` dentro de `Assets/Resources`. Os `.meta` das pastas e dos assets são gerados pelo Unity e entram no mesmo commit. Campo que o menu não preenche: `icon` de cada `UpgradeData` e `DisasterData`.
 
 ## Como testar no Play
 
