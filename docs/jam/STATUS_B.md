@@ -2,7 +2,7 @@
 
 Só o Agente B edita este arquivo. O MEGABRAIN lê a cada integração, atende os pedidos na cena e passa o status para o `TASKS.md`.
 
-**Como o B confere sem o Unity:** além de reler o diff, cada entrega passa por uma checagem de tipos com o compilador C# do .NET, fora do Unity, contra as DLLs do Unity 6000.4.6f1 (o 6000.6.7f1 ainda não tinha DLLs instaladas), o DOTween, o Odin, a UI, o TextMeshPro e o Input System. Roda duas vezes: com `UNITY_EDITOR` e sem (como o build do jogador, sem as pastas `Editor/`). Pega erro de sintaxe, de tipo e API obsoleta; **não substitui a compilação no Unity 6000.6.7f1 (U5)** e não testa nada em Play.
+**Como o B confere sem o Unity:** além de reler o diff, cada entrega passa por uma checagem de tipos com o compilador C# do .NET, fora do Unity, contra as DLLs do Unity 6000.6.7f1 desde o T25 (antes, 6000.4.6f1; o compilador Roslyn continua sendo o do 6000.4.6f1, porque o 6000.6.7f1 não traz o `csc.dll`; um arquivo-sonda com erro de propósito prova que a checagem acusa), o DOTween, o Odin, a UI, o TextMeshPro e o Input System. Roda duas vezes: com `UNITY_EDITOR` e sem (como o build do jogador, sem as pastas `Editor/`). Pega erro de sintaxe, de tipo e API obsoleta; **não substitui a compilação no Unity 6000.6.7f1 (U5)** e não testa nada em Play.
 
 ## Tarefas
 
@@ -21,6 +21,9 @@ Formato: `- [x] T03 — o que entrou, hash do commit`
 - [x] T21 — Incêndio: `ApplyProblem(State.OnFire, 0)` liga o temporizador (`fireDuration`); `House.FireTimeLeft01` vai de 1 (acabou de pegar fogo) a 0 (apagou) e vale 0 fora de `OnFire`. O temporizador só corre em `Playing` e para quando a equipe começa a trabalhar. Ao zerar, a casa vira `Damaged` com `fireBurnoutDamage` (sai `HouseStateChanged(OnFire → Damaged)`, o chamado é o mesmo). Apagar não gasta material, leva `fireWorkTime` ÷ equipe e paga `fireReward`; peso 2 no caos já vinha do T07. Botão de debug `GenerateFire` na casa. O incêndio isolado (liberado aos 180 s) entra com o T20. Checagem de tipos: 0 erros e 0 avisos. Hash: `234f754`.
 - [x] T20 — Tempestade e incêndio isolado no `DisasterManager`. Sorteio por peso (`earthquakeWeight`, `stormWeight`, `fireWeight`) só entre os tipos já liberados (`stormUnlockTime`, `fireUnlockTime`, contra `GameManager.ElapsedTime`) e que têm asset; o primeiro desastre continua sendo terremoto. Tempestade: `DisasterStarted` no meio da cidade, N raios (N da rampa de casas) espaçados em `stormDuration ÷ N`; cada raio dispara `LightningStruck(posição da casa)` e deixa uma casa intacta `Damaged` (dano entre `stormMinDamage` e `stormMaxDamage`) ou, com `lightningFireChance`, `OnFire`; no fim `DisasterEnded`. Incêndio isolado: de `fireMinHouses` a `fireMaxHouses` casas intactas viram `OnFire` de uma vez. Menu de dados cria `Storm.asset` e `Fire.asset`. Checagem de tipos: 0 erros e 0 avisos. Hash: `d088634`.
 - [x] T22 (nível 4) — Despacho automático no `GuardManager`: a cada `autoDispatchInterval` (campo novo do `BalanceData`, 1 s) de partida em `Playing`, um chamado sem equipe é atendido sozinho com a equipe sugerida, saindo da Guarda mais próxima. Ordem: incêndios primeiro (o mais perto de apagar sozinho), depois os consertos de menor dano. Chamado que não cabe no estoque (gente ou material) só espera, sem `ActionDenied`; o seguinte da fila é tentado. O Armazém continua manual. A conferência de gente e material virou uma função só (`GetDeniedReason`), usada também pelo envio manual. Checagem de tipos: 0 erros e 0 avisos. Hash: `ef21ed0`.
+- [x] T25 (simulador) — `docs/jam/sim/`: simulador em Python das regras do código (envio, caminhada pela rua, Armazém, fogo, desastres, caos, repasse, upgrades, automação), lendo os números direto de `BalanceData.cs` e `JamDataMenu.cs`. Detalhes e tabela na seção "Simulador de balanceamento", abaixo. Hash: `a9e0c1a`.
+- [x] T25 (valores) — padrões novos do `BalanceData` e dos upgrades do menu de dados, calibrados pelo simulador: com os valores do GDD nem um jogador bom passa dos 4 minutos; com os novos, ignorar perde aos 4:33, o jogador bom vence 100% das partidas aos 12:02 e o médio vence 76% aos 13:48. Checagem de tipos: 0 erros nos dois modos. Hash: `903ee33`. **Pedido: rodar `Tools/Jam/Reset Data To Defaults` depois do merge** (os `.asset` da integração guardam os valores antigos).
+- [x] Polimento — terremoto para a onda quando a partida acaba (antes, casas continuavam quebrando atrás da tela final); aba de equipe e "Escolha a base" fecham na vitória e na derrota, e os botões da aba não enviam fora de `Playing`; estoque de trabalhadores, material e dinheiro nunca fica abaixo de 0 (o setter segura em 0 e põe um erro no console; nenhum caminho conhecido chega lá, é rede de segurança); Reiniciar volta direto para a partida, sem o menu; `Location` sem `infoPanel` não dá `NullReferenceException` no hover. Conferido no código: `Restart` mata os tweens (o `AudioManager` persistente do C não usa DOTween, nada dele é cortado), zera `inputBlocks` e `selectBaseMode`, e todos os sistemas que assinam `GameEvents` saem no `OnDisable`. Checagem de tipos: 0 erros nos dois modos. Hash: `89c2d41`.
 
 ## Assets do menu de dados
 
@@ -28,26 +31,76 @@ Lista para o MEGABRAIN conferir depois de rodar `Tools/Jam/Create Default Data` 
 
 | Asset | Conteúdo |
 |---|---|
-| `Assets/Resources/Balance/BalanceData.asset` | Valores da seção 13 do GDD (os padrões da classe `BalanceData`). |
+| `Assets/Resources/Balance/BalanceData.asset` | Os padrões da classe `BalanceData`: seção 13 do GDD com os ajustes do T25 (lista na seção "Simulador de balanceamento"). |
 | `Assets/Resources/Disasters/Earthquake.asset` | `id` earthquake, `type` Earthquake, `displayName` Terremoto. |
 | `Assets/Resources/Disasters/Storm.asset` | (T20) `id` storm, `type` Storm, `displayName` Tempestade. |
 | `Assets/Resources/Disasters/Fire.asset` | (T20) `id` fire, `type` Fire, `displayName` Incêndio. |
 | `Assets/Resources/Upgrades/Workers.asset` | `workers`, Contratar trabalhador, ordem 0, 12 níveis, base 30, crescimento 1,45, efeito 1. |
 | `Assets/Resources/Upgrades/Speed.asset` | `speed`, Botas de corrida, ordem 1, 8 níveis, base 25, crescimento 1,5, efeito 0,12. |
 | `Assets/Resources/Upgrades/Tools.asset` | `tools`, Ferramentas melhores, ordem 2, 8 níveis, base 40, crescimento 1,5, efeito 0,10. |
-| `Assets/Resources/Upgrades/Cart.asset` | `cart`, Carrinho de mão, ordem 3, 4 níveis, base 60, crescimento 1,8, efeito 1. |
+| `Assets/Resources/Upgrades/Cart.asset` | `cart`, Carrinho de mão, ordem 3, 4 níveis, base 25 (T25; GDD 60), crescimento 1,8, efeito 1. |
 | `Assets/Resources/Upgrades/Reward.asset` | `reward`, Seguro municipal, ordem 4, 10 níveis, base 50, crescimento 1,55, efeito 0,25. |
-| `Assets/Resources/Upgrades/Automation.asset` | (T22) `automation`, Automação, ordem 5, 4 níveis, base 150, crescimento 2,6, efeito 1. |
-| `Assets/Resources/Upgrades/Income.asset` | (T23) `income`, Repasse da Prefeitura, ordem 6, 5 níveis, base 200, crescimento 2, efeito 1 (multiplica o repasse pelo nível). |
-| `Assets/Resources/Upgrades/Goal.asset` | (T24) `goal`, Centro de Operações, ordem 8, 1 nível, base 5.000, crescimento 1, efeito 0. |
+| `Assets/Resources/Upgrades/Automation.asset` | (T22) `automation`, Automação, ordem 5, 4 níveis, base 80 (T25; GDD 150), crescimento 2 (T25; GDD 2,6), efeito 1. |
+| `Assets/Resources/Upgrades/Income.asset` | (T23) `income`, Repasse da Prefeitura, ordem 6, 5 níveis, base 150 (T25; GDD 200), crescimento 2, efeito 1 (multiplica o repasse pelo nível). |
+| `Assets/Resources/Upgrades/Goal.asset` | (T24) `goal`, Centro de Operações, ordem 8, 1 nível, base 2.500 (T25; GDD 5.000), crescimento 1, efeito 0. |
 
 O menu cria também as pastas `Balance`, `Disasters` e `Upgrades` dentro de `Assets/Resources`. Os `.meta` das pastas e dos assets são gerados pelo Unity e entram no mesmo commit. Campo que o menu não preenche: `icon` de cada `UpgradeData` e `DisasterData`.
+
+## Simulador de balanceamento (T25)
+
+`docs/jam/sim/` (Python 3.10+, sem pacotes extras). Reproduz as regras do código: envio com equipe e material debitados na hora, caminhada pela distância **pela rua** (o grafo de ruas do `city_layout.json`, o mesmo dos 105 waypoints da cena), um trabalhador a cada `dispatchInterval`, tempo de trabalho e recompensa do `Stats`, Armazém, fogo com temporizador e queima, terremoto em onda, tempestade, incêndio isolado, rampa, caos que persegue o alvo, repasse, upgrades e os 4 níveis de automação. Os números vêm dos próprios arquivos C# (`BalanceData.cs` e `JamDataMenu.cs`); `--assets Assets/Resources` lê os `.asset` que o jogo carrega. O jogador é um robô com tempo de reação e tempo por clique: no nível 0 da automação o despacho custa duas "miras" (casa e Guarda) e um clique por passo; no nível 2, um clique.
+
+- `python docs/jam/sim/tabela.py` — a tabela abaixo (30 partidas por linha, sementes fixas: sai sempre igual).
+- `--planos` (cada plano de compra do jogador bom), `--busca 200` (sorteia planos e mostra o teto), `--linha bom` (compras e desastres de uma partida), `--set campo=valor` ou `--set upgrade.campo=valor` (experimentar sem mexer no C#), `--mapa <city_layout.json>` (outro mapa).
+
+**O que o simulador mostrou nos valores do GDD:** a caminhada da Guarda até uma casa é de 27 unidades pela rua (mediana; 13,3 era a linha reta até o centro), e o Armazém mais perto fica a 30,5. Com `workerSpeed` 1, cada conserto prende o trabalhador por ~1 minuto e cada material custa 1 minuto de ida ao Armazém. Nem o jogador bom acompanha os desastres:
+
+| Jogador (valores do GDD) | Vence | Perde | Tempo até vencer | Tempo até perder | Consertos | Dinheiro ganho | Do repasse | Pico do caos |
+|---|---|---|---|---|---|---|---|---|
+| ignora | 0% | 100% | — | 3:01 (2:53–3:21) | 0 | 0 | 0 | 1.00 |
+| bom | 0% | 100% | — | 4:03 (3:35–4:24) | 8 | 92 | 0 | 1.00 |
+| médio | 0% | 100% | — | 3:36 (3:22–3:57) | 5 | 70 | 0 | 1.00 |
+
+**Com os valores novos (`903ee33`)**, mapa atual (70 casas), 30 partidas por linha; tempos em mediana (p10–p90):
+
+| Jogador | Vence | Perde | Tempo até vencer | Tempo até perder | Consertos | Dinheiro ganho | Do repasse | Pico do caos |
+|---|---|---|---|---|---|---|---|---|
+| ignora (não clica em nada) | 0% | 100% | — | 4:33 (4:20–5:02) | 0 | 0 | 0 | 1.00 |
+| bom (reação 1 s, plano "carrinho") | 100% | 0% | 12:02 (11:43–12:26) | — | 78 | 3606 | 1478 | 0.41 |
+| médio (reação 2 s, mais lento, equipe sugerida) | 76% | 23% | 13:48 (13:20–14:07) | 14:01 (13:06–14:02) | 90 | 3598 | 1164 | 0.75 |
+| bom que larga o mouse aos 6 min | 0% | 100% | — | 8:32 (8:12–8:49) | 27 | 1360 | 676 | 1.00 |
+| bom, plano "equilibrado" | 100% | 0% | 10:50 (10:37–11:26) | — | 64 | 4417 | 2660 | 0.41 |
+| bom, plano "gente" (só trabalhador e carrinho) | 96% | 3% | 12:45 (12:20–13:53) | 14:04 | 81 | 4216 | 2400 | 0.66 |
+| bom, plano "automacao" (os 4 níveis cedo) | 80% | 20% | 15:04 (14:12–15:36) | 15:19 (14:24–15:44) | 110 | 4630 | 2190 | 0.73 |
+| bom, plano "renda" (4 níveis de repasse) | 46% | 53% | 12:36 (11:28–14:09) | 13:11 (12:17–14:06) | 79 | 5486 | 3489 | 1.00 |
+
+- **Teto** (`--busca 200`, o melhor de 200 planos sorteados): vence aos 9:32. Abaixo de 10 min só com plano quase perfeito.
+- **Mapa novo** (o `city_layout.json` que o MEGABRAIN estava refazendo em 16/11, 69 casas, Armazéns a 18 unidades): bom vence 100% aos 12:04, médio 100% aos 13:24, ignorar perde aos 4:33, largar aos 6 min perde aos 8:31. O balanceamento não depende do mapa antigo.
+- Plano "carrinho" do jogador bom (achado pela busca): trabalhador, carrinho, carrinho, repasse, ferramentas, 2 trabalhadores, carrinho, ferramentas, trabalhador, seguro, trabalhador, automação 1 e 2, botas, e a meta. Compras de uma partida: carrinho 2 aos 1:13, repasse aos 2:48, automação 2 aos 5:21, meta aos 11:43.
+
+**Valores que mudaram** (o resto continua o da seção 13 do GDD):
+
+| Campo | GDD | Novo | Por quê |
+|---|---|---|---|
+| `workerSpeed` | 1 | 2,5 | Caminhada mediana de 27 unidades pela rua: ~11 s em vez de 27 s, perto dos ~13 s que o GDD queria. |
+| `restockTime` | 5 s | 3 s | Ida ao Armazém mais curta; o material continua 1 por trabalhador ([CONFIRMADO]) e o carrinho é o jeito de render mais. |
+| `moneyPerDamage` / `fireReward` | 10 / 15 | 15 / 20 | Com 10 a primeira compra útil só saía depois do minuto 2. |
+| `chaosLimit` | 20 | 22 | Dá ao jogador médio 2 casas de folga no fim; com 20 ele vencia só 30 a 40%. |
+| `disasterIntervalStart` / `End` | 35 s / 12 s | 45 s / 20 s | No fim da rampa do GDD caíam 45 casas por minuto; nenhum plano acompanhava. |
+| `disasterHousesEnd` | 9 | 6 | Idem; o começo (3 casas) não mudou. |
+| `disasterRampDuration` | 600 s | 780 s | A rampa termina aos 13 min: quem não comprou a meta até lá começa a perder. |
+| `cart` custo base | 60 | 25 | Carrinho é a saída para o material; caro, ninguém comprava a tempo. |
+| `automation` base / crescimento | 150 / 2,6 | 80 / 2 | Os 4 níveis custavam 4.190 (mais que a meta); agora 1.200. |
+| `income` custo base | 200 | 150 | Repasse no minuto 2 a 3 em vez do 5. |
+| `goal` (Centro de Operações) | 5.000 | 2.500 | Uma partida boa de 12 min rende ~3.600 (consertos e repasse); 5.000 não fechava antes dos 15 min. |
+
+**O que o simulador não vê:** cansaço, câmera e atenção do jogador de verdade (o robô nunca erra o clique), o tempo que se leva para entender o jogo na primeira partida e o efeito do feel. Por isso o valor da automação aparece menor do que deve ser para uma pessoa. É o ponto de partida para o T25 com partida jogada, não o lugar de chegada.
 
 ## Como testar no Play
 
 **T04 (um chamado e dois chamados em seguida).** Com `GameManager`, `LocationsManager` e `GameEventsLogger` na cena:
 1. Material: até o T05 o estoque começa em 0. Clique no Armazém, na Guarda, `+`, Enviar; quando o círculo fechar, clique no Armazém para coletar (material sobe 1 por trabalhador). Repita até ter 4 ou mais.
-2. Um chamado: selecione uma casa `[CG] House n`, botão `GenerateCall` do Odin. Clique na casa, na Guarda, `+`, Enviar. Esperado no console, nesta ordem: `HouseStateChanged Intact -> Damaged`, `CallOpened`, `TeamDispatched`, `WorkerSpawned`, `WorkerArrived`, `WorkStarted`, `WorkCompleted`; ao clicar na casa pronta: `HouseStateChanged Damaged -> Intact`, `CallResolved` com dinheiro = 10 × dano, e os trabalhadores voltando (`WorkerSpawned`/`WorkerArrived` de novo). O contador de trabalhadores cai de uma vez no envio e volta um a um.
+2. Um chamado: selecione uma casa `[CG] House n`, botão `GenerateCall` do Odin. Clique na casa, na Guarda, `+`, Enviar. Esperado no console, nesta ordem: `HouseStateChanged Intact -> Damaged`, `CallOpened`, `TeamDispatched`, `WorkerSpawned`, `WorkerArrived`, `WorkStarted`, `WorkCompleted`; ao clicar na casa pronta: `HouseStateChanged Damaged -> Intact`, `CallResolved` com dinheiro = 15 × dano (10 até o T25), e os trabalhadores voltando (`WorkerSpawned`/`WorkerArrived` de novo). O contador de trabalhadores cai de uma vez no envio e volta um a um.
 3. Dois chamados em seguida (B14 e B15): `GenerateCall` em duas casas. Monte o primeiro com 2 trabalhadores e clique em Enviar; **antes de o segundo trabalhador sair da base**, clique na segunda casa, na Guarda, `+` e Enviar. Esperado: saem 2 trabalhadores para a primeira casa e 1 para a segunda, as duas casas chegam a "pronta para coletar", e o contador de trabalhadores nunca fica abaixo de 0. Um segundo `+` no segundo chamado é negado (`ActionDenied NoWorkers`).
 4. Envio negado (B17): com material 0, monte um chamado de casa danificada e clique em Enviar: `ActionDenied NoMaterial`, nada sai do estoque e a aba continua aberta. Enviar com equipe 0: `ActionDenied NoWorkers`.
 5. Esc (B5): com um chamado aberto, uma tecla Esc fecha uma vez só.
@@ -55,23 +108,27 @@ O menu cria também as pastas `Balance`, `Disasters` e `Upgrades` dentro de `Ass
 
 **T05.** Rode `Tools/Jam/Create Default Data` (U6) e confira `Assets/Resources/Balance/BalanceData.asset`. No Play: o HUD abre com 3 trabalhadores, 5 de material e 0 de dinheiro (o passo 1 do teste do T04 deixa de ser necessário); o console mostra `WorkersChanged 3`, `MaterialChanged 5`, `MoneyChanged 0 -> 0`. Mude `workerSpeed` no asset com o Play rodando: os trabalhadores na rua mudam de velocidade na hora. Sem o asset, o jogo roda com os valores padrão e avisa uma vez no console.
 
-**T06.** Com `DisasterManager` na cena e o menu de dados rodado: 3 s depois do Play o console mostra `DisasterWarning Earthquake em 3 s`; aos 6 s, `DisasterStarted` com a posição da Guarda e as 2 casas mais próximas dela viram `Damaged` (a mais distante com dano 1), depois `DisasterEnded`. O seguinte vem cerca de 35 s depois, numa casa intacta sorteada, com 3 casas. Com o tempo acelerado (botão do `GameManager`), aos 10 minutos de partida o intervalo está em 12 s e cada terremoto pega 9 casas. Pausar (`GameManager.Pause()`) congela a contagem.
+**T06.** Com `DisasterManager` na cena e o menu de dados rodado: 3 s depois do Play o console mostra `DisasterWarning Earthquake em 3 s`; aos 6 s, `DisasterStarted` com a posição da Guarda e as 2 casas mais próximas dela viram `Damaged` (a mais distante com dano 1), depois `DisasterEnded`. O seguinte vem cerca de 45 s depois (35 até o T25), numa casa intacta sorteada, com 3 casas. Com o tempo acelerado (botão do `GameManager`), aos 13 minutos de partida o intervalo está em 20 s e cada terremoto pega 6 casas (até o T25: 10 min, 12 s e 9 casas). Pausar (`GameManager.Pause()`) congela a contagem.
 
-**T07.** Com `ChaosManager` na cena: sem atender chamados, cada casa danificada soma 1/20 ao alvo e o console mostra `ChaosChanged` subindo 0,06 por segundo até o alvo. Para ver a derrota sem esperar: tempo acelerado no `GameManager`, ou baixar `chaosLimit` para 3 no asset e ignorar o primeiro e o segundo terremoto: `ChaosChanged 1.00` e depois `GameStateChanged Lost`; os desastres param e as casas deixam de aceitar clique. Consertar casas faz a barra descer a 0,10 por segundo. `GameManager.Instance.Restart()` (botão da `EndScreen` do C, ou chamar pelo Inspector em modo Debug) recarrega a cena: caos 0, estoque inicial, primeiro terremoto de novo aos 6 s.
+**T07.** Com `ChaosManager` na cena: sem atender chamados, cada casa danificada soma 1/22 ao alvo (1/20 até o T25) e o console mostra `ChaosChanged` subindo 0,06 por segundo até o alvo. Para ver a derrota sem esperar: tempo acelerado no `GameManager`, ou baixar `chaosLimit` para 3 no asset e ignorar o primeiro e o segundo terremoto: `ChaosChanged 1.00` e depois `GameStateChanged Lost`; os desastres param e as casas deixam de aceitar clique. Consertar casas faz a barra descer a 0,10 por segundo. `GameManager.Instance.Restart()` (botão da `EndScreen` do C, ou chamar pelo Inspector em modo Debug) recarrega a cena: caos 0, estoque inicial, primeiro terremoto de novo aos 6 s.
 
-**T08.** Com o menu de dados rodado, `UpgradesManager` na cena e o `UpgradeButton.prefab` com o componente: abrir a aba mostra 5 botões (Contratar trabalhador 30, Botas de corrida 25, Ferramentas melhores 40, Carrinho de mão 60, Seguro municipal 50), todos apagados com dinheiro 0; clicar num deles dá `ActionDenied NoMoney`. Com dinheiro (conserte casas, ou mude `startMoney` no asset): comprar "Contratar trabalhador" debita 30, o contador de trabalhadores sobe 1 na hora, o nível vira 1/12 e o preço seguinte é 44 (30 × 1,45); o segundo custa 63. "Botas de corrida": os trabalhadores na rua aceleram 12% na hora. "Ferramentas melhores": o círculo do próximo conserto fecha 10% mais rápido. "Carrinho de mão": a próxima coleta no Armazém rende 2 por trabalhador. "Seguro municipal": uma casa de dano 2 paga 25 em vez de 20. No nível máximo o preço vira `MÁX`, o botão apaga e o clique dá `ActionDenied MaxLevel`.
+**T08.** Com o menu de dados rodado, `UpgradesManager` na cena e o `UpgradeButton.prefab` com o componente: abrir a aba mostra 5 botões (Contratar trabalhador 30, Botas de corrida 25, Ferramentas melhores 40, Carrinho de mão 25 (60 até o T25), Seguro municipal 50), todos apagados com dinheiro 0; clicar num deles dá `ActionDenied NoMoney`. Com dinheiro (conserte casas, ou mude `startMoney` no asset): comprar "Contratar trabalhador" debita 30, o contador de trabalhadores sobe 1 na hora, o nível vira 1/12 e o preço seguinte é 44 (30 × 1,45); o segundo custa 63. "Botas de corrida": os trabalhadores na rua aceleram 12% na hora. "Ferramentas melhores": o círculo do próximo conserto fecha 10% mais rápido. "Carrinho de mão": a próxima coleta no Armazém rende 2 por trabalhador. "Seguro municipal": uma casa de dano 2 paga 38 em vez de 30 (até o T25: 25 em vez de 20). No nível máximo o preço vira `MÁX`, o botão apaga e o clique dá `ActionDenied MaxLevel`.
 
-**T24.** Rodar o menu de dados de novo (cria `Goal.asset`). Na aba aparece "Centro de Operações" por 5.000, por último. Para testar sem jogar 12 minutos: `startMoney` 5000 no `BalanceData`. Comprar: `MoneyChanged 5000 -> 0`, `UpgradePurchased Goal nível 1`, `GameStateChanged Won`; desastres e caos param, as casas deixam de aceitar clique, e a tela de vitória do C (T29) entra pelo `GameStateChanged`.
+**T24.** Rodar o menu de dados de novo (cria `Goal.asset`). Na aba aparece "Centro de Operações" por 2.500 (5.000 até o T25), por último. Para testar sem jogar 12 minutos: `startMoney` 2500 no `BalanceData`. Comprar: `MoneyChanged 2500 -> 0`, `UpgradePurchased Goal nível 1`, `GameStateChanged Won`; desastres e caos param, as casas deixam de aceitar clique, e a tela de vitória do C (T29) entra pelo `GameStateChanged`.
 
-**T23.** Rodar o menu de dados (cria `Income.asset`). Comprar "Repasse da Prefeitura" (200): 10 s depois o console mostra `MoneyChanged` e `PassiveIncomePaid 35` com as 70 casas intactas e caos 0 (0,5 × 1 × 70). Com 10 casas quebradas e caos em 0,50: 0,5 × 1 × 60 × 0,5 = 15. No nível 2 o valor dobra. Pausado, em `Won` ou em `Lost` não paga.
+**T23.** Rodar o menu de dados (cria `Income.asset`). Comprar "Repasse da Prefeitura" (150; 200 até o T25): 10 s depois o console mostra `MoneyChanged` e `PassiveIncomePaid 35` com as 70 casas intactas e caos 0 (0,5 × 1 × 70). Com 10 casas quebradas e caos em 0,50: 0,5 × 1 × 60 × 0,5 = 15. No nível 2 o valor dobra. Pausado, em `Won` ou em `Lost` não paga.
 
-**T22, níveis 1 a 3.** Rodar o menu de dados (cria `Automation.asset`); custos 150, 390, 1.014 e 2.636. Nível 1: clicar numa casa quebrada abre direto a aba de equipe, sem o texto "Escolha a base". Nível 2: clicar numa casa quebrada já manda a equipe (dano 2 = 2 trabalhadores, ou os que houver); sem material ou sem gente, `ActionDenied` e nada sai; clicar no Armazém ainda abre a aba de equipe. Nível 3: quando o círculo fecha, a casa volta a `Intact` e o dinheiro entra sem clique; o Armazém entrega o material sozinho; casas que estavam com o ícone de pronto na hora da compra são coletadas na hora.
+**T22, níveis 1 a 3.** Rodar o menu de dados (cria `Automation.asset`); custos 80, 160, 320 e 640 (até o T25: 150, 390, 1.014 e 2.636). Nível 1: clicar numa casa quebrada abre direto a aba de equipe, sem o texto "Escolha a base". Nível 2: clicar numa casa quebrada já manda a equipe (dano 2 = 2 trabalhadores, ou os que houver); sem material ou sem gente, `ActionDenied` e nada sai; clicar no Armazém ainda abre a aba de equipe. Nível 3: quando o círculo fecha, a casa volta a `Intact` e o dinheiro entra sem clique; o Armazém entrega o material sozinho; casas que estavam com o ícone de pronto na hora da compra são coletadas na hora.
 
-**T21.** No Inspector de uma casa intacta, botão `GenerateFire`: `HouseStateChanged(Intact → OnFire)` no console, marcador de chamado aceso, caos sobe com peso 2. Enviar 1 trabalhador: o material não muda; ao chegar, o círculo fecha em 4 s (`fireWorkTime`); coletar paga 15 (`fireReward`) e a casa volta a `Intact`. Outro `GenerateFire` sem enviar ninguém: aos 25 s (`fireDuration`) sai `HouseStateChanged(OnFire → Damaged)` e o número 3 aparece na casa; daí em diante é um conserto comum (3 de material, recompensa 30). Para o C: `FireTimeLeft01` desce de 1 a 0 nesses 25 s e congela quando sai `WorkStarted`.
+**T21.** No Inspector de uma casa intacta, botão `GenerateFire`: `HouseStateChanged(Intact → OnFire)` no console, marcador de chamado aceso, caos sobe com peso 2. Enviar 1 trabalhador: o material não muda; ao chegar, o círculo fecha em 4 s (`fireWorkTime`); coletar paga 20 (`fireReward`; 15 até o T25) e a casa volta a `Intact`. Outro `GenerateFire` sem enviar ninguém: aos 25 s (`fireDuration`) sai `HouseStateChanged(OnFire → Damaged)` e o número 3 aparece na casa; daí em diante é um conserto comum (3 de material, recompensa 45). Para o C: `FireTimeLeft01` desce de 1 a 0 nesses 25 s e congela quando sai `WorkStarted`.
 
 **T20.** Rodar o menu de dados (cria `Storm.asset` e `Fire.asset`; sem eles só há terremoto). Com o tempo acelerado do `GameManager`: até 90 s de partida só saem terremotos; depois dos 90 s aparece `DisasterWarning` de Tempestade, `DisasterStarted`, e durante 8 s um `LightningStruck` por raio, cada um seguido de `HouseStateChanged(Intact → Damaged)` com dano 1 ou 2, ou `Intact → OnFire` (1 em cada 5, em média), e `DisasterEnded`. Depois dos 180 s aparece também o Incêndio: 1 ou 2 casas `OnFire` no mesmo quadro. Para testar sem esperar: no `BalanceData`, zerar `stormUnlockTime` e `fireUnlockTime` e subir `stormWeight` ou `fireWeight` (não commitar).
 
 **T22, nível 4.** Comprar os 4 níveis de Automação. Depois de um terremoto, sem clicar em nada: a cada 1 s sai `TeamDispatched` para uma casa (as de dano menor antes), o material e os trabalhadores descem, e com o nível 3 a recompensa entra sozinha. Com o material zerado: as casas quebradas ficam esperando, sem `ActionDenied` no console; incêndio continua sendo atendido (não gasta material). Mandar gente ao Armazém continua sendo clique do jogador; quando o material entra, os consertos voltam a sair sozinhos. Clicar numa casa que ainda espera continua funcionando (envia na hora).
+
+**T25 (valores).** Depois do merge, `Tools/Jam/Reset Data To Defaults` e confira no `BalanceData.asset`: `workerSpeed` 2,5, `restockTime` 3, `moneyPerDamage` 15, `fireReward` 20, `chaosLimit` 22, `disasterIntervalStart` 45, `disasterIntervalEnd` 20, `disasterHousesEnd` 6, `disasterRampDuration` 780; na aba, Carrinho por 25, Automação por 80, Repasse por 150 e Centro de Operações por 2.500. Jogando sem clicar em nada, a derrota vem perto dos 4 min e meio.
+
+**Polimento.** (1) Deixe o caos encher no meio de um terremoto grande (tempo acelerado ajuda): depois de `GameStateChanged Lost`, nenhum `HouseStateChanged` novo no console. (2) Abra um chamado (aba de equipe aberta) e perca ou vença: a aba e o texto "Escolha a base" somem; o botão Enviar não manda ninguém depois do fim. (3) Reiniciar na tela final ou na pausa: a cena recarrega já em `Playing` (o menu não aparece), com 3 trabalhadores, 5 de material, 0 de dinheiro e o primeiro terremoto aos 6 s. (4) Passar o mouse num Armazém ou na Guarda sem `infoPanel` ligado não gera erro.
 
 ## Pedidos ao MEGABRAIN
 
@@ -92,6 +149,9 @@ O que criar e ligar na cena e nos prefabs. Formato: `- [ ] objeto, componente, c
 - [ ] (Dia 2, U6) Rodar `Tools/Jam/Create Default Data` mais uma vez depois de integrar o Dia 2 e commitar o que aparecer: `Upgrades/Goal.asset` (T24), `Upgrades/Income.asset` (T23), `Upgrades/Automation.asset` (T22), `Disasters/Storm.asset` e `Disasters/Fire.asset` (T20). — sem `Storm` e `Fire` só há terremoto; sem os upgrades os botões não aparecem na aba. O `BalanceData` que já existe ganha sozinho o campo novo `autoDispatchInterval` (1 s) ao ser carregado; nada a fazer.
 - [ ] (Dia 2) Nenhum objeto novo de cena no Dia 2: incêndio, tempestade, repasse, vitória e automação rodam nos componentes que já foram pedidos acima (`GameManager`, `LocationsManager`, `DisasterManager`, `ChaosManager`, `UpgradesManager`) e nos que já estão na cena (`GuardManager`, `ResourcesManager`, casas).
 - [ ] (T21, para o C) `House.FireTimeLeft01` está pronto para o temporizador visível do fogo (T26): 1 = acabou de pegar fogo, 0 = apagou; congela quando sai `WorkStarted`. A `House` não desenha temporizador nenhum.
+
+- [ ] (T25, U6) Depois de integrar a `jam-sistemas`, rodar `Tools/Jam/Reset Data To Defaults` (pede confirmação) e commitar os `.asset` de `Balance/` e `Upgrades/`. — o `Create Default Data` nunca mexe em asset que já existe, então os da integração continuam com os valores antigos do GDD, e o jogo carrega os `.asset`, não os padrões da classe. O Reset não toca nos ícones. Se algum valor já tiver sido ajustado à mão no Inspector, anotar antes, porque o Reset sobrescreve.
+- [ ] (T25) Atualizar a seção 13 e a linha da meta na seção 7 do `GDD.md` com os valores novos (tabela "Valores que mudaram", acima) e registrar em `DECISIONS.md`, se concordar. — o `GDD.md` é do MEGABRAIN; o B não edita.
 
 ## Dúvidas para o MEGABRAIN
 
@@ -124,3 +184,7 @@ Formato: `- [ ] pergunta — o que eu assumi para seguir trabalhando`
 - [ ] (T22) Nível 4: ordem da fila = fogo primeiro, depois menor dano. — menor dano gasta menos gente e material e tira a casa do caos mais rápido (cada casa danificada pesa 1, com qualquer dano). O GDD não define ordem.
 - [ ] (T22) Nível 4: a equipe automática é a sugerida limitada aos disponíveis (com 1 trabalhador livre e dano 3, sai 1 e o conserto demora mais). — é a mesma regra do nível 2.
 - [ ] S2 (`base2`, segunda Guarda) não foi feita: é stretch e não estava na lista do Agente B. O id `UpgradeIds.Base2` existe, e `GetNearestGuard` já escolhe entre várias Guardas, mas não há upgrade nem código que ligue a segunda base.
+- [ ] (T25) Equipe sugerida = 1 trabalhador por ponto de dano. Como a caminhada (11 s de ida e 11 de volta) pesa mais que o trabalho (5 s por dano), mandar 1 trabalhador por casa conserta mais casas por minuto; equipe grande só compensa quando sobra gente. A automação 2 e 4 sempre usa a sugerida, então gasta mais gente que um jogador bom gastaria. — mantive a regra do GDD; o simulador já mede com ela. Se no playtest a automação parecer fraca, uma saída é a sugerida virar metade do dano (arredondada para cima).
+- [ ] (T25) `materialPerWorker` continua 1 (o GDD marca "cada trabalhador traz 1" como [CONFIRMADO]); o problema do material foi resolvido com o carrinho mais barato e o Armazém mais rápido. — se o MEGABRAIN liberar, `materialPerWorker` 2 com o carrinho de volta a 60 dá resultado parecido e um começo menos apertado.
+- [ ] (Polimento) Reiniciar começa a partida direto, sem passar pelo menu. — o botão diz "Reiniciar"; voltar ao menu pedia um clique a mais em Jogar. O áudio do WebGL já foi liberado no primeiro clique. Para voltar ao menu, é só não chamar `Restart` e sim recarregar a cena.
+- [ ] (Polimento) Fora de `Playing` (pausa incluída) os botões `+` e Enviar da aba de equipe não fazem nada. — igual ao clique nas casas, que já era bloqueado; a aba continua aberta na pausa e volta a funcionar ao retomar.
