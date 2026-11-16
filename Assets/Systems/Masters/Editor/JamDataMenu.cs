@@ -3,10 +3,14 @@ using UnityEngine;
 
 // Cria os dados padrão da jam (GDD, seção 13). Quem roda é o MEGABRAIN, que depois commita os .asset.
 // Create Default Data: cria só o que falta; nunca mexe em asset que já existe (não apaga ajuste feito à mão).
+//   Rodar duas vezes não duplica: upgrade e desastre são reconhecidos pelo id, mesmo com o arquivo renomeado.
 // Reset Data To Defaults: reescreve os campos que o menu conhece com os valores do GDD, depois de confirmar.
+//   Campos que o menu não conhece (os ícones) nunca são tocados.
 public static class JamDataMenu
 {
-    private const string ResourcesFolder = "Assets/Resources";
+    private const string AssetsFolder = "Assets";
+    private const string ResourcesName = "Resources";
+    private const string ResourcesFolder = AssetsFolder + "/" + ResourcesName;
     private const string BalanceFolder = "Balance";
     private const string BalanceAsset = "BalanceData";
     private const string DisastersFolder = "Disasters";
@@ -51,7 +55,8 @@ public static class JamDataMenu
 
     private static void CreateBalance(bool overwrite, ref int created, ref int updated)
     {
-        BalanceData asset = LoadOrCreate<BalanceData>(BalanceFolder, BalanceAsset, out bool isNew);
+        BalanceData asset = LoadOrCreate<BalanceData>(BalanceFolder, BalanceAsset, null, out bool isNew);
+        if (asset == null) return;
         if (isNew)
         {
             created++;
@@ -74,8 +79,8 @@ public static class JamDataMenu
     // O menu conhece id, type e displayName. O ícone é ligado à mão e nunca é tocado.
     private static void CreateDisaster(string assetName, string id, DisasterType type, string displayName, bool overwrite, ref int created, ref int updated)
     {
-        DisasterData asset = LoadOrCreate<DisasterData>(DisastersFolder, assetName, out bool isNew);
-        if (!isNew && !overwrite) return;
+        DisasterData asset = LoadOrCreate<DisasterData>(DisastersFolder, assetName, candidate => candidate.id == id, out bool isNew);
+        if (asset == null || (!isNew && !overwrite)) return;
 
         asset.id = id;
         asset.type = type;
@@ -93,8 +98,8 @@ public static class JamDataMenu
     // O menu conhece tudo menos o ícone, que é ligado à mão e nunca é tocado.
     private static void CreateUpgrade(string assetName, string id, string displayName, string description, int order, int maxLevel, int baseCost, float costGrowth, float effectPerLevel, bool overwrite, ref int created, ref int updated)
     {
-        UpgradeData asset = LoadOrCreate<UpgradeData>(UpgradesFolder, assetName, out bool isNew);
-        if (!isNew && !overwrite) return;
+        UpgradeData asset = LoadOrCreate<UpgradeData>(UpgradesFolder, assetName, candidate => candidate.id == id, out bool isNew);
+        if (asset == null || (!isNew && !overwrite)) return;
 
         asset.id = id;
         asset.displayName = displayName;
@@ -114,19 +119,38 @@ public static class JamDataMenu
 
     #region HELPERS
 
-    private static T LoadOrCreate<T>(string folder, string assetName, out bool isNew) where T : ScriptableObject
+    // Devolve o asset que já existe (pelo caminho ou, se foi renomeado, pelo id) ou cria um novo.
+    private static T LoadOrCreate<T>(string folder, string assetName, System.Predicate<T> isSame, out bool isNew) where T : ScriptableObject
     {
         string folderPath = ResourcesFolder + "/" + folder;
         string path = folderPath + "/" + assetName + ".asset";
+        isNew = false;
 
         T asset = AssetDatabase.LoadAssetAtPath<T>(path);
-        isNew = asset == null;
-        if (isNew)
+        if (asset != null) return asset;
+
+        if (isSame != null && AssetDatabase.IsValidFolder(folderPath))
         {
-            if (!AssetDatabase.IsValidFolder(folderPath)) AssetDatabase.CreateFolder(ResourcesFolder, folder);
-            asset = ScriptableObject.CreateInstance<T>();
-            AssetDatabase.CreateAsset(asset, path);
+            foreach (string guid in AssetDatabase.FindAssets("t:" + typeof(T).Name, new[] { folderPath }))
+            {
+                T candidate = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
+                if (candidate != null && isSame(candidate)) return candidate;
+            }
         }
+
+        // Já existe outra coisa nesse caminho: não sobrescreve.
+        if (AssetDatabase.LoadMainAssetAtPath(path) != null)
+        {
+            Debug.LogError($"Dados da jam: {path} já existe e não é um {typeof(T).Name}. Nada foi alterado nele.");
+            return null;
+        }
+
+        if (!AssetDatabase.IsValidFolder(ResourcesFolder)) AssetDatabase.CreateFolder(AssetsFolder, ResourcesName);
+        if (!AssetDatabase.IsValidFolder(folderPath)) AssetDatabase.CreateFolder(ResourcesFolder, folder);
+        asset = ScriptableObject.CreateInstance<T>();
+        AssetDatabase.CreateAsset(asset, path);
+        Debug.Log($"Dados da jam: criado {path}");
+        isNew = true;
         return asset;
     }
 
