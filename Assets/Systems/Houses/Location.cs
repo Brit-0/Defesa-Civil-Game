@@ -8,14 +8,14 @@ public abstract class Location : House
     [SerializeField] private LocationData data;
     [SerializeField] private InfoPanel infoPanel;
 
-    private void Start()
+    protected virtual void Start()
     {
-        infoPanel.Set(data);
+        if (infoPanel != null && data != null) infoPanel.Set(data);
     }
 
     public override void OnPointerClick(PointerEventData eventData)
     {
-        if (eventData.button != PointerEventData.InputButton.Left || !interactable) return;
+        if (!CanClick(eventData)) return;
 
         if (isComplete)
         {
