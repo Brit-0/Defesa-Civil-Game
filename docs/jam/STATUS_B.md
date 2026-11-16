@@ -17,6 +17,7 @@ Formato: `- [x] T03 — o que entrou, hash do commit`
 - [x] T09 — menu de dados fechado. `Tools/Jam/Create Default Data` cria só o que falta e nunca altera asset que já existe; rodar duas vezes não cria nem muda nada (upgrade e desastre são reconhecidos pelo `id`, mesmo com o arquivo renomeado dentro da pasta; se já houver outra coisa no caminho, avisa e não sobrescreve). `Tools/Jam/Reset Data To Defaults` (com confirmação) reescreve os campos que o menu conhece e não toca nos ícones. A lista do que ele cria está em "Assets do menu de dados", abaixo. Checagem de tipos: 0 erros e 0 avisos. Hash: `ec070cd`.
 - [x] T24 — upgrade `goal` (Centro de Operações): a compra dispara `UpgradePurchased` e em seguida chama `GameManager.Instance.Win()` (`GameStateChanged Won`). Menu de dados cria `Goal.asset` (1 nível, 5.000 PLACEHOLDER). Checagem de tipos: 0 erros e 0 avisos. Hash: `f652033`.
 - [x] T23 — Repasse da Prefeitura: com o upgrade `income` no nível 1 ou mais, a cada `incomeInterval` (10 s de partida em `Playing`) entra `incomePerHouse × nível × casas intactas × (1 − caos)`, arredondado; dispara `MoneyChanged` e depois `PassiveIncomePaid` com o valor. O relógio fica no `ResourcesManager`, que já está na cena: nenhum objeto novo. `Stats.GetPassiveIncome()`. Menu de dados cria `Income.asset`. Checagem de tipos: 0 erros e 0 avisos. Hash: `8093f93`.
+- [x] T22 (níveis 1 a 3) — Automação: nível 1, `OpenCall` escolhe sozinho a Guarda mais próxima da casa e abre direto a aba de equipe; nível 2, clicar numa casa com problema já envia a equipe sugerida (`Stats.GetSuggestedTeam`: 1 por ponto de dano, limitada aos disponíveis), e se não der dispara `ActionDenied`; no Armazém o jogador continua escolhendo a equipe; nível 3, a coleta acontece sozinha quando o trabalho termina (casa e Armazém), e o que já estava pronto é coletado na hora da compra. `AutomationLevels` dá nome aos níveis. Menu de dados cria `Automation.asset`. Checagem de tipos: 0 erros e 0 avisos. Hash: `f65b153`.
 
 ## Assets do menu de dados
 
@@ -31,6 +32,7 @@ Lista para o MEGABRAIN conferir depois de rodar `Tools/Jam/Create Default Data` 
 | `Assets/Resources/Upgrades/Tools.asset` | `tools`, Ferramentas melhores, ordem 2, 8 níveis, base 40, crescimento 1,5, efeito 0,10. |
 | `Assets/Resources/Upgrades/Cart.asset` | `cart`, Carrinho de mão, ordem 3, 4 níveis, base 60, crescimento 1,8, efeito 1. |
 | `Assets/Resources/Upgrades/Reward.asset` | `reward`, Seguro municipal, ordem 4, 10 níveis, base 50, crescimento 1,55, efeito 0,25. |
+| `Assets/Resources/Upgrades/Automation.asset` | (T22) `automation`, Automação, ordem 5, 4 níveis, base 150, crescimento 2,6, efeito 1. |
 | `Assets/Resources/Upgrades/Income.asset` | (T23) `income`, Repasse da Prefeitura, ordem 6, 5 níveis, base 200, crescimento 2, efeito 1 (multiplica o repasse pelo nível). |
 | `Assets/Resources/Upgrades/Goal.asset` | (T24) `goal`, Centro de Operações, ordem 8, 1 nível, base 5.000, crescimento 1, efeito 0. |
 
@@ -57,6 +59,8 @@ O menu cria também as pastas `Balance`, `Disasters` e `Upgrades` dentro de `Ass
 **T24.** Rodar o menu de dados de novo (cria `Goal.asset`). Na aba aparece "Centro de Operações" por 5.000, por último. Para testar sem jogar 12 minutos: `startMoney` 5000 no `BalanceData`. Comprar: `MoneyChanged 5000 -> 0`, `UpgradePurchased Goal nível 1`, `GameStateChanged Won`; desastres e caos param, as casas deixam de aceitar clique, e a tela de vitória do C (T29) entra pelo `GameStateChanged`.
 
 **T23.** Rodar o menu de dados (cria `Income.asset`). Comprar "Repasse da Prefeitura" (200): 10 s depois o console mostra `MoneyChanged` e `PassiveIncomePaid 35` com as 70 casas intactas e caos 0 (0,5 × 1 × 70). Com 10 casas quebradas e caos em 0,50: 0,5 × 1 × 60 × 0,5 = 15. No nível 2 o valor dobra. Pausado, em `Won` ou em `Lost` não paga.
+
+**T22, níveis 1 a 3.** Rodar o menu de dados (cria `Automation.asset`); custos 150, 390, 1.014 e 2.636. Nível 1: clicar numa casa quebrada abre direto a aba de equipe, sem o texto "Escolha a base". Nível 2: clicar numa casa quebrada já manda a equipe (dano 2 = 2 trabalhadores, ou os que houver); sem material ou sem gente, `ActionDenied` e nada sai; clicar no Armazém ainda abre a aba de equipe. Nível 3: quando o círculo fecha, a casa volta a `Intact` e o dinheiro entra sem clique; o Armazém entrega o material sozinho; casas que estavam com o ícone de pronto na hora da compra são coletadas na hora.
 
 ## Pedidos ao MEGABRAIN
 
@@ -92,3 +96,5 @@ Formato: `- [ ] pergunta — o que eu assumi para seguir trabalhando`
 - [ ] (T06) Epicentro: o primeiro é a posição da Guarda (`Guards[0]`); os seguintes, uma casa intacta sorteada (se não houver nenhuma intacta, uma casa qualquer). — para o desastre nunca cair no vazio. O intervalo entre desastres conta do fim de um até o começo do outro, e o aviso sai `warningTime` antes do começo.
 - [ ] (T08) Efeitos somam por nível (não multiplicam): `speed` nível 8 = +96% de velocidade; `tools` nível 8 = 20% do tempo (o `minWorkTime` segura o piso); `reward` nível 10 = +250%. O `tools` vale para conserto e incêndio, não para o Armazém ("tempo fixo" no GDD). — o GDD diz "por nível" sem dizer se compõe.
 - [ ] (T08) Só dá para comprar upgrade em `Playing`: em `Menu`, `Paused`, `Won` e `Lost` o `TryBuy` devolve falso sem evento. — o GDD não fala de compra com o jogo pausado.
+- [ ] (T22) No nível 2 o Armazém continua abrindo a aba de equipe (com a base já escolhida). — "equipe sugerida" no GDD é por ponto de dano e o Armazém não tem dano; quantos mandar buscar material é decisão do jogador. No nível 1 a aba abre com equipe 0, como no nível 0.
+- [ ] (T22) "Base mais próxima" é em linha reta, não pelo caminho das ruas. — com uma Guarda só não muda nada; com a `base2` (S2) pode escolher uma base perto em linha reta e longe pela rua.
