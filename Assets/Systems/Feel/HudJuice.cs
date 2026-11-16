@@ -83,6 +83,7 @@ public class HudJuice : MonoBehaviour
         GameEvents.MoneyChanged += OnMoneyChanged;
         GameEvents.MaterialChanged += OnMaterialChanged;
         GameEvents.WorkersChanged += OnWorkersChanged;
+        GameEvents.ActionDenied += OnActionDenied;
     }
 
     private void OnDisable()
@@ -90,6 +91,7 @@ public class HudJuice : MonoBehaviour
         GameEvents.MoneyChanged -= OnMoneyChanged;
         GameEvents.MaterialChanged -= OnMaterialChanged;
         GameEvents.WorkersChanged -= OnWorkersChanged;
+        GameEvents.ActionDenied -= OnActionDenied;
     }
 
     private void OnDestroy()
@@ -117,6 +119,19 @@ public class HudJuice : MonoBehaviour
     private void OnWorkersChanged(int amount)
     {
         Animate(workers, amount);
+    }
+
+    //Ação negada: o contador do que faltou pula e pisca vermelho
+    private void OnActionDenied(DeniedReason reason, Vector3 worldPosition)
+    {
+        Counter counter = reason == DeniedReason.NoWorkers ? workers
+            : reason == DeniedReason.NoMaterial ? material
+            : reason == DeniedReason.NoMoney ? money
+            : null;
+        if (counter == null) return;
+
+        Punch(counter);
+        Flash(counter, lossColor);
     }
 
     private void Animate(Counter counter, int value)

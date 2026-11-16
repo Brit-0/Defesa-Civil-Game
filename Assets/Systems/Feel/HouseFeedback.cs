@@ -39,6 +39,10 @@ public class HouseFeedback : MonoBehaviour
     [SerializeField] private float igniteShakeStrength = .03f;
     [SerializeField] private float igniteShakeTime = .3f;
 
+    [Header("ACTION DENIED")]
+    [SerializeField] private float deniedShakeStrength = .035f;
+    [SerializeField] private float deniedShakeTime = .25f;
+
     [Header("MARKERS")]
     [SerializeField] private Color damagedMarkerColor = Color.white;
     [SerializeField] private Color fireMarkerColor = new Color(1f, .55f, .4f);
@@ -115,11 +119,19 @@ public class HouseFeedback : MonoBehaviour
     private void OnEnable()
     {
         GameEvents.HouseStateChanged += OnHouseStateChanged;
+        GameEvents.ActionDenied += OnActionDenied;
     }
 
     private void OnDisable()
     {
         GameEvents.HouseStateChanged -= OnHouseStateChanged;
+        GameEvents.ActionDenied -= OnActionDenied;
+    }
+
+    //O GuardManager passa a posição da casa do chamado: ela treme no lugar do clique negado
+    private void OnActionDenied(DeniedReason reason, Vector3 worldPosition)
+    {
+        if (worldPosition == transform.position) Shake(deniedShakeStrength, deniedShakeTime);
     }
 
     private void OnHouseStateChanged(House changed, State before, State after)
