@@ -1,56 +1,47 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 
 //Monta os prefabs do Agente C pelo Editor, porque foram escritos sem o Unity aberto
-//(mesmo padrão do Tools/Jam/Create Default Data, seção 6.4 do ARCHITECTURE.md)
+//(mesmo padrão do Tools/Jam/Create Default Data, seção 6.4 do ARCHITECTURE.md).
+//Pode rodar de novo a cada entrega: cria o que falta e completa o que existe, sem apagar ajustes.
 public static class FeelPrefabsMenu
 {
     private const string AudioFolder = "Assets/Systems/Audio";
+    private const string FeelFolder = "Assets/Systems/Feel";
 
     [MenuItem("Tools/Jam/Create Feel Prefabs")]
-    public static void CreateMissing()
+    public static void CreateAll()
     {
-        CreateAll(false);
-    }
+        //Som: solto em Scripts/. Atravessa o reinício da cena.
+        EnsurePrefab(AudioFolder + "/AudioManager.prefab", "AudioManager",
+            root => root.GetComponent<AudioManager>().AutoFillClips(),
+            typeof(AudioManager), typeof(GameAudio));
 
-    [MenuItem("Tools/Jam/Recreate Feel Prefabs (sobrescreve)")]
-    public static void Recreate()
-    {
-        if (!EditorUtility.DisplayDialog("Recriar prefabs do Feel", "Sobrescreve os prefabs do Agente C e perde ajustes feitos neles pelo Inspector.", "Recriar", "Cancelar")) return;
-
-        CreateAll(true);
-    }
-
-    private static void CreateAll(bool overwrite)
-    {
-        CreateAudioManager(overwrite);
+        //Juice que só escuta eventos e acha o HUD pelo nome: solto em Scripts/
+        EnsurePrefab(FeelFolder + "/Feel.prefab", "Feel", null,
+            typeof(HudJuice), typeof(MoneyPopups));
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
     }
 
-    private static void CreateAudioManager(bool overwrite)
+    private static void EnsurePrefab(string path, string rootName, Action<GameObject> setup, params Type[] components)
     {
-        string path = AudioFolder + "/AudioManager.prefab";
-        if (Skip(path, overwrite)) return;
+        bool exists = AssetDatabase.LoadAssetAtPath<GameObject>(path) != null;
+        GameObject root = exists ? PrefabUtility.LoadPrefabContents(path) : new GameObject(rootName);
 
-        GameObject root = new GameObject("AudioManager");
-        root.AddComponent<AudioManager>().AutoFillClips();
-        SavePrefab(root, path);
-    }
+        foreach (Type component in components)
+        {
+            if (root.GetComponent(component) == null) root.AddComponent(component);
+        }
 
-    private static bool Skip(string path, bool overwrite)
-    {
-        if (overwrite || AssetDatabase.LoadAssetAtPath<GameObject>(path) == null) return false;
-
-        Debug.Log("Feel: já existe, mantido: " + path);
-        return true;
-    }
-
-    private static void SavePrefab(GameObject root, string path)
-    {
+        setup?.Invoke(root);
         PrefabUtility.SaveAsPrefabAsset(root, path);
-        Object.DestroyImmediate(root);
-        Debug.Log("Feel: prefab criado em " + path);
+
+        if (exists) PrefabUtility.UnloadPrefabContents(root);
+        else UnityEngine.Object.DestroyImmediate(root);
+
+        Debug.Log("Feel: prefab " + (exists ? "completado: " : "criado: ") + path);
     }
 }

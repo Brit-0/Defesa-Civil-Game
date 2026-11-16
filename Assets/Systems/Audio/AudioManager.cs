@@ -321,26 +321,32 @@ public class AudioManager : MonoBehaviour
     [ContextMenu("Preencher clipes de Assets/Audio")]
     public void AutoFillClips()
     {
-        sfx.click = FindClip("Sfx_Click");
-        sfx.hover = FindClip("Sfx_Hover");
-        sfx.buy = FindClip("Sfx_Buy");
-        sfx.error = FindClip("Sfx_Error");
-        sfx.dispatch = FindClip("Sfx_Dispatch");
-        sfx.hammer = FindClip("Sfx_Hammer");
-        sfx.repaired = FindClip("Sfx_Repaired");
-        sfx.coin = FindClip("Sfx_Coin");
-        sfx.siren = FindClip("Sfx_Siren");
-        sfx.earthquake = FindClip("Sfx_Earthquake");
-        sfx.thunder = FindClip("Sfx_Thunder");
-        sfx.extinguish = FindClip("Sfx_Extinguish");
-        sfx.victory = FindClip("Sfx_Victory");
-        sfx.defeat = FindClip("Sfx_Defeat");
-        sfx.rainLoop = FindClip("Amb_Rain");
-        sfx.fireLoop = FindClip("Amb_Fire");
-        calmMusic = FindClip("Music_Calm");
-        tenseMusic = FindClip("Music_Tense");
+        //Só preenche campo vazio: clipe trocado à mão no Inspector fica como está
+        Fill(ref sfx.click, "Sfx_Click");
+        Fill(ref sfx.hover, "Sfx_Hover");
+        Fill(ref sfx.buy, "Sfx_Buy");
+        Fill(ref sfx.error, "Sfx_Error");
+        Fill(ref sfx.dispatch, "Sfx_Dispatch");
+        Fill(ref sfx.hammer, "Sfx_Hammer");
+        Fill(ref sfx.repaired, "Sfx_Repaired");
+        Fill(ref sfx.coin, "Sfx_Coin");
+        Fill(ref sfx.siren, "Sfx_Siren");
+        Fill(ref sfx.earthquake, "Sfx_Earthquake");
+        Fill(ref sfx.thunder, "Sfx_Thunder");
+        Fill(ref sfx.extinguish, "Sfx_Extinguish");
+        Fill(ref sfx.victory, "Sfx_Victory");
+        Fill(ref sfx.defeat, "Sfx_Defeat");
+        Fill(ref sfx.rainLoop, "Amb_Rain");
+        Fill(ref sfx.fireLoop, "Amb_Fire");
+        Fill(ref calmMusic, "Music_Calm");
+        Fill(ref tenseMusic, "Music_Tense");
 
         UnityEditor.EditorUtility.SetDirty(this);
+    }
+
+    private static void Fill(ref AudioClip field, string clipName)
+    {
+        if (field == null) field = FindClip(clipName);
     }
 
     private static AudioClip FindClip(string clipName)
