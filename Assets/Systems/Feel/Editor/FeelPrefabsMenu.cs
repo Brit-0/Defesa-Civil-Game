@@ -38,6 +38,9 @@ public static class FeelPrefabsMenu
         EnsurePrefab(UIFolder + "/EndScreen.prefab", "EndScreen", null, typeof(RectTransform), typeof(EndScreen));
         EnsurePrefab(UIFolder + "/MainMenu.prefab", "MainMenu", null, typeof(RectTransform), typeof(MainMenu));
 
+        //Transição de tela: solta em Scripts/ (opcional; sem ela o jogo cria uma com os valores padrão)
+        EnsurePrefab(UIFolder + "/ScreenTransition.prefab", "ScreenTransition", null, typeof(RectTransform), typeof(ScreenTransition));
+
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
     }

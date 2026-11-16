@@ -155,7 +155,7 @@ public class PauseMenu : MonoBehaviour
     private void Toggle()
     {
         GameManager game = GameManager.Instance;
-        if (game == null) return;
+        if (game == null || ScreenTransition.Busy) return;
 
         if (game.State == GameState.Playing) game.Pause();
         else if (game.State == GameState.Paused) game.Resume();
@@ -168,6 +168,6 @@ public class PauseMenu : MonoBehaviour
 
     private void Restart()
     {
-        if (GameManager.Instance != null) GameManager.Instance.Restart();
+        if (GameManager.Instance != null && !ScreenTransition.Busy) ScreenTransition.Restart();
     }
 }

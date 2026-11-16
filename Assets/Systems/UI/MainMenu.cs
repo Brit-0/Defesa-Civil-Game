@@ -42,6 +42,8 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private float dropTime = .6f;
     [SerializeField] private float buttonPulseScale = 1.06f;
     [SerializeField] private float buttonPulseTime = .6f;
+    [Tooltip("Jogar passa pela onda de discos do ScreenTransition")]
+    [SerializeField] private bool useTransition = true;
 
     private RectTransform screen;
     private RectTransform band;
@@ -172,6 +174,11 @@ public class MainMenu : MonoBehaviour
 
     private void Play()
     {
-        if (GameManager.Instance != null) GameManager.Instance.StartGame();
+        if (GameManager.Instance == null || ScreenTransition.Busy) return;
+
+        //Some o botão para não aceitar o segundo clique durante a onda
+        group.interactable = false;
+        if (useTransition) ScreenTransition.Play(() => { if (GameManager.Instance != null) GameManager.Instance.StartGame(); });
+        else GameManager.Instance.StartGame();
     }
 }

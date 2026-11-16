@@ -11,6 +11,7 @@ public class SfxLibrary
     public AudioClip hover;
     public AudioClip buy;
     public AudioClip error;
+    public AudioClip whoosh;
 
     [Header("CALLS")]
     public AudioClip dispatch;
@@ -348,6 +349,7 @@ public class AudioManager : MonoBehaviour
         Fill(ref sfx.hover, "Sfx_Hover");
         Fill(ref sfx.buy, "Sfx_Buy");
         Fill(ref sfx.error, "Sfx_Error");
+        Fill(ref sfx.whoosh, "Sfx_Whoosh");
         Fill(ref sfx.dispatch, "Sfx_Dispatch");
         Fill(ref sfx.hammer, "Sfx_Hammer");
         Fill(ref sfx.repaired, "Sfx_Repaired");

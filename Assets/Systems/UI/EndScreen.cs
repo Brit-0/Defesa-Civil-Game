@@ -3,7 +3,6 @@ using DG.Tweening;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 //Tela de fim de partida. Só escuta GameStateChanged: em Won ou Lost mostra tempo, casas consertadas e dinheiro,
@@ -192,8 +191,7 @@ public class EndScreen : MonoBehaviour
 
     private void Restart()
     {
-        if (GameManager.Instance != null) GameManager.Instance.Restart();
-        else SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        if (!ScreenTransition.Busy) ScreenTransition.Restart();
     }
 
     [Button]
