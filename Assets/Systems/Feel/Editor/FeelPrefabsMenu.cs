@@ -20,7 +20,7 @@ public static class FeelPrefabsMenu
 
         //Juice que só escuta eventos e acha o HUD pelo nome: solto em Scripts/
         EnsurePrefab(FeelFolder + "/Feel.prefab", "Feel", null,
-            typeof(HudJuice), typeof(MoneyPopups));
+            typeof(HudJuice), typeof(MoneyPopups), typeof(CameraShaker));
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
