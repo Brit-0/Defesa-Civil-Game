@@ -39,6 +39,9 @@ public class HouseFeedback : MonoBehaviour
     [SerializeField] private float igniteShakeStrength = .03f;
     [SerializeField] private float igniteShakeTime = .3f;
 
+    [Header("FIRE VISUAL (chamas, fumaça e temporizador)")]
+    [SerializeField] private HouseFire.Settings fire = new HouseFire.Settings();
+
     [Header("ACTION DENIED")]
     [SerializeField] private float deniedShakeStrength = .035f;
     [SerializeField] private float deniedShakeTime = .25f;
@@ -65,6 +68,7 @@ public class HouseFeedback : MonoBehaviour
     private Tween crackTween;
     private Tween moveTween;
     private Tween flashTween;
+    private HouseFire fireFx;
 
     private float HouseSize => transform is RectTransform rect ? rect.rect.height : 1f;
 
@@ -114,6 +118,14 @@ public class HouseFeedback : MonoBehaviour
         }
 
         ApplyMarkerColor(house.currentState);
+        SetFire(house.currentState == State.OnFire);
+    }
+
+    //O fogo só é criado na primeira vez que a casa queima
+    private void SetFire(bool on)
+    {
+        if (on && fireFx == null) fireFx = HouseFire.Create(house, fire);
+        if (fireFx != null) fireFx.gameObject.SetActive(on);
     }
 
     private void OnEnable()
@@ -139,6 +151,7 @@ public class HouseFeedback : MonoBehaviour
         if (changed != house || before == after) return;
 
         ApplyMarkerColor(after);
+        SetFire(after == State.OnFire);
 
         switch (after)
         {
