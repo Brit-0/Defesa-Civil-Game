@@ -262,6 +262,7 @@ public static class FeelUI
 
         background.gameObject.AddComponent<Tweener>();
         background.gameObject.AddComponent<ButtonJuice>();
+        background.gameObject.AddComponent<ButtonPress>();
         return button;
     }
 
@@ -291,6 +292,7 @@ public static class FeelUI
 
         disc.gameObject.AddComponent<Tweener>();
         disc.gameObject.AddComponent<ButtonJuice>();
+        disc.gameObject.AddComponent<ButtonPress>();
         return button;
     }
 
