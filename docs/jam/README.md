@@ -21,7 +21,7 @@ Incremental de gestão de desastres: terremotos, tempestades e incêndios quebra
 
 ## Papéis
 
-- **Organizador (chat do Project "Defesa Civil Game"):** mantém estes docs, quebra tarefas, escreve prompts, faz o modelo de balanceamento, tira dúvidas de design com o usuário. Não roda git nem Unity.
+- **Organizador (chat do Project "Defesa Civil Game"):** escreveu estes docs e segue como consultor de design. Desde 16/11 quem mantém os docs, quebra tarefas, escreve prompts e decide o balanceamento é o MEGABRAIN.
 - **MEGABRAIN** (orquestra, delega e é o antigo "Agente A": cena, integração, builds), **Agente B — Sistemas**, **Agente C — Feel & UI:** ver `AGENTS.md`. O MEGABRAIN não é este chat de design.
 
 ## Docs antigos (gerador de cidade)

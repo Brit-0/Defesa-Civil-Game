@@ -60,8 +60,8 @@ Regra: **só edite o que é seu.** Precisa de mudança em arquivo de outro dono?
 | `Assets/Audio/**` | C |
 | Prefabs novos de UI/VFX (em `Systems/UI/` e `Systems/Feel/`) | C |
 | `Assets/Systems/Camera/CameraController.cs` | Ninguém, sem pedido do usuário |
-| `docs/jam/**` | Organizador. Agentes só editam `TASKS.md` (status e pedidos). |
-| `CLAUDE.md` | A no kickoff; depois, só o organizador pede mudanças |
+| `docs/jam/**` | MEGABRAIN (desde 16/11). B e C só editam `TASKS.md` (status das próprias tarefas e pedidos). |
+| `CLAUDE.md` | MEGABRAIN |
 
 Exceções combinadas:
 - **T01** (correção de build) é feita pelo A no kickoff, antes de B começar, mesmo tocando em `.cs` de B.
@@ -88,6 +88,8 @@ Ciclo do A:
 Regras fixas:
 - **Nunca reescrever histórico** (sem rebase, sem force push, sem amend em commit publicado).
 - `git add` só dos caminhos da tarefa; nunca `git add .` às cegas. Sempre incluir os `.meta` dos arquivos novos.
+- **Quem cria arquivo sem o Unity aberto escreve o `.meta` à mão, no mesmo commit** (modelo em `ARCHITECTURE.md`, seção 6.4.1). Arquivo novo sem `.meta` ganha um GUID diferente em cada PC e quebra as referências da cena.
+- `TASKS.md` é editado pelos três. Para não dar conflito: B e C mudam só o Status das próprias linhas e acrescentam linhas no fim de "Pedidos entre agentes"; ninguém reescreve o texto das tarefas além do MEGABRAIN.
 - Não commitar `Library/`, `Temp/`, `Logs/`, `UserSettings/`, `*.csproj` (já estão no `.gitignore`).
 - Conflito em `.unity`, `.prefab` ou `.asset`: **parar e avisar**. Não resolver à mão.
 - Integrar cedo e sempre: pelo menos uma integração na `jam` a cada 2 a 3 horas de trabalho.

@@ -121,7 +121,12 @@ clique na casa  -> House.ResolveCompletion()
 | B10 | `GPS.FollowPath` | `path == null` só imprime e depois quebra no `foreach`. | T04 |
 | B11 | Projeto | Sem áudio (nenhum AudioSource/AudioClip). | T13 |
 | B12 | `Arts/Texture/pngtree-crack-texture-...png` | Textura de rachadura baixada da internet; conferir licença ou substituir por arte própria. | Arte |
-| B13 | `EletricPole.Update` | `OverlapCircleAll` todo frame. Só importa se a energia voltar ao escopo. | Stretch |
+| B13 | `EletricPole.Update` | `OverlapCircleAll` todo frame. Energia cortada da jam; o poste segue desativado na cena. | — |
+| B14 | `GuardManager.SendTeam` | O laço de saída usa os campos `teamSize` e `selectedGuard` enquanto espera 0,8 s entre trabalhadores. Se o jogador abre outro chamado nesse meio, `SelectBase` zera `TeamSize`: saem menos trabalhadores que `workersSent`, nenhum é o "último" e a casa fica travada com `interactable = false`. Copiar tamanho e base para variáveis locais antes do laço. | T04 |
+| B15 | `GuardManager.SendTeam` | `Workers--` um a um durante a saída: dá para montar um segundo chamado com gente que já está comprometida e o estoque fica negativo. Debitar a equipe inteira no envio. | T04 |
+| B16 | `Warehouse.cs`, `Location.cs`, `House.cs` | `Awake` e `Start` privados com o mesmo nome em classe base e derivada: o Unity só chama o da classe mais derivada. No Armazém, `House.Awake` (material próprio) e `Location.Start` (`infoPanel.Set`) não rodam. Tornar `protected virtual` e chamar `base`. Achado na leitura do código; confirmar no Play (U8). | T04 |
+| B17 | `GuardManager.SendTeam` | Envio negado (equipe menor que o mínimo, material insuficiente) sai em silêncio com `yield break`. Disparar `ActionDenied`. | T04 |
+| B18 | `State` (enum em `House.cs`) | A cena guarda `currentState` como número. **Nunca reordenar nem remover valores do enum**; valor novo só no fim. | regra |
 
 ## 6. Arquitetura-alvo
 
@@ -131,8 +136,11 @@ Objetivo: três agentes trabalhando em paralelo sem editar os mesmos arquivos. A
 
 `Assets/Systems/Masters/GameEvents.cs`
 
+Revisado pelo MEGABRAIN em 16/11: entraram `PassiveIncomePaid`, `WorkerSpawned`, `WorkerArrived`, `ActionDenied` (com `DeniedReason`) e `LightningStruck`. Sem eles o repasse, os trabalhadores na rua, a ação negada e o raio ficariam sem resposta visual e sonora.
+
 ```csharp
 public enum GameState { Menu, Playing, Paused, Won, Lost }
+public enum DeniedReason { NoWorkers, NoMaterial, NoMoney, MaxLevel }
 
 public static class GameEvents
 {
@@ -140,6 +148,7 @@ public static class GameEvents
     public static event Action<int, int> MoneyChanged;          // (antes, depois)
     public static event Action<int> MaterialChanged;
     public static event Action<int> WorkersChanged;
+    public static event Action<int> PassiveIncomePaid;          // valor do Repasse da Prefeitura
 
     // Casas e chamados
     public static event Action<House, State, State> HouseStateChanged; // (casa, antes, depois)
@@ -148,10 +157,14 @@ public static class GameEvents
     public static event Action<Call> WorkStarted;      // último trabalhador chegou
     public static event Action<Call> WorkCompleted;    // pronto para coletar
     public static event Action<Call, int> CallResolved; // (chamado, dinheiro ganho)
+    public static event Action<Transform, Call> WorkerSpawned;  // trabalhador nasceu na rua
+    public static event Action<Transform, Call> WorkerArrived;  // chegou ao destino, antes de sumir
+    public static event Action<DeniedReason, Vector3> ActionDenied; // (motivo, posição em mundo)
 
     // Desastres
     public static event Action<DisasterData, float> DisasterWarning;   // (tipo, segundos até começar)
     public static event Action<DisasterData, Vector3> DisasterStarted; // (tipo, epicentro em mundo)
+    public static event Action<Vector3> LightningStruck;               // raio da tempestade (T20)
     public static event Action<DisasterData> DisasterEnded;
 
     // Progressão
@@ -167,6 +180,18 @@ Regras:
 - Limpar todos os eventos em `[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]`, para funcionar com Domain Reload desligado.
 - Assinar em `OnEnable`, desassinar em `OnDisable`.
 - Mudança no contrato = avisar no `TASKS.md` e fazer merge imediato na `jam`.
+
+O que a apresentação (C) pode **ler** dos sistemas, além dos eventos. O B mantém estes nomes:
+
+| Onde | Membro |
+|---|---|
+| `House` | `currentState`, `damageAmount`, `currentCall`, `entry`, `FireTimeLeft01` (1 = acabou de pegar fogo, 0 = apagou) |
+| `Call` | `house`, `guard`, `type`, `workersSent` |
+| `GameManager.Instance` | `State`, `ElapsedTime`, `HousesRepaired`, `TotalMoneyEarned`, `StartGame()`, `Pause()`, `Resume()`, `Restart()` |
+| `ChaosManager.Instance` | `Chaos` (0..1) |
+| `UpgradesManager.Instance` | `GetLevel(UpgradeData)`, `GetCost(UpgradeData)`, `CanBuy(UpgradeData)`, `TryBuy(UpgradeData)` |
+| `UpgradeData` | `id`, `displayName`, `description`, `icon`, `maxLevel`, `baseCost`, `costGrowth` |
+| `DisasterData` | `id`, `type` (`DisasterType { Earthquake, Storm, Fire }`), `displayName`, `icon` |
 
 ### 6.2 Sistemas novos
 
@@ -186,14 +211,41 @@ Regras:
 
 - `House`: um único `SetState(State novo)` que dispara `HouseStateChanged`. `ApplyProblem(State problema, int severidade)` substitui o sorteio de `GenerateCall`. `Break()`/`Repair()` passam a ser detalhes internos.
 - `House` deixa de mexer direto em visual além do que já faz hoje; efeitos novos ficam em `HouseFeedback` (C), no mesmo prefab.
-- `GuardManager`: lê o nível de automação em `Stats` para pular passos; corrige B4, B5.
+- `GuardManager`: lê o nível de automação em `Stats` para pular passos; corrige B4, B5, B14, B15, B17. Material e trabalhadores saem do estoque no envio (GDD, seção 3).
 - `ResourcesManager`: setters disparam `MoneyChanged`/`MaterialChanged`/`WorkersChanged`; valores iniciais vêm do `BalanceData`.
-- `GPS`: `speed` vem de `Stats.WorkerSpeed`.
+- `GPS`: `speed` vem de `Stats.WorkerSpeed`; dispara `WorkerSpawned`/`WorkerArrived`.
+- `GuardManager` continua chamando `FeedbacksManager.ShowText`/`HideText` direto no Dia 1 (já funciona). A troca por evento fica para o T29, junto com as dicas.
 - `CameraController`: **não alterar** sem pedir ao usuário. Tremor de câmera é um componente separado que aplica offset e devolve a posição.
 
 ### 6.4 Dados criados por menu de Editor
 
 Agentes sem Unity não conseguem criar `.asset` com segurança. Padrão (igual ao do gerador de cidade): B escreve `Assets/Systems/Masters/Editor/JamDataMenu.cs` com `Tools/Jam/Create Default Data`, que cria/atualiza os `UpgradeData`, `DisasterData` e o `BalanceData` padrão. O Agente A roda o menu e commita os assets.
+
+### 6.4.1 `.meta` de quem trabalha sem Unity
+
+O GUID de um script mora no `.meta`, e a cena e os prefabs apontam para o script por esse GUID. Se um `.cs` novo chega sem `.meta`, cada Unity que importar o projeto inventa um GUID diferente, e as referências quebram ou viram conflito no merge. Por isso **quem cria arquivo sem o Unity aberto cria o `.meta` à mão, no mesmo commit**, com um GUID novo de 32 caracteres hexadecimais minúsculos (`[guid]::NewGuid().ToString('N')` no PowerShell).
+
+`Arquivo.cs.meta`:
+
+```
+fileFormatVersion: 2
+guid: <32 hex>
+```
+
+`Pasta.meta` (para cada pasta nova, inclusive `Editor`):
+
+```
+fileFormatVersion: 2
+guid: <32 hex>
+folderAsset: yes
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+```
+
+Um GUID por arquivo, nunca repetido, nunca trocado depois do primeiro push.
 
 ### 6.5 Regras para a cena
 
