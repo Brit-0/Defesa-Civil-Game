@@ -123,6 +123,19 @@ public static class FeelUI
         return layer;
     }
 
+    //Onde um componente monta a própria UI: nele mesmo, esticado, se foi solto dentro de um Canvas;
+    //senão numa camada do HUD com o nome dado. Assim o prefab funciona em qualquer lugar da cena.
+    public static RectTransform ViewRoot(Component owner, string layerName)
+    {
+        if (owner.transform is RectTransform rect && owner.GetComponentInParent<Canvas>() != null)
+        {
+            Stretch(rect);
+            return rect;
+        }
+
+        return HudLayer(layerName);
+    }
+
     //Posição de um ponto do mundo em coordenadas locais do HUD (âncora e pivô no centro)
     public static Vector2 WorldToHud(Vector3 worldPosition)
     {
