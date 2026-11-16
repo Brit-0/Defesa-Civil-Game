@@ -1,0 +1,168 @@
+using System.Collections;
+using DG.Tweening;
+using Febucci.TextAnimatorForUnity.TextMeshPro;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+//Menu inicial por cima da cidade, na mesma cena. Aparece enquanto o GameManager está em Menu
+//(precisa do autoStart desligado) e o botão Jogar chama StartGame. Monta a própria UI.
+public class MainMenu : MonoBehaviour
+{
+    [Header("TEXTS (o título aceita tags do Text Animator)")]
+    [SerializeField] private string title = "<wave>DEFESA CIVIL</wave>";
+    [SerializeField] private string subtitle = "Mantenha a cidade de pé.";
+    [SerializeField, TextArea(3, 6)] private string howToPlay =
+        "1. Clique numa casa com problema para abrir um chamado\n" +
+        "2. Escolha a base, monte a equipe e envie\n" +
+        "3. Receba o pagamento e compre melhorias antes que o caos tome a cidade";
+    [SerializeField] private string playText = "JOGAR";
+
+    [Header("LAYOUT (tela de referência 1920x1080)")]
+    [SerializeField] private float bandHeight = 300f;
+    [SerializeField] private float bandY = 200f;
+    [SerializeField] private float titleSize = 150f;
+    [SerializeField] private float subtitleSize = 40f;
+    [SerializeField] private float howToPlaySize = 30f;
+    [SerializeField] private Vector2 buttonSize = new Vector2(380f, 104f);
+    [SerializeField] private float buttonY = -150f;
+    [SerializeField] private float howToPlayY = -340f;
+
+    [Header("COLORS")]
+    [SerializeField] private Color dimColor = new Color(0f, 0f, 0f, .4f);
+    [SerializeField] private Color bandColor = new Color(.05f, .06f, .1f, .8f);
+    [SerializeField] private Color titleColor = new Color(1f, .82f, .3f);
+    [SerializeField] private Color subtitleColor = Color.white;
+    [SerializeField] private Color howToPlayColor = new Color(.86f, .88f, .93f);
+    [SerializeField] private Color buttonColor = new Color(.25f, .68f, .35f);
+
+    [Header("TIMING")]
+    [SerializeField] private float fadeTime = .35f;
+    [SerializeField] private float dropTime = .6f;
+    [SerializeField] private float buttonPulseScale = 1.06f;
+    [SerializeField] private float buttonPulseTime = .6f;
+
+    private RectTransform screen;
+    private RectTransform band;
+    private RectTransform buttonHolder;
+    private CanvasGroup group;
+    private TextAnimator_TMP titleAnimator;
+    private bool shown;
+
+    private void Awake()
+    {
+        Build();
+    }
+
+    private void Build()
+    {
+        RectTransform parent = FeelUI.ViewRoot(this, "MainMenu");
+        if (parent == null) return;
+
+        Vector2 center = new Vector2(.5f, .5f);
+
+        screen = FeelUI.CreateRect("Screen", parent);
+        FeelUI.Stretch(screen);
+        group = screen.gameObject.AddComponent<CanvasGroup>();
+
+        //Escurece pouco, para a cidade aparecer, e segura os cliques do HUD
+        Image dim = FeelUI.CreateImage("Dim", screen, dimColor);
+        dim.raycastTarget = true;
+        FeelUI.Stretch(dim.rectTransform);
+
+        band = FeelUI.CreateImage("Band", screen, bandColor).rectTransform;
+        band.anchorMin = new Vector2(0f, .5f);
+        band.anchorMax = new Vector2(1f, .5f);
+        band.pivot = center;
+        band.sizeDelta = new Vector2(0f, bandHeight);
+        band.anchoredPosition = new Vector2(0f, bandY);
+
+        TMP_Text titleLbl = FeelUI.CreateText("Title", band, "", titleSize, titleColor);
+        FeelUI.Place(titleLbl.rectTransform, center, center, new Vector2(0f, 30f), new Vector2(1600f, titleSize * 1.2f));
+        titleAnimator = titleLbl.gameObject.AddComponent<TextAnimator_TMP>();
+
+        TMP_Text subtitleLbl = FeelUI.CreateText("Subtitle", band, subtitle, subtitleSize, subtitleColor);
+        FeelUI.Place(subtitleLbl.rectTransform, center, center, new Vector2(0f, -bandHeight * .5f + subtitleSize), new Vector2(1600f, subtitleSize * 1.4f));
+
+        //O botão fica num suporte: a escala do botão é do Tweener (hover), a do suporte é do pulso
+        buttonHolder = FeelUI.CreateRect("ButtonHolder", screen);
+        FeelUI.Place(buttonHolder, center, center, new Vector2(0f, buttonY), buttonSize);
+        Button play = FeelUI.CreateButton("PlayBtn", buttonHolder, playText, buttonSize, buttonColor, 56f);
+        play.onClick.AddListener(Play);
+
+        TMP_Text howLbl = FeelUI.CreateText("HowToPlay", screen, howToPlay, howToPlaySize, howToPlayColor);
+        howLbl.lineSpacing = 20f;
+        FeelUI.Place(howLbl.rectTransform, center, center, new Vector2(0f, howToPlayY), new Vector2(1700f, howToPlaySize * 5f));
+
+        screen.gameObject.SetActive(false);
+    }
+
+    //Espera o Start do GameManager: com autoStart ligado a partida já começou e o menu nem pisca
+    private IEnumerator Start()
+    {
+        yield return null;
+
+        if (GameManager.Instance != null) OnGameStateChanged(GameManager.Instance.State);
+    }
+
+    private void OnEnable()
+    {
+        GameEvents.GameStateChanged += OnGameStateChanged;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.GameStateChanged -= OnGameStateChanged;
+    }
+
+    private void OnGameStateChanged(GameState state)
+    {
+        if (state == GameState.Menu) Show();
+        else Hide();
+    }
+
+    private void Show()
+    {
+        if (screen == null || shown) return;
+
+        shown = true;
+        screen.gameObject.SetActive(true);
+        screen.parent.SetAsLastSibling();
+        titleAnimator.SetText(title);
+
+        group.DOKill();
+        group.alpha = 0f;
+        group.interactable = true;
+        group.blocksRaycasts = true;
+        group.DOFade(1f, fadeTime).SetUpdate(true).SetLink(screen.gameObject);
+
+        //O título cai de cima e o botão fica pulsando
+        band.DOKill();
+        band.anchoredPosition = new Vector2(0f, bandY + 500f);
+        band.DOAnchorPosY(bandY, dropTime).SetEase(Ease.OutBack).SetUpdate(true).SetLink(screen.gameObject);
+
+        buttonHolder.DOKill();
+        buttonHolder.localScale = Vector3.one;
+        buttonHolder.DOScale(buttonPulseScale, buttonPulseTime).SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo)
+            .SetUpdate(true).SetLink(screen.gameObject);
+    }
+
+    private void Hide()
+    {
+        if (screen == null || !shown) return;
+
+        shown = false;
+        group.interactable = false;
+        group.blocksRaycasts = false;
+
+        group.DOKill();
+        band.DOKill();
+        buttonHolder.DOKill();
+        group.DOFade(0f, fadeTime).SetUpdate(true).SetLink(screen.gameObject).OnComplete(() => screen.gameObject.SetActive(false));
+    }
+
+    private void Play()
+    {
+        if (GameManager.Instance != null) GameManager.Instance.StartGame();
+    }
+}

@@ -179,7 +179,7 @@ public class DisasterBanner : MonoBehaviour
 
         bool wasHidden = !bar.gameObject.activeSelf;
         bar.gameObject.SetActive(true);
-        bar.SetAsLastSibling();
+        bar.parent.SetAsLastSibling();
 
         Sprite sprite = disaster != null ? disaster.icon : null;
         icon.sprite = sprite;

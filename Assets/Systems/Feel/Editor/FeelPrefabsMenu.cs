@@ -10,6 +10,7 @@ public static class FeelPrefabsMenu
     private const string AudioFolder = "Assets/Systems/Audio";
     private const string FeelFolder = "Assets/Systems/Feel";
     private const string UIFolder = "Assets/Systems/UI";
+    private const string FeedbacksFolder = "Assets/Systems/Feedbacks";
 
     [MenuItem("Tools/Jam/Create Feel Prefabs")]
     public static void CreateAll()
@@ -26,7 +27,10 @@ public static class FeelPrefabsMenu
         //HUD: soltos dentro do UICanvas (raiz com RectTransform). Cada um monta a própria UI no Awake.
         EnsurePrefab(UIFolder + "/ChaosBar.prefab", "ChaosBar", null, typeof(RectTransform), typeof(ChaosBar));
         EnsurePrefab(UIFolder + "/DisasterBanner.prefab", "DisasterBanner", null, typeof(RectTransform), typeof(DisasterBanner));
+        EnsurePrefab(FeedbacksFolder + "/TutorialTips.prefab", "TutorialTips", null, typeof(RectTransform), typeof(TutorialTips));
+        EnsurePrefab(UIFolder + "/PauseMenu.prefab", "PauseMenu", null, typeof(RectTransform), typeof(PauseMenu));
         EnsurePrefab(UIFolder + "/EndScreen.prefab", "EndScreen", null, typeof(RectTransform), typeof(EndScreen));
+        EnsurePrefab(UIFolder + "/MainMenu.prefab", "MainMenu", null, typeof(RectTransform), typeof(MainMenu));
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();

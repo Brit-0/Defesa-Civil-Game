@@ -144,7 +144,7 @@ public class EndScreen : MonoBehaviour
         foreach (TMP_Text stat in statLbls) stat.alpha = 0f;
 
         screen.gameObject.SetActive(true);
-        screen.SetAsLastSibling();
+        screen.parent.SetAsLastSibling();
         group.alpha = 0f;
         group.interactable = false;
         panel.localScale = Vector3.one * .8f;
