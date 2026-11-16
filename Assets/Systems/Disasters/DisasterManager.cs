@@ -199,6 +199,9 @@ public class DisasterManager : MonoBehaviour
                 elapsed = delay;
             }
 
+            // Partida encerrada no meio da onda: as casas que faltam ficam de pé (a pausa já segura o WaitForSeconds).
+            if (!IsPlaying() && !IsPaused()) break;
+
             // Casa que já tem problema, Guarda e Armazém são ignorados dentro de ApplyProblem.
             house.ApplyProblem(State.Damaged, GetDamageByDistance(distance, radius));
         }

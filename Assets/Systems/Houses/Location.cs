@@ -31,13 +31,13 @@ public abstract class Location : House
     public override void OnPointerEnter(PointerEventData eventData)
     {
         base.OnPointerEnter(eventData);
-        infoPanel.Show();
+        if (infoPanel != null) infoPanel.Show();
     }
 
     public override void OnPointerExit(PointerEventData eventData)
     {
         base.OnPointerExit(eventData);
-        infoPanel.Hide();
+        if (infoPanel != null) infoPanel.Hide();
     }
 
     public abstract void ExecuteLocationAction();

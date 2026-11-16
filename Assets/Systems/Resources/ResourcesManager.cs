@@ -11,8 +11,9 @@ public class ResourcesManager : MonoBehaviour
     public static int Workers
     {
         get => Instance.workers;
-        set 
-        { 
+        set
+        {
+            value = NotNegative(value, "trabalhadores");
             Instance.workers = value;
             Instance.workersLbl.text = value.ToString();
             GameEvents.RaiseWorkersChanged(value);
@@ -39,8 +40,9 @@ public class ResourcesManager : MonoBehaviour
     public static int BuildMaterial
     {
         get => Instance.buildMaterial;
-        set 
-        { 
+        set
+        {
+            value = NotNegative(value, "material");
             Instance.buildMaterial = value;
             Instance.materialsLbl.text = value.ToString();
             GameEvents.RaiseMaterialChanged(value);
@@ -57,6 +59,7 @@ public class ResourcesManager : MonoBehaviour
         set
         {
             int before = Instance.money;
+            value = NotNegative(value, "dinheiro");
             Instance.money = value;
             Instance.moneyLbl.text = value.ToString();
             GameEvents.RaiseMoneyChanged(before, value);
@@ -66,6 +69,15 @@ public class ResourcesManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+    }
+
+    // Rede de segurança: quem gasta confere o estoque antes. Se algo escapar, o estoque para em 0 e o erro aparece no console.
+    private static int NotNegative(int value, string label)
+    {
+        if (value >= 0) return value;
+
+        Debug.LogError($"Estoque de {label} ficaria negativo ({value}): mantido em 0.");
+        return 0;
     }
 
     private void Start()

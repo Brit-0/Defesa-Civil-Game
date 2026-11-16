@@ -59,11 +59,19 @@ public class GuardManager : MonoBehaviour
     private void OnEnable()
     {
         GameEvents.UpgradePurchased += OnUpgradePurchased;
+        GameEvents.GameStateChanged += OnGameStateChanged;
     }
 
     private void OnDisable()
     {
         GameEvents.UpgradePurchased -= OnUpgradePurchased;
+        GameEvents.GameStateChanged -= OnGameStateChanged;
+    }
+
+    // Partida encerrada: a aba de equipe e o "Escolha a base" não ficam abertos atrás da tela final.
+    private void OnGameStateChanged(GameState state)
+    {
+        if (state == GameState.Won || state == GameState.Lost) CloseCall();
     }
 
     private void Update()
@@ -136,6 +144,9 @@ public class GuardManager : MonoBehaviour
 
     public void CallSendTeam()
     {
+        // Os botões da aba não passam pelo clique das casas: fora de Playing não enviam ninguém.
+        if (GameManager.InputBlocked) return;
+
         TrySendTeam(currentCall, selectedGuard, TeamSize);
     }
 
@@ -305,7 +316,7 @@ public class GuardManager : MonoBehaviour
 
     public void IncreaseTeamSize()
     {
-        if (currentCall == null) return;
+        if (currentCall == null || GameManager.InputBlocked) return;
 
         if (TeamSize + 1 > ResourcesManager.Workers)
         {

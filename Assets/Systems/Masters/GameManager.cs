@@ -19,6 +19,8 @@ public class GameManager : MonoBehaviour
     private float playTimeScale = 1f;
 
     private static int inputBlocks;
+    // Reiniciar pela tela final ou pela pausa volta direto para a partida, sem passar pelo menu de novo.
+    private static bool restartRequested;
     // O mundo só aceita clique em Playing. Sem GameManager na cena, nada é bloqueado.
     public static bool InputBlocked => inputBlocks > 0 || (Instance != null && Instance.State != GameState.Playing);
 
@@ -41,8 +43,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // Enquanto o menu do Agente C não existe, a partida começa sozinha.
-        if (autoStart) StartGame();
+        // autoStart: a partida começa sozinha (sem o menu do Agente C). Depois de um Restart também.
+        bool startNow = autoStart || restartRequested;
+        restartRequested = false;
+        if (startNow) StartGame();
         else GameEvents.RaiseGameStateChanged(State);
     }
 
@@ -98,6 +102,7 @@ public class GameManager : MonoBehaviour
         DOTween.KillAll();
         Time.timeScale = 1f;
         inputBlocks = 0;
+        restartRequested = true;
         GuardManager.selectBaseMode = false;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
@@ -145,6 +150,7 @@ public class GameManager : MonoBehaviour
     {
         Instance = null;
         inputBlocks = 0;
+        restartRequested = false;
     }
 
 #if UNITY_EDITOR
