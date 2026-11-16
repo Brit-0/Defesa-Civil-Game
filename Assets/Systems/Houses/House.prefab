@@ -163,6 +163,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc375973013bbc048bdbb40f7768b8bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tweener
+  hoverScale: 1.1
+  hoverTime: 0.1
+  holdTime: 0.08
+  releaseTime: 0.15
+  releaseOvershoot: 5
+  ignoreTimeScale: 1
 --- !u!1 &2343705179317847920
 GameObject:
   m_ObjectHideFlags: 0
@@ -233,7 +239,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: de9418d3cb27c564682f986c2c9f336a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c5ef0c58504f2584e9c1e9ff5ec1ab5f, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -498,6 +504,7 @@ GameObject:
   - component: {fileID: 773412527844854997}
   - component: {fileID: 6277054856222031894}
   - component: {fileID: 4294521309488969442}
+  - component: {fileID: 6792854878256815514}
   m_Layer: 3
   m_Name: House
   m_TagString: Untagged
@@ -630,17 +637,90 @@ MonoBehaviour:
   isEnergized: 0
   damageAmount: 0
   damageAmountLbl: {fileID: 130924523616006296}
+  externalFeedback: 0
   currentCall:
     house: {fileID: 0}
     workersNeeded: 1
     workersSent: 0
+    materialSpent: 0
     type: 0
     guard: {fileID: 0}
   callDisplay: {fileID: 8746547354655852637}
-  workTime: 10
   progressCircle: {fileID: 3905365532738848428}
   progressIcon: {fileID: 7557181781591941656}
   complete: {fileID: 8894848534172659507}
+  damagedIcon: {fileID: 0}
+  fireIcon: {fileID: 0}
+--- !u!114 &6792854878256815514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4674568238996248893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8148fe2ee2700cce4fb49543d557bcfb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HouseFeedback
+  visual: {fileID: 0}
+  callMarker: {fileID: 0}
+  completeMarker: {fileID: 0}
+  shakeStrength: 0.06
+  shakeTime: 0.5
+  shakeVibrato: 18
+  crackInTime: 0.35
+  dustCount: 7
+  dustColor: {r: 0.78, g: 0.72, b: 0.62, a: 0.9}
+  dustSize: 0.09
+  dustDistance: 0.45
+  dustTime: 0.6
+  hopHeight: 0.12
+  hopTime: 0.35
+  crackOutTime: 0.25
+  sparkleCount: 8
+  sparkleColor: {r: 1, g: 0.95, b: 0.6, a: 1}
+  sparkleSize: 0.06
+  sparkleDistance: 0.6
+  sparkleTime: 0.5
+  flashStrength: 0.8
+  flashTime: 0.3
+  igniteShakeStrength: 0.03
+  igniteShakeTime: 0.3
+  fire:
+    fireFrames: []
+    frameRate: 10
+    spriteSize: 0.8
+    flameColor: {r: 1, g: 0.45, b: 0.1, a: 1}
+    flameCoreColor: {r: 1, g: 0.9, b: 0.35, a: 1}
+    flamesPerSecond: 16
+    flameSize: 0.13
+    flameWidth: 0.7
+    flameBase: 0.05
+    flameRise: 0.5
+    flameTime: 0.55
+    smokeColor: {r: 0.22, g: 0.22, b: 0.26, a: 0.65}
+    smokePerSecond: 4
+    smokeSize: 0.16
+    smokeRise: 1.1
+    smokeTime: 1.5
+    timerWidth: 0.7
+    timerHeight: 0.07
+    timerY: -0.6
+    timerBorder: 2
+    timerBackColor: {r: 0.16078432, g: 0.14901961, b: 0.18431373, a: 1}
+    timerFullColor: {r: 1, g: 0.85, b: 0.3, a: 1}
+    timerEmptyColor: {r: 0.95, g: 0.2, b: 0.15, a: 1}
+    blinkBelow: 0.3
+    blinkSpeed: 12
+  deniedShakeStrength: 0.035
+  deniedShakeTime: 0.25
+  damagedMarkerColor: {r: 1, g: 1, b: 1, a: 1}
+  fireMarkerColor: {r: 1, g: 0.55, b: 0.4, a: 1}
+  callPulseScale: 1.15
+  callPulseTime: 0.45
+  completePulseScale: 1.25
+  completePulseTime: 0.3
 --- !u!1 &6416927744013338475
 GameObject:
   m_ObjectHideFlags: 0

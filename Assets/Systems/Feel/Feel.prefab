@@ -1,0 +1,220 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8770045573013136919
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 569703471193494029}
+  - component: {fileID: 3567758149761150683}
+  - component: {fileID: 5884234407166720966}
+  - component: {fileID: 5093523919060715900}
+  - component: {fileID: 1414500861634235187}
+  - component: {fileID: 2922479661588962688}
+  - component: {fileID: 3846179639983787341}
+  - component: {fileID: 8223295708909665406}
+  m_Layer: 0
+  m_Name: Feel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &569703471193494029
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8770045573013136919}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3567758149761150683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8770045573013136919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae7672f2c077144c349f4072dedff718, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HudJuice
+  moneyLbl: {fileID: 0}
+  moneyIcon: {fileID: 0}
+  materialLbl: {fileID: 0}
+  materialIcon: {fileID: 0}
+  workersLbl: {fileID: 0}
+  workersIcon: {fileID: 0}
+  countTime: 0.5
+  countEase: 9
+  punchScale: 0.35
+  punchTime: 0.3
+  punchVibrato: 6
+  gainColor: {r: 0.45, g: 1, b: 0.45, a: 1}
+  lossColor: {r: 1, g: 0.4, b: 0.35, a: 1}
+  colorTime: 0.45
+--- !u!114 &5884234407166720966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8770045573013136919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 122190e64b68d3ede1766acd9f5ea98c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MoneyPopups
+  popupPf: {fileID: 0}
+  moneyTarget: {fileID: 0}
+  fontSize: 46
+  moneyColor: {r: 1, g: 0.87, b: 0.25, a: 1}
+  incomeColor: {r: 0.55, g: 0.95, b: 1, a: 1}
+  outlineWidth: 0.25
+  popTime: 0.25
+  holdTime: 0.3
+  flyTime: 0.45
+  riseDistance: 60
+  endScale: 0.5
+  incomeFormat: +{0} Repasse
+  incomeOffset: {x: -40, y: -130}
+--- !u!114 &5093523919060715900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8770045573013136919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfdd67941a843f14eb03fa78e3bd9c66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraShaker
+  earthquakeStrength: 0.035
+  earthquakeTime: 1.6
+  breakStrength: 0.008
+  breakTime: 0.25
+  lightningStrength: 0.015
+  lightningTime: 0.35
+  frequency: 28
+  maxStrength: 0.06
+--- !u!114 &1414500861634235187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8770045573013136919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04c39b4c01fa505bc486d12b9e59c3b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorkerFeel
+  stepsPerSecond: 4.5
+  tiltAngle: 7
+  squash: 0.07
+  hopHeight: 0.14
+  blendSpeed: 10
+  spriteFacesRight: 1
+  turnThreshold: 0.25
+  spawnPopTime: 0.25
+  arrivePopTime: 0.1
+  arrivePopScale: 1.35
+  puffCount: 5
+  puffColor: {r: 1, g: 1, b: 1, a: 0.85}
+  puffSize: 0.2
+  puffDistance: 0.8
+  puffTime: 0.35
+--- !u!114 &2922479661588962688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8770045573013136919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a8d6d04b11f6c8953b8a7bf6dd8dd4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ActionFeedback
+  noWorkersText: Sem trabalhadores!
+  noMaterialText: Sem material!
+  noMoneyText: Sem dinheiro!
+  maxLevelText: "N\xEDvel m\xE1ximo!"
+  fontSize: 38
+  outlineWidth: 0.3
+  textColor: {r: 1, g: 0.42, b: 0.36, a: 1}
+  offset: {x: 0, y: 46}
+  screenMargin: {x: 190, y: 40}
+  popTime: 0.12
+  shakeStrength: 14
+  shakeTime: 0.25
+  riseDistance: 50
+  riseTime: 0.55
+--- !u!114 &3846179639983787341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8770045573013136919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc0b7048992961f58e596d4f58a3d8c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeatherFx
+  tintColor: {r: 0.08, g: 0.13, b: 0.3, a: 0.22}
+  dropColor: {r: 0.75, g: 0.85, b: 1, a: 0.55}
+  dropCount: 80
+  dropSize: {x: 3, y: 30}
+  dropAngle: 14
+  dropSpeed: 1500
+  rainFadeTime: 1
+  rainTile: {fileID: 0}
+  tileScale: 4
+  tileScroll: {x: -0.6, y: 2.4}
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
+  flashAlpha: 0.45
+  flashTime: 0.3
+  boltColor: {r: 1, g: 0.97, b: 0.7, a: 1}
+  boltSegments: 7
+  boltThickness: 7
+  boltJitter: 60
+  boltTime: 0.25
+  sparkCount: 8
+  sparkSize: 10
+  sparkDistance: 70
+--- !u!114 &8223295708909665406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8770045573013136919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58f4253f35135cebe14f2b31e1f98516, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChaosVignette
+  volume: {fileID: 0}
+  startChaos: 0.4
+  fullChaos: 0.95
+  color: {r: 0.75, g: 0.05, b: 0.05, a: 1}
+  maxIntensity: 0.45
+  smoothness: 0.5
+  pulseChaos: 0.6
+  pulseAmount: 0.06
+  pulseSpeed: 4
+  maxDesaturation: -30
+  changeSpeed: 1.5
