@@ -10,6 +10,7 @@ public static class JamDataMenu
     private const string BalanceFolder = "Balance";
     private const string BalanceAsset = "BalanceData";
     private const string DisastersFolder = "Disasters";
+    private const string UpgradesFolder = "Upgrades";
 
     [MenuItem("Tools/Jam/Create Default Data")]
     public static void CreateDefaultData()
@@ -33,6 +34,13 @@ public static class JamDataMenu
         CreateBalance(overwrite, ref created, ref updated);
 
         CreateDisaster("Earthquake", "earthquake", DisasterType.Earthquake, "Terremoto", overwrite, ref created, ref updated);
+
+        // Tabela da seção 7 do GDD: asset, id, nome, descrição, ordem, níveis, custo base, crescimento, efeito por nível.
+        CreateUpgrade("Workers", UpgradeIds.Workers, "Contratar trabalhador", "+1 trabalhador", 0, 12, 30, 1.45f, 1f, overwrite, ref created, ref updated);
+        CreateUpgrade("Speed", UpgradeIds.Speed, "Botas de corrida", "+12% de velocidade de caminhada", 1, 8, 25, 1.5f, 0.12f, overwrite, ref created, ref updated);
+        CreateUpgrade("Tools", UpgradeIds.Tools, "Ferramentas melhores", "-10% de tempo de trabalho", 2, 8, 40, 1.5f, 0.1f, overwrite, ref created, ref updated);
+        CreateUpgrade("Cart", UpgradeIds.Cart, "Carrinho de mão", "+1 material por trabalhador no Armazém", 3, 4, 60, 1.8f, 1f, overwrite, ref created, ref updated);
+        CreateUpgrade("Reward", UpgradeIds.Reward, "Seguro municipal", "+25% de dinheiro por conserto", 4, 10, 50, 1.55f, 0.25f, overwrite, ref created, ref updated);
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
@@ -72,6 +80,30 @@ public static class JamDataMenu
         asset.id = id;
         asset.type = type;
         asset.displayName = displayName;
+        EditorUtility.SetDirty(asset);
+
+        if (isNew) created++;
+        else updated++;
+    }
+
+    #endregion
+
+    #region UPGRADES
+
+    // O menu conhece tudo menos o ícone, que é ligado à mão e nunca é tocado.
+    private static void CreateUpgrade(string assetName, string id, string displayName, string description, int order, int maxLevel, int baseCost, float costGrowth, float effectPerLevel, bool overwrite, ref int created, ref int updated)
+    {
+        UpgradeData asset = LoadOrCreate<UpgradeData>(UpgradesFolder, assetName, out bool isNew);
+        if (!isNew && !overwrite) return;
+
+        asset.id = id;
+        asset.displayName = displayName;
+        asset.description = description;
+        asset.order = order;
+        asset.maxLevel = maxLevel;
+        asset.baseCost = baseCost;
+        asset.costGrowth = costGrowth;
+        asset.effectPerLevel = effectPerLevel;
         EditorUtility.SetDirty(asset);
 
         if (isNew) created++;

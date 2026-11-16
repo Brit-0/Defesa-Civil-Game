@@ -24,11 +24,30 @@ public static class Stats
         }
     }
 
+    #region UPGRADES
+
+    public static int GetUpgradeLevel(string id)
+    {
+        return UpgradesManager.Instance != null ? UpgradesManager.Instance.GetLevel(id) : 0;
+    }
+
+    // Efeito acumulado do upgrade (effectPerLevel × nível). Sem UpgradesManager na cena, 0.
+    public static float GetUpgradeEffect(string id)
+    {
+        return UpgradesManager.Instance != null ? UpgradesManager.Instance.GetEffect(id) : 0f;
+    }
+
+    public static int AutomationLevel => GetUpgradeLevel(UpgradeIds.Automation);
+
+    #endregion
+
     #region WORKERS
 
-    public static float WorkerSpeed => Balance.workerSpeed;
+    // speed: +X% de velocidade por nível.
+    public static float WorkerSpeed => Balance.workerSpeed * (1f + GetUpgradeEffect(UpgradeIds.Speed));
     public static float DispatchInterval => Balance.dispatchInterval;
-    public static int MaterialPerWorker => Balance.materialPerWorker;
+    // cart: +X de material por trabalhador por nível.
+    public static int MaterialPerWorker => Balance.materialPerWorker + Mathf.RoundToInt(GetUpgradeEffect(UpgradeIds.Cart));
 
     #endregion
 
@@ -49,6 +68,8 @@ public static class Stats
 
         int team = Mathf.Max(call.workersNeeded, call.workersSent);
         float total = call.house.currentState == State.OnFire ? Balance.fireWorkTime : Balance.workTimePerDamage * call.house.damageAmount;
+        // tools: -X% de tempo de trabalho por nível.
+        total *= Mathf.Max(0f, 1f - GetUpgradeEffect(UpgradeIds.Tools));
         return Mathf.Max(Balance.minWorkTime, total / team);
     }
 
@@ -57,7 +78,9 @@ public static class Stats
     {
         if (call.type != CallType.Problem) return 0;
 
-        return call.house.currentState == State.OnFire ? Balance.fireReward : Balance.moneyPerDamage * call.house.damageAmount;
+        int reward = call.house.currentState == State.OnFire ? Balance.fireReward : Balance.moneyPerDamage * call.house.damageAmount;
+        // reward: +X% de dinheiro por conserto por nível.
+        return Mathf.RoundToInt(reward * (1f + GetUpgradeEffect(UpgradeIds.Reward)));
     }
 
     // Material que o envio gasta: só casa danificada usa material.
