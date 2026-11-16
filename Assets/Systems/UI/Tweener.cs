@@ -1,35 +1,62 @@
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Tweener : MonoBehaviour
 {
+    [Header("HOVER")]
+    [SerializeField] private float hoverScale = 1.1f;
+    [SerializeField] private float hoverTime = .1f;
+
+    [Header("PRESS")]
+    [SerializeField] private float holdTime = .08f;
+    [SerializeField] private float releaseTime = .15f;
+    [SerializeField] private float releaseOvershoot = 5f;
+
+    [Header("UPDATE")]
+    [SerializeField] private bool ignoreTimeScale = true;
+
+    //Um tween de escala por instância: o novo mata só o anterior deste transform
+    private Tween scaleTween;
 
     public void HoverEnter()
     {
         //CursorController.SetHover();
-        DOTween.Complete("HoverExit");
-        transform.DOScale(1.1f, .1f).SetId("HoverEnter");
+        ScaleTo(hoverScale, hoverTime);
     }
 
     public void HoverExit()
     {
         //CursorController.Reset();
-        DOTween.Complete("HoverEnter");
-        transform.DOScale(1f, .1f).SetId("HoverExit"); ;
+        ScaleTo(1f, hoverTime);
     }
 
     public void Hold(float scale = .9f)
     {
-        DOTween.Complete("TweenHover");
-        DOTween.Complete("TweenHold");
-        transform.DOScale(scale, .08f).SetId("TweenHold");
+        ScaleTo(scale, holdTime);
     }
 
     public void Release()
     {
-        DOTween.Complete("TweenHold");
-        //transform.DOShakePosition(.2f, new Vector3(5f, 5f, 0f)).SetId("TweenHold");
-        transform.DOScale(1f, .15f).SetEase(Ease.OutBack, 5f).SetId("TweenHold");
+        ScaleTo(1f, releaseTime).SetEase(Ease.OutBack, releaseOvershoot);
+    }
+
+    private Tween ScaleTo(float scale, float duration)
+    {
+        scaleTween?.Kill();
+
+        Tween tween = transform.DOScale(scale, duration).SetUpdate(ignoreTimeScale).SetLink(gameObject);
+        //Solta a referência quando o tween morre, para nunca matar um tween reciclado de outro objeto
+        tween.OnKill(() => { if (scaleTween == tween) scaleTween = null; });
+        scaleTween = tween;
+        return tween;
+    }
+
+    private void OnDisable()
+    {
+        if (scaleTween == null) return;
+
+        scaleTween.Kill();
+        scaleTween = null;
+        transform.localScale = Vector3.one;
     }
 }
