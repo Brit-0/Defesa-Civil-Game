@@ -50,6 +50,8 @@ MonoBehaviour:
     hover: {fileID: 8300000, guid: 3508c8f7ae7d0b288cbf999d3c45c560, type: 3}
     buy: {fileID: 8300000, guid: 531d557265fb85b4018779f9a4c2e3a7, type: 3}
     error: {fileID: 8300000, guid: a990de7b1622a2ea44c56c31fc200720, type: 3}
+    whoosh: {fileID: 8300000, guid: 33307948921b75646bb4ff504e58e656, type: 3}
+    popup: {fileID: 8300000, guid: e7744e155d95dbcb1b7f787b38d7f423, type: 3}
     dispatch: {fileID: 8300000, guid: 60e17f862e66b1453d1325917f1c216a, type: 3}
     hammer: {fileID: 8300000, guid: efe867cae1c3ea82270c61a9fa396386, type: 3}
     repaired: {fileID: 8300000, guid: a483e28a0c9cfad94a9557ad090e9ada, type: 3}
@@ -60,14 +62,26 @@ MonoBehaviour:
     extinguish: {fileID: 8300000, guid: 6c6b5eba6eeac9dd4195768bcdea2e62, type: 3}
     victory: {fileID: 8300000, guid: b20dfbe4d1b3a339830b95640dfdca78, type: 3}
     defeat: {fileID: 8300000, guid: 4916768896aede3adb1462b9121a85c3, type: 3}
+    confetti: {fileID: 8300000, guid: 187d912864c09e7a2ef5bd65c77d394c, type: 3}
     rainLoop: {fileID: 8300000, guid: 0d5019a4c50c6a4a4710ab6c6fa115ac, type: 3}
     fireLoop: {fileID: 8300000, guid: 3054bda24f8727d00e5f383c8438fd6e, type: 3}
   poolSize: 12
-  sfxVolume: 1
   minRepeatInterval: 0.05
+  masterVolume: 1
+  interfaceVolume: 0.8
+  gameplayVolume: 1
+  disasterVolume: 1
+  ambienceVolume: 0.8
+  musicVolume: 0.45
+  duckLevel: 0.45
+  duckMinVolume: 0.5
+  duckAttackTime: 0.08
+  duckMaxHold: 1.5
+  duckReleaseTime: 0.9
   calmMusic: {fileID: 8300000, guid: 8f877e7629d1e27723fc99ed8d58b639, type: 3}
   tenseMusic: {fileID: 8300000, guid: 3569f0ccfab6e617700394cce89e1045, type: 3}
-  musicVolume: 0.45
+  dangerMusic: {fileID: 8300000, guid: 6656137493d584c4158b6640de67571c, type: 3}
+  dangerLayerVolume: 0.8
   tensionFadeTime: 2
   playMusicOnStart: 1
   persistAcrossReload: 1
@@ -103,6 +117,7 @@ MonoBehaviour:
   loopFadeTime: 1
   tensionStartChaos: 0.35
   tensionFullChaos: 0.7
+  dangerLayerChaos: 0.7
   menuMusicLevel: 0.7
   pausedMusicLevel: 0.35
   endMusicLevel: 0.3

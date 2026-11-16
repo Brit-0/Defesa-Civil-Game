@@ -63,3 +63,5 @@ MonoBehaviour:
   cursorPressed: {fileID: 2800000, guid: 0a689163576c7d522badd3cb41162c1c, type: 3}
   cursorHotspot: {x: 2, y: 2}
   cursorHandHotspot: {x: 13, y: 2}
+  labIcons: []
+  labIconSize: 64

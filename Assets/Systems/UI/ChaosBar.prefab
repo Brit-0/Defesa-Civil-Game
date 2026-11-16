@@ -60,6 +60,7 @@ MonoBehaviour:
   dangerColor: {r: 0.9, g: 0.22, b: 0.2, a: 1}
   labelColor: {r: 1, g: 1, b: 1, a: 1}
   dangerLabelColor: {r: 1, g: 0.9, b: 0.5, a: 1}
+  tickColor: {r: 0, g: 0, b: 0, a: 0.35}
   pulseThreshold: 0.6
   pulseScale: 1.07
   pulseTime: 0.45

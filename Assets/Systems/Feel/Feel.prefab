@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 2922479661588962688}
   - component: {fileID: 3846179639983787341}
   - component: {fileID: 8223295708909665406}
+  - component: {fileID: 3126359116604033322}
   m_Layer: 0
   m_Name: Feel
   m_TagString: Untagged
@@ -64,6 +65,14 @@ MonoBehaviour:
   gainColor: {r: 0.45, g: 1, b: 0.45, a: 1}
   lossColor: {r: 1, g: 0.4, b: 0.35, a: 1}
   colorTime: 0.45
+  tickScale: 0.12
+  tickTime: 0.12
+  showDelta: 1
+  showMoneyGain: 0
+  deltaOffset: {x: 0, y: -46}
+  deltaFontSize: 34
+  deltaDistance: 40
+  deltaTime: 0.8
 --- !u!114 &5884234407166720966
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,10 +141,8 @@ MonoBehaviour:
   arrivePopTime: 0.1
   arrivePopScale: 1.35
   puffCount: 5
-  puffColor: {r: 1, g: 1, b: 1, a: 0.85}
-  puffSize: 0.2
-  puffDistance: 0.8
-  puffTime: 0.35
+  spawnPuffCount: 3
+  puffScale: 1.2
 --- !u!114 &2922479661588962688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -162,6 +169,7 @@ MonoBehaviour:
   shakeTime: 0.25
   riseDistance: 50
   riseTime: 0.55
+  pressFeelOnAllButtons: 1
 --- !u!114 &3846179639983787341
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,6 +189,8 @@ MonoBehaviour:
   dropAngle: 14
   dropSpeed: 1500
   rainFadeTime: 1
+  splashesPerSecond: 30
+  splashScale: 1
   rainTile: {fileID: 0}
   tileScale: 4
   tileScroll: {x: -0.6, y: 2.4}
@@ -193,8 +203,7 @@ MonoBehaviour:
   boltJitter: 60
   boltTime: 0.25
   sparkCount: 8
-  sparkSize: 10
-  sparkDistance: 70
+  sparkScale: 300
 --- !u!114 &8223295708909665406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -218,3 +227,248 @@ MonoBehaviour:
   pulseSpeed: 4
   maxDesaturation: -30
   changeSpeed: 1.5
+--- !u!114 &3126359116604033322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8770045573013136919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91dd679060b2d31bb5f04bd0c71cd50b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FeelParticles
+  maxParticles: 500
+  prewarm: 60
+  dust:
+    shape: 1
+    count: {x: 9, y: 12}
+    size: {x: 0.08, y: 0.15}
+    speed: {x: 0.5, y: 1.1}
+    lifetime: {x: 0.6, y: 1}
+    spread: 200
+    direction: 90
+    spawnRadius: 0.12
+    gravity: -0.2
+    drag: 3.5
+    endSize: 1.8
+    spin: 0
+    sway: 0
+    swayFrequency: 3
+    alignToVelocity: 0
+    stretch: 2.5
+    fadeIn: 0
+    fadeOutFrom: 0.25
+    colors:
+    - {r: 0.8, g: 0.74, b: 0.64, a: 0.9}
+    - {r: 0.7, g: 0.64, b: 0.55, a: 0.85}
+    - {r: 0.88, g: 0.84, b: 0.76, a: 0.8}
+    useEndColor: 0
+    endColor: {r: 1, g: 1, b: 1, a: 1}
+    unscaledTime: 0
+  debris:
+    shape: 0
+    count: {x: 5, y: 8}
+    size: {x: 0.03, y: 0.06}
+    speed: {x: 0.9, y: 1.5}
+    lifetime: {x: 0.55, y: 0.8}
+    spread: 110
+    direction: 90
+    spawnRadius: 0
+    gravity: 5
+    drag: 0.4
+    endSize: 0.8
+    spin: 540
+    sway: 0
+    swayFrequency: 3
+    alignToVelocity: 0
+    stretch: 2.5
+    fadeIn: 0
+    fadeOutFrom: 0.7
+    colors:
+    - {r: 0.45, g: 0.36, b: 0.3, a: 1}
+    - {r: 0.6, g: 0.5, b: 0.42, a: 1}
+    - {r: 0.35, g: 0.33, b: 0.36, a: 1}
+    useEndColor: 0
+    endColor: {r: 1, g: 1, b: 1, a: 1}
+    unscaledTime: 0
+  sparks:
+    shape: 0
+    count: {x: 10, y: 14}
+    size: {x: 0.025, y: 0.04}
+    speed: {x: 1.3, y: 2.2}
+    lifetime: {x: 0.35, y: 0.6}
+    spread: 360
+    direction: 90
+    spawnRadius: 0
+    gravity: 1.6
+    drag: 4
+    endSize: 0.3
+    spin: 0
+    sway: 0
+    swayFrequency: 3
+    alignToVelocity: 1
+    stretch: 3
+    fadeIn: 0
+    fadeOutFrom: 0.5
+    colors:
+    - {r: 1, g: 0.95, b: 0.6, a: 1}
+    - {r: 1, g: 1, b: 1, a: 1}
+    - {r: 1, g: 0.82, b: 0.35, a: 1}
+    useEndColor: 0
+    endColor: {r: 1, g: 1, b: 1, a: 1}
+    unscaledTime: 0
+  smoke:
+    shape: 1
+    count: {x: 6, y: 9}
+    size: {x: 0.12, y: 0.2}
+    speed: {x: 0.25, y: 0.5}
+    lifetime: {x: 1.2, y: 1.8}
+    spread: 70
+    direction: 90
+    spawnRadius: 0.15
+    gravity: -0.3
+    drag: 1
+    endSize: 2.2
+    spin: 0
+    sway: 0.05
+    swayFrequency: 2
+    alignToVelocity: 0
+    stretch: 2.5
+    fadeIn: 0.1
+    fadeOutFrom: 0.3
+    colors:
+    - {r: 0.2, g: 0.2, b: 0.23, a: 0.75}
+    - {r: 0.3, g: 0.29, b: 0.32, a: 0.7}
+    useEndColor: 0
+    endColor: {r: 1, g: 1, b: 1, a: 1}
+    unscaledTime: 0
+  embers:
+    shape: 0
+    count: {x: 1, y: 1}
+    size: {x: 0.015, y: 0.03}
+    speed: {x: 0.5, y: 0.9}
+    lifetime: {x: 0.7, y: 1.1}
+    spread: 50
+    direction: 90
+    spawnRadius: 0
+    gravity: -0.6
+    drag: 0.5
+    endSize: 0.4
+    spin: 0
+    sway: 0.06
+    swayFrequency: 6
+    alignToVelocity: 0
+    stretch: 2.5
+    fadeIn: 0
+    fadeOutFrom: 0.5
+    colors:
+    - {r: 1, g: 0.85, b: 0.3, a: 1}
+    - {r: 1, g: 0.6, b: 0.15, a: 1}
+    useEndColor: 1
+    endColor: {r: 0.9, g: 0.2, b: 0.1, a: 1}
+    unscaledTime: 0
+  steam:
+    shape: 1
+    count: {x: 8, y: 12}
+    size: {x: 0.1, y: 0.16}
+    speed: {x: 0.4, y: 0.8}
+    lifetime: {x: 0.8, y: 1.2}
+    spread: 100
+    direction: 90
+    spawnRadius: 0.15
+    gravity: -0.5
+    drag: 2
+    endSize: 2
+    spin: 0
+    sway: 0
+    swayFrequency: 3
+    alignToVelocity: 0
+    stretch: 2.5
+    fadeIn: 0
+    fadeOutFrom: 0.2
+    colors:
+    - {r: 1, g: 1, b: 1, a: 0.8}
+    - {r: 0.85, g: 0.9, b: 0.95, a: 0.75}
+    useEndColor: 0
+    endColor: {r: 1, g: 1, b: 1, a: 1}
+    unscaledTime: 0
+  confetti:
+    shape: 2
+    count: {x: 60, y: 80}
+    size: {x: 0.012, y: 0.02}
+    speed: {x: 0.9, y: 1.6}
+    lifetime: {x: 2.5, y: 4}
+    spread: 40
+    direction: 90
+    spawnRadius: 0
+    gravity: 0.9
+    drag: 1.5
+    endSize: 1
+    spin: 360
+    sway: 0.02
+    swayFrequency: 4
+    alignToVelocity: 0
+    stretch: 2.5
+    fadeIn: 0
+    fadeOutFrom: 0.8
+    colors:
+    - {r: 0.95, g: 0.3, b: 0.25, a: 1}
+    - {r: 1, g: 0.82, b: 0.25, a: 1}
+    - {r: 0.45, g: 0.9, b: 0.5, a: 1}
+    - {r: 0.35, g: 0.65, b: 1, a: 1}
+    - {r: 0.95, g: 0.5, b: 0.8, a: 1}
+    - {r: 1, g: 1, b: 1, a: 1}
+    useEndColor: 0
+    endColor: {r: 1, g: 1, b: 1, a: 1}
+    unscaledTime: 1
+  ash:
+    shape: 0
+    count: {x: 1, y: 1}
+    size: {x: 0.005, y: 0.01}
+    speed: {x: 0.03, y: 0.08}
+    lifetime: {x: 4, y: 6}
+    spread: 60
+    direction: 270
+    spawnRadius: 0
+    gravity: 0.02
+    drag: 0
+    endSize: 0.6
+    spin: 90
+    sway: 0.02
+    swayFrequency: 1.5
+    alignToVelocity: 0
+    stretch: 2.5
+    fadeIn: 0.2
+    fadeOutFrom: 0.7
+    colors:
+    - {r: 0.55, g: 0.53, b: 0.56, a: 0.8}
+    - {r: 0.35, g: 0.33, b: 0.36, a: 0.8}
+    useEndColor: 0
+    endColor: {r: 1, g: 1, b: 1, a: 1}
+    unscaledTime: 1
+  splash:
+    shape: 0
+    count: {x: 3, y: 4}
+    size: {x: 0.004, y: 0.007}
+    speed: {x: 0.05, y: 0.1}
+    lifetime: {x: 0.25, y: 0.35}
+    spread: 120
+    direction: 90
+    spawnRadius: 0
+    gravity: 0.4
+    drag: 1
+    endSize: 0.5
+    spin: 0
+    sway: 0
+    swayFrequency: 3
+    alignToVelocity: 0
+    stretch: 2.5
+    fadeIn: 0
+    fadeOutFrom: 0.3
+    colors:
+    - {r: 0.75, g: 0.85, b: 1, a: 0.7}
+    useEndColor: 0
+    endColor: {r: 1, g: 1, b: 1, a: 1}
+    unscaledTime: 0

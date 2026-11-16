@@ -63,6 +63,8 @@ MonoBehaviour:
   subtitleSize: 40
   howToPlaySize: 30
   buttonSize: {x: 380, y: 104}
+  emblemScale: 1.25
+  emblemOffset: 600
   buttonY: -150
   howToPlayY: -340
   dimColor: {r: 0, g: 0, b: 0, a: 0.4}
@@ -75,3 +77,4 @@ MonoBehaviour:
   dropTime: 0.6
   buttonPulseScale: 1.06
   buttonPulseTime: 0.6
+  useTransition: 1

@@ -56,9 +56,23 @@ MonoBehaviour:
   bottomMargin: 110
   border: 4
   fontSize: 34
+  dotSize: 18
+  dotSpacing: 10
+  showPointer: 1
+  chevronSize: {x: 46, y: 12}
+  pointerGap: 26
+  bobHeight: 12
+  bobSpeed: 6
+  ringScale: 1.25
+  ringPulse: 0.25
+  ringPulseTime: 0.7
+  edgeMargin: 70
   frameColor: {r: 1, g: 0.82, b: 0.3, a: 1}
   backColor: {r: 0.16078432, g: 0.14901961, b: 0.18431373, a: 1}
   textColor: {r: 1, g: 1, b: 1, a: 1}
+  dotOffColor: {r: 1, g: 1, b: 1, a: 0.2}
+  outlineColor: {r: 0, g: 0, b: 0, a: 0.85}
   slideTime: 0.35
   changePunch: 0.08
   doneTime: 5
+  popupVolume: 0.6
