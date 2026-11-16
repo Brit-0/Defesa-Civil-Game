@@ -37,6 +37,8 @@ public class GameAudio : MonoBehaviour
     [Header("MUSIC (tensão pelo caos)")]
     [SerializeField, Range(0f, 1f)] private float tensionStartChaos = .35f;
     [SerializeField, Range(0f, 1f)] private float tensionFullChaos = .7f;
+    [Tooltip("A camada de perigo (Music_Danger) sobe deste caos até 100%")]
+    [SerializeField, Range(0f, 1f)] private float dangerLayerChaos = .7f;
 
     [Header("MUSIC LEVEL (por estado da partida)")]
     [SerializeField, Range(0f, 1f)] private float menuMusicLevel = .7f;
@@ -119,6 +121,7 @@ public class GameAudio : MonoBehaviour
         AudioManager.SetLoop(Sfx?.fireLoop, 0f, loopFadeTime);
         AudioManager.SetLoop(Sfx?.rainLoop, 0f, loopFadeTime);
         AudioManager.SetTension(0f);
+        AudioManager.SetDanger(0f);
         AudioManager.SetMusicLevel(1f, musicLevelFadeTime);
         chaos = 0f;
         playing = false;
@@ -284,6 +287,7 @@ public class GameAudio : MonoBehaviour
     {
         chaos = value;
         AudioManager.SetTension(Mathf.InverseLerp(tensionStartChaos, tensionFullChaos, value));
+        AudioManager.SetDanger(Mathf.InverseLerp(dangerLayerChaos, 1f, value));
     }
 
     private void OnGameStateChanged(GameState state)
@@ -295,6 +299,7 @@ public class GameAudio : MonoBehaviour
             case GameState.Menu:
                 cameFromMenu = true;
                 AudioManager.SetTension(0f);
+                AudioManager.SetDanger(0f);
                 AudioManager.SetMusicLevel(menuMusicLevel, musicLevelFadeTime);
                 break;
             case GameState.Playing:
@@ -309,6 +314,7 @@ public class GameAudio : MonoBehaviour
             case GameState.Won:
                 EndMatch();
                 AudioManager.SetTension(0f);
+                AudioManager.SetDanger(0f);
                 AudioManager.PlaySfx(Sfx?.victory, endVolume);
                 break;
             case GameState.Lost:
