@@ -271,7 +271,7 @@ namespace DefesaCivil.CityGen.Tests
             Assert.IsTrue(V(l).Has("R29"));
         }
 
-        [Test] public void R32_WarehousesOppositeCorners()
+        CityLayout FourBlocks()
         {
             var l = new CityLayout { seed = 1, center = new Vec2(10.4f, 5f) };
             l.polygons.Add(Poly("001", 0, 5.4f, 10, 10)); // NW
@@ -281,24 +281,28 @@ namespace DefesaCivil.CityGen.Tests
             // todos os 4 são quarteirões (têm estruturas)
             S(l, "001", StructureType.House, Ind, 6, 6f); S(l, "002", StructureType.House, Ind, 16, 6.5f);
             S(l, "003", StructureType.House, Ind, 6, 1.2f); S(l, "004", StructureType.House, Ind, 16, 1.5f);
-            S(l, "001", StructureType.Warehouse, Ind, 3, 6f); // NW
-            S(l, "002", StructureType.Warehouse, Ind, 15, 1.2f); // SE
+            return l;
+        }
+
+        [Test] public void R32_WarehousesOnBothSidesOfGuard()
+        {
+            var l = FourBlocks();
+            float hw = Ind.VisibleRect(Vector2.zero).width / 2f;
+            S(l, "001", StructureType.Guard, Ind, 10f - hw - 0.1f, 5.6f);
+            S(l, "001", StructureType.Warehouse, Ind, hw + 0.1f, 6.2f); // oeste
+            S(l, "002", StructureType.Warehouse, Ind, 20.7f - hw, 6.2f); // leste
             Assert.IsFalse(V(l).Has("R32"));
-            l.structures[5].bottomCenter = new Vec2(13, 6f); // NE: mesmo lado norte
-            Assert.IsTrue(V(l).Has("R32"));
-            l.structures[5].bottomCenter = new Vec2(6, 1.0f); // SW: mesmo lado oeste
+            l.structures[6].bottomCenter = new Vec2(hw + 0.1f, 6.9f); // os dois a oeste
             Assert.IsTrue(V(l).Has("R32"));
         }
 
-        [Test] public void R33_GuardInIndustrialBlock()
+        [Test] public void R33_GuardNearMapCenter()
         {
-            var l = Base();
-            for (int i = 1; i <= 4; i++) S(l, i.ToString("000"), StructureType.House, Ind, 1 + 3 * i, 5.3f);
-            S(l, "001", StructureType.Guard, Ind, 16, 5.3f);
+            var l = FourBlocks();
+            float hw = Ind.VisibleRect(Vector2.zero).width / 2f;
+            S(l, "001", StructureType.Guard, Ind, 10f - hw - 0.1f, 5.6f);
             Assert.IsFalse(V(l).Has("R33"));
-            l = Base();
-            for (int i = 1; i <= 4; i++) S(l, i.ToString("000"), StructureType.House, Sub, 1 + 3 * i, 5.3f);
-            S(l, "001", StructureType.Guard, Ind, 16, 5.3f);
+            l.structures[4].bottomCenter = new Vec2(hw + 0.1f, 5.6f);
             Assert.IsTrue(V(l).Has("R33"));
         }
 
@@ -308,6 +312,15 @@ namespace DefesaCivil.CityGen.Tests
             Assert.IsFalse(V(l).Has("R34"));
             l.center = new Vec2(0, 0);
             Assert.IsTrue(V(l).Has("R34"));
+        }
+
+        [Test] public void R34_CenterOnGuardBlock()
+        {
+            var l = Base();
+            S(l, "001", StructureType.Guard, Ind, 9, 5.6f);
+            Assert.IsTrue(V(l).Has("R34"));
+            l.center = new Vec2(10, 7.5f + LayoutValidator.FocusLift);
+            Assert.IsFalse(V(l).Has("R34"));
         }
 
         [Test] public void ReportWritesFileAndCounts()

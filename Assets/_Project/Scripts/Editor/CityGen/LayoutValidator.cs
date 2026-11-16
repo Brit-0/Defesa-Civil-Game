@@ -9,6 +9,8 @@ namespace DefesaCivil.CityGen
     {
         public const float SizeTolerance = 0.01f;
         public const float CenterTolerance = 0.5f;
+        /// <summary>A vista inicial sobe um pouco do meio do quarteirão da Guarda: as bolhas de chamado da fileira norte cabem na tela.</summary>
+        public const float FocusLift = 0.35f;
         public const float StreetTolerance = 0.02f;
         const float OverlapMin = 0.06f;
 
@@ -194,33 +196,27 @@ namespace DefesaCivil.CityGen
                 }
             CheckUniformStreets(r, g, street);
 
-            // R32: Warehouses nos quarteirões mais próximos de cantos opostos
+            // R32 (v5): os 2 Warehouses ficam um de cada lado da Guarda (oeste e leste)
             var wares = l.structures.Where(s => s.type == StructureType.Warehouse && structPoly.ContainsKey(s)).ToList();
-            if (wares.Count == 2 && blocks.Count > 0)
-            {
-                var bb = g.bbox;
-                string Near(Vector2 c) => blocks.OrderBy(pid => CornerDistance(c, g.polys[pid])).ThenBy(pid => pid).First();
-                string sw = Near(new Vector2(bb.xMin, bb.yMin)), ne = Near(new Vector2(bb.xMax, bb.yMax));
-                string nw = Near(new Vector2(bb.xMin, bb.yMax)), se = Near(new Vector2(bb.xMax, bb.yMin));
-                var set = new HashSet<string> { structPoly[wares[0]], structPoly[wares[1]] };
-                if (!(set.SetEquals(new[] { sw, ne }) && sw != ne) && !(set.SetEquals(new[] { nw, se }) && nw != se))
-                    r.Add("R32", "Warehouse", wares[0].bottomCenter, $"Warehouses em {string.Join(",", set)}; cantos SW/NE={sw}/{ne}, NW/SE={nw}/{se}");
-            }
+            var hq = l.structures.FirstOrDefault(s => s.type == StructureType.Guard && structPoly.ContainsKey(s));
+            if (wares.Count == 2 && hq != null && (wares[0].bottomCenter.x - hq.bottomCenter.x) * (wares[1].bottomCenter.x - hq.bottomCenter.x) >= 0f)
+                r.Add("R32", "Warehouse", wares[0].bottomCenter, $"Warehouses do mesmo lado da Guarda (x {wares[0].bottomCenter.x:0.0} e {wares[1].bottomCenter.x:0.0}, Guarda em {hq.bottomCenter.x:0.0})");
 
-            // R33: Guard em quarteirão industrial
+            // R33 (v5): a Guard fica no centro do mapa (até 20% da diagonal da caixa dos polígonos)
             foreach (var guard in l.structures.Where(s => s.type == StructureType.Guard && structPoly.ContainsKey(s)))
             {
-                var pid = structPoly[guard];
-                var hs = houses.Where(h => structPoly.TryGetValue(h, out var p) && p == pid && houseDistrict.ContainsKey(h)).ToList();
-                float ind = hs.Count == 0 ? 0f : hs.Count(h => houseDistrict[h] == District.Industrial) / (float)hs.Count;
-                if (ind < 0.8f - 1e-4f) r.Add("R33", "Guard " + guard.id, guard.bottomCenter, $"quarteirão {pid} com {ind:P0} de House Industrial (mín. 80%)");
+                float dist = Vector2.Distance(guard.bottomCenter, g.bbox.center), max = 0.2f * g.bbox.size.magnitude;
+                if (dist > max + 1e-4f) r.Add("R33", "Guard " + guard.id, guard.bottomCenter, $"Guarda a {dist:0.0} u do centro do mapa (máx. {max:0.0})");
             }
 
             CheckWaypointGraph(r, l, g);
 
-            // R34 (parte de layout): centro da caixa = centro registrado (câmera inicial)
-            if (g.polys.Count > 0 && Vector2.Distance(g.bbox.center, l.center) > CenterTolerance)
-                r.Add("R34", "Polygons", g.bbox.center, $"centro da caixa {(Vec2)g.bbox.center} difere de center {l.center} (tol. 0,5)");
+            // R34 (parte de layout): o centro registrado (câmera inicial) é o meio do quarteirão da Guarda;
+            // sem Guarda num quarteirão, o centro da caixa dos polígonos
+            var hqBlock = l.structures.Where(s => s.type == StructureType.Guard && structPoly.ContainsKey(s)).Select(s => structPoly[s]).FirstOrDefault();
+            Vector2 focus = hqBlock != null ? CityGeometry.BoundingBox(new IList<Vector2>[] { g.polys[hqBlock] }).center + new Vector2(0f, FocusLift) : g.bbox.center;
+            if (g.polys.Count > 0 && Vector2.Distance(focus, l.center) > CenterTolerance)
+                r.Add("R34", "Polygons", focus, $"{(hqBlock != null ? "meio do quarteirão da Guarda" : "centro da caixa")} {(Vec2)focus} difere de center {l.center} (tol. 0,5)");
 
             r.Finish();
             return r;

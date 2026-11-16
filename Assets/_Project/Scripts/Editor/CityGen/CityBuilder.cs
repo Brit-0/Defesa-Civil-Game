@@ -65,6 +65,7 @@ namespace DefesaCivil.CityGen
             BuildPolygons();
             FitLimiter();
             FitPolygonFraming();
+            BuildGround();
             MigrateOldStructures();
             BuildStructures();
             MigrateOldWaypoints();
@@ -162,7 +163,11 @@ namespace DefesaCivil.CityGen
                     col.pathCount = 1;
                     col.SetPath(0, local);
                 }
-                if (!created) Changed(!same);
+                var mr = t.GetComponent<MeshRenderer>();
+                var mat = CityPalette.GroundMaterial(p);
+                bool sameMat = mr.sharedMaterial == mat;
+                if (!sameMat) { Record(mr); mr.sharedMaterial = mat; }
+                if (!created) Changed(!same || !sameMat);
                 if (created || !same) RebuildMesh(t.gameObject);
             }
             foreach (var kv in existing) Destroy(kv.Value.gameObject, "id fora do JSON");
@@ -424,6 +429,52 @@ namespace DefesaCivil.CityGen
             {
                 Record(t);
                 t.position = pos; t.localScale = scale;
+            }
+            Changed(changed);
+        }
+
+        // ---------- chão assado (v5) ----------
+
+        public const string GroundName = CitySceneRefs.CgPrefix + "Ground";
+
+        /// <summary>
+        /// Assa o chão (CityGround) e mostra a textura num RawImage logo acima do PolygonsDisplay, cobrindo o Limiter.
+        /// Os polígonos, a PolygonCamera e o MapRender continuam como estão (R28): o chão novo só fica por cima.
+        /// </summary>
+        void BuildGround()
+        {
+            var tex = CityGround.Bake(layout, cat);
+            var t = refs.uiContainer.Find(GroundName) as RectTransform;
+            bool changed = false;
+            if (t == null)
+            {
+                var go = new GameObject(GroundName, typeof(RectTransform), typeof(CanvasRenderer), typeof(UnityEngine.UI.RawImage));
+                Created(go);
+                go.layer = refs.polygonsDisplay.gameObject.layer;
+                t = (RectTransform)go.transform;
+                t.SetParent(refs.uiContainer, false);
+                res.created++;
+            }
+            int index = refs.polygonsDisplay.GetSiblingIndex() + 1;
+            if (t.GetSiblingIndex() != index) { SetSibling(t, index); changed = true; }
+            var img = t.GetComponent<UnityEngine.UI.RawImage>();
+            if (img.texture != tex || img.raycastTarget || img.color != Color.white)
+            {
+                Record(img);
+                img.texture = tex; img.raycastTarget = false; img.color = Color.white; img.uvRect = new Rect(0, 0, 1, 1);
+                changed = true;
+            }
+            var bb = LayoutValidator.BuildGeo(layout).limiter;
+            var parentScale = t.parent.lossyScale;
+            var size = new Vector2(bb.width / parentScale.x, bb.height / parentScale.y);
+            var half = new Vector2(0.5f, 0.5f);
+            var pos = new Vector3(bb.center.x, bb.center.y, refs.polygonsDisplay.position.z);
+            if (t.anchorMin != half || t.anchorMax != half || t.pivot != half || !Approx(t.sizeDelta, size) || ((Vector2)t.position - bb.center).sqrMagnitude > 1e-8f)
+            {
+                Record(t);
+                t.anchorMin = half; t.anchorMax = half; t.pivot = half;
+                t.sizeDelta = size; t.position = pos;
+                changed = true;
             }
             Changed(changed);
         }
