@@ -91,6 +91,8 @@ public class TutorialView : MonoBehaviour
         FeelUI.Place((RectTransform)skipButton.transform, new Vector2(1f, 0f), center, new Vector2(-136f, 32f), new Vector2(220f, 40f));
         skipButton.onClick.AddListener(() => SkipPressed?.Invoke());
 
+        // Seta por cima do balão: alvo embaixo à esquerda (META) deixava a seta escondida atrás dele.
+        arrow.SetAsLastSibling();
         bubble.gameObject.SetActive(false);
     }
 
@@ -114,7 +116,8 @@ public class TutorialView : MonoBehaviour
 
     private static void Bar(Transform parent, Color color, Vector2 position, Vector2 size, float angle)
     {
-        RectTransform bar = FeelUI.CreatePanel("Bar", parent, color).rectTransform;
+        // Cor chapada: o painel do tema pixel é escuro e apagava o amarelo da seta.
+        RectTransform bar = FeelUI.CreateImage("Bar", parent, color).rectTransform;
         FeelUI.Place(bar, new Vector2(.5f, .5f), new Vector2(.5f, .5f), position, size);
         bar.localEulerAngles = new Vector3(0f, 0f, angle);
     }
@@ -235,22 +238,24 @@ public class TutorialView : MonoBehaviour
         }
 
         Vector2 position;
-        float size;
+        Vector2 ringSize;
         if (hasHud)
         {
+            // Aro do tamanho do elemento (botão largo ganha aro largo, e não um quadrado por cima do painel).
             Bounds bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(root, hudTarget);
             position = bounds.center;
-            size = Mathf.Max(bounds.size.x, bounds.size.y) + 40f;
+            ringSize = (Vector2)bounds.size + Vector2.one * 24f;
         }
         else
         {
             position = MiniGameFeel.HudCenter(worldTarget, out Vector2 targetSize);
-            size = MiniGameFeel.RingSize(targetSize, worldRingSize);
+            ringSize = Vector2.one * MiniGameFeel.RingSize(targetSize, worldRingSize);
         }
+        float size = Mathf.Max(ringSize.x, ringSize.y);
 
-        // Fora da tela: a seta fica na borda apontando para lá, sem aro.
+        // Fora da tela (só casas e prédios; o HUD está sempre à vista): a seta fica na borda apontando para lá, sem aro.
         Vector2 half = root.rect.size * .5f - Vector2.one * edgeMargin;
-        bool offScreen = Mathf.Abs(position.x) > half.x || Mathf.Abs(position.y) > half.y;
+        bool offScreen = !hasHud && (Mathf.Abs(position.x) > half.x || Mathf.Abs(position.y) > half.y);
         float bob = arrowBob * (.5f + .5f * Mathf.Sin(Time.unscaledTime * arrowBobSpeed));
 
         Vector2 direction;
@@ -264,7 +269,10 @@ public class TutorialView : MonoBehaviour
         {
             // A seta vem do lado do meio da tela; alvo perto do meio recebe a seta por cima.
             direction = position.sqrMagnitude > 250f * 250f ? position.normalized : Vector2.down;
-            tip = position - direction * (size * .5f + 10f + bob);
+            // Ponta na borda do aro, medida na direção da seta (aro largo e baixo não afasta a seta por cima).
+            float reachX = Mathf.Abs(direction.x) > .001f ? ringSize.x * .5f / Mathf.Abs(direction.x) : float.MaxValue;
+            float reachY = Mathf.Abs(direction.y) > .001f ? ringSize.y * .5f / Mathf.Abs(direction.y) : float.MaxValue;
+            tip = position - direction * (Mathf.Min(reachX, reachY, size * .5f) + 10f + bob);
         }
 
         arrow.gameObject.SetActive(true);
@@ -273,7 +281,7 @@ public class TutorialView : MonoBehaviour
 
         ring.gameObject.SetActive(!offScreen);
         ring.rectTransform.anchoredPosition = position;
-        ring.rectTransform.sizeDelta = Vector2.one * size;
+        ring.rectTransform.sizeDelta = ringSize;
         ring.rectTransform.localScale = Vector3.one * (1f + ringPulse * Mathf.Sin(Time.unscaledTime * arrowBobSpeed));
     }
 

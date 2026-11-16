@@ -14,7 +14,9 @@ public class Tutorial : MonoBehaviour
 
     [Header("TEXTS (aceitam tags do Text Animator)")]
     [SerializeField] private string cardTitle = "DEFESA CIVIL";
-    [SerializeField] private string cardBody = "Desastres vão quebrar as casas da cidade.\nMande a Guarda consertar e ganhe dinheiro.\nCompre melhorias e o Centro de Operações.\nSe o CAOS encher, a cidade cai!";
+    [SerializeField] private string cardBody = "Objetivo: conserte as casas que os desastres quebram e junte dinheiro para comprar o Centro de Operações, antes que o CAOS encha.\n<size=75%><color=#F2C14E>Vamos fazer o primeiro conserto juntos (1 minuto).</color></size>";
+    [Tooltip("Tempo do jogo no passo do mini game: o conserto leva 2,5 s e o iniciante precisa ler e mirar")]
+    [SerializeField, Range(.1f, 1f)] private float miniGameSlowMotion = .35f;
     [SerializeField] private string fireTip = "MUTIRÃO: com a equipe no incêndio, <bounce>clique rápido</bounce> na casa para apagar antes. {0} cliques = bônus de herói!";
     [SerializeField] private string strongTip = "<shake>TERREMOTO FORTE!</shake> O aviso é mais longo: escore as casas marcadas e prepare equipes.";
     [SerializeField] private float tipTime = 6f;
@@ -31,6 +33,7 @@ public class Tutorial : MonoBehaviour
         public Func<Transform> world;
         public string ok;
         public bool letDisastersRun;
+        public bool slowMotion; // câmera lenta enquanto o passo está na tela (miniGameSlowMotion)
         public Func<bool> skipIf;
         public Func<bool> undo; // o jogador desistiu do chamado: volta ao passo de abrir
     }
@@ -46,6 +49,7 @@ public class Tutorial : MonoBehaviour
     private bool holding;
     private bool blocking;
     private bool okPressed;
+    private bool slowed;
     private float tipHideTime = -1f;
     private Counts now, atStart;
     private House focus;
@@ -124,6 +128,7 @@ public class Tutorial : MonoBehaviour
         atStart = now;
         okPressed = false;
         SetHold(!step.letDisastersRun);
+        SetSlowMotion(step.slowMotion);
         view.ShowStep($"PASSO {index + 1}/{steps.Count}", step.text, step.ok, () => okPressed = true, true);
         PlayStep(index);
     }
@@ -140,6 +145,17 @@ public class Tutorial : MonoBehaviour
         view.HideBubble();
         SetHold(false);
         SetBlock(false);
+        SetSlowMotion(false);
+    }
+
+    // Só mexe no tempo com a partida rodando (a pausa e as telas de fim cuidam do próprio timeScale).
+    private void SetSlowMotion(bool slow)
+    {
+        if (slow == slowed) return;
+
+        slowed = slow;
+        if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) return;
+        Time.timeScale = slow ? miniGameSlowMotion : 1f;
     }
 
     private void Update()
@@ -237,6 +253,7 @@ public class Tutorial : MonoBehaviour
             text = "MINI GAME: clique na casa quando o círculo passar na <bounce>faixa dourada</bounce>. Acertou: termina na hora e paga mais!",
             world = () => focus != null ? focus.transform : null,
             done = () => now.completed > atStart.completed,
+            slowMotion = true,
         });
         steps.Add(new Step
         {

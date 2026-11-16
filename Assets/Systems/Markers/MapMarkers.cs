@@ -112,6 +112,7 @@ public class MapMarkers : MonoBehaviour
     {
         Instance = this;
         byPriority = (a, b) => Priority(b).CompareTo(Priority(a));
+        if (GetComponent<WorkRingLayout>() == null) gameObject.AddComponent<WorkRingLayout>();
     }
 
     private void OnEnable()
@@ -137,8 +138,7 @@ public class MapMarkers : MonoBehaviour
     private void Start()
     {
         cam = Camera.main;
-        GameObject ui = GameObject.Find("UICanvas");
-        canvas = ui != null ? ui.GetComponent<Canvas>() : null;
+        canvas = FindHudCanvas();
         if (canvas == null || discSpr == null)
         {
             enabled = false;
@@ -151,6 +151,17 @@ public class MapMarkers : MonoBehaviour
         edgeLayer = MakeLayer("MapMarkersEdge", money != null ? money.GetSiblingIndex() + 1 : 1);
 
         foreach (House house in FindObjectsByType<House>(FindObjectsSortMode.None)) pins.Add(MakePin(house));
+    }
+
+    // O HUD é o Canvas de tela chamado UICanvas; GameObject.Find("UICanvas") chegava a devolver o Canvas do mundo
+    // (UI/Canvas), e os pinos ficavam invisíveis dentro da cidade.
+    private static Canvas FindHudCanvas()
+    {
+        foreach (Canvas c in FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+        {
+            if (c.isRootCanvas && c.renderMode != RenderMode.WorldSpace && c.name == "UICanvas") return c;
+        }
+        return null;
     }
 
     private RectTransform MakeLayer(string layerName, int sibling)

@@ -17,6 +17,12 @@ GameObject:
   - component: {fileID: 3846179639983787341}
   - component: {fileID: 8223295708909665406}
   - component: {fileID: 3126359116604033322}
+  - component: {fileID: 6213532888758768492}
+  - component: {fileID: 6698938075238895345}
+  - component: {fileID: 6626512065491699388}
+  - component: {fileID: 336829256075423118}
+  - component: {fileID: 1514450998425534930}
+  - component: {fileID: 6876417918721527316}
   m_Layer: 0
   m_Name: Feel
   m_TagString: Untagged
@@ -143,6 +149,11 @@ MonoBehaviour:
   puffCount: 5
   spawnPuffCount: 3
   puffScale: 1.2
+  footprints: 1
+  stepDistance: 0.32
+  footSpread: 0.09
+  footprintScale: 0.5
+  dustEvery: 5
 --- !u!114 &2922479661588962688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -194,11 +205,15 @@ MonoBehaviour:
   rainTile: {fileID: 0}
   tileScale: 4
   tileScroll: {x: -0.6, y: 2.4}
+  gustAngle: 16
+  gustSpeedBoost: 0.35
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   flashAlpha: 0.45
   flashTime: 0.3
   boltColor: {r: 1, g: 0.97, b: 0.7, a: 1}
+  boltGlowColor: {r: 0.45, g: 0.6, b: 1, a: 0.7}
   boltSegments: 7
+  boltBranches: 2
   boltThickness: 7
   boltJitter: 60
   boltTime: 0.25
@@ -241,6 +256,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FeelParticles
   maxParticles: 500
   prewarm: 60
+  limitByLevel: {x: 0.45, y: 0.7, z: 1}
   dust:
     shape: 1
     count: {x: 9, y: 12}
@@ -472,3 +488,299 @@ MonoBehaviour:
     useEndColor: 0
     endColor: {r: 1, g: 1, b: 1, a: 1}
     unscaledTime: 0
+  coin:
+    shape: 5
+    count: {x: 6, y: 9}
+    size: {x: 0.08, y: 0.1}
+    speed: {x: 1, y: 1.6}
+    lifetime: {x: 0.7, y: 0.95}
+    spread: 80
+    direction: 90
+    spawnRadius: 0.05
+    gravity: 4.5
+    drag: 0.6
+    endSize: 0.9
+    spin: 0
+    sway: 0
+    swayFrequency: 3
+    alignToVelocity: 0
+    stretch: 2.5
+    fadeIn: 0
+    fadeOutFrom: 0.75
+    colors:
+    - {r: 1, g: 0.81960785, b: 0.3019608, a: 1}
+    - {r: 1, g: 0.88, b: 0.45, a: 1}
+    useEndColor: 0
+    endColor: {r: 1, g: 1, b: 1, a: 1}
+    unscaledTime: 0
+  glint:
+    shape: 7
+    count: {x: 4, y: 6}
+    size: {x: 0.1, y: 0.16}
+    speed: {x: 0.15, y: 0.45}
+    lifetime: {x: 0.45, y: 0.7}
+    spread: 360
+    direction: 90
+    spawnRadius: 0.25
+    gravity: -0.2
+    drag: 2
+    endSize: 0.15
+    spin: 0
+    sway: 0
+    swayFrequency: 3
+    alignToVelocity: 0
+    stretch: 2.5
+    fadeIn: 0.15
+    fadeOutFrom: 0.55
+    colors:
+    - {r: 1, g: 0.81960785, b: 0.3019608, a: 1}
+    - {r: 0.9490196, g: 0.92156863, b: 0.8666667, a: 1}
+    useEndColor: 0
+    endColor: {r: 1, g: 1, b: 1, a: 1}
+    unscaledTime: 0
+  weld:
+    shape: 0
+    count: {x: 5, y: 8}
+    size: {x: 0.015, y: 0.025}
+    speed: {x: 0.9, y: 1.7}
+    lifetime: {x: 0.22, y: 0.4}
+    spread: 150
+    direction: 90
+    spawnRadius: 0
+    gravity: 3.5
+    drag: 2.5
+    endSize: 0.4
+    spin: 0
+    sway: 0
+    swayFrequency: 3
+    alignToVelocity: 1
+    stretch: 3
+    fadeIn: 0
+    fadeOutFrom: 0.45
+    colors:
+    - {r: 0.9490196, g: 0.92156863, b: 0.8666667, a: 1}
+    - {r: 1, g: 0.81960785, b: 0.3019608, a: 1}
+    - {r: 0.8, g: 0.9, b: 1, a: 1}
+    useEndColor: 0
+    endColor: {r: 1, g: 1, b: 1, a: 1}
+    unscaledTime: 0
+  footstep:
+    shape: 0
+    count: {x: 1, y: 1}
+    size: {x: 0.12, y: 0.12}
+    speed: {x: 0, y: 0}
+    lifetime: {x: 1.1, y: 1.4}
+    spread: 0
+    direction: 90
+    spawnRadius: 0
+    gravity: 0
+    drag: 0
+    endSize: 1
+    spin: 0
+    sway: 0
+    swayFrequency: 3
+    alignToVelocity: 0
+    stretch: 2.5
+    fadeIn: 0
+    fadeOutFrom: 0.2
+    colors:
+    - {r: 0.08, g: 0.07, b: 0.1, a: 0.35}
+    useEndColor: 0
+    endColor: {r: 1, g: 1, b: 1, a: 1}
+    unscaledTime: 0
+  burst:
+    shape: 4
+    count: {x: 8, y: 12}
+    size: {x: 0.05, y: 0.07}
+    speed: {x: 0.6, y: 1.1}
+    lifetime: {x: 0.5, y: 0.75}
+    spread: 360
+    direction: 90
+    spawnRadius: 0.1
+    gravity: -0.3
+    drag: 3
+    endSize: 0.35
+    spin: 0
+    sway: 0
+    swayFrequency: 3
+    alignToVelocity: 0
+    stretch: 2.5
+    fadeIn: 0
+    fadeOutFrom: 0.5
+    colors:
+    - {r: 0.9490196, g: 0.92156863, b: 0.8666667, a: 1}
+    useEndColor: 0
+    endColor: {r: 1, g: 1, b: 1, a: 1}
+    unscaledTime: 0
+--- !u!114 &6213532888758768492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8770045573013136919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3598610ea8cb4440911aef2d72ba75e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VfxQuality
+  desktopLevel: 2
+  webLevel: 1
+  autoLower: 1
+  minFps: 50
+  checkTime: 3
+  lowDensity: 0.35
+  mediumDensity: 0.65
+  highDensity: 1
+--- !u!114 &6698938075238895345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8770045573013136919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5fce6ef97ed4307a51db6308ed2e9a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DisasterFx
+  quakeColor: {r: 0.88, g: 0.8, b: 0.66, a: 0.9}
+  waveCount: 3
+  waveGap: 0.35
+  waveRadius: 9
+  fallbackWaveSpeed: 6
+  dustPerSecond: 26
+  dustScale: 0.8
+  epicenterCrackPixels: 44
+  epicenterCrackTime: 8
+  gustColor: {r: 0.85, g: 0.92, b: 1, a: 0.35}
+  gustStreaks: 14
+  gustLength: {x: 10, y: 22}
+  gustSpeed: 9
+  strikeColor: {r: 0.62, g: 0.78, b: 1, a: 0.9}
+  strikeTime: 0.5
+  strikeScale: 2.4
+  dashesPerWave: 56
+--- !u!114 &6626512065491699388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8770045573013136919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd178c30e180427b9ce68536c7664a3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeamFx
+  problemColor: {r: 0.9490196, g: 0.54901963, b: 0.15686275, a: 1}
+  restockColor: {r: 1, g: 0.81960785, b: 0.3019608, a: 1}
+  spacingPixels: 10
+  chevronEvery: 4
+  maxDotsPerRoute: 140
+  waveSpeed: 9
+  waveLength: 6
+  baseAlpha: 0.7
+  drawTime: 0.5
+  fadeTime: 0.35
+--- !u!114 &336829256075423118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8770045573013136919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27e536ee0392400d97450b3d1f13034f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LandmarkFx
+  baseColor: {r: 0.9490196, g: 0.54901963, b: 0.15686275, a: 1}
+  baseHaloAlpha: 0.32
+  beamAlpha: 0.2
+  beamTurnsPerSecond: 0.25
+  beamLength: 1.1
+  depotColor: {r: 1, g: 0.81960785, b: 0.3019608, a: 1}
+  depotHaloAlpha: 0.3
+  glintInterval: 0.8
+  attentionHaloAlpha: 0.65
+  attentionPulseSpeed: 4
+  pingInterval: 0.7
+  pingTime: 0.6
+  pingScale: 1.6
+  haloSize: {x: 1.6, y: 1}
+  groundY: -0.2
+--- !u!114 &1514450998425534930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8770045573013136919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08d6934848734de998713ebaa406c36a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RewardFx
+  coins: {x: 4, y: 14}
+  coinsPerSqrtMoney: 1
+  coinScale: 1
+  restockGlints: 6
+  counterGlints: 4
+  counterScale: 120
+  upgradeGlints: 6
+  upgradeGlintScale: 120
+  upgradeConfetti: 16
+  upgradeConfettiScale: 0.5
+  maxLevelMultiplier: 2
+  milestoneEvery: 5
+  milestoneConfettiShare: 0.6
+  cannonTilt: 25
+  milestoneGlints: 10
+--- !u!114 &6876417918721527316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8770045573013136919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988799ccda5841678c0b019b32e90a7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AmbientFx
+  calmWind: 0.3
+  stormWind: 1.1
+  windAngle: -6
+  windBlend: 0.6
+  gustFrequency: 0.35
+  gustThreshold: 0.35
+  leaves: 8
+  stormLeaves: 16
+  leafColors:
+  - {r: 0.36078432, g: 0.76862746, b: 0.36862746, a: 1}
+  - {r: 0.18039216, g: 0.47843137, b: 0.23529412, a: 1}
+  - {r: 0.7882353, g: 0.5411765, b: 0.16862746, a: 1}
+  leafAlpha: 0.85
+  leafSpeed: 0.8
+  leafFall: 0.12
+  leafSway: 0.25
+  leafFlutter: 5
+  motes: 12
+  moteColors:
+  - {r: 0.9490196, g: 0.92156863, b: 0.8666667, a: 1}
+  - {r: 1, g: 0.81960785, b: 0.3019608, a: 1}
+  moteAlpha: 0.6
+  moteLife: {x: 3, y: 6}
+  moteRise: 0.08
+  moteTwinkle: 3
+  fireflyShare: 0.3
+  clouds: 3
+  cloudPixels: 3
+  shadowColor: {r: 0.08, g: 0.07, b: 0.1, a: 0.09}
+  stormShadowAlpha: 0.16
+  bodyColor: {r: 0.95, g: 0.92, b: 0.87, a: 0.12}
+  bodyOffset: {x: -0.6, y: 1.4}
+  cloudSpeed: 0.35
+  farZoomPixels: 1.3
+  farAlpha: 0.45
