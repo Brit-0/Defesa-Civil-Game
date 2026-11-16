@@ -29,13 +29,13 @@ public class PauseMenu : MonoBehaviour
 
     [Header("COLORS")]
     [SerializeField] private Color dimColor = new Color(0f, 0f, 0f, .6f);
-    [SerializeField] private Color frameColor = new Color(.07f, .07f, .1f);
-    [SerializeField] private Color panelColor = new Color(.16f, .17f, .24f);
+    [SerializeField] private Color frameColor = FeelUI.ButtonColor;
+    [SerializeField] private Color panelColor = FeelUI.PanelColor;
     [SerializeField] private Color titleColor = Color.white;
     [SerializeField] private Color hintColor = new Color(.7f, .73f, .8f);
-    [SerializeField] private Color resumeColor = new Color(.25f, .68f, .35f);
-    [SerializeField] private Color restartColor = new Color(.25f, .5f, .85f);
-    [SerializeField] private Color pauseButtonColor = new Color(.12f, .13f, .2f, .85f);
+    [SerializeField] private Color resumeColor = FeelUI.ButtonColor;
+    [SerializeField] private Color restartColor = FeelUI.ButtonColor;
+    [SerializeField] private Color pauseButtonColor = FeelUI.PanelColor;
 
     [Header("TIMING")]
     [SerializeField] private float fadeTime = .2f;
@@ -60,7 +60,7 @@ public class PauseMenu : MonoBehaviour
         Vector2 top = new Vector2(.5f, 1f);
         Vector2 bottom = new Vector2(.5f, 0f);
 
-        Button pause = FeelUI.CreateButton("PauseBtn", parent, pauseButtonText, buttonSize, pauseButtonColor, 36f);
+        Button pause = FeelUI.CreateRoundButton("PauseBtn", parent, pauseButtonText, buttonSize, pauseButtonColor, 36f);
         FeelUI.Place((RectTransform)pause.transform, buttonAnchor, center, buttonPosition, buttonSize);
         pause.onClick.AddListener(Toggle);
         pauseButton = pause.gameObject;
@@ -73,9 +73,9 @@ public class PauseMenu : MonoBehaviour
         dim.raycastTarget = true;
         FeelUI.Stretch(dim.rectTransform);
 
-        panel = FeelUI.CreateImage("Panel", screen, frameColor).rectTransform;
+        panel = FeelUI.CreatePanel("Panel", screen, frameColor).rectTransform;
         FeelUI.Place(panel, center, center, Vector2.zero, panelSize);
-        FeelUI.Stretch(FeelUI.CreateImage("Back", panel, panelColor).rectTransform, border);
+        FeelUI.Stretch(FeelUI.CreatePanel("Back", panel, panelColor).rectTransform, border);
 
         TMP_Text titleLbl = FeelUI.CreateText("Title", panel, title, titleSize, titleColor);
         FeelUI.Place(titleLbl.rectTransform, top, center, new Vector2(0f, -90f), new Vector2(panelSize.x, titleSize * 1.2f));

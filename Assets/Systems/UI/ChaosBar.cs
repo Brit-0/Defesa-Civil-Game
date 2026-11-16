@@ -15,8 +15,8 @@ public class ChaosBar : MonoBehaviour
     [SerializeField] private string title = "CAOS";
 
     [Header("COLORS")]
-    [SerializeField] private Color frameColor = new Color(.07f, .07f, .1f);
-    [SerializeField] private Color backColor = new Color(.2f, .2f, .26f);
+    [SerializeField] private Color frameColor = FeelUI.ButtonColor;
+    [SerializeField] private Color backColor = FeelUI.PanelColor;
     [SerializeField] private Color calmColor = new Color(.35f, .8f, .4f);
     [SerializeField] private Color warnColor = new Color(.95f, .8f, .25f);
     [SerializeField] private Color dangerColor = new Color(.9f, .22f, .2f);
@@ -51,15 +51,15 @@ public class ChaosBar : MonoBehaviour
         if (parent == null) return;
 
         Vector2 top = new Vector2(.5f, 1f);
-        bar = FeelUI.CreateImage("Bar", parent, frameColor).rectTransform;
+        bar = FeelUI.CreatePanel("Bar", parent, frameColor).rectTransform;
         FeelUI.Place(bar, top, new Vector2(.5f, .5f), new Vector2(0f, -(topMargin + size.y * .5f)), size);
         group = bar.gameObject.AddComponent<CanvasGroup>();
         group.blocksRaycasts = false;
 
-        Image back = FeelUI.CreateImage("Back", bar, backColor);
+        Image back = FeelUI.CreatePanel("Back", bar, backColor);
         FeelUI.Stretch(back.rectTransform, border);
 
-        fill = FeelUI.CreateImage("Fill", back.transform, calmColor);
+        fill = FeelUI.CreatePanel("Fill", back.transform, calmColor);
         fillRect = fill.rectTransform;
         fillRect.anchorMin = Vector2.zero;
         fillRect.anchorMax = new Vector2(0f, 1f);

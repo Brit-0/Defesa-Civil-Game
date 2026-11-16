@@ -8,9 +8,15 @@ public static class FeelUI
     //Ordem acima de qualquer casa do Canvas World Space (casas em 5000 por Y, overlays em 10000)
     public const int OverlaySortingOrder = 10000;
 
+    //Cores dos painéis e dos botões que já existem no jogo (UpgradeTab, GuardTab e UpgradeButton)
+    public static readonly Color PanelColor = new Color32(0x29, 0x26, 0x2F, 0xFF);
+    public static readonly Color ButtonColor = new Color32(0x59, 0x4C, 0x63, 0xFF);
+
     private static TMP_FontAsset font;
     private static Canvas hudCanvas;
     private static Canvas worldCanvas;
+    private static FeelUITheme theme;
+    private static bool themeMissing;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
@@ -18,6 +24,23 @@ public static class FeelUI
         font = null;
         hudCanvas = null;
         worldCanvas = null;
+        theme = null;
+        themeMissing = false;
+    }
+
+    //Os sprites de UI do jogo (RoundRectangle, Circle, Button e Button2). Sem o asset os painéis saem lisos.
+    public static FeelUITheme Theme
+    {
+        get
+        {
+            if (theme != null || themeMissing) return theme;
+
+            theme = Resources.Load<FeelUITheme>(FeelUITheme.ResourcePath);
+            themeMissing = theme == null;
+            if (themeMissing) Debug.LogWarning("FeelUI: não achei o FeelUITheme em Resources (rodar Tools/Jam/Create Feel Prefabs); os painéis ficam sem sprite");
+
+            return theme;
+        }
     }
 
     #region FIND
@@ -172,6 +195,7 @@ public static class FeelUI
         return rect;
     }
 
+    //Image lisa (sem sprite) ou com o sprite dado. Painel, caixa e barra usam CreatePanel; disco usa CreateCircle.
     public static Image CreateImage(string objectName, Transform parent, Color color, Sprite sprite = null)
     {
         Image image = CreateRect(objectName, parent).gameObject.AddComponent<Image>();
@@ -179,6 +203,29 @@ public static class FeelUI
         image.color = color;
         image.raycastTarget = false;
         return image;
+    }
+
+    //Painel, caixa ou barra com o RoundRectangle do jogo, fatiado (o canto não estica); a cor entra por tint
+    public static Image CreatePanel(string objectName, Transform parent, Color color)
+    {
+        Image image = CreateImage(objectName, parent, color, Theme != null ? Theme.roundRectangle : null);
+        Slice(image);
+        return image;
+    }
+
+    //Disco com o Circle do jogo, inteiro (Simple), como os marcadores de chamado das casas
+    public static Image CreateCircle(string objectName, Transform parent, Color color)
+    {
+        return CreateImage(objectName, parent, color, Theme != null ? Theme.circle : null);
+    }
+
+    //Sliced quando o sprite tem borda; o tamanho do canto vem do tema
+    public static void Slice(Image image)
+    {
+        if (image.sprite == null) return;
+
+        image.type = image.sprite.border.sqrMagnitude > 0f ? Image.Type.Sliced : Image.Type.Simple;
+        if (Theme != null) image.pixelsPerUnitMultiplier = Theme.pixelsPerUnitMultiplier;
     }
 
     public static TextMeshProUGUI CreateText(string objectName, Transform parent, string text, float size, Color color, TextAlignmentOptions alignment = TextAlignmentOptions.Center)
@@ -203,7 +250,7 @@ public static class FeelUI
 
     public static Button CreateButton(string objectName, Transform parent, string text, Vector2 size, Color color, float fontSize = 40f)
     {
-        Image background = CreateImage(objectName, parent, color);
+        Image background = CreatePanel(objectName, parent, color);
         background.raycastTarget = true;
         background.rectTransform.sizeDelta = size;
 
@@ -215,6 +262,35 @@ public static class FeelUI
 
         background.gameObject.AddComponent<Tweener>();
         background.gameObject.AddComponent<ButtonJuice>();
+        return button;
+    }
+
+    //Botão redondo como o + e o - da cena: aro do Button2, que ganha fundo no hover e vira disco cheio no clique.
+    //O disco de trás segura o clique e deixa o texto legível por cima da cidade.
+    public static Button CreateRoundButton(string objectName, Transform parent, string text, Vector2 size, Color discColor, float fontSize = 40f)
+    {
+        Image disc = CreateCircle(objectName, parent, discColor);
+        disc.raycastTarget = true;
+        disc.rectTransform.sizeDelta = size;
+
+        Button button = disc.gameObject.AddComponent<Button>();
+        button.targetGraphic = disc;
+
+        if (Theme != null && Theme.button2 != null)
+        {
+            Image ring = CreateImage("Ring", disc.transform, Color.white, Theme.button2);
+            Stretch(ring.rectTransform);
+
+            button.targetGraphic = ring;
+            button.transition = Selectable.Transition.SpriteSwap;
+            button.spriteState = new SpriteState { highlightedSprite = Theme.button2Filled, pressedSprite = Theme.circle };
+        }
+
+        TextMeshProUGUI label = CreateText("Lbl", disc.transform, text, fontSize, Color.white);
+        Stretch(label.rectTransform);
+
+        disc.gameObject.AddComponent<Tweener>();
+        disc.gameObject.AddComponent<ButtonJuice>();
         return button;
     }
 

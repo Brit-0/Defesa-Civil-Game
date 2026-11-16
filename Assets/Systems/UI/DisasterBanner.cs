@@ -25,7 +25,7 @@ public class DisasterBanner : MonoBehaviour
     [SerializeField] private float iconSize = 64f;
 
     [Header("COLORS")]
-    [SerializeField] private Color backColor = new Color(.09f, .09f, .13f);
+    [SerializeField] private Color backColor = FeelUI.PanelColor;
     [SerializeField] private Color earthquakeColor = new Color(.9f, .58f, .2f);
     [SerializeField] private Color stormColor = new Color(.3f, .58f, .98f);
     [SerializeField] private Color fireColor = new Color(.95f, .3f, .2f);
@@ -67,10 +67,10 @@ public class DisasterBanner : MonoBehaviour
 
         Vector2 center = new Vector2(.5f, .5f);
 
-        frame = FeelUI.CreateImage("Banner", parent, earthquakeColor);
+        frame = FeelUI.CreatePanel("Banner", parent, earthquakeColor);
         bar = frame.rectTransform;
         FeelUI.Place(bar, new Vector2(.5f, 1f), center, new Vector2(0f, HiddenY), size);
-        FeelUI.Stretch(FeelUI.CreateImage("Back", bar, backColor).rectTransform, border);
+        FeelUI.Stretch(FeelUI.CreatePanel("Back", bar, backColor).rectTransform, border);
 
         icon = FeelUI.CreateImage("Icon", bar, Color.white);
         icon.preserveAspect = true;

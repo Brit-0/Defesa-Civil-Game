@@ -31,13 +31,13 @@ public class EndScreen : MonoBehaviour
 
     [Header("COLORS")]
     [SerializeField] private Color dimColor = new Color(0f, 0f, 0f, .72f);
-    [SerializeField] private Color frameColor = new Color(.07f, .07f, .1f);
-    [SerializeField] private Color panelColor = new Color(.16f, .17f, .24f);
+    [SerializeField] private Color frameColor = FeelUI.ButtonColor;
+    [SerializeField] private Color panelColor = FeelUI.PanelColor;
     [SerializeField] private Color wonColor = new Color(.45f, .9f, .5f);
     [SerializeField] private Color lostColor = new Color(.95f, .3f, .25f);
     [SerializeField] private Color textColor = Color.white;
     [SerializeField] private Color subtitleColor = new Color(.75f, .78f, .85f);
-    [SerializeField] private Color buttonColor = new Color(.25f, .5f, .85f);
+    [SerializeField] private Color buttonColor = FeelUI.ButtonColor;
 
     [Header("TIMING")]
     [SerializeField] private float showDelay = .9f;
@@ -78,9 +78,9 @@ public class EndScreen : MonoBehaviour
         dim.raycastTarget = true;
         FeelUI.Stretch(dim.rectTransform);
 
-        panel = FeelUI.CreateImage("Panel", screen, frameColor).rectTransform;
+        panel = FeelUI.CreatePanel("Panel", screen, frameColor).rectTransform;
         FeelUI.Place(panel, center, center, Vector2.zero, panelSize);
-        FeelUI.Stretch(FeelUI.CreateImage("Back", panel, panelColor).rectTransform, border);
+        FeelUI.Stretch(FeelUI.CreatePanel("Back", panel, panelColor).rectTransform, border);
 
         titleLbl = FeelUI.CreateText("Title", panel, wonTitle, titleSize, wonColor);
         FeelUI.Place(titleLbl.rectTransform, top, center, new Vector2(0f, -100f), new Vector2(panelSize.x, titleSize * 1.2f));

@@ -12,9 +12,14 @@ public static class FeelPrefabsMenu
     private const string UIFolder = "Assets/Systems/UI";
     private const string FeedbacksFolder = "Assets/Systems/Feedbacks";
 
+    private const string ThemePath = UIFolder + "/Resources/" + FeelUITheme.ResourcePath + ".asset";
+
     [MenuItem("Tools/Jam/Create Feel Prefabs")]
     public static void CreateAll()
     {
+        //Sprites de UI do jogo para os painéis do C: numa pasta Resources, para o FeelUI carregar sem cena
+        EnsureTheme();
+
         //Som: solto em Scripts/. Atravessa o reinício da cena.
         EnsurePrefab(AudioFolder + "/AudioManager.prefab", "AudioManager",
             root => root.GetComponent<AudioManager>().AutoFillClips(),
@@ -35,6 +40,24 @@ public static class FeelPrefabsMenu
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
+    }
+
+    private static void EnsureTheme()
+    {
+        FeelUITheme theme = AssetDatabase.LoadAssetAtPath<FeelUITheme>(ThemePath);
+        bool exists = theme != null;
+
+        if (!exists)
+        {
+            if (!AssetDatabase.IsValidFolder(UIFolder + "/Resources")) AssetDatabase.CreateFolder(UIFolder, "Resources");
+
+            theme = ScriptableObject.CreateInstance<FeelUITheme>();
+            AssetDatabase.CreateAsset(theme, ThemePath);
+        }
+
+        theme.AutoFillSprites();
+
+        Debug.Log("Feel: tema de UI " + (exists ? "completado: " : "criado: ") + ThemePath);
     }
 
     private static void EnsurePrefab(string path, string rootName, Action<GameObject> setup, params Type[] components)

@@ -35,7 +35,7 @@ public class HouseFire : MonoBehaviour
         public float timerHeight = .07f;
         public float timerY = -.6f;
         public float timerBorder = 2f;
-        public Color timerBackColor = new Color(.07f, .07f, .1f, .9f);
+        public Color timerBackColor = FeelUI.PanelColor;
         public Color timerFullColor = new Color(1f, .85f, .3f);
         public Color timerEmptyColor = new Color(.95f, .2f, .15f);
         [Range(0f, 1f)] public float blinkBelow = .3f;
@@ -102,11 +102,11 @@ public class HouseFire : MonoBehaviour
             FeelUI.Place(sprite.rectTransform, center, center, new Vector2(0f, size.y * settings.flameBase), Vector2.one * size.y * settings.spriteSize);
         }
 
-        Image back = FeelUI.CreateImage("Timer", root, settings.timerBackColor);
+        Image back = FeelUI.CreatePanel("Timer", root, settings.timerBackColor);
         FeelUI.Place(back.rectTransform, center, center, new Vector2(0f, size.y * settings.timerY), new Vector2(size.x * settings.timerWidth, size.y * settings.timerHeight));
         timerGroup = back.gameObject.AddComponent<CanvasGroup>();
 
-        timerFillImage = FeelUI.CreateImage("Fill", back.transform, settings.timerFullColor);
+        timerFillImage = FeelUI.CreatePanel("Fill", back.transform, settings.timerFullColor);
         timerFill = timerFillImage.rectTransform;
         timerFill.anchorMin = Vector2.zero;
         timerFill.anchorMax = Vector2.one;

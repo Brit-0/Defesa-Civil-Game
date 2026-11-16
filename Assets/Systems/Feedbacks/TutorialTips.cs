@@ -21,7 +21,7 @@ public class TutorialTips : MonoBehaviour
 
     [Header("COLORS")]
     [SerializeField] private Color frameColor = new Color(1f, .82f, .3f);
-    [SerializeField] private Color backColor = new Color(.09f, .09f, .13f, .95f);
+    [SerializeField] private Color backColor = FeelUI.PanelColor;
     [SerializeField] private Color textColor = Color.white;
 
     [Header("TIMING")]
@@ -60,9 +60,9 @@ public class TutorialTips : MonoBehaviour
 
         Vector2 center = new Vector2(.5f, .5f);
 
-        bar = FeelUI.CreateImage("Tip", parent, frameColor).rectTransform;
+        bar = FeelUI.CreatePanel("Tip", parent, frameColor).rectTransform;
         FeelUI.Place(bar, new Vector2(.5f, 0f), center, new Vector2(0f, HiddenY), size);
-        FeelUI.Stretch(FeelUI.CreateImage("Back", bar, backColor).rectTransform, border);
+        FeelUI.Stretch(FeelUI.CreatePanel("Back", bar, backColor).rectTransform, border);
 
         TMP_Text text = FeelUI.CreateText("Lbl", bar, "", fontSize, textColor);
         FeelUI.Stretch(text.rectTransform, border * 4f);

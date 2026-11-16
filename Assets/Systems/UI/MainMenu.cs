@@ -21,6 +21,7 @@ public class MainMenu : MonoBehaviour
     [Header("LAYOUT (tela de referência 1920x1080)")]
     [SerializeField] private float bandHeight = 300f;
     [SerializeField] private float bandY = 200f;
+    [SerializeField] private float bandMargin = 90f;
     [SerializeField] private float titleSize = 150f;
     [SerializeField] private float subtitleSize = 40f;
     [SerializeField] private float howToPlaySize = 30f;
@@ -30,11 +31,11 @@ public class MainMenu : MonoBehaviour
 
     [Header("COLORS")]
     [SerializeField] private Color dimColor = new Color(0f, 0f, 0f, .4f);
-    [SerializeField] private Color bandColor = new Color(.05f, .06f, .1f, .8f);
+    [SerializeField] private Color bandColor = FeelUI.PanelColor;
     [SerializeField] private Color titleColor = new Color(1f, .82f, .3f);
     [SerializeField] private Color subtitleColor = Color.white;
     [SerializeField] private Color howToPlayColor = new Color(.86f, .88f, .93f);
-    [SerializeField] private Color buttonColor = new Color(.25f, .68f, .35f);
+    [SerializeField] private Color buttonColor = FeelUI.ButtonColor;
 
     [Header("TIMING")]
     [SerializeField] private float fadeTime = .35f;
@@ -70,11 +71,11 @@ public class MainMenu : MonoBehaviour
         dim.raycastTarget = true;
         FeelUI.Stretch(dim.rectTransform);
 
-        band = FeelUI.CreateImage("Band", screen, bandColor).rectTransform;
+        band = FeelUI.CreatePanel("Band", screen, bandColor).rectTransform;
         band.anchorMin = new Vector2(0f, .5f);
         band.anchorMax = new Vector2(1f, .5f);
         band.pivot = center;
-        band.sizeDelta = new Vector2(0f, bandHeight);
+        band.sizeDelta = new Vector2(-bandMargin * 2f, bandHeight);
         band.anchoredPosition = new Vector2(0f, bandY);
 
         TMP_Text titleLbl = FeelUI.CreateText("Title", band, "", titleSize, titleColor);
@@ -91,11 +92,11 @@ public class MainMenu : MonoBehaviour
         play.onClick.AddListener(Play);
 
         //Faixa escura também atrás dos passos: direto por cima da cidade o texto pequeno some
-        RectTransform howBand = FeelUI.CreateImage("HowBand", screen, bandColor).rectTransform;
+        RectTransform howBand = FeelUI.CreatePanel("HowBand", screen, bandColor).rectTransform;
         howBand.anchorMin = new Vector2(0f, .5f);
         howBand.anchorMax = new Vector2(1f, .5f);
         howBand.pivot = center;
-        howBand.sizeDelta = new Vector2(0f, howToPlaySize * 5.6f);
+        howBand.sizeDelta = new Vector2(-bandMargin * 2f, howToPlaySize * 5.6f);
         howBand.anchoredPosition = new Vector2(0f, howToPlayY);
 
         TMP_Text howLbl = FeelUI.CreateText("HowToPlay", screen, howToPlay, howToPlaySize, howToPlayColor);

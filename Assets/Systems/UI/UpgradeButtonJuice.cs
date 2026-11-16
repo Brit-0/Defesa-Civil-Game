@@ -46,8 +46,18 @@ public class UpgradeButtonJuice : MonoBehaviour
     {
         Image background = GetComponent<Image>();
 
-        glow = FeelUI.CreateImage("Glow", transform, glowColor, background != null ? background.sprite : null);
-        if (background != null) glow.type = background.type;
+        if (background != null && background.sprite != null)
+        {
+            glow = FeelUI.CreateImage("Glow", transform, glowColor, background.sprite);
+            glow.type = background.type;
+            glow.pixelsPerUnitMultiplier = background.pixelsPerUnitMultiplier;
+        }
+        else
+        {
+            //Botão sem sprite no fundo: o brilho usa o painel do tema, para não sair liso
+            glow = FeelUI.CreatePanel("Glow", transform, glowColor);
+        }
+
         glow.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
         glow.transform.SetAsFirstSibling();
         FeelUI.Stretch(glow.rectTransform);
