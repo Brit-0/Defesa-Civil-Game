@@ -25,6 +25,7 @@ public static class FeelPrefabsMenu
 
         //HUD: soltos dentro do UICanvas (raiz com RectTransform). Cada um monta a própria UI no Awake.
         EnsurePrefab(UIFolder + "/ChaosBar.prefab", "ChaosBar", null, typeof(RectTransform), typeof(ChaosBar));
+        EnsurePrefab(UIFolder + "/DisasterBanner.prefab", "DisasterBanner", null, typeof(RectTransform), typeof(DisasterBanner));
         EnsurePrefab(UIFolder + "/EndScreen.prefab", "EndScreen", null, typeof(RectTransform), typeof(EndScreen));
 
         AssetDatabase.SaveAssets();
