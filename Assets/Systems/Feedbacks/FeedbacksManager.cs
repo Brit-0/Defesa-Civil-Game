@@ -13,6 +13,10 @@ public class FeedbacksManager : MonoBehaviour
     [Header("TEXTS")]
     [SerializeField] private string chooseBaseText = "Escolha a base encarregada para o chamado";
 
+    [Header("LAYOUT (tela de referência 1920x1080)")]
+    [Tooltip("Do topo da tela até o centro do texto: abaixo da faixa de desastre, para nada cobrir a instrução")]
+    [SerializeField] private float textTop = 180f;
+
     [Header("FADE")]
     [SerializeField] private float fadeTime = .2f;
 
@@ -26,6 +30,11 @@ public class FeedbacksManager : MonoBehaviour
         {
             group = feedbackText.GetComponent<CanvasGroup>();
             if (group == null) group = feedbackText.gameObject.AddComponent<CanvasGroup>();
+
+            //Preso ao topo: em qualquer proporção de tela fica logo abaixo da faixa de desastre
+            RectTransform rect = feedbackText.rectTransform;
+            rect.anchorMin = rect.anchorMax = new Vector2(.5f, 1f);
+            rect.anchoredPosition = new Vector2(0f, -textTop);
         }
     }
 

@@ -3,15 +3,19 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-//Barra de caos no topo do HUD. Só escuta ChaosChanged: enche, muda de cor e pulsa acima do limite de perigo.
+//Barra de caos em pé, na direita do HUD. Só escuta ChaosChanged: enche de baixo para cima, muda de cor e pulsa
+//acima do limite de perigo. Saiu do topo porque cobria o texto de instrução (lista Para Arrumar, item 8).
 //Monta a própria UI: basta soltar o prefab no UICanvas (posição e tamanho ficam nos campos abaixo).
 public class ChaosBar : MonoBehaviour
 {
     [Header("LAYOUT (tela de referência 1920x1080)")]
-    [SerializeField] private Vector2 size = new Vector2(560f, 44f);
-    [SerializeField] private float topMargin = 26f;
+    [SerializeField] private Vector2 barSize = new Vector2(48f, 420f);
+    [Tooltip("Distância da borda direita da tela até a barra")]
+    [SerializeField] private float rightMargin = 40f;
+    [Tooltip("Altura do centro da barra em relação ao centro da tela (abaixo do dinheiro e da pausa)")]
+    [SerializeField] private float centerY = 10f;
     [SerializeField] private float border = 4f;
-    [SerializeField] private float fontSize = 30f;
+    [SerializeField] private float fontSize = 26f;
     [SerializeField] private string title = "CAOS";
 
     [Header("COLORS")]
@@ -52,41 +56,46 @@ public class ChaosBar : MonoBehaviour
         RectTransform parent = FeelUI.ViewRoot(this, "ChaosBar");
         if (parent == null) return;
 
-        Vector2 top = new Vector2(.5f, 1f);
+        Vector2 center = new Vector2(.5f, .5f);
         FeelUITheme px = FeelUI.Pixel;
+        float pixel = FeelUI.PixelSize;
         bar = (px != null ? FeelUI.CreateSliced("Bar", parent, px.barFrame, Color.white) : FeelUI.CreatePanel("Bar", parent, frameColor)).rectTransform;
-        FeelUI.Place(bar, top, new Vector2(.5f, .5f), new Vector2(0f, -(topMargin + size.y * .5f)), size);
+        FeelUI.Place(bar, new Vector2(1f, .5f), center, new Vector2(-(rightMargin + barSize.x * .5f), centerY), barSize);
         group = bar.gameObject.AddComponent<CanvasGroup>();
         group.blocksRaycasts = false;
 
         //No kit pixel a moldura e o trilho escuro já vêm no sprite: o preenchimento entra 3 pixels para dentro
         Image back = px != null ? FeelUI.CreateImage("Back", bar, Color.clear) : FeelUI.CreatePanel("Back", bar, backColor);
-        FeelUI.Stretch(back.rectTransform, px != null ? 3f * FeelUI.PixelSize : border);
+        FeelUI.Stretch(back.rectTransform, px != null ? 3f * pixel : border);
 
+        //Enche de baixo para cima
         fill = px != null ? FeelUI.CreateSliced("Fill", back.transform, px.barFill, calmColor) : FeelUI.CreatePanel("Fill", back.transform, calmColor);
         fillRect = fill.rectTransform;
         fillRect.anchorMin = Vector2.zero;
-        fillRect.anchorMax = new Vector2(0f, 1f);
+        fillRect.anchorMax = new Vector2(1f, 0f);
         fillRect.offsetMin = Vector2.zero;
         fillRect.offsetMax = Vector2.zero;
 
         if (px != null) BuildTicks(back.rectTransform, px);
 
-        //Kit pixel: sombra de 1 pixel embaixo do rótulo, para "CAOS" se ler em cima do amarelo
+        //Rótulo embaixo da barra, numa plaquinha escura: em pé, "CAOS" não cabe dentro
+        RectTransform tag = (px != null ? FeelUI.CreateSliced("Tag", bar, px.inset, Color.white) : FeelUI.CreatePanel("Tag", bar, backColor)).rectTransform;
+        FeelUI.Place(tag, new Vector2(.5f, 0f), new Vector2(.5f, 1f), new Vector2(0f, -pixel), new Vector2(fontSize * 3.6f, fontSize + 6f * pixel));
+
+        //Kit pixel: sombra de 1 pixel embaixo do rótulo
         if (px != null)
         {
-            TMP_Text shadow = FeelUI.CreateText("Shadow", bar, title, fontSize, FeelUI.PixelInk);
+            TMP_Text shadow = FeelUI.CreateText("Shadow", tag, title, fontSize, FeelUI.PixelInk);
             FeelUI.Stretch(shadow.rectTransform);
-            shadow.rectTransform.anchoredPosition = new Vector2(FeelUI.PixelSize, -FeelUI.PixelSize);
+            shadow.rectTransform.anchoredPosition = new Vector2(pixel, -pixel);
         }
 
-        label = FeelUI.CreateText("Lbl", bar, title, fontSize, labelColor);
+        label = FeelUI.CreateText("Lbl", tag, title, fontSize, labelColor);
         FeelUI.Stretch(label.rectTransform);
-        //O rótulo fica por cima do preenchimento, que muda de cor
         FeelUI.Outline(label);
     }
 
-    //Marcas de 25 em 25% e a do perigo em vermelho, mais o ícone de alerta pendurado na ponta esquerda
+    //Marcas de 25 em 25% e a do perigo em vermelho, mais o ícone de alerta em cima da barra
     private void BuildTicks(RectTransform track, FeelUITheme px)
     {
         float pixel = FeelUI.PixelSize;
@@ -95,22 +104,22 @@ public class ChaosBar : MonoBehaviour
         {
             Image tick = FeelUI.CreateImage("Tick", track, tickColor);
             RectTransform rect = tick.rectTransform;
-            rect.anchorMin = new Vector2(i * .25f, 0f);
-            rect.anchorMax = new Vector2(i * .25f, 1f);
-            rect.sizeDelta = new Vector2(pixel, 0f);
+            rect.anchorMin = new Vector2(0f, i * .25f);
+            rect.anchorMax = new Vector2(1f, i * .25f);
+            rect.sizeDelta = new Vector2(0f, pixel);
         }
 
         Image danger = FeelUI.CreateImage("DangerMark", track, dangerColor);
-        danger.rectTransform.anchorMin = new Vector2(pulseThreshold, 0f);
-        danger.rectTransform.anchorMax = new Vector2(pulseThreshold, 1f);
-        danger.rectTransform.sizeDelta = new Vector2(pixel, 0f);
+        danger.rectTransform.anchorMin = new Vector2(0f, pulseThreshold);
+        danger.rectTransform.anchorMax = new Vector2(1f, pulseThreshold);
+        danger.rectTransform.sizeDelta = new Vector2(0f, pixel);
 
         if (px.iconChaos == null) return;
 
         Image icon = FeelUI.CreateIcon("Icon", bar, px.iconChaos);
         RectTransform iconRect = icon.rectTransform;
-        iconRect.anchorMin = iconRect.anchorMax = new Vector2(0f, .5f);
-        iconRect.anchoredPosition = new Vector2(pixel, pixel * .5f);
+        iconRect.anchorMin = iconRect.anchorMax = new Vector2(.5f, 1f);
+        iconRect.anchoredPosition = new Vector2(0f, iconRect.sizeDelta.y * .5f - pixel);
     }
 
     private void Start()
@@ -156,7 +165,7 @@ public class ChaosBar : MonoBehaviour
         bool danger = chaos >= pulseThreshold;
         float dangerAmount = Mathf.InverseLerp(pulseThreshold, 1f, chaos);
 
-        fillRect.anchorMax = new Vector2(chaos, 1f);
+        fillRect.anchorMax = new Vector2(1f, chaos);
         fill.color = danger
             ? Color.Lerp(warnColor, dangerColor, dangerAmount)
             : Color.Lerp(calmColor, warnColor, pulseThreshold > 0f ? chaos / pulseThreshold : 1f);

@@ -6,6 +6,8 @@ using UnityEngine.UI;
 //- Base (CityGuard): halo laranja da Defesa Civil e dois fachos de sirene girando; no modo de escolher a base,
 //  o halo pulsa forte e solta ondas, porque é ali que o jogador precisa clicar.
 //- Depósito (Warehouse): halo dourado e brilhos subindo; com o material zerado, pulsa e solta ondas.
+//Com a arte v2 no tema, o halo é o anel de 4 quadros (mais rápido quando pede atenção); a seta que quica em cima
+//da placa com o nome é do MapMarkers.
 //Um na cena (Feel.prefab). Acha as duas pelo tipo; refaz no Reiniciar (a cena recarrega com ele).
 public class LandmarkFx : MonoBehaviour
 {
@@ -33,12 +35,20 @@ public class LandmarkFx : MonoBehaviour
     [SerializeField] private Vector2 haloSize = new Vector2(1.6f, 1f);
     [SerializeField] private float groundY = -.2f;
 
+    [Header("HALO V2 (quadros do tema, docs/jam/ICONES_V2.md)")]
+    [SerializeField] private float haloFrameTime = .16f;
+    [SerializeField] private float attentionFrameTime = .08f;
+    [Tooltip("Largura do halo v2 em larguras da construção (arredonda para pixel inteiro da arte)")]
+    [SerializeField] private float haloV2Width = 1.5f;
+
     private class Mark
     {
         public House house;
         public bool isBase;
         public RectTransform root;
         public Image halo;
+        public Sprite[] frames;
+        public float frameClock;
         public Image ping;
         public RectTransform beams;
         public float size;
@@ -75,6 +85,8 @@ public class LandmarkFx : MonoBehaviour
         Vector2 ringPixels = new Vector2(Mathf.Round(halo.x * .8f / pixel), Mathf.Round(halo.y * .8f / pixel));
         mark.ping = FeelUI.CreateImage("Ping", mark.root, Color.clear, PixelFx.Ring((int)ringPixels.x, (int)ringPixels.y, 2, isBase ? RingStyle.Solid : RingStyle.Dashed));
         FeelUI.Place(mark.ping.rectTransform, center, center, Vector2.zero, (ringPixels + Vector2.one * 2f) * pixel);
+        //Depois do ping: o anel novo move os dois para o pé do prédio
+        UseHaloFrames(mark, houseRect != null ? houseRect.rect.width : size);
 
         if (isBase)
         {
@@ -93,6 +105,57 @@ public class LandmarkFx : MonoBehaviour
         }
 
         marks.Add(mark);
+    }
+
+    //Anel animado de 4 quadros do tema no lugar do brilho liso, em pixel inteiro da arte da cidade (lista Para
+    //Arrumar, item 17). Base e Armazém defasados em 2 quadros para não piscarem juntos.
+    private void UseHaloFrames(Mark mark, float width)
+    {
+        FeelUITheme theme = FeelUI.Theme;
+        Sprite[] frames = theme == null ? null : mark.isBase ? theme.haloBase : theme.haloDepot;
+        if (frames == null || frames.Length == 0 || frames[0] == null) return;
+
+        //Centro do anel no pé visível do desenho: a metade de trás some atrás do prédio, a da frente fica no chão
+        Vector2 foot = Vector2.zero;
+        var visual = mark.house.transform.Find("Visual") as RectTransform;
+        if (visual != null)
+        {
+            visual.GetWorldCorners(Corners);
+            Image art = visual.GetComponent<Image>();
+            float bottom01 = VisibleBottom01(art != null ? art.sprite : null);
+            Vector3 bottom = Vector3.LerpUnclamped((Corners[0] + Corners[3]) * .5f, (Corners[1] + Corners[2]) * .5f, bottom01);
+            foot = mark.root.InverseTransformPoint(bottom);
+            width = Vector3.Distance(Corners[0], Corners[3]) / Mathf.Max(1e-6f, mark.root.lossyScale.x);
+        }
+
+        Sprite first = frames[0];
+        float pixel = PixelFx.ArtPixel;
+        float scale = Mathf.Max(1f, Mathf.Round(width * haloV2Width / (first.rect.width * pixel)));
+        mark.frames = frames;
+        mark.frameClock = mark.isBase ? 0f : 2f;
+        mark.halo.sprite = first;
+        mark.halo.color = Color.white;
+        mark.halo.rectTransform.sizeDelta = first.rect.size * pixel * scale;
+        mark.halo.rectTransform.anchoredPosition = foot;
+        mark.ping.rectTransform.anchoredPosition = foot;
+    }
+
+    private static readonly Vector3[] Corners = new Vector3[4];
+
+    //Base visível do sprite (0 = borda de baixo do retângulo): a malha justa ignora a sobra transparente
+    private static float VisibleBottom01(Sprite sprite)
+    {
+        if (sprite == null || sprite.rect.height <= 0f) return 0f;
+        float min = float.MaxValue;
+        foreach (Vector2 v in sprite.vertices) min = Mathf.Min(min, v.y);
+        return Mathf.Clamp01((min * sprite.pixelsPerUnit + sprite.pivot.y) / sprite.rect.height);
+    }
+
+    private void AnimateHalo(Mark mark, bool attention, float delta)
+    {
+        mark.frameClock += delta / Mathf.Max(.01f, attention ? attentionFrameTime : haloFrameTime);
+        Sprite frame = mark.frames[Mathf.FloorToInt(mark.frameClock) % mark.frames.Length];
+        if (frame != null && mark.halo.sprite != frame) mark.halo.sprite = frame;
     }
 
     private bool NeedsAttention(Mark mark)
@@ -118,8 +181,12 @@ public class LandmarkFx : MonoBehaviour
             float rest = mark.isBase ? baseHaloAlpha : depotHaloAlpha;
             bool attention = NeedsAttention(mark);
 
-            float alpha = attention ? Mathf.Lerp(rest, attentionHaloAlpha, .5f + .5f * Mathf.Sin(Time.unscaledTime * attentionPulseSpeed)) : rest;
-            mark.halo.color = PixelFx.WithAlpha(color, alpha);
+            if (mark.frames != null) AnimateHalo(mark, attention, Time.unscaledDeltaTime);
+            else
+            {
+                float alpha = attention ? Mathf.Lerp(rest, attentionHaloAlpha, .5f + .5f * Mathf.Sin(Time.unscaledTime * attentionPulseSpeed)) : rest;
+                mark.halo.color = PixelFx.WithAlpha(color, alpha);
+            }
 
             if (mark.beams != null) mark.beams.localRotation = Quaternion.Euler(0f, 0f, -Time.time * beamTurnsPerSecond * 360f);
 

@@ -112,6 +112,26 @@ public class FeelUITheme : ScriptableObject
     //Lado do ícone do Pixel Lab na tela de 1080p, em unidades do Canvas
     public float labIconSize = 64f;
 
+    //Arte v2 dos chamados, do selo de concluído e do realce da Base e do Armazém (docs/jam/ICONES_V2.md).
+    //64x64: mostrar a 1:1 (64 px numa tela de 1080) ou 2x; halos 64x32 a 3x no pé do prédio.
+    public const string CallIconsFolder = "Assets/Arts/UI/Chamados/";
+
+    [Header("CHAMADOS V2 (64x64, Assets/Arts/UI/Chamados)")]
+    public Sprite callRepair;
+    public Sprite callFire;
+    public Sprite callStorm;
+    public Sprite callPower;
+    public Sprite callSupply;
+    [Tooltip("Selo inteiro (disco verde com check): sozinho, cor branca")]
+    public Sprite callDone;
+    [Tooltip("Só o check, por cima de um disco verde que já exista")]
+    public Sprite callDoneCheck;
+    public Sprite landmarkBase;
+    public Sprite landmarkDepot;
+    public Sprite highlightArrow;
+    public Sprite[] haloBase = new Sprite[0];
+    public Sprite[] haloDepot = new Sprite[0];
+
     //O ícone do Pixel Lab com essa chave, ou null enquanto o PNG não existe
     public Sprite LabIconFor(string key)
     {
@@ -217,8 +237,51 @@ public class FeelUITheme : ScriptableObject
         FillCursor(ref cursorHover, "Px_CursorHand");
         FillCursor(ref cursorPressed, "Px_CursorPress");
         FillLabIcons();
+        FillCallIcons();
 
         UnityEditor.EditorUtility.SetDirty(this);
+    }
+
+    //Liga os PNGs de Assets/Arts/UI/Chamados (só campo vazio, como os outros)
+    [ContextMenu("Preencher ícones de chamado v2")]
+    public void FillCallIcons()
+    {
+        FillCall(ref callRepair, "call_repair");
+        FillCall(ref callFire, "call_fire");
+        FillCall(ref callStorm, "call_storm");
+        FillCall(ref callPower, "call_power");
+        FillCall(ref callSupply, "call_supply");
+        FillCall(ref callDone, "call_done");
+        FillCall(ref callDoneCheck, "call_done_check");
+        FillCall(ref landmarkBase, "landmark_base");
+        FillCall(ref landmarkDepot, "landmark_depot");
+        FillCall(ref highlightArrow, "highlight_arrow");
+        FillFrames(ref haloBase, "highlight_halo_base_");
+        FillFrames(ref haloDepot, "highlight_halo_depot_");
+        UnityEditor.EditorUtility.SetDirty(this);
+    }
+
+    private static void FillCall(ref Sprite field, string fileName)
+    {
+        if (field != null) return;
+
+        field = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(CallIconsFolder + fileName + ".png");
+        if (field == null) Debug.LogWarning("FeelUITheme: não achei " + CallIconsFolder + fileName + ".png");
+    }
+
+    //Quadros _0, _1, ... até o primeiro que faltar
+    private static void FillFrames(ref Sprite[] field, string prefix)
+    {
+        if (field != null && field.Length > 0) return;
+
+        var frames = new System.Collections.Generic.List<Sprite>();
+        for (int i = 0; ; i++)
+        {
+            Sprite frame = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(CallIconsFolder + prefix + i + ".png");
+            if (frame == null) break;
+            frames.Add(frame);
+        }
+        field = frames.ToArray();
     }
 
     //Um item por PNG de Assets/Arts/UI/Pixel/Icons, com o nome do arquivo como chave. Devolve se mudou algo.

@@ -65,8 +65,11 @@ public class TutorialTips : MonoBehaviour
     private RectTransform target;
     private readonly Vector3[] corners = new Vector3[4];
 
-    private float ShownY => bottomMargin + size.y * .5f;
+    //Com o painel da equipe aberto, a faixa sobe e fica acima dele (HudAvoid)
+    private float ShownY => HudAvoid.ShownY(bar, bottomMargin + size.y * .5f);
     private float HiddenY => -size.y;
+    private bool showing;
+    private float shownAt;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
@@ -269,7 +272,21 @@ public class TutorialTips : MonoBehaviour
         if (wasHidden) bar.anchoredPosition = new Vector2(0f, HiddenY);
         else bar.DOPunchScale(Vector3.one * changePunch, slideTime, 4, .5f).SetUpdate(true).SetLink(bar.gameObject);
 
-        bar.DOAnchorPosY(ShownY, slideTime).SetEase(Ease.OutBack).SetUpdate(true).SetLink(bar.gameObject);
+        showing = true;
+        shownAt = ShownY;
+        bar.DOAnchorPosY(shownAt, slideTime).SetEase(Ease.OutBack).SetUpdate(true).SetLink(bar.gameObject);
+    }
+
+    //O painel da equipe abriu ou fechou com a faixa na tela: ela desliza para a nova altura
+    private void FollowGuardTab()
+    {
+        if (!showing || bar == null || !bar.gameObject.activeSelf) return;
+
+        float y = ShownY;
+        if (Mathf.Abs(y - shownAt) < 1f) return;
+
+        shownAt = y;
+        bar.DOAnchorPosY(y, slideTime * .6f).SetEase(Ease.OutCubic).SetUpdate(true).SetLink(bar.gameObject);
     }
 
     //Passo atual acende e pulsa; os já feitos ficam acesos
@@ -308,6 +325,7 @@ public class TutorialTips : MonoBehaviour
 
         if (bar == null || !bar.gameObject.activeSelf) return;
 
+        showing = false;
         bar.DOKill();
         bar.DOAnchorPosY(HiddenY, slideTime).SetEase(Ease.InBack).SetUpdate(true).SetLink(bar.gameObject)
             .OnComplete(() => bar.gameObject.SetActive(false));
@@ -338,6 +356,7 @@ public class TutorialTips : MonoBehaviour
     //Segue a casa pela câmera; fora da tela, a seta fica na borda apontando para ela
     private void LateUpdate()
     {
+        FollowGuardTab();
         if (target == null || pointer == null || !pointer.gameObject.activeSelf) return;
 
         target.GetWorldCorners(corners);

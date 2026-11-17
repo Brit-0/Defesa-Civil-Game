@@ -11,6 +11,8 @@ public class HudPlate : MonoBehaviour
 
     [SerializeField] private RectTransform target;
     [SerializeField] private float padding = 9f;
+    //Folga a mais dos lados: o número não encosta na borda da placa (lista Para Arrumar, item 7)
+    [SerializeField] private float sidePadding = 15f;
 
     private RectTransform rect;
     private Image image;
@@ -27,6 +29,7 @@ public class HudPlate : MonoBehaviour
         HudPlate hudPlate = plate.gameObject.AddComponent<HudPlate>();
         hudPlate.target = target;
         hudPlate.padding = 3f * FeelUI.PixelSize;
+        hudPlate.sidePadding = 5f * FeelUI.PixelSize;
         hudPlate.Init();
         return hudPlate;
     }
@@ -53,22 +56,29 @@ public class HudPlate : MonoBehaviour
         }
 
         Rect bounds = default;
-        bool found = target.gameObject.activeInHierarchy && TryGetBounds(out bounds);
+        Rect textRect = default;
+        bool found = target.gameObject.activeInHierarchy && TryGetBounds(out bounds, out textRect);
         image.enabled = found;
         if (!found) return;
 
-        rect.localPosition = target.localPosition + (Vector3)bounds.center;
-        rect.sizeDelta = bounds.size + Vector2.one * (padding * 2f);
+        //A folga extra vai no lado em que o texto encosta na borda (número à direita do ícone, ou à esquerda da moeda)
+        float left = padding + (textRect.width > 0f && textRect.xMin <= bounds.xMin + 1f ? sidePadding : 0f);
+        float right = padding + (textRect.width > 0f && textRect.xMax >= bounds.xMax - 1f ? sidePadding : 0f);
+        Rect plate = Rect.MinMaxRect(bounds.xMin - left, bounds.yMin - padding, bounds.xMax + right, bounds.yMax + padding);
+        rect.localPosition = target.localPosition + (Vector3)plate.center;
+        rect.sizeDelta = plate.size;
 
         //Texto que aparece e some por alfa (FeedbackText): a placa vai junto
         if (alphaSource != null) image.canvasRenderer.SetAlpha(alphaSource.alpha * alphaSource.canvasRenderer.GetAlpha());
     }
 
     //Retângulo dos gráficos visíveis do alvo, no espaço do alvo, sem escala
-    private bool TryGetBounds(out Rect bounds)
+    private bool TryGetBounds(out Rect bounds, out Rect textRect)
     {
         bounds = default;
+        textRect = default;
         bool any = false;
+        bool anyText = false;
 
         foreach (Graphic graphic in target.GetComponentsInChildren<Graphic>())
         {
@@ -96,6 +106,11 @@ public class HudPlate : MonoBehaviour
             local.position += offset;
             bounds = any ? Union(bounds, local) : local;
             any = true;
+            if (graphic is TMP_Text)
+            {
+                textRect = anyText ? Union(textRect, local) : local;
+                anyText = true;
+            }
         }
 
         return any;

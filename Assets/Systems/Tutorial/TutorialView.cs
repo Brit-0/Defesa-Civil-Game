@@ -48,6 +48,8 @@ public class TutorialView : MonoBehaviour
 
     private RectTransform hudTarget;
     private Transform worldTarget;
+    private bool bubbleShown;
+    private float bubbleY;
 
     public event Action SkipPressed;
 
@@ -192,7 +194,23 @@ public class TutorialView : MonoBehaviour
         if (wasHidden) bubble.anchoredPosition = new Vector2(0f, -bubbleSize.y);
         else bubble.DOPunchScale(Vector3.one * .06f, slideTime, 4, .5f).SetUpdate(true).SetLink(bubble.gameObject);
 
-        bubble.DOAnchorPosY(bubbleBottom + bubbleSize.y * .5f, slideTime).SetEase(Ease.OutBack).SetUpdate(true).SetLink(bubble.gameObject);
+        bubbleShown = true;
+        bubbleY = BubbleY;
+        bubble.DOAnchorPosY(bubbleY, slideTime).SetEase(Ease.OutBack).SetUpdate(true).SetLink(bubble.gameObject);
+    }
+
+    // Com o painel da equipe aberto, o balão sobe e fica acima dele (HudAvoid).
+    private float BubbleY => HudAvoid.ShownY(bubble, bubbleBottom + bubbleSize.y * .5f);
+
+    private void FollowGuardTab()
+    {
+        if (!bubbleShown || bubble == null || !bubble.gameObject.activeSelf) return;
+
+        float y = BubbleY;
+        if (Mathf.Abs(y - bubbleY) < 1f) return;
+
+        bubbleY = y;
+        bubble.DOAnchorPosY(y, slideTime * .6f).SetEase(Ease.OutCubic).SetUpdate(true).SetLink(bubble.gameObject);
     }
 
     public void HideBubble()
@@ -200,6 +218,7 @@ public class TutorialView : MonoBehaviour
         SetTarget(null, null);
         if (bubble == null || !bubble.gameObject.activeSelf) return;
 
+        bubbleShown = false;
         bubble.DOKill();
         bubble.DOAnchorPosY(-bubbleSize.y, slideTime).SetEase(Ease.InBack).SetUpdate(true).SetLink(bubble.gameObject)
             .OnComplete(() => bubble.gameObject.SetActive(false));
@@ -226,6 +245,7 @@ public class TutorialView : MonoBehaviour
 
     private void LateUpdate()
     {
+        FollowGuardTab();
         if (root == null || arrow == null) return;
 
         bool hasHud = hudTarget != null && hudTarget.gameObject.activeInHierarchy;

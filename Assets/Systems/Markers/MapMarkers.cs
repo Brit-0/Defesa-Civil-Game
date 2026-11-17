@@ -15,7 +15,7 @@ public class MapMarkers : MonoBehaviour
 {
     public static MapMarkers Instance;
 
-    private enum Kind { None, Fire, Damage, Storm, Done, Guard, Depot }
+    private enum Kind { None, Fire, Damage, Storm, Power, Done, Guard, Depot }
 
     [Header("SPRITES (Tools/City/Ligar Marcadores preenche)")]
     [SerializeField] private Sprite discSpr;
@@ -39,13 +39,15 @@ public class MapMarkers : MonoBehaviour
     [SerializeField] private Color doneColor = new Color32(0x3F, 0xB0, 0x4A, 0xFF);
     [SerializeField] private Color guardColor = new Color32(0x2A, 0x5F, 0xD0, 0xFF);
     [SerializeField] private Color depotColor = new Color32(0xC9, 0x8A, 0x2B, 0xFF);
+    [SerializeField] private Color powerColor = new Color32(0xE8, 0xC5, 0x2A, 0xFF);
 
     [Header("SIZE (px numa tela de 1080 de altura)")]
     [Tooltip("Lado de um pixel da arte do pino; 3 = pino de 78 px")]
     [SerializeField] private float pixelScale = 3f;
-    [SerializeField] private float landmarkPixelScale = 2f;
-    [Tooltip("Tamanho do pino com a câmera toda aberta, em relação ao normal")]
-    [SerializeField, Range(.4f, 1f)] private float farScale = .78f;
+    //Base e Armazém com o mesmo disco dos chamados: o ícone v2 de 64 px cabe nele (era 2, disco de 52 px)
+    [SerializeField] private float landmarkDiscScale = 3f;
+    [Tooltip("Tamanho do pino com a câmera toda aberta, em relação ao normal (era .78: pino maior, item 4)")]
+    [SerializeField, Range(.4f, 1f)] private float farPinScale = .92f;
     [SerializeField, Range(.4f, 1f)] private float enRouteScale = .7f;
     [SerializeField, Range(0f, 1f)] private float enRouteAlpha = .8f;
     [SerializeField] private float gapAboveHouse = 4f;
@@ -70,6 +72,8 @@ public class MapMarkers : MonoBehaviour
     [SerializeField] private float waveScale = 2f;
     [SerializeField] private float bouncePixels = 10f;
     [SerializeField] private float popTime = .22f;
+    [Tooltip("Segundos de cada passo do quique da seta da Base e do Armazém (4 passos por ciclo)")]
+    [SerializeField] private float pointerStepTime = .16f;
 
     [Header("NATIVE MARKERS")]
     [Tooltip("Esconde o balão pequeno da própria casa enquanto o pino está em cima dela")]
@@ -81,7 +85,7 @@ public class MapMarkers : MonoBehaviour
         public bool landmark;
         public Vector3 top, center;         // mundo: topo visível e meio do prédio
         public CanvasGroup nativeCall, nativeDone;
-        public RectTransform root, body, arrow, ring, icon, plate;
+        public RectTransform root, body, arrow, ring, icon, plate, pointer;
         public CanvasGroup group;
         public Image fill, ringImg, arrowImg, iconImg, hit;
         public GameObject badge;
@@ -216,7 +220,7 @@ public class MapMarkers : MonoBehaviour
         click.owner = this;
         click.house = house;
 
-        float s = p.landmark ? landmarkPixelScale : pixelScale;
+        float s = p.landmark ? landmarkDiscScale : pixelScale;
         p.root.sizeDelta = Size(discSpr, s);
         p.ringImg = NewImage("Ring", p.root, ringSpr, s);
         p.ring = p.ringImg.rectTransform;
@@ -239,15 +243,15 @@ public class MapMarkers : MonoBehaviour
         else
         {
             bool guard = house is CityGuard;
-            Image plate = NewImage("Plate", backLayer, plateSpr, landmarkPixelScale);
+            Image plate = NewImage("Plate", backLayer, plateSpr, landmarkDiscScale);
             plate.name = "Plate " + house.name;
             plate.type = Image.Type.Sliced;
-            plate.pixelsPerUnitMultiplier = 1f / landmarkPixelScale;
+            plate.pixelsPerUnitMultiplier = 1f / landmarkDiscScale;
             p.plate = plate.rectTransform;
             TMP_Text label = NewText("Name", p.plate, plateFontSize);
             label.text = guard ? guardName : depotName;
             label.alignment = TextAlignmentOptions.MidlineLeft;
-            Vector2 disc = Size(discSpr, landmarkPixelScale);
+            Vector2 disc = Size(discSpr, landmarkDiscScale);
             float textWidth = label.GetPreferredValues(label.text).x;
             p.plateWidth = disc.x * .5f + 10f + textWidth + 16f;
             p.plate.sizeDelta = new Vector2(p.plateWidth, disc.y * .8f);
@@ -256,6 +260,8 @@ public class MapMarkers : MonoBehaviour
             label.rectTransform.anchorMin = label.rectTransform.anchorMax = new Vector2(0f, .5f);
             label.rectTransform.sizeDelta = new Vector2(textWidth + 4f, disc.y);
             label.rectTransform.anchoredPosition = new Vector2(disc.x * .5f + 10f, 1f);
+            Sprite pointer = FeelUI.Theme != null ? FeelUI.Theme.highlightArrow : null;
+            if (pointer != null) p.pointer = NewImage("Pointer", p.plate, pointer, 1f).rectTransform;
             p.plate.gameObject.SetActive(false);
             p.root.SetAsLastSibling();
         }
@@ -348,7 +354,7 @@ public class MapMarkers : MonoBehaviour
         switch (h.currentState)
         {
             case State.OnFire: return Kind.Fire;
-            case State.PowerOutage: return Kind.Storm;
+            case State.PowerOutage: return Kind.Power;
             case State.Damaged:
                 return causes.TryGetValue(h, out DisasterType cause) && cause == DisasterType.Storm ? Kind.Storm : Kind.Damage;
             default: return Kind.None;
@@ -363,6 +369,7 @@ public class MapMarkers : MonoBehaviour
         {
             case Kind.Fire: return fireColor;
             case Kind.Storm: return stormColor;
+            case Kind.Power: return powerColor;
             case Kind.Done: return doneColor;
             case Kind.Guard: return guardColor;
             case Kind.Depot: return depotColor;
@@ -370,18 +377,27 @@ public class MapMarkers : MonoBehaviour
         }
     }
 
+    // Ícone v2 do tema (docs/jam/ICONES_V2.md, 64 px a 1:1) ou, sem ele, o Mk_* de 14 px da cena
     private Sprite IconOf(Kind kind)
     {
+        FeelUITheme t = FeelUI.Theme;
         switch (kind)
         {
-            case Kind.Fire: return fireIcon;
-            case Kind.Storm: return stormIcon;
-            case Kind.Done: return doneIcon;
-            case Kind.Guard: return guardIcon;
-            case Kind.Depot: return depotIcon;
-            default: return damageIcon;
+            case Kind.Fire: return V2(t != null ? t.callFire : null, fireIcon);
+            case Kind.Storm: return V2(t != null ? t.callStorm : null, stormIcon);
+            case Kind.Power: return V2(t != null ? t.callPower : null, stormIcon);
+            case Kind.Done: return V2(t != null ? t.callDoneCheck : null, doneIcon);
+            case Kind.Guard: return V2(t != null ? t.landmarkBase : null, guardIcon);
+            case Kind.Depot: return V2(t != null ? t.landmarkDepot : null, depotIcon);
+            default: return V2(t != null ? t.callRepair : null, damageIcon);
         }
     }
+
+    private static Sprite V2(Sprite v2, Sprite old) => v2 != null ? v2 : old;
+
+    // O Mk_* de 14 px cresce com o pixel do pino; o v2 de 64 px já vem no tamanho (aumentar quebraria o pixel)
+    private Vector2 IconSize(Sprite sprite, bool landmark) =>
+        Size(sprite, sprite != null && sprite.rect.width >= 32f ? 1f : landmark ? landmarkDiscScale : pixelScale);
 
     // Quem fica com as vagas da borda: fogo, depois chamado esperando, coleta, e por último Base e Armazém.
     private static int Priority(Pin p)
@@ -390,7 +406,8 @@ public class MapMarkers : MonoBehaviour
         {
             case Kind.Fire: return 5;
             case Kind.Damage:
-            case Kind.Storm: return 4;
+            case Kind.Storm:
+            case Kind.Power: return 4;
             case Kind.Done: return 3;
             default: return 1;
         }
@@ -421,7 +438,7 @@ public class MapMarkers : MonoBehaviour
         var safe = Rect.MinMaxRect(area.xMin + marginLeft, area.yMin + marginBottom, area.xMax - marginRight, area.yMax - marginTop);
         float unitsPerPixel = area.height / Mathf.Max(1, cam.pixelHeight);
         float zoom01 = Mathf.InverseLerp(8f, 16f, cam.orthographicSize);
-        float zoomScale = Mathf.Lerp(1f, farScale, zoom01);
+        float zoomScale = Mathf.Lerp(1f, farPinScale, zoom01);
         float dt = Time.unscaledDeltaTime;
         float now = Time.unscaledTime;
 
@@ -609,7 +626,7 @@ public class MapMarkers : MonoBehaviour
         p.shownKind = p.kind;
         p.fill.color = ColorOf(p.kind);
         p.iconImg.sprite = IconOf(p.kind);
-        p.icon.sizeDelta = Size(p.iconImg.sprite, p.landmark ? landmarkPixelScale : pixelScale);
+        p.icon.sizeDelta = IconSize(p.iconImg.sprite, p.landmark);
         p.arrowImg.color = ColorOf(p.kind);
     }
 
@@ -617,7 +634,7 @@ public class MapMarkers : MonoBehaviour
     {
         Vector2 anchor = ToLayer(p.top, area, unitsPerPixel);
         Vector2 size = p.plate.sizeDelta;
-        Vector2 disc = Size(discSpr, landmarkPixelScale);
+        Vector2 disc = Size(discSpr, landmarkDiscScale);
         float left = anchor.x - (p.plateWidth + disc.x * .5f) * .5f + disc.x * .5f;
         float y = anchor.y + gapAboveHouse + disc.y * .5f;
         p.plate.anchoredPosition = new Vector2(Mathf.Round(left), Mathf.Round(y));
@@ -636,6 +653,26 @@ public class MapMarkers : MonoBehaviour
         p.icon.localRotation = Quaternion.identity;
         p.arrowImg.enabled = false;
         p.ringImg.enabled = false;
+        PlacePointer(p, anchor.x - Mathf.Round(left) - p.plateWidth * .5f, size.y * .5f);
+    }
+
+    // Seta dourada v2 em cima da placa, apontando o prédio: quica em passos de pixel inteiro (0, 2, 4, 2 px) e
+    // dobra o passo e o ritmo quando o prédio pede ação (escolher a base, Armazém sem material). Item 17.
+    private void PlacePointer(Pin p, float x, float plateHalfHeight)
+    {
+        if (p.pointer == null) return;
+
+        bool attention = LandmarkAttention(p);
+        float step = attention ? pointerStepTime * .5f : pointerStepTime;
+        int phase = Mathf.FloorToInt((Time.unscaledTime + p.phase) / Mathf.Max(.01f, step)) % 4;
+        float bounce = (phase == 2 ? 4f : phase == 0 ? 0f : 2f) * (attention ? 2f : 1f);
+        p.pointer.anchoredPosition = new Vector2(Mathf.Round(x), plateHalfHeight + gapAboveHouse + p.pointer.sizeDelta.y * .5f + bounce);
+    }
+
+    private static bool LandmarkAttention(Pin p)
+    {
+        if (p.house is CityGuard) return GuardManager.selectBaseMode;
+        return ResourcesManager.Instance != null && ResourcesManager.BuildMaterial <= 0 && !p.house.HasTeam;
     }
 
     #endregion

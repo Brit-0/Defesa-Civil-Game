@@ -53,7 +53,7 @@ MonoBehaviour:
   fallbackName: DESASTRE
   zeroText: '!'
   size: {x: 860, y: 92}
-  topMargin: 88
+  topMargin: 26
   border: 5
   fontSize: 46
   countFontSize: 60

@@ -18,7 +18,8 @@ public class DisasterBanner : MonoBehaviour
 
     [Header("LAYOUT (tela de referência 1920x1080)")]
     [SerializeField] private Vector2 size = new Vector2(860f, 92f);
-    [SerializeField] private float topMargin = 88f;
+    //No topo da tela: a barra de caos foi para a direita (lista Para Arrumar, item 8)
+    [SerializeField] private float topMargin = 26f;
     [SerializeField] private float border = 5f;
     [SerializeField] private float fontSize = 46f;
     [SerializeField] private float countFontSize = 60f;

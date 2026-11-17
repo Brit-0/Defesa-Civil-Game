@@ -81,3 +81,23 @@ MonoBehaviour:
   - key: upgrade_workers
     sprite: {fileID: 21300000, guid: fb1fbf471b49491eb6ceee8c85c8d2f5, type: 3}
   labIconSize: 64
+  callRepair: {fileID: 21300000, guid: e363318cc3204b5eb5bdcef94cbd3db0, type: 3}
+  callFire: {fileID: 21300000, guid: d1ea570d599a4e63acfedc38615b65f4, type: 3}
+  callStorm: {fileID: 21300000, guid: 55c9a3ed09c14a08a0dc8a99e7762c8b, type: 3}
+  callPower: {fileID: 21300000, guid: d0a03d03a27b48cb8fad43dfce2ce18d, type: 3}
+  callSupply: {fileID: 21300000, guid: dd8927dfe7e54ebbbb3e4af34c462dc5, type: 3}
+  callDone: {fileID: 21300000, guid: e5d6dae2815c412dacd5635d198af17d, type: 3}
+  callDoneCheck: {fileID: 21300000, guid: 497b704e0df44aca9b362aa46933b0b5, type: 3}
+  landmarkBase: {fileID: 21300000, guid: eec4d49656074bfcaf24204fb4671c43, type: 3}
+  landmarkDepot: {fileID: 21300000, guid: 5ad4daae9a67471bb10776a10e1e2a1d, type: 3}
+  highlightArrow: {fileID: 21300000, guid: 9c2002bdb5e9451287539fc0140eecf0, type: 3}
+  haloBase:
+  - {fileID: 21300000, guid: 57101b7d55a84cfeb527536d3ba5fe04, type: 3}
+  - {fileID: 21300000, guid: 684f854e0a814666a47003aa14389ea2, type: 3}
+  - {fileID: 21300000, guid: 3340b54121674970b52dafbccac02685, type: 3}
+  - {fileID: 21300000, guid: cb6d07e9a1a947758d3156055a796ba2, type: 3}
+  haloDepot:
+  - {fileID: 21300000, guid: 7db8bdca0b1744478ad6bb5807e4466d, type: 3}
+  - {fileID: 21300000, guid: 0e6da04b48d1441faf9c2ef6d89a4a7f, type: 3}
+  - {fileID: 21300000, guid: f1ce52f5a9794807942cd081a488cce1, type: 3}
+  - {fileID: 21300000, guid: 7fec5d5a7bc843a896f8bcec0488136a, type: 3}
