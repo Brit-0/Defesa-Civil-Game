@@ -15,10 +15,11 @@ import math
 import random
 
 from dados import (BALANCE_CS, MAPA_PADRAO, MENU_CS, RAIZ, aplicar_ajustes, ler_assets,  # noqa: F401
-                   ler_balance, ler_mapa, ler_upgrades)
+                   ler_balance, ler_mapa, ler_pararaio, ler_upgrades)
 from fogo_energia import Rede, abrir_jato, tick_fogo
 
 INTACTA, DANIFICADA, FOGO = "I", "D", "F"
+PARARAIO = ler_pararaio()  # LightningRodData.asset (PARARAIO.md)
 
 
 def vazar(dano, espera, dt, intervalo, maximo):
@@ -36,7 +37,7 @@ def vazar(dano, espera, dt, intervalo, maximo):
 class Local:
     __slots__ = ("nome", "pos", "dist", "armazem", "estado", "dano", "fogo", "equipe", "trabalhando",
                  "pronta", "enviados", "pago", "desde", "bonus", "critico", "trabalho", "ocorrencia", "escorada",
-                 "nivel_fogo", "partes", "apagadas", "destelhada", "vazamento")
+                 "nivel_fogo", "partes", "apagadas", "destelhada", "vazamento", "quarteirao")
 
     def __init__(self, dados, armazem=False):
         self.nome, self.pos, self.dist, self.armazem = dados["nome"], dados["pos"], dados["dist"], armazem
@@ -45,6 +46,7 @@ class Local:
         self.enviados = self.pago = self.trabalho = 0
         self.nivel_fogo = self.partes = self.apagadas = 0  # fogo: nível 1-3, partes de trabalho, chamas do jato
         self.destelhada, self.vazamento = False, 0.0  # TEMPESTADE.md: a chuva sobe o dano esperando equipe
+        self.quarteirao = dados.get("quarteirao", "")  # polígono do city_layout.json (para-raio, PARARAIO.md)
         self.bonus = 0.0       # Call.rewardBonus (crítico, herói)
         self.ocorrencia = None  # o desastre que quebrou a casa (bônus quando todas voltam)
         self.desde = 0.0  # quando o chamado abriu ou o trabalho terminou (para o tempo de reação)
@@ -78,6 +80,9 @@ class Jogo:
         self.estreias = {}
         self.chamados_min, self.caos_min = {}, {}
         self.rede = Rede(self)
+        # Para-raio (PARARAIO.md): quarteirões protegidos, raios absorvidos e os que caíram em casa
+        self.pararaio = dict(PARARAIO)
+        self.para_raios, self.absorvidos, self.raios = [], 0, 0
 
     # --- valores (Stats)
     def efeito(self, uid):
@@ -282,6 +287,8 @@ class Jogo:
         self.compras.append((self.t / 60, uid, self.niveis[uid]))
         if uid in ("base2", "depot2"):
             self.estreias.setdefault("expansão", self.t)
+        if uid == "rod":
+            self.agendar(self.t + self.pararaio["obra"], self._erguer_pararaio)
         if uid == "workers":
             self.workers += round(u["effectPerLevel"])
         elif uid == "automation" and self.niveis[uid] >= 3:
@@ -403,12 +410,39 @@ class Jogo:
                 return
         self.atingir(o, c, DANIFICADA, dano)
 
+    def _erguer_pararaio(self):
+        """O robô protege o quarteirão livre com mais casas (empate: o de id menor), como a dica do jogo mostra."""
+        conta = {}
+        for c in self.casas:
+            if c.quarteirao and c.quarteirao not in self.para_raios:
+                conta[c.quarteirao] = conta.get(c.quarteirao, 0) + 1
+        if conta:
+            self.para_raios.append(min(conta, key=lambda q: (-conta[q], q)))
+            self.estreias.setdefault("para-raio", self.t)
+
+    def alvo_do_raio(self, intactas):
+        """LightningRodMath.PickIndex: casa de quarteirão protegido pesa 'atracao' no sorteio (sem para-raio, o sorteio
+        de sempre, com a mesma sequência de números)."""
+        if not self.para_raios:
+            return self.rng.choice(intactas)
+        pesos = [self.pararaio["atracao"] if c.quarteirao in self.para_raios else 1.0 for c in intactas]
+        x = self.rng.random() * sum(pesos)
+        for c, peso in zip(intactas, pesos):
+            x -= peso
+            if x < 0:
+                return c
+        return intactas[-1]
+
     def raio(self, o):
         self.rede.raio(self, o)  # apagão no primeiro raio da tempestade
         intactas = [c for c in self.casas if c.estado == INTACTA]
         if not intactas:
             return
-        c = self.rng.choice(intactas)
+        c = self.alvo_do_raio(intactas)
+        self.raios += 1
+        if c.quarteirao in self.para_raios:  # o para-raio do quarteirão leva o raio para o chão: nenhum dano
+            self.absorvidos += 1
+            return
         if self.rng.random() < self.b["lightningFireChance"]:
             self.atingir(o, c, FOGO, 0)
         else:

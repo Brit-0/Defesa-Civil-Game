@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 882c87262f3e443fa721597cedadee95, type: 3}
+  m_Name: Rod
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
+  id: rod
+  displayName: Para-raio
+  description: "Constr\xF3i um para-raio no quarteir\xE3o que voc\xEA escolher: ele puxa os raios da tempestade e protege as casas de l\xE1 para sempre."
+  icon: {fileID: 21300000, guid: 81c6c125fafea2b1ef846c40c7b10218, type: 3}
+  order: 8
+  category: 2
+  maxLevel: 3
+  baseCost: 80
+  costGrowth: 1.5
+  effectPerLevel: 1

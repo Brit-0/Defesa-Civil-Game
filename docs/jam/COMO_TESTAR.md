@@ -38,7 +38,7 @@ No menu de cima do Unity:
 1. **Tools → Jam → Create Default Data**: cria o que faltar de balanceamento, desastres e upgrades. Não apaga ajustes.
 2. **Tools → Jam → Create Feel Prefabs**: monta os efeitos e sons.
 
-Se o Console mostrar aviso `[FireEnergyData]` ou da expansão, rode também **Tools → Jam → Create Fire And Energy Data** e **Tools → Jam → Expansão → Criar dados**.
+Se o Console mostrar aviso `[FireEnergyData]` ou da expansão, rode também **Tools → Jam → Create Fire And Energy Data** e **Tools → Jam → Expansão → Criar dados**. Sem o **Para-raio** na aba de expansão, rode **Tools → Jam → Para-raio → Criar dados**.
 
 **Não rode** `Tools → Jam → Reset Data To Defaults`: ele reescreve o balanceamento que já foi ajustado.
 
@@ -59,6 +59,7 @@ O que olhar:
 - **Rastro:** cada trabalhador andando deixa uma fita clara e fina atrás que some em menos de 1 s; pegadas e a trilha da equipe aparecem por cima do chão.
 - **Base nova:** a equipe da base comprada na expansão sai pela rua e chega no chamado no tempo normal (antes parecia nunca chegar).
 - **Expansão:** na aba de melhorias, **Nova base** e **Novo armazém**; o terreno comprado mostra uma placa no mapa e vira obra quando você clica nela.
+- **Para-raio (PARARAIO.md, #537):** compre **Para-raio** na aba **EXPANSÃO**. A aba fecha e cada quarteirão ganha borda dourada e placa "PARA-RAIO / N casas". Com o mouse num quarteirão, a área fica azul, o para-raio aparece meio apagado no telhado e a dica diz quantas casas protege e quantos % dos raios atrai. Clique: 3 s de obra ("EM OBRA" com barra e marteladas) e o mastro sobe no telhado da casa mais alta. Na próxima tempestade, parte dos raios cai na ponta dele: arco da casa até a ponta, faísca, área azul, "PROTEGIDO!" e estalo elétrico, sem dano nenhum na casa. Até 3 para-raios (80, 120, 180).
 - **Painel de melhorias:** abre por cima do botão de melhorias (canto de baixo à esquerda), com abas na base: **EQUIPE**, **AUTOMAÇÃO**, **EXPANSÃO** e **ENERGIA** (a de energia libera quando o gerador aparece; o pontinho dourado na aba diz que dá para comprar algo nela). Passe o mouse numa melhoria: ela cresce e aparece ao lado a janelinha com a descrição, o nível e quanto falta. Lista comprida rola com a roda do mouse.
 - **Trabalhadores:** o número no topo é **livres/total** (ex.: 2/3 com uma equipe na rua); contratar e voluntários aumentam o total.
 - **Tela de fim:** perca deixando o caos encher (ou ganhe comprando o objetivo). O HUD some por trás, a janela mostra 4 cartões (tempo, casas consertadas, desastres enfrentados, dinheiro ganho sem contar o inicial) e dois botões: **JOGAR DE NOVO** (recomeça direto) e **MENU** (volta à tela inicial).

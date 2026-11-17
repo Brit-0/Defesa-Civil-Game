@@ -515,7 +515,10 @@ public class DisasterManager : MonoBehaviour
             List<House> candidates = locations.GetIntactHouses();
             if (candidates.Count == 0) continue;
 
-            House house = candidates[Random.Range(0, candidates.Count)];
+            // Para-raio (PARARAIO.md): o quarteirão protegido puxa o raio e o absorve, sem dano.
+            House house = LightningRodManager.PickStrikeTarget(candidates);
+            if (LightningRodManager.TryAbsorb(house)) continue;
+
             GameEvents.RaiseLightningStruck(house.transform.position);
             bool applied = Random.value < balance.lightningFireChance
                 ? house.ApplyProblem(State.OnFire, 0)
