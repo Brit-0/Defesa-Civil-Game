@@ -139,19 +139,20 @@ public static class PixelSkin
         icon.rectTransform.anchoredPosition = new Vector2(0f, side / 16f);
     }
 
-    //Contador solto no HUD (um Icon e um texto, sem painel em volta) e texto solto no topo (FeedbackText)
+    //Contador solto no HUD (um Icon e um texto, sem painel em volta) e texto de instrução do topo (FeedbackText)
     private static void AddPlates(Transform hud, FeelUITheme px)
     {
         foreach (Transform child in hud.GetComponentsInChildren<Transform>(true))
         {
             if (!(child is RectTransform rect) || child == hud) continue;
             if (child.name.StartsWith(HudPlate.NamePrefix) || HasPlate(child)) continue;
-            if (InsidePanel(child, hud)) continue;
+            //O texto do topo mora numa camada com Canvas próprio, por cima do HUD (FeedbacksManager): a placa vai junto
+            bool looseText = child.GetComponent<TMP_Text>() != null && child.name == "FeedbackText";
+            if (!looseText && InsidePanel(child, hud)) continue;
 
             Transform icon = child.Find("Icon");
             bool counter = child.GetComponent<Graphic>() == null && icon != null && icon.GetComponent<Image>() != null
                 && DirectTexts(child) == 1;
-            bool looseText = child.parent == hud && child.GetComponent<TMP_Text>() != null && child.name == "FeedbackText";
 
             if (counter || looseText) HudPlate.Create(rect, px.inset);
         }

@@ -10,10 +10,20 @@ public class ButtonJuice : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     [SerializeField, Range(0f, 1f)] private float hoverVolume = .35f;
     [SerializeField] private float hoverPitchVariation = .05f;
 
+    [Header("STATE")]
+    [Tooltip("Cresce e afunda mesmo desabilitado: a linha de melhoria sem dinheiro também responde (o clique dá o tremor vermelho)")]
+    [SerializeField] private bool reactWhenDisabled;
+
     private Tweener tweener;
     private Selectable selectable;
 
-    private bool IsActive => selectable == null || selectable.IsInteractable();
+    private bool IsActive => reactWhenDisabled || selectable == null || selectable.IsInteractable();
+
+    public bool ReactWhenDisabled
+    {
+        get => reactWhenDisabled;
+        set => reactWhenDisabled = value;
+    }
 
     private void Awake()
     {

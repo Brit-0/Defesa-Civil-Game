@@ -237,8 +237,9 @@ public class Tutorial : MonoBehaviour
         });
         steps.Add(new Step
         {
-            text = "A equipe já vem no tamanho certo (<bounce>+</bounce> e <bounce>-</bounce> ajustam). Clique em <bounce>ENVIAR</bounce>.",
-            hud = () => HudChild("SendButton"),
+            text = "Monte a equipe no <bounce>+</bounce> (1 trabalhador por ponto de dano; o topo da aba mostra os tempos) e clique em <bounce>ENVIAR</bounce>.",
+            // A aba abre vazia (#531): a seta mostra o + até ter gente na equipe, depois o Enviar.
+            hud = () => TeamEmpty() ? HudChild("PlusButton") : HudChild("SendButton"),
             done = () => now.dispatched > atStart.dispatched,
             skipIf = () => now.dispatched > 0,
             undo = () => CallDropped(),
@@ -392,6 +393,13 @@ public class Tutorial : MonoBehaviour
     {
         RectTransform tab = HudChild("GuardTab");
         return tab != null && tab.gameObject.activeInHierarchy;
+    }
+
+    private static bool TeamEmpty()
+    {
+        GuardManager guards = GuardManager.Instance;
+        Call call = guards != null ? guards.CurrentCall : null;
+        return call != null && guards.TeamSize < Mathf.Max(1, call.workersNeeded);
     }
 
     private static bool UpgradesOpen()

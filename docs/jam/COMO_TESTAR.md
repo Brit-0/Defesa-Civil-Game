@@ -66,6 +66,12 @@ O que olhar:
 - **Chamados:** a casa com problema mostra um pino com o ícone do tipo em 64 px (conserto, fogo, sem energia, recursos). Com a equipe trabalhando, o anel verde em volta do ícone enche até a casa ficar pronta; pronta, o pino vira o check verde novo.
 - **Base e Armazém:** placa com o nome, seta dourada quicando em cima e anel de 4 quadros no chão, no pé do prédio. Depois de clicar numa casa (hora de escolher a base), a seta da Base quica mais alto e mais rápido; o Armazém faz o mesmo quando o material acaba.
 - **HUD:** a barra de **CAOS** fica em pé, na direita da tela; a faixa de desastre fica no topo e a dica (ex.: "Escolha a base encarregada para o chamado") logo abaixo dela, sem nada por cima. Com o painel da equipe aberto (canto de baixo à direita), o balão do tutorial e a barra de dicas sobem e não o cobrem. Trabalhadores, materiais e moedas têm folga entre o número e a borda do rótulo.
+- **Aba da equipe (#531):** abre sempre com **0** trabalhadores, e o jogador escolhe quantos vão no **+**. No topo da aba aparecem dois tempos: **Chegada** (o caminho até a casa, mais a saída escalonada da equipe) e **Conserto** (ou **Apagar** no incêndio, **Coleta** no armazém), pela mesma conta do jogo. Os dois mudam e pulam a cada **+** ou **−**. Com a aba vazia, ela mostra "Escolha a equipe no +", e o **Enviar** dá o som de erro e sacode o **+**. No tutorial, a seta aponta o **+** até ter gente na equipe e depois o **Enviar**.
+- **"Escolha a base" (#531):** fica por cima de tudo do HUD (setas, placas, contadores) e some só com a pausa aberta.
+- **Melhorias (#531):** toda linha cresce no hover e afunda no clique, inclusive sem dinheiro; nesse caso o clique treme em vermelho.
+- **Janela das estruturas (#531):** passe o mouse numa casa, na Base ou num Armazém. A janela de informação usa a janela pixel do HUD (moldura do tamanho do pixel da cidade), o nome em dourado e o texto em creme, com margem dentro da moldura.
+- **Aro do tutorial (#531):** é o anel fino redondo, nunca esticado nem quadriculado. O lado sempre cai num múltiplo de 32 (de 96 a 256) e o anel pisca no brilho, sem mudar de tamanho. Num painel inteiro (a aba da equipe, a aba de melhorias), fica só a seta.
+- **Margens (#531):** a **META**, a janelinha das melhorias, o balão e o cartão do tutorial e a barra de dicas deixam folga entre o texto e a moldura.
 
 Para ver os tutoriais de novo: **Tools → Jam → Reset Tutorial** e **Tools → Jam → Reset Energy Tutorial**, com o Play parado.
 

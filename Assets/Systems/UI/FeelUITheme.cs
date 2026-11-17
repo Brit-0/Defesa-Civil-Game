@@ -66,6 +66,8 @@ public class FeelUITheme : ScriptableObject
     public Sprite dotOff;
     //Aro dourado em volta da casa da dica
     public Sprite ring;
+    //Aro fino (Mk_Ring, 32x32, traço de 3 px) do tutorial e das dicas: sempre Simple e quadrado, nunca Sliced (#531)
+    public Sprite thinRing;
 
     [Header("PIXEL: ICONS (16x16; emblema 32x32)")]
     public Sprite iconCoin;
@@ -220,6 +222,7 @@ public class FeelUITheme : ScriptableObject
         FillPixel(ref dotOn, "Px_DotOn");
         FillPixel(ref dotOff, "Px_DotOff");
         FillPixel(ref ring, "Px_Ring");
+        if (thinRing == null) thinRing = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(SpritesFolder + "Markers/Mk_Ring.png");
         FillPixel(ref iconCoin, "Px_IconCoin");
         FillPixel(ref iconChaos, "Px_IconChaos");
         FillPixel(ref iconEarthquake, "Px_IconQuake");

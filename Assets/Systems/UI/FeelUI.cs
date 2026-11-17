@@ -249,6 +249,36 @@ public static class FeelUI
         image.pixelsPerUnitMultiplier = IsPixelSprite(image.sprite) ? Theme.MultiplierFor(image.sprite) : Theme.pixelsPerUnitMultiplier;
     }
 
+    //Aro do tutorial e das dicas (#531): o Mk_Ring fino, sempre Simple e quadrado (nunca Sliced, que quadriculava),
+    //com o lado em múltiplo dos 32 pixels do sprite, para cada pixel dele virar um número inteiro de pixels do HUD.
+    public const float RingStep = 32f;
+    public const float RingMin = 96f;
+    public const float RingMax = 256f;
+
+    public static Image CreateRing(string objectName, Transform parent, Color color)
+    {
+        Sprite sprite = Theme != null ? Theme.thinRing != null ? Theme.thinRing : Theme.circle : null;
+        Image ring = CreateImage(objectName, parent, color, sprite);
+        ring.type = Image.Type.Simple;
+        ring.preserveAspect = true;
+        return ring;
+    }
+
+    //Lado do aro em volta de um alvo: o maior lado com folga, arredondado para cima no passo do sprite, entre o
+    //mínimo e o máximo
+    public static float RingSide(Vector2 targetSize, float padding = 24f)
+    {
+        float biggest = Mathf.Max(targetSize.x, targetSize.y, 0f);
+        float side = Mathf.Ceil((biggest + padding) / RingStep) * RingStep;
+        return Mathf.Clamp(side, RingMin, RingMax);
+    }
+
+    //Alvo do HUD maior que o aro maior (um painel inteiro): fica só a seta, sem aro por cima do painel
+    public static bool RingFits(Vector2 targetSize, float padding = 24f)
+    {
+        return Mathf.Max(targetSize.x, targetSize.y) + padding <= RingMax;
+    }
+
     public static bool IsPixelSprite(Sprite sprite)
     {
         return sprite != null && sprite.name.StartsWith("Px_");

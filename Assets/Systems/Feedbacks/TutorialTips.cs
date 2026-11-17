@@ -31,6 +31,7 @@ public class TutorialTips : MonoBehaviour
     [SerializeField] private float bobHeight = 12f;
     [SerializeField] private float bobSpeed = 6f;
     [SerializeField] private float ringScale = 1.25f;
+    [Tooltip("Quanto o aro apaga no pulso (0 a 1)")]
     [SerializeField] private float ringPulse = .25f;
     [SerializeField] private float ringPulseTime = .7f;
     [SerializeField] private float edgeMargin = 70f;
@@ -110,7 +111,9 @@ public class TutorialTips : MonoBehaviour
 
         //Três bolinhas à esquerda: os passos da primeira volta (abrir, enviar, receber)
         dots = new Image[3];
-        float left = edge * (px != null ? 2f : 4f) + dot * .5f;
+        //Margem interna: duas molduras de folga além da borda pixel (#531)
+        float pad = edge * (px != null ? 3f : 4f);
+        float left = pad + dot * .5f;
         for (int i = 0; i < dots.Length; i++)
         {
             dots[i] = px != null ? FeelUI.CreateIcon("Dot" + i, bar, px.dotOff) : FeelUI.CreateCircle("Dot" + i, bar, dotOffColor);
@@ -118,8 +121,9 @@ public class TutorialTips : MonoBehaviour
         }
 
         TMP_Text text = FeelUI.CreateText("Lbl", bar, "", fontSize, textColor);
-        FeelUI.Stretch(text.rectTransform, edge * (px != null ? 2f : 4f));
-        text.rectTransform.offsetMin = new Vector2(left + dots.Length * (dot + dotSpacing), edge * (px != null ? 1.5f : 4f));
+        FeelUI.Stretch(text.rectTransform, pad);
+        text.rectTransform.offsetMax = new Vector2(-pad, -edge * (px != null ? 2f : 4f));
+        text.rectTransform.offsetMin = new Vector2(left + dots.Length * (dot + dotSpacing), edge * (px != null ? 2f : 4f));
         //Dica comprida encolhe para caber na faixa
         text.enableAutoSizing = true;
         text.fontSizeMin = fontSize * .5f;
@@ -135,13 +139,10 @@ public class TutorialTips : MonoBehaviour
         pointer = FeelUI.CreateRect("TipPointer", parent);
         FeelUI.Stretch(pointer);
 
-        //Kit pixel: aro dourado e seta pixel (sem o kit, o aro do Button2 e o V de duas barras)
+        //Kit pixel: seta pixel (sem o kit, o V de duas barras). O aro é o mesmo do tutorial: o Mk_Ring fino,
+        //Simple e quadrado, no passo de 32 (FeelUI.RingSide), dourado por tint (#531)
         FeelUITheme px = FeelUI.Pixel;
-        bool pixelRing = px != null && px.ring != null;
-        ring = FeelUI.CreateImage("Ring", pointer, pixelRing ? Color.white : frameColor, pixelRing ? px.ring : FeelUI.Theme != null ? FeelUI.Theme.button2 : null);
-        if (ring.sprite == null) ring.sprite = FeelUI.Theme != null ? FeelUI.Theme.circle : null;
-        //O aro pixel é 9-slice: cresce com a altura da casa e o pixel continua de 3 unidades
-        if (pixelRing) FeelUI.Slice(ring);
+        ring = FeelUI.CreateRing("Ring", pointer, px != null ? FeelUI.PixelGold : frameColor);
         ring.rectTransform.anchorMin = ring.rectTransform.anchorMax = new Vector2(.5f, .5f);
 
         chevron = FeelUI.CreateRect("Chevron", pointer);
@@ -346,7 +347,9 @@ public class TutorialTips : MonoBehaviour
 
         pointer.SetAsLastSibling();
         ring.transform.localScale = Vector3.one;
-        ring.transform.DOScale(1f + ringPulse, ringPulseTime).SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo).SetUpdate(true).SetLink(ring.gameObject);
+        //Pulso no brilho, não na escala: o aro fica do tamanho do passo de 32 e o pixel não treme (#531)
+        ring.color = FeelUI.Pixel != null ? FeelUI.PixelGold : frameColor;
+        ring.DOFade(1f - ringPulse, ringPulseTime).SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo).SetUpdate(true).SetLink(ring.gameObject);
         chevron.localScale = Vector3.zero;
         chevron.DOScale(1f, .3f).SetEase(Ease.OutBack).SetUpdate(true).SetLink(chevron.gameObject);
 
@@ -374,7 +377,7 @@ public class TutorialTips : MonoBehaviour
         if (onScreen)
         {
             ring.rectTransform.anchoredPosition = middle;
-            ring.rectTransform.sizeDelta = Vector2.one * height * ringScale;
+            ring.rectTransform.sizeDelta = Vector2.one * FeelUI.RingSide(Vector2.one * height * ringScale, 0f);
             chevron.anchoredPosition = top + Vector2.up * (pointerGap + chevronSize.x * .5f + bob);
             chevron.localRotation = Quaternion.identity;
             return;
