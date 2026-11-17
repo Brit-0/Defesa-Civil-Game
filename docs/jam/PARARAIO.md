@@ -90,7 +90,7 @@ e ruim 90% em 10:27.
 - `Assets/SO/LightningRodData.cs`: os dados (quarteirões, folga, atração, obra, tracejado, transparência da prévia).
 - `Assets/Systems/LightningRod/`:
   - `LightningRodManager.cs`: monta os quarteirões, a compra, o modo de escolha, a obra e o sorteio e a absorção do raio;
-  - `RodBlock.cs`: um quarteirão, com a área, a borda, a placa, a dica, o mastro e a prévia;
+  - `RodBlock.cs`: um quarteirão, com a área, a borda, a placa, a dica, o mastro e a prévia (o clique e o hover chegam pelo `RodPointer.cs`);
   - `LightningRodMath.cs`: as contas puras testadas (quarteirão do ponto, sorteio com peso, tracejado da borda);
   - `LightningRodEvents.cs`, `LightningRodFeel.cs` (só escuta: som, faísca, arco, texto) e `LightningRodBootstrap.cs`.
 - `Assets/Systems/LightningRod/Resources/LightningRod/`: `LightningRodData.asset`, `Rod_Pole.png`, `Rod_Icon.png` e
