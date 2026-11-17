@@ -38,8 +38,9 @@ public class BalanceData : ScriptableObject
     public int maxDamage = 3;
 
     [Header("FIRE")]
-    [Tooltip("Segundos até o fogo apagar sozinho e a casa virar Damaged.")]
-    public float fireDuration = 25f;
+    [Tooltip("Segundos até o fogo apagar sozinho e a casa virar Damaged. 40 (era 25): o nível 1 dura 13 s e dá tempo de " +
+             "mandar a equipe antes de o fogo crescer (lista Para Arrumar, item 19).")]
+    public float fireDuration = 40f;
     [Tooltip("Dano da casa quando o fogo apaga sozinho.")]
     public int fireBurnoutDamage = 3;
 

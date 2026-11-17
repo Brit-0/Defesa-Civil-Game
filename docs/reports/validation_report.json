@@ -1,13 +1,10 @@
 {
     "mode": "cena",
-    "createdAt": "2026-11-16T22:47:34Z",
+    "createdAt": "2026-11-17T11:53:06Z",
     "errors": 0,
     "warnings": 0,
     "notes": [
-        "R08 (parcial): semente 1279488403 (não verificável na cena).",
-        "Validação da cena reaberta do disco após salvar.",
-        "R08 (parcial): semente 1279488403 (não verificável na cena).",
-        "Build: criados 0, atualizados 1, removidos 0, sem mudança 1231. 2º Build: criados 0, atualizados 0, removidos 0, sem mudança 1232."
+        "R08 (parcial): semente 1279488403 (não verificável na cena)."
     ],
     "violations": []
 }

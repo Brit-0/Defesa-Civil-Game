@@ -2,19 +2,16 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 
 //Recompensa em dourado, para o jogador sentir e entender o que ganhou:
-//- Chamado resolvido: chuva de moedas na casa (mais moedas quanto maior o valor); reposição traz brilhos dourados.
+//- Chamado resolvido: brilho dourado na casa (as moedas que voam ao contador são do MoneyPopups); reposição traz brilhos.
 //- Dinheiro entrando: brilhos no contador do HUD (a contagem e o pulo do número são do HudJuice).
 //- Upgrade comprado: brilho e confete pequeno no botão; no nível máximo, confete grande.
 //- Marco a cada N casas consertadas: confete dos dois cantos e brilhos no topo da tela.
-//Só escuta GameEvents (MoneyPopups faz o texto "+N"; isto é só o brilho). Um na cena (Feel.prefab).
+//Só escuta GameEvents (MoneyPopups faz as moedas voando; isto é só o brilho). Um na cena (Feel.prefab).
 public class RewardFx : MonoBehaviour
 {
     private const string LayerName = "RewardFx";
 
-    [Header("COINS (no mundo; escala em tamanhos da casa)")]
-    [SerializeField] private Vector2Int coins = new Vector2Int(4, 14);
-    [Tooltip("Moedas por raiz quadrada do valor: 25 dá 5 moedas com 1")]
-    [SerializeField] private float coinsPerSqrtMoney = 1f;
+    [Header("COLLECT (no mundo; escala em tamanhos da casa)")]
     [SerializeField] private float coinScale = 1f;
     [SerializeField] private int restockGlints = 6;
 
@@ -72,8 +69,8 @@ public class RewardFx : MonoBehaviour
 
         if (money <= 0) return;
 
-        int count = Mathf.Clamp(Mathf.RoundToInt(Mathf.Sqrt(money) * coinsPerSqrtMoney), coins.x, coins.y);
-        FeelParticles.EmitAt(FxKind.Coin, sky, at, scale, count, 90f);
+        //As moedas que voam até o contador são do MoneyPopups; aqui fica só o brilho na casa
+        FeelParticles.EmitAt(FxKind.Glint, sky, at, scale, VfxQuality.Scale(restockGlints));
     }
 
     private void OnMoneyChanged(int before, int after)

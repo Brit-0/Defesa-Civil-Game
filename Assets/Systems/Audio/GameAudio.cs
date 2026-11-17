@@ -15,6 +15,7 @@ public class GameAudio : MonoBehaviour
 
     [Header("CALLS")]
     [SerializeField, Range(0f, 1f)] private float dispatchVolume = .8f;
+    [SerializeField, Range(0f, 1f)] private float baseSelectVolume = .55f;
     [SerializeField, Range(0f, 1f)] private float readyVolume = .45f;
     [SerializeField, Range(0f, 1f)] private float coinVolume = 1f;
     [SerializeField, Range(0f, 1f)] private float incomeVolume = .5f;
@@ -76,6 +77,7 @@ public class GameAudio : MonoBehaviour
         if (IsDuplicate) return;
 
         GameEvents.CallOpened += OnCallOpened;
+        GameEvents.BaseSelected += OnBaseSelected;
         GameEvents.TeamDispatched += OnTeamDispatched;
         GameEvents.WorkStarted += OnWorkStarted;
         GameEvents.WorkCompleted += OnWorkCompleted;
@@ -96,6 +98,7 @@ public class GameAudio : MonoBehaviour
     private void OnDisable()
     {
         GameEvents.CallOpened -= OnCallOpened;
+        GameEvents.BaseSelected -= OnBaseSelected;
         GameEvents.TeamDispatched -= OnTeamDispatched;
         GameEvents.WorkStarted -= OnWorkStarted;
         GameEvents.WorkCompleted -= OnWorkCompleted;
@@ -184,6 +187,13 @@ public class GameAudio : MonoBehaviour
     private void OnCallOpened(Call call)
     {
         AudioManager.PlaySfx(Sfx?.click, clickVolume, .05f);
+    }
+
+    //Escolher a base tem o mesmo clique das outras ações e o estalo da aba da equipe abrindo
+    private void OnBaseSelected(Call call, House guard)
+    {
+        AudioManager.PlaySfx(Sfx?.click, clickVolume, .05f);
+        AudioManager.PlaySfx(Sfx?.popup, baseSelectVolume, .08f);
     }
 
     private void OnTeamDispatched(Call call)

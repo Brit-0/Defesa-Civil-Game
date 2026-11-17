@@ -29,6 +29,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     public bool isEnergized;
     public int damageAmount;
     [SerializeField] private TMP_Text damageAmountLbl;
+    private Transform amountShadow;
     // Ligado pelo HouseFeedback (Agente C): com ele, House não mexe mais na rachadura do shader.
     public bool externalFeedback;
 
@@ -40,6 +41,10 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     [SerializeField] private GameObject complete;
     [SerializeField] private Sprite damagedIcon;
     [SerializeField] private Sprite fireIcon;
+    [Tooltip("Lado do ícone v2 do balão em fração do balão")]
+    [SerializeField] private float callIconFill = 1.15f;
+    private Image callIcon;
+    private bool completeStyled;
     protected bool isComplete;
 
     // Equipe a caminho, trabalhando ou esperando a coleta.
@@ -193,6 +198,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
     private void ShowCall()
     {
+        RefreshCallIcon();
         callDisplay.SetActive(true);
     }
 
@@ -265,6 +271,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         isComplete = true;
         interactable = true;
         progressCircle.gameObject.SetActive(false);
+        StyleComplete();
         complete.SetActive(true);
         GameEvents.RaiseWorkCompleted(currentCall);
 
@@ -331,14 +338,64 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         GuardManager.Instance.CallRetrieveTeam(currentCall);
     }
 
+    // Ícones v2 do tema (docs/jam/ICONES_V2.md); sem eles, os do prefab e o do material.
     private Sprite GetIconByCallType(Call call)
     {
+        FeelUITheme theme = FeelUI.Theme;
         return call.type switch
         {
-            CallType.Problem => currentState == State.OnFire ? fireIcon : damagedIcon,
-            CallType.Restock => ResourcesManager.Instance.materialIcon,
+            CallType.Problem => currentState switch
+            {
+                State.OnFire => Pick(theme != null ? theme.callFire : null, fireIcon),
+                State.PowerOutage => Pick(theme != null ? theme.callPower : null, damagedIcon),
+                _ => Pick(theme != null ? theme.callRepair : null, damagedIcon),
+            },
+            CallType.Restock => Pick(theme != null ? theme.callSupply : null, ResourcesManager.Instance.materialIcon),
             _ => null,
         };
+    }
+
+    private static Sprite Pick(Sprite preferred, Sprite fallback) => preferred != null ? preferred : fallback;
+
+    // Balão do chamado com o ícone do tipo: era a caixinha crate_0 fixa no prefab para todo chamado (itens 5 e 19).
+    // O ícone v2 tem contorno próprio e vai sozinho, sem o círculo liso atrás.
+    private void RefreshCallIcon()
+    {
+        if (currentCall == null || callDisplay == null) return;
+        if (callIcon == null)
+        {
+            Transform icon = callDisplay.transform.Find("Icon");
+            callIcon = icon != null ? icon.GetComponent<Image>() : null;
+            if (callIcon == null) return;
+        }
+
+        Sprite sprite = GetIconByCallType(currentCall);
+        if (sprite == null) return;
+
+        callIcon.sprite = sprite;
+        callIcon.preserveAspect = true;
+        Image balloon = callDisplay.GetComponent<Image>();
+        if (sprite.rect.width < 32f || balloon == null) return;
+
+        balloon.enabled = false;
+        callIcon.rectTransform.sizeDelta = ((RectTransform)callDisplay.transform).rect.size * callIconFill;
+    }
+
+    // Selo de concluído v2 inteiro (disco verde com check) no lugar do círculo com o ícone quebrado (item 12)
+    private void StyleComplete()
+    {
+        FeelUITheme theme = FeelUI.Theme;
+        if (completeStyled || complete == null || theme == null || theme.callDone == null) return;
+
+        Image disc = complete.GetComponent<Image>();
+        if (disc == null) return;
+
+        completeStyled = true;
+        disc.sprite = theme.callDone;
+        disc.color = Color.white;
+        disc.preserveAspect = true;
+        Transform icon = complete.transform.Find("Icon");
+        if (icon != null) icon.gameObject.SetActive(false);
     }
 
     #endregion
@@ -521,6 +578,11 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         bool isDamaged = currentState == State.Damaged;
         damageAmountLbl.text = damageAmount.ToString();
         damageAmountLbl.gameObject.SetActive(isDamaged);
+        // O fundo do número vai junto: no incêndio não há número (lista Para Arrumar, item 23)
+        if (amountShadow == null) amountShadow = damageAmountLbl.transform.parent.Find("AmountShadow");
+        if (amountShadow != null) amountShadow.gameObject.SetActive(isDamaged);
+        // O fogo que apaga sozinho deixa a casa Damaged com o mesmo chamado: o balão troca de ícone
+        if (currentState != State.Intact) RefreshCallIcon();
         if (!externalFeedback) sprite.material.SetFloat(crackFade, isDamaged ? 1f : 0f);
     }
 

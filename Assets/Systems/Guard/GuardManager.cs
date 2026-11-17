@@ -145,6 +145,7 @@ public class GuardManager : MonoBehaviour
         // A aba já abre com a equipe sugerida: o + e o - viram ajuste fino, Enviar resolve (GAMELOOP_REVISAO).
         TeamSize = Mathf.Min(Stats.GetSuggestedTeam(currentCall), ResourcesManager.Workers);
         callTab.SetActive(true);
+        GameEvents.RaiseBaseSelected(currentCall, guard);
     }
 
     public void CallSendTeam()
@@ -170,7 +171,9 @@ public class GuardManager : MonoBehaviour
         DeniedReason? denied = EnergyManager.DeniesDispatch(call, guard) ? DeniedReason.NoEnergy : GetDeniedReason(call, size);
         if (denied.HasValue)
         {
-            GameEvents.RaiseActionDenied(denied.Value, house.transform.position);
+            // Falta de gente é da base (é lá que ficam os trabalhadores); o resto aparece na casa.
+            Vector3 where = denied.Value == DeniedReason.NoWorkers ? guard.transform.position : house.transform.position;
+            GameEvents.RaiseActionDenied(denied.Value, where);
             return false;
         }
 
@@ -325,7 +328,8 @@ public class GuardManager : MonoBehaviour
 
         if (TeamSize + 1 > ResourcesManager.Workers)
         {
-            GameEvents.RaiseActionDenied(DeniedReason.NoWorkers, currentCall.house.transform.position);
+            Transform from = selectedGuard != null ? selectedGuard.transform : currentCall.house.transform;
+            GameEvents.RaiseActionDenied(DeniedReason.NoWorkers, from.position);
             return;
         }
         TeamSize++;

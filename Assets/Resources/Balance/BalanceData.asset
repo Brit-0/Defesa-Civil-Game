@@ -27,7 +27,7 @@ MonoBehaviour:
   fireReward: 20
   minDamage: 1
   maxDamage: 3
-  fireDuration: 25
+  fireDuration: 40
   fireBurnoutDamage: 3
   chaosWeightDamaged: 1
   chaosWeightFire: 2

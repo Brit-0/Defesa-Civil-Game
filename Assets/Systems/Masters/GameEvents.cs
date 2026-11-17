@@ -22,6 +22,7 @@ public static partial class GameEvents
     // Casas e chamados
     public static event Action<House, State, State> HouseStateChanged; // (casa, antes, depois)
     public static event Action<Call> CallOpened;       // jogador abriu o chamado
+    public static event Action<Call, House> BaseSelected; // base da Guarda escolhida para o chamado (abre a aba da equipe)
     public static event Action<Call> TeamDispatched;   // equipe saiu da base
     public static event Action<Call> WorkStarted;      // último trabalhador chegou
     public static event Action<Call> WorkCompleted;    // pronto para coletar
@@ -55,6 +56,7 @@ public static partial class GameEvents
 
     public static void RaiseHouseStateChanged(House house, State before, State after) => HouseStateChanged?.Invoke(house, before, after);
     public static void RaiseCallOpened(Call call) => CallOpened?.Invoke(call);
+    public static void RaiseBaseSelected(Call call, House guard) => BaseSelected?.Invoke(call, guard);
     public static void RaiseTeamDispatched(Call call) => TeamDispatched?.Invoke(call);
     public static void RaiseWorkStarted(Call call) => WorkStarted?.Invoke(call);
     public static void RaiseWorkCompleted(Call call) => WorkCompleted?.Invoke(call);
@@ -90,6 +92,7 @@ public static partial class GameEvents
 
         HouseStateChanged = null;
         CallOpened = null;
+        BaseSelected = null;
         TeamDispatched = null;
         WorkStarted = null;
         WorkCompleted = null;

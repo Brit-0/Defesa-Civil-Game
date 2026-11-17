@@ -16,9 +16,16 @@ namespace DefesaCivil.CityGen.Tests
         public GameObject bgCanvas;
         public Vector2 center = new Vector2(1.5f, -0.5f);
 
+        // O CityBuilder assa o chão da cidade de teste no mesmo city_ground.png da Gameplay: sem guardar e devolver,
+        // rodar os testes deixava o chão de outra cidade esticado no retângulo da real, com sombras e detalhes fora
+        // do lugar (foi para o commit e32072c; lista Para Arrumar, item 18).
+        byte[] groundBackup;
+        static string GroundFile => System.IO.Path.GetFullPath(CityGround.TexturePath);
+
         public static TestCityScene Create(bool withOldObjects = true)
         {
             var t = new TestCityScene();
+            if (System.IO.File.Exists(GroundFile)) t.groundBackup = System.IO.File.ReadAllBytes(GroundFile);
             var active = SceneManager.GetActiveScene();
             // O Test Runner roda numa cena sem título; usa-a (nunca a Gameplay).
             if (string.IsNullOrEmpty(active.path)) { t.scene = active; t.reused = true; }
@@ -76,9 +83,19 @@ namespace DefesaCivil.CityGen.Tests
 
         public void Close()
         {
+            RestoreGround();
             if (!scene.IsValid()) return;
             if (reused) { foreach (var g in scene.GetRootGameObjects()) Object.DestroyImmediate(g); }
             else EditorSceneManager.CloseScene(scene, true);
+        }
+
+        void RestoreGround()
+        {
+            if (groundBackup == null) return;
+            byte[] now = System.IO.File.Exists(GroundFile) ? System.IO.File.ReadAllBytes(GroundFile) : null;
+            if (now != null && System.Linq.Enumerable.SequenceEqual(now, groundBackup)) return;
+            System.IO.File.WriteAllBytes(GroundFile, groundBackup);
+            AssetDatabase.ImportAsset(CityGround.TexturePath, ImportAssetOptions.ForceUpdate);
         }
     }
 }
