@@ -229,10 +229,11 @@ public class HouseStatusFx : MonoBehaviour
         FeelParticles.EmitColored(FxKind.Burst, root, new Vector2(0f, HouseSize * settings.ringY), HouseSize, settings.readyColor, 8);
     }
 
-    //O GuardManager passa a posição da casa do chamado negado
+    //O GuardManager passa a posição da casa do chamado negado. Sem settings é a cópia que a expansão faz da Guarda
+    //(Instantiate não copia house): sem a guarda, o erro cortava os outros ouvintes, como o "Sem trabalhadores"
     private void OnActionDenied(DeniedReason reason, Vector3 worldPosition)
     {
-        if (worldPosition != house.transform.position) return;
+        if (settings == null || worldPosition != house.transform.position) return;
 
         Flash(settings.failColor, .6f);
     }

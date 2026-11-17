@@ -19,6 +19,7 @@ public class BuildLot : MonoBehaviour
     private const float CanvasReferencePpu = 100f;   // referencePixelsPerUnit dos CanvasScaler da cena
     private const float PatchWidth = 3.75f;          // Lot_Patch: 120 x 76 px a 32 px por unidade
     private const float PatchHeight = 2.375f;
+    private const float PatchDrop = 0.15f;           // o terreno começa um pouco abaixo da base do prédio
     private const float HintInterval = 0.5f;
     private const float ArrowSize = 36f;
     // margens da tela para a placa presa na borda não cobrir o HUD (as mesmas do MapMarkers)
@@ -64,7 +65,7 @@ public class BuildLot : MonoBehaviour
         Entry = entry;
 
         float baseY = slot.entry.y + baseOffset;
-        float patchBottom = baseY - 0.15f;
+        float patchBottom = baseY - PatchDrop;
         SitePosition = new Vector2(slot.entry.x, baseY);
         SignWorldPosition = new Vector3(slot.entry.x, patchBottom + PatchHeight + 0.2f, entry.transform.position.z);
 
@@ -80,29 +81,34 @@ public class BuildLot : MonoBehaviour
         if (manager.WorldMaterial != null) ground.material = manager.WorldMaterial;
         gameObject.AddComponent<LotPointer>().lot = this;
 
-        ClearTrees(trees, patchBottom);
+        ClearTrees(trees, baseOffset);
         BuildPreview(world);
         BuildSign();
     }
 
     // Árvores, postes e flores com o pé dentro do terreno (ou entre ele e a rua) somem: antes era praça ou mata.
-    private void ClearTrees(Transform trees, float patchBottom)
+    private void ClearTrees(Transform trees, float baseOffset)
     {
         if (trees == null) return;
 
         var corners = new Vector3[4];
-        float halfWidth = PatchWidth * 0.5f + 0.2f;
-        float yMin = Slot.entry.y + 0.25f;
-        float yMax = patchBottom + PatchHeight + 0.5f;
         foreach (Transform tree in trees)
         {
             if (!tree.gameObject.activeSelf || tree is not RectTransform treeRect) continue;
             treeRect.GetWorldCorners(corners);
-            YSortCanvas sort = tree.GetComponent<YSortCanvas>();
-            float x = (corners[0].x + corners[2].x) * 0.5f;
-            float y = sort != null ? sort.BaseY() : corners[0].y;
-            if (Mathf.Abs(x - Slot.entry.x) <= halfWidth && y >= yMin && y <= yMax) tree.gameObject.SetActive(false);
+            // Pé no meio da borda de baixo do retângulo: no Start as árvores já perderam o YSortCanvas (TreeCanvasMerge)
+            var foot = new Vector2((corners[0].x + corners[2].x) * 0.5f, corners[0].y);
+            if (Clears(Slot.entry, baseOffset, foot)) tree.gameObject.SetActive(false);
         }
+    }
+
+    // Regra do que o terreno esconde, a mesma do chão assado (CityGround.HiddenByLots), que não pinta a sombra nem o
+    // canteiro delas: 'baseOffset' é a base visível do prédio novo menos a entrada (y), 'foot' o pé da decoração.
+    public static bool Clears(Vector2 slotEntry, float baseOffset, Vector2 foot)
+    {
+        float patchBottom = slotEntry.y + baseOffset - PatchDrop;
+        return Mathf.Abs(foot.x - slotEntry.x) <= PatchWidth * 0.5f + 0.2f
+            && foot.y >= slotEntry.y + 0.25f && foot.y <= patchBottom + PatchHeight + 0.5f;
     }
 
     // Pontos do anel (base) ou do caminho até a base (armazém): por cima da cidade e abaixo dos painéis de informação.
@@ -203,6 +209,8 @@ public class BuildLot : MonoBehaviour
         Progress01 = 1f;
         ground.raycastTarget = false;
         ShowPreview(false);
+        // O chão assado não tem a sombra do prédio novo: vai por cima do terreno, com a regra da assada
+        if (building != null) StructureShadow.Cast(building, transform);
     }
 
     public void OnPointer(bool enter) => hover = enter && IsFree;

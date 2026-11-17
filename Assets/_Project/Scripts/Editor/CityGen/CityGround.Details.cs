@@ -134,19 +134,20 @@ namespace DefesaCivil.CityGen
             }
         }
 
-        // sombra projetada: comprimento por unidade de altura, força no pé e na ponta
-        const float ShadowLength = 0.32f, ShadowFoot = 0.34f, ShadowTip = 0.16f;
-
         /// <summary>
-        /// Sombras projetadas: cada pixel opaco do sprite, a uma altura h acima da base, escurece o chão em
-        /// base + h * direção da sombra (oposta ao sol do CityBuilder). Mais escura no pé, mais clara na ponta, com a
-        /// borda amaciada em 1 px; sombras que se cruzam ficam com a mais forte, sem escurecer duas vezes.
+        /// Sombras projetadas (regra em ShadowModel, a mesma da sombra da expansão no Play): cada pixel opaco do sprite,
+        /// a uma altura h acima da base, escurece o chão em base + ShadowModel.Project(h). Nos prédios só a fachada é
+        /// altura e o telhado acima dela é fundo, então a sombra é a faixa da fachada embaixo e a lateral à direita, do
+        /// tamanho do prédio (antes o telhado contava como altura e a sombra saía o dobro mais comprida); árvore, poste e
+        /// placa são altura até a ponta. Mais escura no pé, mais clara na ponta, borda amaciada em 1 px; sombras que se
+        /// cruzam ficam com a mais forte. Decoração que o terreno da expansão esconde não deixa sombra.
         /// </summary>
-        static void CastShadows(Canvas cv, CityLayout l, SpriteCatalog cat)
+        static void CastShadows(Canvas cv, CityLayout l, SpriteCatalog cat, HashSet<string> hidden)
         {
-            Vector2 dir = -CityBuilder.SunDirection.normalized * ShadowLength;
             var shade = new float[cv.W * cv.H];
-            foreach (var (sprite, baseCenter) in l.structures.Select(s => (s.sprite, s.bottomCenter)).Concat(l.decorations.Select(d => (d.sprite, d.bottomCenter))))
+            var casters = l.structures.Select(s => (s.sprite, s.bottomCenter, building: true))
+                .Concat(l.decorations.Where(d => !hidden.Contains(d.id)).Select(d => (d.sprite, d.bottomCenter, building: false)));
+            foreach (var (sprite, baseCenter, building) in casters)
             {
                 var cs = cat.Get(sprite);
                 if (cs == null || cs.pixels == null) continue;
@@ -154,12 +155,14 @@ namespace DefesaCivil.CityGen
                 int ox = cv.X(c.x - cs.widthU / 2f), oy = cv.Y(c.y - cs.heightU / 2f);
                 int baseRow = Mathf.RoundToInt(cs.padBottomU * cs.pxW / Mathf.Max(0.01f, cs.widthU));
                 float hMax = Mathf.Max(1f, cs.pxH - baseRow);
+                float facade = building ? cs.visHU * Ppu * ShadowModel.FacadeFraction : float.MaxValue;
                 for (int y = baseRow; y < cs.pxH; y++)
                 {
-                    float hgt = y - baseRow, s = Mathf.Lerp(ShadowFoot, ShadowTip, hgt / hMax);
-                    int gy = oy + baseRow + Mathf.RoundToInt(hgt * dir.y);
+                    float hgt = y - baseRow, s = ShadowModel.Strength(hgt, hMax);
+                    Vector2 p = ShadowModel.Project(hgt, facade);
+                    int gy = oy + baseRow + Mathf.RoundToInt(p.y);
                     if (gy < 0 || gy >= cv.H) continue;
-                    int dx = Mathf.RoundToInt(hgt * dir.x);
+                    int dx = Mathf.RoundToInt(p.x);
                     for (int x = 0; x < cs.pxW; x++)
                     {
                         if (cs.pixels[y * cs.pxW + x].a <= 128) continue;
@@ -174,15 +177,15 @@ namespace DefesaCivil.CityGen
             foreach (var d in l.decorations)
             {
                 var cs = cat.Get(d.sprite);
-                if (cs == null) continue;
+                if (cs == null || hidden.Contains(d.id)) continue;
                 float rx = Mathf.Clamp(cs.visWU * 0.36f, 0.1f, 0.6f), ry = Mathf.Clamp(rx * 0.38f, 0.05f, 0.16f);
-                Vector2 c = d.bottomCenter + dir.normalized * ry * 0.8f;
+                Vector2 c = d.bottomCenter + ShadowModel.Offset.normalized * ry * 0.8f;
                 foreach (var (x, y) in cv.In(new Rect(c.x - rx, c.y - ry, 2 * rx, 2 * ry)))
                 {
                     float ex = (cv.WX(x) - c.x) / rx, ey = (cv.WY(y) - c.y) / ry;
                     if (ex * ex + ey * ey > 1f) continue;
                     int i = y * cv.W + x;
-                    if (shade[i] < ShadowFoot) shade[i] = ShadowFoot;
+                    if (shade[i] < ShadowModel.Foot) shade[i] = ShadowModel.Foot;
                 }
             }
             // borda macia: metade do valor do pixel e metade da média 3x3 em volta
@@ -268,6 +271,33 @@ namespace DefesaCivil.CityGen
 
         static readonly Color32 Soil = new Color32(112, 84, 60, 255), SoilLo = new Color32(96, 72, 52, 255);
 
+        /// <summary>
+        /// Decorações que o terreno da expansão esconde no Play (BuildLot.Clears, com o pé no meio da borda de baixo do
+        /// retângulo, como no jogo): o chão não ganha a sombra nem o canteiro delas. O recuo da base nova é o da Guarda
+        /// (e o do Armazém) do layout, o mesmo que o ExpansionManager mede na cena.
+        /// </summary>
+        public static HashSet<string> HiddenByLots(CityLayout l, SpriteCatalog cat)
+        {
+            var hidden = new HashSet<string>();
+            var lots = ExpansionData.Load().lots;
+            if (lots == null) return hidden;
+            float Recess(string type) => l.structures.Where(s => s.type == type).Select(s => s.bottomCenter.y - s.entry.y).DefaultIfEmpty(float.NaN).First();
+            foreach (var slot in lots)
+            {
+                if (slot == null) continue;
+                float recess = Recess(slot.kind == LotKind.Base ? StructureType.Guard : StructureType.Warehouse);
+                if (float.IsNaN(recess)) continue;
+                foreach (var d in l.decorations)
+                {
+                    var cs = cat.Get(d.sprite);
+                    if (cs == null) continue;
+                    Vector2 c = cs.RectCenterFor(d.bottomCenter);
+                    if (BuildLot.Clears(slot.entry, recess, new Vector2(c.x, c.y - cs.heightU / 2f))) hidden.Add(d.id);
+                }
+            }
+            return hidden;
+        }
+
         static bool IsPlant(string texture) =>
             texture.StartsWith("Arvore") || texture.StartsWith("Carvalho") || texture.StartsWith("Pinheiro") || texture.StartsWith("Palmeira")
             || texture.StartsWith("Arbusto") || texture.StartsWith("Folhagem") || texture.StartsWith("Planta_") || texture.StartsWith("Capim") || texture.StartsWith("Flor_");
@@ -276,12 +306,12 @@ namespace DefesaCivil.CityGen
         /// Planta só nasce em terra: no pé de cada árvore, arbusto ou flor em chão duro (lajota do comércio, concreto da
         /// indústria, praça da Guarda), um canteiro de terra com meio-fio, como os da calçada de verdade.
         /// </summary>
-        static void Planters(Canvas cv, CityLayout l, SpriteCatalog cat, List<(PolygonData poly, Rect r, Zone zone)> blocks)
+        static void Planters(Canvas cv, CityLayout l, SpriteCatalog cat, List<(PolygonData poly, Rect r, Zone zone)> blocks, HashSet<string> hidden)
         {
             var hard = new HashSet<string>(blocks.Where(b => b.zone == Zone.Commercial || b.zone == Zone.Industrial || b.zone == Zone.Civic).Select(b => b.poly.id));
             foreach (var d in l.decorations)
             {
-                if (!hard.Contains(d.polygonId)) continue;
+                if (!hard.Contains(d.polygonId) || hidden.Contains(d.id)) continue;
                 var cs = cat.Get(d.sprite);
                 if (cs == null || !IsPlant(cs.texture)) continue;
                 float hw = Mathf.Max(0.22f, cs.visWU * 0.42f), hh = Mathf.Clamp(cs.visWU * 0.14f, 0.12f, 0.2f);

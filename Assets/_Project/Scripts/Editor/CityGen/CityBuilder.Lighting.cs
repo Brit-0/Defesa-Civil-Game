@@ -30,8 +30,8 @@ namespace DefesaCivil.CityGen
         const float AmbientIntensity = 0.68f;
         static readonly Color SunColor = new Color(1.00f, 0.93f, 0.80f);
         const float SunIntensity = 0.5f, SunDistance = 120f, SunHeight = 140f;
-        /// <summary>De onde vem o sol (noroeste). As sombras assadas do chão (CityGround) vão para o lado oposto.</summary>
-        internal static readonly Vector2 SunDirection = new Vector2(-0.55f, 0.85f);
+        /// <summary>De onde vem o sol (noroeste). As sombras (ShadowModel: assadas no chão e as da expansão) vão para o lado oposto.</summary>
+        internal static readonly Vector2 SunDirection = ShadowModel.SunDirection;
         static readonly Color LampColor = new Color(1.00f, 0.80f, 0.50f);
         static readonly Color GuardColor = new Color(0.72f, 0.86f, 1.00f);
         static readonly Color DepotColor = new Color(1.00f, 0.84f, 0.45f);

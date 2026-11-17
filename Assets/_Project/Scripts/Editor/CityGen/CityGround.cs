@@ -191,14 +191,16 @@ namespace DefesaCivil.CityGen
                 }
             }
 
-            // 7b. canteiro de terra no pé das plantas em chão duro (CityGround.Details.cs)
-            Planters(cv, l, cat, blocks);
+            // 7b. canteiro de terra no pé das plantas em chão duro (CityGround.Details.cs); nada das que o terreno da
+            // expansão esconde no Play
+            var hidden = HiddenByLots(l, cat);
+            Planters(cv, l, cat, blocks, hidden);
 
             // 8a. flores, capim e pedrinhas do pack carimbados no chão
             ScatterSmalls(cv, l, cat, blocks);
 
             // 8. sombras projetadas de estruturas e decorações, na direção oposta ao sol (CityGround.Details.cs)
-            CastShadows(cv, l, cat);
+            CastShadows(cv, l, cat, hidden);
 
             var tex = new Texture2D(cv.W, cv.H, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point };
             tex.SetPixels32(cv.px);

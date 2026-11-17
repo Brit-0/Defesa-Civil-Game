@@ -58,6 +58,11 @@ O que olhar:
 - **Trabalhadores:** o número no topo é **livres/total** (ex.: 2/3 com uma equipe na rua); contratar e voluntários aumentam o total.
 - **Tela de fim:** perca deixando o caos encher (ou ganhe comprando o objetivo). O HUD some por trás, a janela mostra 4 cartões (tempo, casas consertadas, desastres enfrentados, dinheiro ganho sem contar o inicial) e dois botões: **JOGAR DE NOVO** (recomeça direto) e **MENU** (volta à tela inicial).
 - **Câmera travada:** na tela inicial e na tela de fim, arrastar e a roda do mouse não mexem o mapa; ao clicar em **JOGAR** a câmera volta a responder.
+- **Sombras:** todas caem para baixo e para a direita (sol de cima à esquerda) e começam coladas no pé do desenho. Casas, Base e Armazéns: uma faixa embaixo do tamanho da parede da frente e uma lateral à direita (o telhado não conta como altura). Árvores, postes e placas: até a ponta, com a mancha no pé. Base e armazém novos da expansão ganham a mesma sombra quando a obra termina, e a árvore que o terreno tira não deixa sombra nem canteiro no chão.
+- **Incêndio:** dura 40 s se ninguém for (era 25); a casa em chamas não mostra número nem o fundo escuro dele.
+- **Escolher a base:** clicar na Base depois do chamado faz o clique e o estalo da aba da equipe abrindo.
+- **Sem trabalhadores:** com todos na rua, o aviso nasce na Base, não na casa.
+- **Coleta:** as moedinhas pulam da casa e voam até o contador de dinheiro, sem o "+N" na tela; o contador pula a cada moeda que chega.
 
 Para ver os tutoriais de novo: **Tools → Jam → Reset Tutorial** e **Tools → Jam → Reset Energy Tutorial**, com o Play parado.
 
