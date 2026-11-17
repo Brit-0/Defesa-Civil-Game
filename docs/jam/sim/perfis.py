@@ -102,7 +102,9 @@ class Jogador:
     def _gerador(self, jogo, proximo):
         """Compra o gerador quando a rede já passou do limite ou a próxima compra passaria."""
         rede, b = jogo.rede, jogo.b
-        if not rede.ligada or "generator" not in jogo.ups or proximo == "goal":
+        if not rede.ligada or "generator" not in jogo.ups:
+            return False
+        if proximo == "goal" and rede.demanda <= rede.capacidade:  # RITMO_V3: em sobrecarga compra mesmo antes da meta
             return False
         extra = {"automation": b["automationDemandPerLevel"], "base2": b["baseDemand"], "depot2": b["depotDemand"]}.get(proximo, 0)
         if rede.demanda + extra <= rede.capacidade or jogo.niveis["generator"] >= jogo.ups["generator"]["maxLevel"]:
@@ -184,17 +186,30 @@ PLANOS = {
                   "automation", "tools", "workers", "automation", "income", "goal"],
     "gente": ["workers", "workers", "workers", "cart", "speed", "workers", "workers", "speed",
               "income", "income", "workers", "income", "goal"],
+    # RITMO_V3: quem não conhece o jogo compra o que é barato, na ordem das abas, e só depois a renda e a automação.
+    "ingenuo": ["workers", "speed", "workers", "tools", "cart", "workers", "reward", "speed", "workers", "income",
+                "automation", "tools", "workers", "automation", "income", "goal"],
 }
 
 
-def perfis(plano_bom="carrinho"):
-    plano = PLANOS[plano_bom]
+def com_base(plano):
+    """RITMO_V3: o jogador usa a expansão; uma base nova logo depois da primeira automação (ou antes da meta)."""
+    plano = [p for p in plano if p not in ("base2", "depot2")]
+    i = plano.index("automation") + 1 if "automation" in plano else len(plano) - 1
+    return plano[:i] + ["base2"] + plano[i:]
+
+
+def perfis(plano_bom="carrinho", expansao=True):
+    plano = com_base(PLANOS[plano_bom]) if expansao else PLANOS[plano_bom]
+    ingenuo = com_base(PLANOS["ingenuo"]) if expansao else PLANOS["ingenuo"]
     return {
         "ignora": None,
         "bom": Jogador("bom", reacao=1.0, clique=0.35, mira=1.0, plano=plano, equipe="espalha", estoque_alvo=6),
+        "médio": Jogador("médio", reacao=2.0, clique=0.5, mira=1.6, plano=plano, equipe="sugerida", acerto=0.55),
+        # RITMO_V3: demora para ver o chamado e para mirar, acerta pouco os mini games e compra sem plano.
+        "ruim": Jogador("ruim", reacao=2.5, clique=0.6, mira=2.0, plano=ingenuo, equipe="sugerida", acerto=0.4),
         "bom, sem mini games": Jogador("bom-inc", reacao=1.0, clique=0.35, mira=1.0, plano=plano, equipe="espalha",
                                        estoque_alvo=6, mini=False),
-        "médio": Jogador("médio", reacao=2.0, clique=0.5, mira=1.6, plano=plano, equipe="sugerida", acerto=0.55),
         "médio, sem mini games": Jogador("médio-inc", reacao=2.0, clique=0.5, mira=1.6, plano=plano,
                                          equipe="sugerida", mini=False),
         "bom, larga aos 6 min": Jogador("bom6", reacao=1.0, clique=0.35, mira=1.0, plano=plano, equipe="espalha",

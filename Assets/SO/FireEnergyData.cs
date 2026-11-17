@@ -27,7 +27,7 @@ public class FireEnergyData : ScriptableObject
 
     [Header("ENERGY")]
     [Tooltip("Segundos de partida (sem contar o tempo parado no tutorial) até a energia entrar no jogo.")]
-    public float unlockTime = 150f;
+    public float unlockTime = 315f; // RITMO_V3: 150. Último sistema: depois da tempestade e da primeira base nova.
     [Tooltip("Capacidade do gerador antes de qualquer melhoria. O upgrade generator soma effectPerLevel por nível.")]
     public int startCapacity = 5;
     public int baseDemand = 2;

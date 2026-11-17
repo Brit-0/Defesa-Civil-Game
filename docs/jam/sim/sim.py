@@ -62,6 +62,9 @@ class Jogo:
         self.n_desastres, self.calma, self.marcos = 0, 0.0, 0
         self.bonus_ocorrencia = self.criticos = self.erros = self.herois = self.escoradas = self.de_pe = 0
         self.fogos_cresceram = 0
+        # Ritmo (RITMO_V3.md): segundo em que cada sistema aparece pela primeira vez, chamados e caos por minuto.
+        self.estreias = {}
+        self.chamados_min, self.caos_min = {}, {}
         self.rede = Rede(self)
 
     # --- valores (Stats)
@@ -117,6 +120,10 @@ class Jogo:
         c.nivel_fogo, c.partes = (1 if problema == FOGO else 0), 0
         c.equipe = c.trabalhando = c.pronta = c.critico = False
         c.estado, c.desde, c.bonus = problema, self.t, 0.0
+        if problema == FOGO:
+            self.estreias.setdefault("fogo", self.t)
+        minuto = int(self.t // 60)
+        self.chamados_min[minuto] = self.chamados_min.get(minuto, 0) + 1
         return True
 
     def negado(self, c, n):
@@ -261,6 +268,8 @@ class Jogo:
         self.money -= self.custo(uid)
         self.niveis[uid] += 1
         self.compras.append((self.t / 60, uid, self.niveis[uid]))
+        if uid in ("base2", "depot2"):
+            self.estreias.setdefault("expansão", self.t)
         if uid == "workers":
             self.workers += round(u["effectPerLevel"])
         elif uid == "automation" and self.niveis[uid] >= 3:
@@ -279,10 +288,17 @@ class Jogo:
         b = self.b
         return round(b["disasterHousesStart"] + (b["disasterHousesEnd"] - b["disasterHousesStart"]) * self.rampa())
 
+    # RITMO_V3, só no simulador (o C# não faz): o primeiro sorteio depois de liberar um tipo é esse tipo.
+    estreia_garantida = False
+
     def sortear(self):
         if self.primeiro:
             return "terremoto"
         b = self.b
+        if self.estreia_garantida:
+            for tipo, libera in (("incendio", b["fireUnlockTime"]), ("tempestade", b["stormUnlockTime"])):
+                if self.t >= libera and tipo not in self.estreias:
+                    return tipo
         pesos = [("terremoto", b["earthquakeWeight"]),
                  ("tempestade", b["stormWeight"] if self.t >= b["stormUnlockTime"] else 0),
                  ("incendio", b["fireWeight"] if self.t >= b["fireUnlockTime"] else 0)]
@@ -323,6 +339,7 @@ class Jogo:
 
     def executar(self, tipo, n, alvos, forte):
         self.desastres.append((self.t / 60, tipo + (" forte" if forte else ""), n))
+        self.estreias.setdefault(tipo + (" forte" if forte else ""), self.t)
         if forte:
             self.calma = self.b["strongDisasterCalm"]
         o = self.nova_ocorrencia()
@@ -419,6 +436,8 @@ class Jogo:
         else:
             self.caos = max(alvo, self.caos - vel * dt)
         self.pico_caos = max(self.pico_caos, self.caos)
+        minuto = int(self.t // 60)
+        self.caos_min[minuto] = max(self.caos_min.get(minuto, 0.0), self.caos)
         if self.caos >= 1.0:
             self.fim = "derrota"
 

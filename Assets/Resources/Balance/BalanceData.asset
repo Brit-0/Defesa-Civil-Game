@@ -31,22 +31,22 @@ MonoBehaviour:
   fireBurnoutDamage: 3
   chaosWeightDamaged: 1
   chaosWeightFire: 2
-  chaosLimit: 22
+  chaosLimit: 20
   chaosRisePerSecond: 0.06
   chaosFallPerSecond: 0.1
   firstDisasterDelay: 6
   firstDisasterHouses: 2
-  disasterIntervalStart: 45
-  disasterIntervalEnd: 20
-  disasterRampDuration: 780
-  disasterHousesStart: 3
+  disasterIntervalStart: 50
+  disasterIntervalEnd: 22
+  disasterRampDuration: 720
+  disasterHousesStart: 2
   disasterHousesEnd: 6
   warningTime: 4
-  earthquakeWeight: 50
-  stormWeight: 35
-  fireWeight: 15
-  stormUnlockTime: 90
-  fireUnlockTime: 180
+  earthquakeWeight: 40
+  stormWeight: 50
+  fireWeight: 30
+  stormUnlockTime: 170
+  fireUnlockTime: 90
   earthquakeWaveDelayPerUnit: 0.15
   stormDuration: 8
   lightningFireChance: 0.2

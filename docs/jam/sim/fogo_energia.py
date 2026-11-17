@@ -141,6 +141,7 @@ class Rede:
             if jogo.t < jogo.b["unlockTime"]:
                 return
             self.ligada = True
+            jogo.estreias.setdefault("energia", jogo.t)
             self.recontar(jogo)
         if self.apagao:
             self.segundos_sem_energia += jogo.passo
