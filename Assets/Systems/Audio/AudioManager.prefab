@@ -78,9 +78,9 @@ MonoBehaviour:
   duckAttackTime: 0.08
   duckMaxHold: 1.5
   duckReleaseTime: 0.9
-  calmMusic: {fileID: 8300000, guid: 8f877e7629d1e27723fc99ed8d58b639, type: 3}
-  tenseMusic: {fileID: 8300000, guid: 3569f0ccfab6e617700394cce89e1045, type: 3}
-  dangerMusic: {fileID: 8300000, guid: 6656137493d584c4158b6640de67571c, type: 3}
+  calmMusic: {fileID: 0}
+  tenseMusic: {fileID: 0}
+  dangerMusic: {fileID: 0}
   dangerLayerVolume: 0.8
   tensionFadeTime: 2
   playMusicOnStart: 1

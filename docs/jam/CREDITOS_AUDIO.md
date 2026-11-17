@@ -1,0 +1,220 @@
+# Créditos do áudio (v5D)
+
+Gerado por `Tools/Audio/creditos_md.py` a partir de `Tools/Audio/creditos_sons.json`. Rodar de novo depois de mudar uma
+receita em `sons_v5.py` ou `musica_v5.py`.
+
+## Fontes e licenças
+
+- **Gamemaster Audio - Pro Sound Collection v1.3** (pacote comprado pelo Pietro; decisão de 16/11 registrada em
+  `docs/jam/STATUS_C.md`): uso livre de royalties em jogos; não se redistribui o pacote nem os arquivos soltos.
+  Os sons do jogo são mixagens editadas (cortes, camadas, tom, filtros), não os arquivos originais.
+- **Sonniss GDC 2026 Game Audio Bundle**: uso comercial sem obrigação de crédito; proibido revender os arquivos soltos
+  e usar para treinar IA. Creditados aqui por cortesia, com o estúdio de cada coleção no caminho.
+- **Síntese própria** (`Tools/Audio/musica_v5.py`): marimba modal, pad, metais e cordas aditivos, cordas dedilhadas
+  (Karplus-Strong), bumbo e tambor sintéticos. Sem licença de terceiros.
+- **Sons antigos que continuam no jogo** (`Assets/Audio/Sfx_Hover`, `Sfx_Whoosh`, `Sfx_Confetti`, `Sfx_Siren`,
+  `Amb_Fire`): do pacote Gamemaster (tabela do T30 em `docs/jam/STATUS_C.md`).
+
+Nota: o pedido citava CC0 ou síntese. Os efeitos ficaram nas gravações licenciadas acima porque o Pietro prefere som
+gravado a som sintético; a música é síntese própria com percussão gravada do Gamemaster.
+
+## Som por som
+
+- `amb_cricket`
+  - Gamemaster Pro Sound Collection: Animals_Nature_Ambiences/cricket_chirping_solo_01.wav
+  - Gamemaster Pro Sound Collection: Animals_Nature_Ambiences/cricket_chirping_solo_02.wav
+  - Gamemaster Pro Sound Collection: Animals_Nature_Ambiences/cricket_chirping_solo_03.wav
+  - Gamemaster Pro Sound Collection: Animals_Nature_Ambiences/cricket_chirping_solo_04.wav
+- `amb_day`
+  - Sonniss GDC 2026: Sonik Sound Library - Urban Life/AMBUrbn_Ambience, City, Madrid, Spain, Soft Traffic and Human Activity, Some Birds-Surround_KSL_KS016.wav
+- `amb_night`
+  - Gamemaster Pro Sound Collection: Animals_Nature_Ambiences/crickets_chirping_night_ambience_loop.wav
+  - Sonniss GDC 2026: Sonik Sound Library - Urban Life/AMBUrbn_Ambience, City, Madrid, Spain, Soft Traffic and Human Activity, Some Birds-Surround_KSL_KS016.wav
+- `build_done`
+  - Gamemaster Pro Sound Collection: Metal/metal_drum_impact_thud_02.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Bell/chime_bell_02.wav
+  - Gamemaster Pro Sound Collection: Impacts_Smashable/rock_impact_small_hit_02.wav
+- `build_start`
+  - Gamemaster Pro Sound Collection: User_Interface_Menu/ui_stamp_01.wav
+  - Gamemaster Pro Sound Collection: Foley/foley_soldier_gear_equipment_rattle_movement_light_01.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Wood/wood_block_sticks_hit_clap_02.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Wood/wood_block_sticks_hit_clap_05.wav
+- `call_collect`
+  - Gamemaster Pro Sound Collection: Collectibles_Items_Powerup/collect_coin_05.wav
+  - Sonniss GDC 2026: Cinematic Sound Design - UI Interaction Elements/Ting Coins.wav
+  - Gamemaster Pro Sound Collection: Collectibles_Items_Powerup/coin_bag_ring_gemstone_item_01.wav
+- `call_new_fire`
+  - Gamemaster Pro Sound Collection: Explosion_Fire_Gas/gas_small_flame_ignite_01.wav
+  - Gamemaster Pro Sound Collection: Explosion_Fire_Gas/fire_making_grind_stone_flint_spark_01.wav
+  - Gamemaster Pro Sound Collection: Alarms_Beeps_Siren/beep_08.wav
+- `call_new_power`
+  - Gamemaster Pro Sound Collection: Electricity_Hums/hum_electric_sparks_interference_loop_01.wav
+  - Gamemaster Pro Sound Collection: Switches_Buttons_Gears_Levers/switch_button_push_on_off_02.wav
+  - Gamemaster Pro Sound Collection: Alarms_Beeps_Siren/beep_08.wav
+- `call_new_quake`
+  - Gamemaster Pro Sound Collection: Impacts_Smashable/rock_impact_small_hit_01.wav
+  - Gamemaster Pro Sound Collection: Alarms_Beeps_Siren/beep_08.wav
+  - Gamemaster Pro Sound Collection: Impacts_Smashable/rock_impact_small_hit_03.wav
+- `call_new_storm`
+  - Gamemaster Pro Sound Collection: Electricity_Hums/radio_walkie_talkie_static_01.wav
+  - Gamemaster Pro Sound Collection: Water/water_drop_drip_single_01.wav
+  - Gamemaster Pro Sound Collection: Alarms_Beeps_Siren/beep_08.wav
+- `call_urgent`
+  - Gamemaster Pro Sound Collection: Electricity_Hums/radio_walkie_talkie_static_02.wav
+  - Gamemaster Pro Sound Collection: Alarms_Beeps_Siren/beep_08.wav
+- energy_unlock (energia: `sfx_energy_on.wav`)
+  - Gamemaster Pro Sound Collection: Miscellaneous/Light/light_fluorescent_hum_flicker_02.wav
+  - Gamemaster Pro Sound Collection: Sci-Fi/sci-fi_power_up_01.wav
+  - Gamemaster Pro Sound Collection: Switches_Buttons_Gears_Levers/switch_button_push_on_off_03.wav
+- `fire_ignite`
+  - Gamemaster Pro Sound Collection: Explosion_Fire_Gas/gas_med_flame_ignite_01.wav
+  - Gamemaster Pro Sound Collection: Explosion_Fire_Gas/fire_making_grind_stone_flint_spark_01.wav
+  - Gamemaster Pro Sound Collection: Explosion_Fire_Gas/fire_burning_flames_crackle_loop_01.wav
+  - Gamemaster Pro Sound Collection: Explosion_Fire_Gas/gas_med_flame_ignite_02.wav
+  - Gamemaster Pro Sound Collection: Explosion_Fire_Gas/fire_making_grind_stone_flint_spark_02.wav
+- `fire_jet_loop`
+  - Gamemaster Pro Sound Collection: Water/water_running_shower_dripping_loop_02.wav
+  - Gamemaster Pro Sound Collection: Water/water_running_shower_dripping_loop_04.wav
+  - Gamemaster Pro Sound Collection: Explosion_Fire_Gas/gas_leak_03_loop.wav
+- `fire_jet_start`
+  - Gamemaster Pro Sound Collection: Explosion_Fire_Gas/gas_leak_short_burst_01.wav
+  - Gamemaster Pro Sound Collection: Water/water_splash_small_item_01.wav
+- `fire_out`
+  - Gamemaster Pro Sound Collection: Explosion_Fire_Gas/gas_leak_med_burst_01.wav
+  - Gamemaster Pro Sound Collection: Explosion_Fire_Gas/fuse_stop_burn_out_bomb_dynamite_01.wav
+  - Gamemaster Pro Sound Collection: Water/water_splash_small_item_02.wav
+- fuse_done (energia: `sfx_fuse_done.wav`)
+  - Gamemaster Pro Sound Collection: Miscellaneous/Light/light_fluorescent_hum_flicker_02.wav
+  - Gamemaster Pro Sound Collection: Switches_Buttons_Gears_Levers/switch_button_push_on_off_04.wav
+  - Gamemaster Pro Sound Collection: Sci-Fi/sci-fi_power_up_01.wav
+- fuse_open (energia: `sfx_fuse_open.wav`)
+  - Gamemaster Pro Sound Collection: Metal/metal_lid_movement_impact_01.wav
+- fuse_switch (energia: `sfx_fuse_switch.wav`)
+  - Gamemaster Pro Sound Collection: Switches_Buttons_Gears_Levers/switch_button_push_on_off_02.wav
+- fuse_wrong (energia: `sfx_fuse_wrong.wav`)
+  - Gamemaster Pro Sound Collection: Electricity_Hums/hum_electric_sparks_interference_loop_01.wav
+  - Sonniss GDC 2026: Cinematic Sound Design - UI Interaction Elements/Deny Muted.wav
+- `jingle_lose`
+  - Gamemaster Pro Sound Collection: Metal/metal_drum_impact_thud_03.wav (pele do tambor)
+- `jingle_win`
+  - Gamemaster Pro Sound Collection: Miscellaneous/Bell/chime_bell_05.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Sprinkle Seeds Salt Pepper/shaker_sprinkle_seeds_cook_garden_02.wav
+  - SÃ­ntese prÃ³pria (marimba modal, pad e metais aditivos, Karplus-Strong) em Tools/Audio/musica_v5.py
+- `music_layer_0`
+  - Gamemaster Pro Sound Collection: Miscellaneous/Wood/wood_block_sticks_hit_clap_03.wav (toque da marimba)
+  - SÃ­ntese prÃ³pria (marimba modal, pad e metais aditivos, Karplus-Strong) em Tools/Audio/musica_v5.py
+- `music_layer_1`
+  - Gamemaster Pro Sound Collection: Miscellaneous/Sprinkle Seeds Salt Pepper/shaker_sprinkle_seeds_cook_garden_01.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Sprinkle Seeds Salt Pepper/shaker_sprinkle_seeds_cook_garden_02.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Sprinkle Seeds Salt Pepper/shaker_sprinkle_seeds_cook_garden_03.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Wood/wood_block_sticks_hit_clap_01.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Wood/wood_block_sticks_hit_clap_04.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Wood/wood_block_sticks_hit_clap_06.wav
+- `music_layer_2`
+  - Gamemaster Pro Sound Collection: Miscellaneous/Clock/clock_tick_01.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Clock/clock_tick_02.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Clock/clock_tock_01.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Clock/clock_tock_03.wav
+- power_denied (energia: `sfx_no_energy.wav`)
+  - Gamemaster Pro Sound Collection: Switches_Buttons_Gears_Levers/switch_button_push_small_01.wav
+  - Gamemaster Pro Sound Collection: Electricity_Hums/hum_electric_neon_light_loop_01.wav
+- power_down (energia: `sfx_blackout.wav`)
+  - Gamemaster Pro Sound Collection: Magic_Spells/electric_surge_blast_02.wav
+  - Gamemaster Pro Sound Collection: Switches_Buttons_Gears_Levers/switch_button_push_on_off_04.wav
+  - Gamemaster Pro Sound Collection: Sci-Fi/sci-fi_power_down_02.wav
+  - Gamemaster Pro Sound Collection: Electricity_Hums/hum_electric_neon_light_loop_01.wav
+- power_overload (energia: `sfx_overload.wav`)
+  - Gamemaster Pro Sound Collection: Electricity_Hums/hum_electric_sparks_interference_loop_01.wav
+  - Gamemaster Pro Sound Collection: Explosion_Fire_Gas/fire_making_grind_stone_flint_spark_02.wav
+- power_restore (energia: `sfx_restore.wav`)
+  - Gamemaster Pro Sound Collection: Miscellaneous/Light/light_fluorescent_hum_flicker_01.wav
+  - Gamemaster Pro Sound Collection: Switches_Buttons_Gears_Levers/switch_button_push_on_off_01.wav
+  - Gamemaster Pro Sound Collection: Electricity_Hums/hum_electric_neon_light_loop_01.wav
+  - Gamemaster Pro Sound Collection: Sci-Fi/sci-fi_power_up_01.wav
+- `quake_hit`
+  - Gamemaster Pro Sound Collection: Impacts_Smashable/glass_smashable_small_break_01.wav
+  - Gamemaster Pro Sound Collection: Impacts_Smashable/rock_smashable_hit_impact_01.wav
+  - Gamemaster Pro Sound Collection: Impacts_Smashable/rock_smashable_hit_impact_02.wav
+  - Gamemaster Pro Sound Collection: Impacts_Smashable/rock_smashable_hit_impact_03.wav
+- `quake_rumble`
+  - Gamemaster Pro Sound Collection: Impacts_Smashable/rock_earthquake_impact_01.wav
+  - Gamemaster Pro Sound Collection: Cinematic Sounds/cinematic_deep_bass_rumble_02.wav
+  - Gamemaster Pro Sound Collection: Impacts_Smashable/rock_avalanche_landslide_debris_03.wav
+  - Gamemaster Pro Sound Collection: Impacts_Smashable/rock_smashable_falling_debris_04.wav
+  - Gamemaster Pro Sound Collection: Impacts_Smashable/glass_smashable_debris_fall_01.wav
+- `rain_heavy_loop`
+  - Sonniss GDC 2026: The Noisery - City Rain/RAINConc_Rain Medium Exterior Splatter City Traffic 6_The Noisery_City Rain.wav
+- `rain_light_loop`
+  - Gamemaster Pro Sound Collection: Animals_Nature_Ambiences/rain_light_hard_surface_loop_01.wav
+- `repair_done`
+  - Gamemaster Pro Sound Collection: Miscellaneous/Bell/chime_bell_05.wav
+  - SÃ­ntese prÃ³pria (marimba modal, pad e metais aditivos, Karplus-Strong) em Tools/Audio/musica_v5.py
+- `repair_tool`
+  - Gamemaster Pro Sound Collection: Metal/metal_hit_small_02.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Wood/wood_block_sticks_hit_clap_01.wav
+  - Gamemaster Pro Sound Collection: Metal/metal_hit_small_05.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Wood/wood_block_sticks_hit_clap_03.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Wood/wood_block_sticks_hit_clap_04.wav
+  - Gamemaster Pro Sound Collection: Switches_Buttons_Gears_Levers/lever_turn_push_crank_handle_small_02.wav
+  - Gamemaster Pro Sound Collection: Switches_Buttons_Gears_Levers/lever_turn_push_crank_handle_small_04.wav
+  - Gamemaster Pro Sound Collection: Switches_Buttons_Gears_Levers/gear_drill_turn_04.wav
+- `rod_absorb`
+  - Gamemaster Pro Sound Collection: Magic_Spells/electric_surge_blast_01.wav
+  - Gamemaster Pro Sound Collection: Metal/metal_hit_small_06.wav
+  - Gamemaster Pro Sound Collection: Sci-Fi/sci-fi_shield_power_deflect_block_01.wav
+  - Gamemaster Pro Sound Collection: Animals_Nature_Ambiences/thunder_lightning_strike_rumble_02.wav
+- `team_arrive`
+  - Gamemaster Pro Sound Collection: Foley/foley_sports_bag_grab_pickup_catch_02.wav
+  - Gamemaster Pro Sound Collection: Footsteps/footstep_concrete_land_01.wav
+  - Gamemaster Pro Sound Collection: Foley/foley_sports_bag_grab_pickup_catch_03.wav
+  - Gamemaster Pro Sound Collection: Footsteps/footstep_concrete_land_02.wav
+- `team_depart`
+  - Gamemaster Pro Sound Collection: Foley/foley_soldier_gear_equipment_rattle_movement_med_01.wav
+  - Gamemaster Pro Sound Collection: Footsteps/footstep_concrete_run_02.wav
+  - Gamemaster Pro Sound Collection: Footsteps/footstep_concrete_run_03.wav
+  - Gamemaster Pro Sound Collection: Footsteps/footstep_concrete_run_04.wav
+  - Gamemaster Pro Sound Collection: Footsteps/footstep_concrete_run_01.wav
+  - Gamemaster Pro Sound Collection: Foley/foley_soldier_gear_equipment_rattle_movement_med_02.wav
+  - Gamemaster Pro Sound Collection: Foley/foley_soldier_gear_equipment_rattle_movement_med_03.wav
+  - Gamemaster Pro Sound Collection: Foley/foley_soldier_gear_equipment_rattle_movement_med_04.wav
+- `thunder_far`
+  - Gamemaster Pro Sound Collection: Animals_Nature_Ambiences/thunder_lightning_strike_rumble_03.wav
+  - Gamemaster Pro Sound Collection: Animals_Nature_Ambiences/thunder_lightning_strike_rumble_05.wav
+- `thunder_near`
+  - Gamemaster Pro Sound Collection: Magic_Spells/electric_lightning_blast_01.wav
+  - Sonniss GDC 2026: Epic Stock Media - Public Spaces - Storms Lakes Parks and Rural Nature Exteriors/STORM_Texas Rain Thunder Initial Crash Boom Storm 01 Clap Lightning_ESM_CPS.wav
+  - Gamemaster Pro Sound Collection: Animals_Nature_Ambiences/thunder_lightning_strike_rumble_01.wav
+  - Gamemaster Pro Sound Collection: Animals_Nature_Ambiences/thunder_lightning_strike_rumble_02.wav
+- `ui_buy`
+  - Gamemaster Pro Sound Collection: Collectibles_Items_Powerup/cash_register_open_coins_cha_ching_01.wav
+  - Sonniss GDC 2026: Cinematic Sound Design - UI Interaction Elements/Ting Coins.wav
+  - Sonniss GDC 2026: Cinematic Sound Design - Interface & Infographics/Interface Accept Glassy Snap.wav
+- `ui_click`
+  - Gamemaster Pro Sound Collection: User_Interface_Menu/ui_button_simple_click_03.wav
+  - Gamemaster Pro Sound Collection: User_Interface_Menu/ui_button_simple_click_04.wav
+- `ui_coin_tick`
+  - Gamemaster Pro Sound Collection: Collectibles_Items_Powerup/collect_coin_03.wav
+  - Gamemaster Pro Sound Collection: Collectibles_Items_Powerup/collect_coin_04.wav
+- `ui_denied`
+  - Sonniss GDC 2026: Cinematic Sound Design - UI Interaction Elements/Deny Muted.wav
+  - Sonniss GDC 2026: Cinematic Sound Design - System & UI Feedback Elements/Interface Deny Low Fat Dark.wav
+- `ui_popup`
+  - Gamemaster Pro Sound Collection: User_Interface_Menu/ui_menu_popup_message_01.wav
+  - Sonniss GDC 2026: Cinematic Sound Design - Interface & Infographics/Interface Pop High Short.wav
+- `ui_tab`
+  - Sonniss GDC 2026: Cinematic Sound Design - Paper Foley/Encyclopedia Glossy Page Turn Muted.wav
+  - Gamemaster Pro Sound Collection: User_Interface_Menu/ui_menu_button_scroll_page_03.wav
+  - Gamemaster Pro Sound Collection: User_Interface_Menu/ui_menu_button_scroll_page_01.wav
+- `warning_fire`
+  - Gamemaster Pro Sound Collection: Explosion_Fire_Gas/fire_burning_flames_crackle_loop_01.wav
+  - Gamemaster Pro Sound Collection: Explosion_Fire_Gas/gas_large_flame_ignite_01.wav
+- `warning_quake`
+  - Gamemaster Pro Sound Collection: Cinematic Sounds/cinematic_deep_bass_pass_whoosh_01.wav
+  - Gamemaster Pro Sound Collection: Impacts_Smashable/rock_impact_heavy_slam_02.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Wood/wood_block_rattle_movement_02.wav
+  - Gamemaster Pro Sound Collection: Miscellaneous/Gravel Dirt Stones/dirt_rice_pouring_gravel_debris_03.wav
+- `warning_storm`
+  - Gamemaster Pro Sound Collection: Animals_Nature_Ambiences/wind_general_gusty_low_loop_02.wav
+  - Gamemaster Pro Sound Collection: Animals_Nature_Ambiences/thunder_lightning_strike_rumble_04.wav
+- `wind_loop`
+  - Gamemaster Pro Sound Collection: Animals_Nature_Ambiences/wind_general_gusty_low_loop_02.wav

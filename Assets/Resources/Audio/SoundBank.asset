@@ -1,0 +1,758 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fac82926058f205488c4a46229fcf190, type: 3}
+  m_Name: SoundBank
+  m_EditorClassIdentifier: Assembly-CSharp::SoundBank
+  mixer: {fileID: 24100000, guid: 6ec90fb8b35315e4e964f011d8be59b2, type: 2}
+  entries:
+  - id: amb_cricket
+    category: 3
+    clips:
+    - {fileID: 8300000, guid: 6eeb6060174c5754d9d9a8931aafb837, type: 3}
+    - {fileID: 8300000, guid: 21725a80fb1f2494eacc62c67a3f6d4f, type: 3}
+    - {fileID: 8300000, guid: 8a0af351a7180e648ae1ae082a9ab19c, type: 3}
+    - {fileID: 8300000, guid: e7cf757a1ed537f44baa9f0b60129bcd, type: 3}
+    volume: 0.7
+    volumeJitterDb: 1.5
+    pitchJitter: 1.5
+    maxVoices: 3
+    cooldown: 0.3
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: amb_day
+    category: 3
+    clips:
+    - {fileID: 8300000, guid: 05fd68721ae6f324ab1cfc92d194b259, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0
+    loop: 1
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: amb_night
+    category: 3
+    clips:
+    - {fileID: 8300000, guid: 87909b91c978379458ae3f91da0ac016, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0
+    loop: 1
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: build_done
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: 0f802109ebbe7024aa2fbb7027110ead, type: 3}
+    volume: 0.9
+    volumeJitterDb: 1.5
+    pitchJitter: 0.4
+    maxVoices: 2
+    cooldown: 0.2
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: build_start
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: 34e3bdbc9e26ca14787224a1636070b4, type: 3}
+    volume: 0.8
+    volumeJitterDb: 1.5
+    pitchJitter: 0.5
+    maxVoices: 2
+    cooldown: 0.2
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: call_collect
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: 2a2788c99c55e904d94c46e0510daf83, type: 3}
+    volume: 1
+    volumeJitterDb: 1.5
+    pitchJitter: 0.2
+    maxVoices: 2
+    cooldown: 0.08
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: call_new_fire
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: 4f6a709e9c730f345bc033f6af7d3f02, type: 3}
+    - {fileID: 8300000, guid: 8b421944c1d389e4795f1949803434ca, type: 3}
+    volume: 0.85
+    volumeJitterDb: 1.5
+    pitchJitter: 0.5
+    maxVoices: 2
+    cooldown: 0.15
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: call_new_power
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: 43d41d398879ff24290e1cea8341bc95, type: 3}
+    volume: 0.85
+    volumeJitterDb: 1.5
+    pitchJitter: 0.5
+    maxVoices: 2
+    cooldown: 0.15
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: call_new_quake
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: 886acbd6d6b1ff047885778c0df65dd6, type: 3}
+    - {fileID: 8300000, guid: 48e9adaacab073e41b9923ab78816fa7, type: 3}
+    volume: 0.85
+    volumeJitterDb: 1.5
+    pitchJitter: 0.5
+    maxVoices: 2
+    cooldown: 0.15
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: call_new_storm
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: 9b098e722677b1648850377dea1bd02c, type: 3}
+    - {fileID: 8300000, guid: 8650c17c84c9d8141b5130b67a3a39be, type: 3}
+    volume: 0.85
+    volumeJitterDb: 1.5
+    pitchJitter: 0.5
+    maxVoices: 2
+    cooldown: 0.15
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: call_urgent
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: c141fb88354735b43bcb6f2d36364c89, type: 3}
+    volume: 0.8
+    volumeJitterDb: 1.5
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0.5
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: fire_ignite
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 575dcef90b978f94c9602b1f1bd1b806, type: 3}
+    - {fileID: 8300000, guid: 39fcd8cf96ceb5947888ce66126e5480, type: 3}
+    volume: 0.85
+    volumeJitterDb: 1.5
+    pitchJitter: 0.8
+    maxVoices: 3
+    cooldown: 0.1
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: fire_jet_loop
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 0cf51859466801f40b7cd7abf21af446, type: 3}
+    volume: 0.8
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0
+    loop: 1
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: fire_jet_start
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: c379400b89740f1488896010afcbcef0, type: 3}
+    volume: 0.9
+    volumeJitterDb: 1.5
+    pitchJitter: 0.5
+    maxVoices: 2
+    cooldown: 0.1
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: fire_loop
+    category: 3
+    clips:
+    - {fileID: 8300000, guid: 3054bda24f8727d00e5f383c8438fd6e, type: 3}
+    volume: 0.8
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0
+    loop: 1
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: fire_out
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 1a4dfd46f9500b942a606f06fad1f944, type: 3}
+    volume: 0.9
+    volumeJitterDb: 1.5
+    pitchJitter: 0.6
+    maxVoices: 3
+    cooldown: 0.1
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: jingle_lose
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: d5a146b90b72f144da0b92c6e701a146, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 1
+    loop: 0
+    ducks: 1
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: jingle_win
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: 875a3c2444b97a24b92c3dbbc8040813, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 1
+    loop: 0
+    ducks: 1
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: music_layer_0
+    category: 4
+    clips:
+    - {fileID: 8300000, guid: ade7119db05692c41aaff2db064d8dfe, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0
+    loop: 1
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: music_layer_1
+    category: 4
+    clips:
+    - {fileID: 8300000, guid: 22b73e3e68e00e94c91ec862b7cc9025, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0
+    loop: 1
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: music_layer_2
+    category: 4
+    clips:
+    - {fileID: 8300000, guid: d9784c595a52cba438a2e807a60f1028, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0
+    loop: 1
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: music_layer_3
+    category: 4
+    clips:
+    - {fileID: 8300000, guid: 7bc6ce0b0069af64da2a4c382f395990, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0
+    loop: 1
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: quake_hit
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 20b92041b3c544740a399f88c60d1b7f, type: 3}
+    - {fileID: 8300000, guid: 62d99bd06edfa8b47a681e9bc380624a, type: 3}
+    - {fileID: 8300000, guid: 4295f0acf3506ea4dab7c6e818512f2b, type: 3}
+    volume: 0.9
+    volumeJitterDb: 1.5
+    pitchJitter: 1.2
+    maxVoices: 3
+    cooldown: 0.15
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: quake_rumble
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 40713a5ba3dc78349b3b8656cf80ca89, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0.3
+    maxVoices: 1
+    cooldown: 0.5
+    loop: 0
+    ducks: 1
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: rain_heavy_loop
+    category: 3
+    clips:
+    - {fileID: 8300000, guid: 3e5e027b4771bf1488cfde458dbf8386, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0
+    loop: 1
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: rain_light_loop
+    category: 3
+    clips:
+    - {fileID: 8300000, guid: 192bf95b4756f7245aca33b80b486d52, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0
+    loop: 1
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: repair_done
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: 572892aed4c33234e87e54307a824795, type: 3}
+    - {fileID: 8300000, guid: 727d4e90f279e174aa32d0292977cbf7, type: 3}
+    - {fileID: 8300000, guid: 3b1c56a3624929448a31de2f89d22a9a, type: 3}
+    volume: 0.9
+    volumeJitterDb: 1.5
+    pitchJitter: 0.2
+    maxVoices: 2
+    cooldown: 0.15
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: repair_tool
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: b9be2d25b9412d24184b852a2a28e203, type: 3}
+    - {fileID: 8300000, guid: 5e08d280e79d3514faeb3d809f41efe4, type: 3}
+    - {fileID: 8300000, guid: d81d844151103974d9898f818fadabeb, type: 3}
+    - {fileID: 8300000, guid: f48f8036b24a12d4cb3280e37495f29d, type: 3}
+    - {fileID: 8300000, guid: 4d163f031dfa3a94888fa50403080270, type: 3}
+    - {fileID: 8300000, guid: 7badf1a0afd40934a8939dc30fb9c548, type: 3}
+    volume: 0.6
+    volumeJitterDb: 1.5
+    pitchJitter: 1
+    maxVoices: 4
+    cooldown: 0.06
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: rod_absorb
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: d1d380a302fcc8544a3b1771bc170854, type: 3}
+    volume: 0.9
+    volumeJitterDb: 0
+    pitchJitter: 0.6
+    maxVoices: 2
+    cooldown: 0.1
+    loop: 0
+    ducks: 1
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: siren
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 716f06e4c333ea8c205297a062a76abc, type: 3}
+    volume: 0.8
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0.5
+    loop: 0
+    ducks: 1
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: team_arrive
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: 6081b7d85e3d2ac4796c7b480febcc34, type: 3}
+    - {fileID: 8300000, guid: 1b6962dd269def74780388b3c32ffa6f, type: 3}
+    volume: 0.7
+    volumeJitterDb: 1.5
+    pitchJitter: 0.8
+    maxVoices: 2
+    cooldown: 0.25
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: team_depart
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: 78e0b26ff6e4f85469165ccac87f0db3, type: 3}
+    - {fileID: 8300000, guid: fbfa1ec2e03859044839bfdb39907af0, type: 3}
+    - {fileID: 8300000, guid: c846e851c73f87241b6061e3262a2896, type: 3}
+    - {fileID: 8300000, guid: 07e03143f2fd44f469b5d35e1976e017, type: 3}
+    volume: 0.8
+    volumeJitterDb: 1.5
+    pitchJitter: 0.8
+    maxVoices: 2
+    cooldown: 0.2
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: thunder_far
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: d1dcb9394da48934496e15f9da218b69, type: 3}
+    - {fileID: 8300000, guid: 06d132fac36a7ff40a58f55798e65ba5, type: 3}
+    volume: 0.8
+    volumeJitterDb: 1.5
+    pitchJitter: 1.2
+    maxVoices: 2
+    cooldown: 1.5
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: thunder_near
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: a5ead23b4f27aa44d95938e51e93ebb6, type: 3}
+    - {fileID: 8300000, guid: ca38664ea296491469d9de0f38688ee6, type: 3}
+    - {fileID: 8300000, guid: 9cce28f5783de05499b97f0a21204c3d, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0.8
+    maxVoices: 3
+    cooldown: 0.08
+    loop: 0
+    ducks: 1
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: ui_buy
+    category: 0
+    clips:
+    - {fileID: 8300000, guid: e3ad2a318cb0bd84689607ee01febd34, type: 3}
+    volume: 1
+    volumeJitterDb: 1.5
+    pitchJitter: 0.3
+    maxVoices: 2
+    cooldown: 0.1
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: ui_click
+    category: 0
+    clips:
+    - {fileID: 8300000, guid: 5c708094ab97627429415627d37d97d8, type: 3}
+    - {fileID: 8300000, guid: 8c3fcd70cae9ba649ac7422ad985d70f, type: 3}
+    volume: 0.8
+    volumeJitterDb: 1.5
+    pitchJitter: 0.5
+    maxVoices: 3
+    cooldown: 0.04
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: ui_coin_tick
+    category: 0
+    clips:
+    - {fileID: 8300000, guid: b7ecf0a5301745440806588181397cdd, type: 3}
+    - {fileID: 8300000, guid: 01e93c1bc0d5ce94dae42d156510d149, type: 3}
+    volume: 0.7
+    volumeJitterDb: 1.5
+    pitchJitter: 0.15
+    maxVoices: 4
+    cooldown: 0.03
+    loop: 0
+    ducks: 0
+    ladderStep: 1
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: ui_confetti
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: 187d912864c09e7a2ef5bd65c77d394c, type: 3}
+    volume: 1
+    volumeJitterDb: 1.5
+    pitchJitter: 0.3
+    maxVoices: 1
+    cooldown: 0.2
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: ui_denied
+    category: 0
+    clips:
+    - {fileID: 8300000, guid: 8aba9d563f978ad4fa05ab890273b2bb, type: 3}
+    - {fileID: 8300000, guid: d2f86608a48ea9148937f5bc6243d51a, type: 3}
+    volume: 0.9
+    volumeJitterDb: 1.5
+    pitchJitter: 0.3
+    maxVoices: 1
+    cooldown: 0.2
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: ui_hover
+    category: 0
+    clips:
+    - {fileID: 8300000, guid: 3508c8f7ae7d0b288cbf999d3c45c560, type: 3}
+    volume: 0.6
+    volumeJitterDb: 1.5
+    pitchJitter: 0.8
+    maxVoices: 2
+    cooldown: 0.05
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: ui_popup
+    category: 0
+    clips:
+    - {fileID: 8300000, guid: 395c7c63df6e47441af194067b7160c4, type: 3}
+    - {fileID: 8300000, guid: fcf95c0d634f1e34cbd0c332cfcf39b1, type: 3}
+    volume: 0.8
+    volumeJitterDb: 1.5
+    pitchJitter: 0.6
+    maxVoices: 2
+    cooldown: 0.08
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: ui_tab
+    category: 0
+    clips:
+    - {fileID: 8300000, guid: 645cd256b72c42d4abf4352b89c5b933, type: 3}
+    - {fileID: 8300000, guid: 27a333b91bb40044894d544668419eb7, type: 3}
+    - {fileID: 8300000, guid: b0c1c3426bd2b024fa3bbc23a71c9a7b, type: 3}
+    volume: 0.8
+    volumeJitterDb: 1.5
+    pitchJitter: 0.4
+    maxVoices: 2
+    cooldown: 0.06
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: ui_whoosh
+    category: 0
+    clips:
+    - {fileID: 8300000, guid: 33307948921b75646bb4ff504e58e656, type: 3}
+    volume: 0.9
+    volumeJitterDb: 1.5
+    pitchJitter: 0.4
+    maxVoices: 1
+    cooldown: 0.1
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: warning_fire
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 865cd7e6d9655be4d9a5e5eba598e1e4, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0.5
+    loop: 0
+    ducks: 1
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: warning_quake
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: fb6286dfd1c376346bdb5d76db2c386f, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0.5
+    loop: 0
+    ducks: 1
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: warning_storm
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 66b744ba6d0a85845abd40c00eb08e78, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0.5
+    loop: 0
+    ducks: 1
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: wind_loop
+    category: 3
+    clips:
+    - {fileID: 8300000, guid: 896caf624b922d1418d618eac92c2901, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0
+    loop: 1
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  legacy:
+  - clip: {fileID: 8300000, guid: 8589fc3d79f74e43513c624807562239, type: 3}
+    id: ui_click
+    volume: 1
+  - clip: {fileID: 8300000, guid: 3508c8f7ae7d0b288cbf999d3c45c560, type: 3}
+    id: ui_hover
+    volume: 1
+  - clip: {fileID: 8300000, guid: 531d557265fb85b4018779f9a4c2e3a7, type: 3}
+    id: ui_buy
+    volume: 1
+  - clip: {fileID: 8300000, guid: a990de7b1622a2ea44c56c31fc200720, type: 3}
+    id: ui_denied
+    volume: 1
+  - clip: {fileID: 8300000, guid: 33307948921b75646bb4ff504e58e656, type: 3}
+    id: ui_whoosh
+    volume: 1
+  - clip: {fileID: 8300000, guid: e7744e155d95dbcb1b7f787b38d7f423, type: 3}
+    id: ui_popup
+    volume: 1
+  - clip: {fileID: 8300000, guid: 60e17f862e66b1453d1325917f1c216a, type: 3}
+    id: team_depart
+    volume: 1
+  - clip: {fileID: 8300000, guid: efe867cae1c3ea82270c61a9fa396386, type: 3}
+    id: repair_tool
+    volume: 1
+  - clip: {fileID: 8300000, guid: a483e28a0c9cfad94a9557ad090e9ada, type: 3}
+    id: repair_done
+    volume: 1
+  - clip: {fileID: 8300000, guid: b338e9bfbb186a704655caa356043387, type: 3}
+    id: ui_coin_tick
+    volume: 1
+  - clip: {fileID: 8300000, guid: 716f06e4c333ea8c205297a062a76abc, type: 3}
+    id: siren
+    volume: 1
+  - clip: {fileID: 8300000, guid: 2377dffb9d38c512a57fe78530f4829f, type: 3}
+    id: quake_rumble
+    volume: 1
+  - clip: {fileID: 8300000, guid: acd219ac0ce70062ecb1a64bca583527, type: 3}
+    id: thunder_near
+    volume: 1
+  - clip: {fileID: 8300000, guid: 6c6b5eba6eeac9dd4195768bcdea2e62, type: 3}
+    id: fire_out
+    volume: 1
+  - clip: {fileID: 8300000, guid: b20dfbe4d1b3a339830b95640dfdca78, type: 3}
+    id: jingle_win
+    volume: 1
+  - clip: {fileID: 8300000, guid: 4916768896aede3adb1462b9121a85c3, type: 3}
+    id: jingle_lose
+    volume: 1
+  - clip: {fileID: 8300000, guid: 187d912864c09e7a2ef5bd65c77d394c, type: 3}
+    id: ui_confetti
+    volume: 1
+  - clip: {fileID: 8300000, guid: afe624a1de90a8c1e176e867b85ac28a, type: 3}
+    id: rod_absorb
+    volume: 1

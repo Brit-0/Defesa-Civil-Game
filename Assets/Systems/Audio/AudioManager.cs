@@ -39,7 +39,7 @@ public class SfxLibrary
     public AudioClip fireLoop;
 }
 
-public class AudioManager : MonoBehaviour
+public partial class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance;
 
@@ -81,6 +81,10 @@ public class AudioManager : MonoBehaviour
     private class LoopChannel
     {
         public AudioSource source;
+        public string id;
+        public int owner;
+        public SoundCategory category = SoundCategory.Ambience;
+        public float entryVolume = 1f;
         public float level;
         public float targetLevel;
         public float fadeSpeed;
@@ -130,6 +134,7 @@ public class AudioManager : MonoBehaviour
 
         BuildSources();
         BuildCategories();
+        InitBank();
     }
 
     private void Start()
@@ -165,6 +170,7 @@ public class AudioManager : MonoBehaviour
         duck = Mathf.MoveTowards(duck, ducking ? duckLevel : 1f, delta * (1f - duckLevel) / Mathf.Max(.01f, duckTime));
 
         //Todo quadro: mexer no mix pelo Inspector durante o Play vale na hora
+        UpdateBank(delta);
         ApplyMusicVolumes();
         UpdateLoops(delta);
     }
@@ -275,6 +281,8 @@ public class AudioManager : MonoBehaviour
     {
         if (Instance == null || clip == null) return;
 
+        //Clipe antigo com som novo no SoundBank (moedas, martelo, clique...): toca o novo, com variações
+        if (Instance.TryPlayLegacy(clip, volume)) return;
         Instance.PlayFromPool(clip, Instance.CategoryOf(clip), volume, pitchVariation);
     }
 
@@ -282,6 +290,7 @@ public class AudioManager : MonoBehaviour
     {
         if (Instance == null || clip == null) return;
 
+        if (Instance.TryPlayLegacy(clip, volume)) return;
         Instance.PlayFromPool(clip, category, volume, pitchVariation);
     }
 
@@ -296,6 +305,8 @@ public class AudioManager : MonoBehaviour
         source.clip = clip;
         source.volume = Mathf.Clamp01(volume) * Volume(category);
         source.pitch = 1f + Random.Range(-pitchVariation, pitchVariation);
+        source.panStereo = 0f;
+        source.outputAudioMixerGroup = Group(category);
         //Clique e hover tocam com a pausa aberta (botões da tela de pausa); o resto espera o jogo voltar
         source.ignoreListenerPause = category == SoundCategory.Interface;
         source.Play();
@@ -364,6 +375,9 @@ public class AudioManager : MonoBehaviour
     {
         if (Instance == null) return;
 
+        //Com as 4 camadas no SoundBank (v5) a música é a nova; sem elas, as três antigas
+        if (Instance.StartLayeredMusic()) return;
+
         Instance.ApplyMusicVolumes();
         //As três começam juntas e ficam em loop; o volume decide qual se ouve
         Instance.StartLayer(Instance.calmSource, Instance.calmMusic);
@@ -378,6 +392,7 @@ public class AudioManager : MonoBehaviour
         Instance.calmSource.Stop();
         Instance.tenseSource.Stop();
         Instance.dangerSource.Stop();
+        if (Instance.layerSources != null) foreach (AudioSource layer in Instance.layerSources) layer.Stop();
     }
 
     private void StartLayer(AudioSource source, AudioClip clip)
@@ -390,7 +405,12 @@ public class AudioManager : MonoBehaviour
 
     private void ApplyMusicVolumes()
     {
-        float volume = Volume(SoundCategory.Music) * musicLevel * duck;
+        float volume = Volume(SoundCategory.Music) * musicLevel * duck * PauseLevel();
+        if (layerSources != null)
+        {
+            ApplyLayerVolumes(volume);
+            return;
+        }
 
         //Cruzamento de potência constante: a soma das duas camadas não afunda no meio
         float angle = tension * Mathf.PI * .5f;
@@ -413,13 +433,14 @@ public class AudioManager : MonoBehaviour
 
     private void SetLoopChannel(AudioClip clip, float volume, float fadeTime)
     {
-        LoopChannel channel = loops.Find(c => c.source.clip == clip);
+        LoopChannel channel = loops.Find(c => c.owner == 0 && c.id == clip.name);
 
         if (channel == null)
         {
             if (volume <= 0f) return;
 
-            channel = new LoopChannel { source = CreateSource("Loop " + clip.name, true) };
+            channel = new LoopChannel { source = CreateSource("Loop " + clip.name, true), id = clip.name };
+            channel.source.outputAudioMixerGroup = Group(SoundCategory.Ambience);
             channel.source.clip = clip;
             channel.source.volume = 0f;
             loops.Add(channel);
@@ -433,13 +454,15 @@ public class AudioManager : MonoBehaviour
 
     private void UpdateLoops(float delta)
     {
-        float ambience = Volume(SoundCategory.Ambience);
+        //Os sons grandes abaixam também o ambiente, menos que a música
+        float ambienceDuck = 1f - (1f - duck) * ambienceDuckShare;
 
         for (int i = 0; i < loops.Count; i++)
         {
             LoopChannel channel = loops[i];
             channel.level = Mathf.MoveTowards(channel.level, channel.targetLevel, delta * channel.fadeSpeed);
-            channel.source.volume = channel.level * ambience;
+            float duckHere = channel.category == SoundCategory.Ambience ? ambienceDuck : 1f;
+            channel.source.volume = channel.level * channel.entryVolume * Volume(channel.category) * duckHere;
 
             if (channel.level <= 0f && channel.targetLevel <= 0f && channel.source.isPlaying) channel.source.Stop();
         }
