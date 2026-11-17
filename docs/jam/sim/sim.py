@@ -20,12 +20,23 @@ from fogo_energia import Rede, abrir_jato, tick_fogo
 
 INTACTA, DANIFICADA, FOGO = "I", "D", "F"
 
+
+def vazar(dano, espera, dt, intervalo, maximo):
+    """StormLeak.Tick: casa destelhada sem equipe sobe +1 de dano a cada intervalo, até o máximo (0 desliga)."""
+    if intervalo <= 0 or dano >= maximo:
+        return dano, 0.0
+    espera += max(0.0, dt)
+    while espera >= intervalo and dano < maximo:
+        espera -= intervalo
+        dano += 1
+    return dano, (0.0 if dano >= maximo else espera)
+
 # ---------------------------------------------------------------- jogo
 
 class Local:
     __slots__ = ("nome", "pos", "dist", "armazem", "estado", "dano", "fogo", "equipe", "trabalhando",
                  "pronta", "enviados", "pago", "desde", "bonus", "critico", "trabalho", "ocorrencia", "escorada",
-                 "nivel_fogo", "partes", "apagadas")
+                 "nivel_fogo", "partes", "apagadas", "destelhada", "vazamento")
 
     def __init__(self, dados, armazem=False):
         self.nome, self.pos, self.dist, self.armazem = dados["nome"], dados["pos"], dados["dist"], armazem
@@ -33,6 +44,7 @@ class Local:
         self.equipe = self.trabalhando = self.pronta = self.critico = self.escorada = False
         self.enviados = self.pago = self.trabalho = 0
         self.nivel_fogo = self.partes = self.apagadas = 0  # fogo: nível 1-3, partes de trabalho, chamas do jato
+        self.destelhada, self.vazamento = False, 0.0  # TEMPESTADE.md: a chuva sobe o dano esperando equipe
         self.bonus = 0.0       # Call.rewardBonus (crítico, herói)
         self.ocorrencia = None  # o desastre que quebrou a casa (bônus quando todas voltam)
         self.desde = 0.0  # quando o chamado abriu ou o trabalho terminou (para o tempo de reação)
@@ -118,8 +130,8 @@ class Jogo:
         c.dano = max(self.b["minDamage"], severidade) if problema == DANIFICADA else 0
         c.fogo = self.b["fireDuration"] if problema == FOGO else 0.0
         c.nivel_fogo, c.partes = (1 if problema == FOGO else 0), 0
-        c.equipe = c.trabalhando = c.pronta = c.critico = False
-        c.estado, c.desde, c.bonus = problema, self.t, 0.0
+        c.equipe = c.trabalhando = c.pronta = c.critico = c.destelhada = False
+        c.estado, c.desde, c.bonus, c.vazamento = problema, self.t, 0.0, 0.0
         if problema == FOGO:
             self.estreias.setdefault("fogo", self.t)
         minuto = int(self.t // 60)
@@ -288,8 +300,8 @@ class Jogo:
         b = self.b
         return round(b["disasterHousesStart"] + (b["disasterHousesEnd"] - b["disasterHousesStart"]) * self.rampa())
 
-    # RITMO_V3, só no simulador (o C# não faz): o primeiro sorteio depois de liberar um tipo é esse tipo.
-    estreia_garantida = False
+    # RITMO_V3, igual ao DisasterManager.TryGetDebut (#534): o primeiro sorteio depois de liberar um tipo é esse tipo.
+    estreia_garantida = True
 
     def sortear(self):
         if self.primeiro:
@@ -401,6 +413,7 @@ class Jogo:
             self.atingir(o, c, FOGO, 0)
         else:
             self.atingir(o, c, DANIFICADA, self.rng.randint(self.b["stormMinDamage"], self.b["stormMaxDamage"]))
+            c.destelhada = c.estado == DANIFICADA  # House.ApplyProblem(..., storm: true)
 
     def fim_desastre(self, o):
         self.encerrar(o)
@@ -429,6 +442,9 @@ class Jogo:
                 peso += b["chaosWeightFire"] if c.estado == FOGO else b["chaosWeightDamaged"]
             elif c.estado == DANIFICADA:
                 peso += b["chaosWeightDamaged"]
+                if c.destelhada and not c.equipe:  # House.TickLeak / StormLeak.Tick
+                    c.dano, c.vazamento = vazar(c.dano, c.vazamento, dt, b.get("stormLeakInterval", 0),
+                                                b.get("stormLeakMaxDamage", 0))
         alvo = min(1.0, peso / b["chaosLimit"]) if b["chaosLimit"] > 0 else 0.0
         vel = b["chaosRisePerSecond"] if alvo > self.caos else b["chaosFallPerSecond"]
         if alvo > self.caos:

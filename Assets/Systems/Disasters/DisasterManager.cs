@@ -47,6 +47,8 @@ public class DisasterManager : MonoBehaviour
     // Desastres sorteados depois do primeiro: a cada strongDisasterEvery vem um terremoto forte.
     private int disasterCount;
     private float extraCalm;
+    // Tipos que já caíram nesta partida: o tipo recém-liberado estreia no primeiro sorteio (RITMO_V3).
+    private readonly HashSet<DisasterType> debuted = new();
 
     // Pausa pedida de fora (o tutorial): a contagem não anda e a rampa não envelhece.
     private int holds;
@@ -111,6 +113,7 @@ public class DisasterManager : MonoBehaviour
         int houseCount = isFirstDisaster ? Stats.Balance.firstDisasterHouses : GetRampedHouseCount();
         if (strong) houseCount = Mathf.RoundToInt(houseCount * Stats.Balance.strongDisasterHouseMultiplier);
 
+        debuted.Add(disaster.type);
         StartCoroutine(RunDisaster(disaster, houseCount, isFirstDisaster, strong));
         isFirstDisaster = false;
     }
@@ -171,7 +174,8 @@ public class DisasterManager : MonoBehaviour
         extraCalm = 0f;
     }
 
-    // O primeiro desastre é sempre um terremoto (o tutorial). Depois, sorteio por peso entre os tipos já liberados.
+    // O primeiro desastre é sempre um terremoto (o tutorial). Um tipo recém-liberado estreia no sorteio seguinte;
+    // fora isso, sorteio por peso entre os tipos já liberados.
     private DisasterData PickDisaster()
     {
         if (isFirstDisaster)
@@ -180,12 +184,17 @@ public class DisasterManager : MonoBehaviour
             if (earthquake != null) return earthquake;
         }
 
+        if (TryGetDebut(Stats.Balance, RampTime, debuted, out DisasterType debut) && FindDisaster(debut) is DisasterData fresh)
+        {
+            return fresh;
+        }
+
         DisasterData picked = null;
         float totalWeight = 0f;
         foreach (DisasterType type in disasterTypes)
         {
             DisasterData disaster = FindDisaster(type);
-            float weight = disaster != null ? GetWeight(type) : 0f;
+            float weight = disaster != null ? GetWeight(Stats.Balance, type, RampTime) : 0f;
             if (weight <= 0f) continue;
 
             // Sorteio por peso numa passada só: cada tipo toma o lugar com chance peso ÷ peso acumulado.
@@ -195,17 +204,43 @@ public class DisasterManager : MonoBehaviour
         return picked;
     }
 
-    // Peso do tipo no sorteio. Vale 0 enquanto o tipo não foi liberado pelo tempo de partida.
-    private float GetWeight(DisasterType type)
+    // Regra pura (DebutTests): entre os tipos liberados que ainda não caíram, o que foi liberado primeiro.
+    public static bool TryGetDebut(BalanceData balance, float rampTime, ICollection<DisasterType> debuted, out DisasterType debut)
     {
-        BalanceData balance = Stats.Balance;
-        float elapsed = RampTime;
+        debut = default;
+        float firstUnlock = float.MaxValue;
+        foreach (DisasterType type in disasterTypes)
+        {
+            if (debuted.Contains(type) || GetWeight(balance, type, rampTime) <= 0f) continue;
+
+            float unlock = GetUnlockTime(balance, type);
+            if (unlock >= firstUnlock) continue;
+            firstUnlock = unlock;
+            debut = type;
+        }
+        return firstUnlock < float.MaxValue;
+    }
+
+    // Peso do tipo no sorteio. Vale 0 enquanto o tipo não foi liberado pelo tempo de partida.
+    private static float GetWeight(BalanceData balance, DisasterType type, float rampTime)
+    {
+        if (rampTime < GetUnlockTime(balance, type)) return 0f;
 
         return type switch
         {
             DisasterType.Earthquake => balance.earthquakeWeight,
-            DisasterType.Storm => elapsed >= balance.stormUnlockTime ? balance.stormWeight : 0f,
-            DisasterType.Fire => elapsed >= balance.fireUnlockTime ? balance.fireWeight : 0f,
+            DisasterType.Storm => balance.stormWeight,
+            DisasterType.Fire => balance.fireWeight,
+            _ => 0f,
+        };
+    }
+
+    private static float GetUnlockTime(BalanceData balance, DisasterType type)
+    {
+        return type switch
+        {
+            DisasterType.Storm => balance.stormUnlockTime,
+            DisasterType.Fire => balance.fireUnlockTime,
             _ => 0f,
         };
     }

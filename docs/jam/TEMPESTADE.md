@@ -37,5 +37,5 @@ seguem o dano, a casa que esperou pede mais material e mais tempo (e paga mais).
 
 ## Como testar no Play
 
-Esperar a primeira tempestade (90 s) e não mandar equipe para uma casa de pin azul: o selo vai de 1 ou 2 para 3 em até
+Esperar a primeira tempestade (logo depois de 2:50 desde o RITMO_V3; era 90 s) e não mandar equipe para uma casa de pin azul: o selo vai de 1 ou 2 para 3 em até
 50 s, com respingo e pulso a cada subida. Mandar a equipe para a subida na hora.

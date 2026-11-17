@@ -8,7 +8,7 @@
   python docs/jam/sim/tabela.py --linha bom           # linha do tempo de uma partida (compras e desastres)
   python docs/jam/sim/tabela.py --curva               # a curva dos dados minuto a minuto (RITMO_V3.md)
   python docs/jam/sim/tabela.py --sem-expansao        # os robôs não compram a base nova (por padrão compram uma)
-  python docs/jam/sim/tabela.py --estreia-garantida   # a sugestão de código do RITMO_V3, só no simulador
+  python docs/jam/sim/tabela.py --sem-estreia         # sem a estreia garantida do RITMO_V3 (o C# a faz desde a #534)
 Perfis principais: bom, médio e ruim (RITMO_V3); a tabela também mostra a estreia de cada sistema, os chamados por
 minuto e o pico do caos em cada fase de 2 minutos.
 """
@@ -189,10 +189,10 @@ def main():
     p.add_argument("--busca", type=int, default=0, help="sorteia N planos de compra e mostra os 5 melhores (o teto)")
     p.add_argument("--curva", action="store_true", help="imprime a curva dos dados minuto a minuto (RITMO_V3)")
     p.add_argument("--sem-expansao", action="store_true", help="os robôs não compram a base nova")
-    p.add_argument("--estreia-garantida", action="store_true",
-                   help="simula a sugestão do RITMO_V3: o 1º sorteio depois de liberar um tipo é esse tipo (o C# não faz)")
+    p.add_argument("--sem-estreia", action="store_true",
+                   help="tira a estreia garantida (o 1º sorteio depois de liberar um tipo é esse tipo, como o C# faz desde a #534)")
     a = p.parse_args()
-    Jogo.estreia_garantida = a.estreia_garantida
+    Jogo.estreia_garantida = not a.sem_estreia
 
     balance, ups = ler_balance(), ler_upgrades()
     if a.assets:

@@ -138,13 +138,18 @@ Chamados por minuto (casas que quebraram ou pegaram fogo; o bom escora muitas e 
 Mini games e energia (mediana): o médio apaga 3 fogos com o jato (eram 2) e o ruim deixa 8 crescerem (eram 6), porque
 há mais incêndio no sorteio; os dois compram 1 nível de gerador; negados 0.
 
-## O que os dados não garantem (sugestão de código, não aplicada)
+## O que os dados não garantem: estreia garantida (aplicada na jam, #534)
 
 O tipo novo só entra no sorteio; a primeira aparição ainda é sorte. Na mediana a ordem sai certa, mas em 1 de cada 10
-partidas a primeira tempestade passa de 5:20 e cai junto da energia (5:15). O simulador tem a opção
-`--estreia-garantida`, que imita uma regra de poucas linhas no `DisasterManager.PickDisaster`: o primeiro sorteio depois de
-liberar um tipo é esse tipo. Com ela o fogo estreia sempre em 1:45 e a tempestade em 3:15, o médio vence em 8:16 e o ruim
-vence 96% em 10:23. Fica para o MEGABRAIN decidir, porque a tarefa era só de dados.
+partidas a primeira tempestade passa de 5:20 e cai junto da energia (5:15). A regra de poucas linhas no
+`DisasterManager.PickDisaster` (`TryGetDebut`, testes `DebutTests`) resolve: o primeiro sorteio depois de liberar um tipo
+é esse tipo (dois liberados sem estrear: o que liberou antes; terremoto forte na vez adia a estreia para o sorteio
+seguinte). Sem ela, o médio vencia em 8:16 e o ruim 96% em 10:23 (simulador da v3C, sem a casa destelhada).
+
+Depois de juntar as três branches (#534), o simulador faz a estreia por padrão (`--sem-estreia` tira) e também a casa
+destelhada da tempestade (docs/jam/TEMPESTADE.md, `stormLeakInterval` 25 s até 3). Com as duas, 30 partidas por linha:
+fogo sempre em 1:45 e tempestade em 3:15; o bom vence em 7:57, o médio 100% em 8:12 (pico do caos 0,45) e o ruim 90%
+em 10:27 (pico 0,64). Sem a estreia, com a casa destelhada: médio 8:14, ruim 86%.
 
 ## Partida no Play
 
@@ -191,8 +196,10 @@ do Editor ao abrir.
   `--sem-expansao`); o robô compra o gerador quando a rede já passou do limite, mesmo com a meta como próxima compra
   (antes ficava 200 s com a automação desligada).
 - `tabela.py`: usa a partida com os terrenos da expansão (`expansao.py`) quando há `base2`/`depot2`; tabelas de estreia
-  de cada sistema, chamados por minuto e pico do caos por fase; `--curva` e `--estreia-garantida`.
+  de cada sistema, chamados por minuto e pico do caos por fase; `--curva` e `--sem-estreia` (era `--estreia-garantida`
+  antes da #534, quando o C# não fazia a estreia).
+- `sim.py` (#534): casa destelhada da tempestade (`vazar`, igual ao `StormLeak.Tick`).
 - `sim.py` e `fogo_energia.py`: guardam a estreia de cada sistema, os chamados e o caos por minuto.
 - `dados.py`: lê `Base2.asset` e `Depot2.asset` como já lia o gerador.
 
-Para repetir: `python -X utf8 docs/jam/sim/tabela.py` (depois), `--curva`, `--linha médio`, `--estreia-garantida`.
+Para repetir: `python -X utf8 docs/jam/sim/tabela.py` (depois), `--curva`, `--linha médio`, `--sem-estreia`.

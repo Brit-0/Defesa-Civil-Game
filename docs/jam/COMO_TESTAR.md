@@ -52,7 +52,12 @@ Se o Console mostrar aviso `[FireEnergyData]` ou da expansão, rode também **To
 O que olhar:
 
 - **Mini games:** escorar a casa no aviso de terremoto, coleta no ponto certo, e o **jato** no incêndio (arraste o mouse apertado por cima das chamas antes do tempo acabar).
-- **Energia:** liga sozinha aos 2:30 de partida, com um segundo tutorial de 3 passos (apagão e botão **RELIGAR**).
+- **Ritmo (RITMO_V3):** um sistema por vez. Terremoto de 2 casas no começo; o primeiro incêndio vem logo depois de 1:30 e a primeira tempestade logo depois de 2:50 (o primeiro desastre depois de liberar um tipo é sempre desse tipo); o terremoto forte só a cada 8 desastres, perto de 6:10. O intervalo entre desastres cai de 50 s para 22 s em 12 minutos e a barra de caos enche com 20.
+- **Energia:** liga sozinha aos 5:15 de partida, com um segundo tutorial de 3 passos (apagão e botão **RELIGAR**). No último passo (**VAMOS**) os desastres voltam a cair; antes ficavam parados para sempre.
+- **Tempestade (TEMPESTADE.md):** a casa quebrada por raio fica destelhada (pino azul). Sem equipe, a chuva sobe o dano em 1 a cada 25 s, até 3, com respingo no telhado e o selo do dano pulsando; mandar a equipe para a piora na hora.
+- **Setas só nos chamados:** parados, a Base e os Armazéns ficam só com a placa do nome; a seta, o anel e o pino de borda da Base aparecem quando é hora de escolher a base de um chamado.
+- **Rastro:** cada trabalhador andando deixa uma fita clara e fina atrás que some em menos de 1 s; pegadas e a trilha da equipe aparecem por cima do chão.
+- **Base nova:** a equipe da base comprada na expansão sai pela rua e chega no chamado no tempo normal (antes parecia nunca chegar).
 - **Expansão:** na aba de melhorias, **Nova base** e **Novo armazém**; o terreno comprado mostra uma placa no mapa e vira obra quando você clica nela.
 - **Painel de melhorias:** abre por cima do botão de melhorias (canto de baixo à esquerda), com abas na base: **EQUIPE**, **AUTOMAÇÃO**, **EXPANSÃO** e **ENERGIA** (a de energia libera quando o gerador aparece; o pontinho dourado na aba diz que dá para comprar algo nela). Passe o mouse numa melhoria: ela cresce e aparece ao lado a janelinha com a descrição, o nível e quanto falta. Lista comprida rola com a roda do mouse.
 - **Trabalhadores:** o número no topo é **livres/total** (ex.: 2/3 com uma equipe na rua); contratar e voluntários aumentam o total.
