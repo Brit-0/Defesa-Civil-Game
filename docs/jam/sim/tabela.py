@@ -6,6 +6,11 @@
   python docs/jam/sim/tabela.py --assets Assets/Resources   # valores dos .asset (o que o jogo carrega)
   python docs/jam/sim/tabela.py --mapa <outro city_layout.json>
   python docs/jam/sim/tabela.py --linha bom           # linha do tempo de uma partida (compras e desastres)
+  python docs/jam/sim/tabela.py --curva               # a curva dos dados minuto a minuto (RITMO_V3.md)
+  python docs/jam/sim/tabela.py --sem-expansao        # os robôs não compram a base nova (por padrão compram uma)
+  python docs/jam/sim/tabela.py --estreia-garantida   # a sugestão de código do RITMO_V3, só no simulador
+Perfis principais: bom, médio e ruim (RITMO_V3); a tabela também mostra a estreia de cada sistema, os chamados por
+minuto e o pico do caos em cada fase de 2 minutos.
 """
 import argparse
 import random
@@ -34,11 +39,23 @@ def faixa(valores):
     return f"{mmss(statistics.median(valores))} ({mmss(baixo)}–{mmss(alto)})"
 
 
+_CIDADE = {}
+
+
+def novo_jogo(balance, ups, mapa, jogador, semente, limite):
+    """Com base2/depot2 nos upgrades, a partida tem os terrenos da expansão (expansao.py); sem eles, o Jogo puro."""
+    if "base2" not in ups and "depot2" not in ups:
+        return Jogo(balance, ups, mapa, jogador, semente, limite=limite)
+    from expansao import Cidade, JogoExpansao  # aqui dentro: expansao.py importa faixa daqui
+    cidade = _CIDADE.setdefault(id(mapa), Cidade(mapa))
+    return JogoExpansao(cidade, balance, ups, mapa, jogador, semente, limite=limite)
+
+
 def rodar_perfil(balance, ups, mapa, jogador, sementes, limite):
     jogos = []
     for semente in range(sementes):
         j = jogador.copia() if jogador is not None else None
-        jogos.append(Jogo(balance, ups, mapa, j, semente, limite=limite).rodar())
+        jogos.append(novo_jogo(balance, ups, mapa, j, semente, limite).rodar())
     return jogos
 
 
@@ -101,6 +118,64 @@ def linha_fogo(nome, jogos):
             f"{med(lambda j: j.rede.sobrecarga_s):.0f} | {med(lambda j: j.negados):.0f} |")
 
 
+ESTREIAS = ("terremoto", "fogo", "incendio", "tempestade", "expansão", "energia", "terremoto forte")
+
+CABECALHO_ESTREIA = ("| Jogador | " + " | ".join(ESTREIAS) + " |\n|---|" + "---|" * len(ESTREIAS))
+
+
+def linha_estreia(nome, jogos):
+    """RITMO_V3: quando cada sistema aparece pela primeira vez (mediana e p10–p90; % das partidas em que apareceu)."""
+    celulas = []
+    for chave in ESTREIAS:
+        tempos = [j.estreias[chave] for j in jogos if chave in j.estreias]
+        if not tempos:
+            celulas.append("—")
+            continue
+        texto = faixa(tempos)
+        if len(tempos) < len(jogos):
+            texto += f" em {100 * len(tempos) // len(jogos)}%"
+        celulas.append(texto)
+    return f"| {nome} | " + " | ".join(celulas) + " |"
+
+
+FASES = ((0, 2), (2, 4), (4, 6), (6, 8), (8, 10))
+
+CABECALHO_FASES = ("| Jogador | " + " | ".join(f"min {a}–{b}" for a, b in FASES) + " |\n|---|" + "---|" * len(FASES))
+
+
+def linha_fases(nome, jogos, medida):
+    """RITMO_V3: chamados por minuto (casas atingidas) ou pico do caos em cada fase, mediana das partidas ainda vivas."""
+    celulas = []
+    for a, b in FASES:
+        vivas = [j for j in jogos if j.t >= b * 60]
+        if not vivas:
+            celulas.append("—")
+            continue
+        if medida == "chamados":
+            valor = statistics.median(sum(j.chamados_min.get(m, 0) for m in range(a, b)) / (b - a) for j in vivas)
+            celulas.append(f"{valor:.1f}")
+        else:
+            valor = statistics.median(max(j.caos_min.get(m, 0.0) for m in range(a, b)) for j in vivas)
+            celulas.append(f"{valor:.2f}")
+    return f"| {nome} | " + " | ".join(celulas) + " |"
+
+
+def curva(balance, limite_min=10):
+    """RITMO_V3: a curva que os dados descrevem, minuto a minuto (sem sorteio)."""
+    b = balance
+    print("| Minuto | Intervalo (s) | Casas por desastre | Chamados/min (nominal) | Tipos no sorteio | Energia |")
+    print("|---|---|---|---|---|---|")
+    for m in range(limite_min + 1):
+        t = m * 60
+        rampa = 1.0 if b["disasterRampDuration"] <= 0 else min(1.0, t / b["disasterRampDuration"])
+        intervalo = b["disasterIntervalStart"] + (b["disasterIntervalEnd"] - b["disasterIntervalStart"]) * rampa
+        casas = round(b["disasterHousesStart"] + (b["disasterHousesEnd"] - b["disasterHousesStart"]) * rampa)
+        tipos = ["terremoto"] + (["incêndio"] if t >= b["fireUnlockTime"] else []) + \
+                (["tempestade"] if t >= b["stormUnlockTime"] else [])
+        energia = "sim" if 0 <= b.get("unlockTime", -1) <= t else "não"
+        print(f"| {m} | {intervalo:.0f} | {casas} | {60 * casas / intervalo:.1f} | {', '.join(tipos)} | {energia} |")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--sementes", type=int, default=30)
@@ -112,12 +187,20 @@ def main():
     p.add_argument("--planos", action="store_true", help="compara os planos de compra do jogador bom")
     p.add_argument("--linha", help="imprime a linha do tempo da semente 0 deste jogador")
     p.add_argument("--busca", type=int, default=0, help="sorteia N planos de compra e mostra os 5 melhores (o teto)")
+    p.add_argument("--curva", action="store_true", help="imprime a curva dos dados minuto a minuto (RITMO_V3)")
+    p.add_argument("--sem-expansao", action="store_true", help="os robôs não compram a base nova")
+    p.add_argument("--estreia-garantida", action="store_true",
+                   help="simula a sugestão do RITMO_V3: o 1º sorteio depois de liberar um tipo é esse tipo (o C# não faz)")
     a = p.parse_args()
+    Jogo.estreia_garantida = a.estreia_garantida
 
     balance, ups = ler_balance(), ler_upgrades()
     if a.assets:
         balance, ups = ler_assets(a.assets, balance, ups)
     balance, ups = aplicar_ajustes(balance, ups, a.set)
+    if a.curva:
+        curva(balance)
+        return
     mapa = ler_mapa(a.mapa) if a.mapa else ler_mapa()
 
     armazens = ", ".join(f"{x['dist']:.1f}" for x in mapa["armazens"])
@@ -126,9 +209,9 @@ def main():
           f"{armazens}; {a.sementes} partidas por linha\n")
 
     if a.linha:
-        jogador = perfis(a.plano)[a.linha]
+        jogador = perfis(a.plano, not a.sem_expansao)[a.linha]
         jogador = jogador.copia() if jogador else None
-        jogo = Jogo(balance, ups, mapa, jogador, 0, limite=a.limite).rodar()
+        jogo = novo_jogo(balance, ups, mapa, jogador, 0, a.limite).rodar()
         for minuto, uid, nivel in jogo.compras:
             print(f"{mmss(minuto * 60)} compra {uid} {nivel}")
         for minuto, tipo, n in jogo.desastres:
@@ -152,9 +235,19 @@ def main():
         return
 
     resultados = {nome: rodar_perfil(balance, ups, mapa, jogador, a.sementes, a.limite)
-                  for nome, jogador in perfis(a.plano).items()}
+                  for nome, jogador in perfis(a.plano, not a.sem_expansao).items()}
     for nome, jogos in resultados.items():
         print(linha_tabela(nome, jogos))
+    principais = [n for n in ("bom", "médio", "ruim") if n in resultados]
+    print("\nEstreia de cada sistema, em minutos de partida (mediana e p10–p90)\n\n" + CABECALHO_ESTREIA)
+    for nome in principais:
+        print(linha_estreia(nome, resultados[nome]))
+    print("\nChamados por minuto (casas atingidas) em cada fase\n\n" + CABECALHO_FASES)
+    for nome in principais:
+        print(linha_fases(nome, resultados[nome], "chamados"))
+    print("\nPico do caos em cada fase\n\n" + CABECALHO_FASES)
+    for nome in principais:
+        print(linha_fases(nome, resultados[nome], "caos"))
     print("\n" + CABECALHO_MINI)
     for nome, jogos in resultados.items():
         if jogos[0].jogador is not None:

@@ -18,7 +18,7 @@ MonoBehaviour:
   jetFlamesPerLevel: 1
   jetOutBonus: 0.5
   jetHitRadius: 46
-  unlockTime: 150
+  unlockTime: 315
   startCapacity: 5
   baseDemand: 2
   depotDemand: 1

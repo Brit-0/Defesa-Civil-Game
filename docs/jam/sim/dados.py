@@ -10,6 +10,7 @@ BALANCE_CS = RAIZ / "Assets/SO/BalanceData.cs"
 MENU_CS = RAIZ / "Assets/Systems/Masters/Editor/JamDataMenu.cs"
 FIRE_ENERGY_CS = RAIZ / "Assets/SO/FireEnergyData.cs"  # jato e energia (ENERGIA_FOGO.md)
 GENERATOR_ASSET = RAIZ / "Assets/Resources/Upgrades/Generator.asset"  # fora do JamDataMenu: vem do .asset
+EXPANSION_ASSETS = [RAIZ / "Assets/Resources/Upgrades/Base2.asset", RAIZ / "Assets/Resources/Upgrades/Depot2.asset"]
 MAPA_PADRAO = RAIZ / "Assets/_Project/Data/Cities/city_layout.json"
 
 
@@ -35,8 +36,9 @@ def ler_upgrades(caminho=MENU_CS):
     for nome, ordem, maximo, base, cresc, efeito in re.findall(padrao, texto):
         ups[nome.lower()] = dict(order=int(ordem), maxLevel=int(maximo), baseCost=int(base),
                                  costGrowth=float(cresc), effectPerLevel=float(efeito))
-    if "generator" not in ups and GENERATOR_ASSET.exists():
-        ups.update(_upgrade_do_asset(GENERATOR_ASSET))
+    for arquivo in [GENERATOR_ASSET] + EXPANSION_ASSETS:  # base2 e depot2 vêm do ExpansionDataMenu, também pelo .asset
+        if arquivo.exists() and arquivo.stem.lower() not in ups:
+            ups.update(_upgrade_do_asset(arquivo))
     return ups
 
 

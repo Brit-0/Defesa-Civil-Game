@@ -48,7 +48,7 @@ public class BalanceData : ScriptableObject
     public float chaosWeightDamaged = 1f;
     public float chaosWeightFire = 2f;
     [Tooltip("Soma dos pesos que enche a barra de caos.")]
-    public float chaosLimit = 22f; // GDD: 20
+    public float chaosLimit = 20f; // RITMO_V3: 22 (volta ao GDD; o começo mais calmo deixa folga, o fim continua pedindo atenção)
     public float chaosRisePerSecond = 0.06f;
     public float chaosFallPerSecond = 0.10f;
 
@@ -56,19 +56,19 @@ public class BalanceData : ScriptableObject
     public float firstDisasterDelay = 6f;
     public int firstDisasterHouses = 2;
     [Tooltip("Intervalo entre desastres: cai em linha reta de Start a End ao longo de disasterRampDuration.")]
-    public float disasterIntervalStart = 45f; // GDD: 35
-    public float disasterIntervalEnd = 20f; // GDD: 12
-    public float disasterRampDuration = 780f; // GDD: 600
+    public float disasterIntervalStart = 50f; // RITMO_V3: 45 (GDD: 35)
+    public float disasterIntervalEnd = 22f; // RITMO_V3: 20 (GDD: 12)
+    public float disasterRampDuration = 720f; // RITMO_V3: 780 (GDD: 600). Com Start/End novos fica abaixo da curva antiga em todo minuto.
     [Tooltip("Casas por desastre, na mesma rampa.")]
-    public int disasterHousesStart = 3;
+    public int disasterHousesStart = 2; // RITMO_V3: 3 (2 casas até 1:30, 3 até 4:30, 4 até 7:30)
     public int disasterHousesEnd = 6; // GDD: 9
     public float warningTime = 4f; // T25: 3 (GAMELOOP_REVISAO: 1 s a mais para ler o alvo e escorar)
 
     [Header("STRONG EARTHQUAKE (GAMELOOP_REVISAO)")]
     [Tooltip("A cada N desastres (sem contar o primeiro) vem um terremoto forte. 0 desliga.")]
-    public int strongDisasterEvery = 5;
+    public int strongDisasterEvery = 8; // RITMO_V3: 5. O primeiro cai perto de 6:10, depois de todos os sistemas apresentados.
     [Tooltip("Casas do terremoto forte = casas da rampa x este valor.")]
-    public float strongDisasterHouseMultiplier = 2f;
+    public float strongDisasterHouseMultiplier = 2.5f; // RITMO_V3: 2 (o primeiro forte tem 10 casas, era 8 aos 3:48)
     [Tooltip("Aviso mais longo: dá tempo de se preparar.")]
     public float strongDisasterWarningTime = 6f;
     [Tooltip("Segundos a mais de calma depois do terremoto forte.")]
@@ -83,12 +83,13 @@ public class BalanceData : ScriptableObject
 
     [Header("DISASTER TYPES")]
     [Tooltip("Pesos do sorteio entre os tipos já liberados.")]
-    public float earthquakeWeight = 50f;
-    public float stormWeight = 35f;
-    public float fireWeight = 15f;
-    [Tooltip("Segundos de partida até o tipo entrar no sorteio.")]
-    public float stormUnlockTime = 90f;
-    public float fireUnlockTime = 180f;
+    public float earthquakeWeight = 40f; // RITMO_V3: 50
+    public float stormWeight = 50f; // RITMO_V3: 35 (pesos maiores para o tipo novo aparecer logo depois de liberado)
+    public float fireWeight = 30f; // RITMO_V3: 15
+    [Tooltip("Segundos de partida até o tipo entrar no sorteio. Ordem do RITMO_V3: terremoto, incêndio (com o jato), " +
+             "tempestade, expansão (compra do jogador) e energia (FireEnergyData.unlockTime).")]
+    public float stormUnlockTime = 170f; // RITMO_V3: 90
+    public float fireUnlockTime = 90f; // RITMO_V3: 180 (o incêndio vem antes da tempestade, que também põe fogo)
 
     [Header("EARTHQUAKE")]
     [Tooltip("Atraso da onda, em segundos por unidade de distância ao epicentro.")]
