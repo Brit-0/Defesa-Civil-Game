@@ -40,10 +40,29 @@ namespace DefesaCivil.CityGen
             return lines;
         }
 
+        /// <summary>
+        /// Decoração cujo texel na tela foge mais de 8% do das casas (pedido do Pietro 17/11/2026: pixels distorcidos e
+        /// contorno quebrado com a decoração encolhida pela escala). Escala diferente de 1 pede a arte reamostrada
+        /// (Tools/PixelProps/reamostrar_decoracao.py), que baixa o PPU na mesma proporção.
+        /// </summary>
+        public static List<string> TexelFailures(SpriteCatalog cat)
+        {
+            var failures = new List<string>();
+            foreach (var c in cat.Decoration)
+            {
+                var sprite = SpriteCatalog.LoadSprite(c.ToRef());
+                float r = SpriteCatalog.TexelRatio(c.scale, sprite.pixelsPerUnit);
+                if (Mathf.Abs(r - 1f) > 0.08f) failures.Add($"{c.texture} texel {r:0.00} do da casa (escala {c.scale}, PPU {sprite.pixelsPerUnit})");
+            }
+            return failures;
+        }
+
         [MenuItem("Tools/City/Auditar Escala")]
         static void Menu()
         {
-            var lines = Check(SpriteCatalog.Load(true), out var failures);
+            var texel = TexelFailures(SpriteCatalog.Load(true));
+            if (texel.Count > 0) Debug.LogWarning("[CityGen] Texel diferente do das casas: " + string.Join(", ", texel));
+            var lines = Check(SpriteCatalog.Load(), out var failures);
             Debug.Log("[CityGen] Escala: " + string.Join("; ", lines));
             if (failures.Count == 0) Debug.Log("[CityGen] Escala OK: nenhuma decoração acima do teto.");
             else Debug.LogWarning("[CityGen] Escala: acima do teto: " + string.Join(", ", failures));

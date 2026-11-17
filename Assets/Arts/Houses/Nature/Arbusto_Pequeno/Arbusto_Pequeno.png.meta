@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 32
+  spritePixelsToUnits: 14.5
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -101,9 +101,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 448
-        width: 64
-        height: 64
+        y: 203
+        width: 29
+        height: 29
       alignment: 9
       pivot: {x: 0.5, y: 0.3125}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -123,9 +123,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 384
-        width: 64
-        height: 64
+        y: 174
+        width: 29
+        height: 29
       alignment: 9
       pivot: {x: 0.5, y: 0.3125}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -145,9 +145,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 320
-        width: 64
-        height: 64
+        y: 145
+        width: 29
+        height: 29
       alignment: 9
       pivot: {x: 0.5, y: 0.3125}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -167,9 +167,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 256
-        width: 64
-        height: 64
+        y: 116
+        width: 29
+        height: 29
       alignment: 9
       pivot: {x: 0.5, y: 0.3125}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -189,9 +189,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 192
-        width: 64
-        height: 64
+        y: 87
+        width: 29
+        height: 29
       alignment: 9
       pivot: {x: 0.5, y: 0.3125}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -211,9 +211,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 128
-        width: 64
-        height: 64
+        y: 58
+        width: 29
+        height: 29
       alignment: 9
       pivot: {x: 0.5, y: 0.3125}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -233,9 +233,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 64
-        width: 64
-        height: 64
+        y: 29
+        width: 29
+        height: 29
       alignment: 9
       pivot: {x: 0.5, y: 0.3125}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -256,8 +256,8 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 64
-        height: 64
+        width: 29
+        height: 29
       alignment: 9
       pivot: {x: 0.5, y: 0.3125}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -298,6 +298,6 @@ TextureImporter:
       Arbusto_Pequeno_SE: 1603534862
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  userData: 
+  userData: reamostrado 64x64 por 0.45 vis=6,15,57,53 (#526)
   assetBundleName: 
   assetBundleVariant: 

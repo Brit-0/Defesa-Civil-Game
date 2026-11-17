@@ -100,7 +100,7 @@ namespace DefesaCivil.CityGen
                 var cs = new CatalogSprite
                 {
                     guid = guid, name = sprite.name, path = path, category = category, texture = texture,
-                    widthU = sprite.rect.width / PixelsPerUnit, heightU = sprite.rect.height / PixelsPerUnit
+                    widthU = sprite.rect.width / sprite.pixelsPerUnit, heightU = sprite.rect.height / sprite.pixelsPerUnit
                 };
                 Measure(sprite, cs);
                 c.byKey[Key(guid, sprite.name)] = cs;
@@ -114,7 +114,7 @@ namespace DefesaCivil.CityGen
                         var n = new CatalogSprite
                         {
                             guid = guid, name = ns.name, path = path, category = category, texture = texture,
-                            widthU = ns.rect.width / PixelsPerUnit, heightU = ns.rect.height / PixelsPerUnit
+                            widthU = ns.rect.width / ns.pixelsPerUnit, heightU = ns.rect.height / ns.pixelsPerUnit
                         };
                         Measure(ns, n);
                         c.byKey[Key(guid, ns.name)] = n;
@@ -123,7 +123,8 @@ namespace DefesaCivil.CityGen
                 }
                 else if (IsDecorationTexture(category, texture))
                 {
-                    ApplyScale(cs, DecorationScale(texture));
+                    UseOriginalMeasures(cs, AssetImporter.GetAtPath(path)?.userData);
+                    ApplyScale(cs, DecorationScale(texture), sprite.pixelsPerUnit);
                     c.Decoration.Add(cs);
                 }
             }
@@ -158,19 +159,44 @@ namespace DefesaCivil.CityGen
             return 1f;
         }
 
-        /// <summary>Encolhe medidas e pixels (vizinho mais próximo) para a sombra e o carimbo no chão saírem no tamanho exibido.</summary>
-        static void ApplyScale(CatalogSprite cs, float s)
+        /// <summary>
+        /// Encolhe medidas e pixels (vizinho mais próximo) para a sombra e o carimbo no chão saírem no tamanho exibido,
+        /// com 1 pixel = 1/32 u. A arte já reamostrada (Tools/PixelProps/reamostrar_decoracao.py, PPU menor que 32)
+        /// já está nessa grade: as medidas encolhem e os pixels ficam como estão.
+        /// </summary>
+        static void ApplyScale(CatalogSprite cs, float s, float ppu)
         {
             if (Mathf.Approximately(s, 1f)) return;
             cs.scale = s;
             cs.widthU *= s; cs.heightU *= s; cs.padLeftU *= s; cs.padBottomU *= s; cs.visWU *= s; cs.visHU *= s;
-            int w = Mathf.Max(1, Mathf.RoundToInt(cs.pxW * s)), h = Mathf.Max(1, Mathf.RoundToInt(cs.pxH * s));
+            float f = s * PixelsPerUnit / ppu;
+            int w = Mathf.Max(1, Mathf.RoundToInt(cs.pxW * f)), h = Mathf.Max(1, Mathf.RoundToInt(cs.pxH * f));
+            if (w == cs.pxW && h == cs.pxH) return;
             var px = new Color32[w * h];
             for (int y = 0; y < h; y++)
                 for (int x = 0; x < w; x++)
-                    px[y * w + x] = cs.pixels[Mathf.Min(cs.pxH - 1, (int)((y + 0.5f) / s)) * cs.pxW + Mathf.Min(cs.pxW - 1, (int)((x + 0.5f) / s))];
+                    px[y * w + x] = cs.pixels[Mathf.Min(cs.pxH - 1, (int)((y + 0.5f) / f)) * cs.pxW + Mathf.Min(cs.pxW - 1, (int)((x + 0.5f) / f))];
             cs.pixels = px; cs.pxW = w; cs.pxH = h;
         }
+
+        static readonly Regex Resampled = new Regex(@"reamostrado (\d+)x(\d+) por \S+ vis=(\d+),(\d+),(\d+),(\d+)");
+
+        /// <summary>
+        /// Arte reamostrada: o .meta guarda a célula e o retângulo visível da arte original (px a 32 por u), e as medidas
+        /// seguem as de antes da reamostragem, para a cidade sair igual (posição, ordem por Y, R18, R30).
+        /// </summary>
+        static void UseOriginalMeasures(CatalogSprite cs, string userData)
+        {
+            var m = Resampled.Match(userData ?? "");
+            if (!m.Success) return;
+            float U(int g) => int.Parse(m.Groups[g].Value) / PixelsPerUnit;
+            cs.widthU = U(1); cs.heightU = U(2);
+            cs.padLeftU = U(3); cs.padBottomU = U(4);
+            cs.visWU = U(5) - U(3) + 1f / PixelsPerUnit; cs.visHU = U(6) - U(4) + 1f / PixelsPerUnit;
+        }
+
+        /// <summary>Tamanho do texel na tela em relação ao das casas (1 = igual): escala de exibição × 32 / PPU da textura.</summary>
+        public static float TexelRatio(float scale, float ppu) => scale * PixelsPerUnit / ppu;
 
         /// <summary>Mede o retângulo visível (alfa > 8%) do sprite dentro do seu retângulo.</summary>
         static void Measure(Sprite s, CatalogSprite cs)
@@ -200,10 +226,11 @@ namespace DefesaCivil.CityGen
                     }
             if (x1 < 0) { x0 = 0; x1 = w - 1; y0 = 0; y1 = h - 1; }
             cs.pixels = px; cs.pxW = w; cs.pxH = h;
-            cs.padLeftU = x0 / PixelsPerUnit;
-            cs.padBottomU = y0 / PixelsPerUnit;
-            cs.visWU = (x1 - x0 + 1) / PixelsPerUnit;
-            cs.visHU = (y1 - y0 + 1) / PixelsPerUnit;
+            float ppu = s.pixelsPerUnit;
+            cs.padLeftU = x0 / ppu;
+            cs.padBottomU = y0 / ppu;
+            cs.visWU = (x1 - x0 + 1) / ppu;
+            cs.visHU = (y1 - y0 + 1) / ppu;
         }
 
         /// <summary>Variante _N (fachada para o norte) de um sprite de estrutura _S, ou null.</summary>

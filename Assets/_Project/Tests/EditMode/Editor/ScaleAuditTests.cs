@@ -9,5 +9,11 @@ namespace DefesaCivil.CityGen.Tests
             ScaleAudit.Check(SpriteCatalog.Load(), out var failures);
             Assert.IsEmpty(failures, string.Join("\n", failures));
         }
+
+        [Test] public void DecorationTexelsMatchHouses()
+        {
+            var failures = ScaleAudit.TexelFailures(SpriteCatalog.Load());
+            Assert.IsEmpty(failures, string.Join("\n", failures));
+        }
     }
 }
