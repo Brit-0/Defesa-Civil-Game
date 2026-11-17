@@ -180,10 +180,10 @@ public class LandmarkFx : MonoBehaviour
 
             //Anel só com chamado; em repouso o prédio fica limpo
             if (mark.halo.enabled != attention) mark.halo.enabled = attention;
-            if (attention && mark.frames != null) AnimateHalo(mark, true, Time.unscaledDeltaTime);
+            if (attention && mark.frames != null) AnimateHalo(mark, true, GameClock.DeltaTime);
             else if (attention)
             {
-                float alpha = Mathf.Lerp(rest, attentionHaloAlpha, .5f + .5f * Mathf.Sin(Time.unscaledTime * attentionPulseSpeed));
+                float alpha = Mathf.Lerp(rest, attentionHaloAlpha, .5f + .5f * Mathf.Sin(GameClock.Time * attentionPulseSpeed));
                 mark.halo.color = PixelFx.WithAlpha(color, alpha);
             }
 

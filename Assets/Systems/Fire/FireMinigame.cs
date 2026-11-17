@@ -9,24 +9,35 @@ using UnityEngine.UI;
 // e uma barra conta a janela (poucos segundos). Arrastar com o botão apertado por cima de uma chama apaga ela
 // (House.DouseFlame); todas apagadas = fogo apagado na hora e bônus. Chama sobrando quando a barra zera = o fogo cresce.
 // Também mostra o nível do fogo (1 a 3 chamas pequenas) nas casas que queimam esperando equipe.
+// Chamas, barra, dica e nível ficam no mundo (PixelFx.Sky, acima das casas), em volta da casa: saem da tela com ela e
+// crescem com o zoom, como a cidade (pedido do Pietro 17/11, #535; antes ficavam no HUD, presas na borda da tela).
 // Lê o estado das casas e só chama House.DouseFlame; popups e sons de acerto ficam no MiniGameFeel.
 public class FireMinigame : MonoBehaviour
 {
-    [Header("LAYOUT (unidades do HUD em 1080p)")]
-    [SerializeField] private float flameSize = 72f;
-    [SerializeField] private float ringMin = 80f;
-    [SerializeField] private float ringMax = 130f;
-    [Tooltip("Raio da roda de chamas em relação à metade do tamanho da casa na tela.")]
+    [Header("LAYOUT (pixels da arte da cidade, no mundo)")]
+    [Tooltip("Pixels da cidade por pixel do sprite da chama: 1 = a chama de 51 pixels tem o pixel da cidade (72 no HUD no zoom do começo).")]
+    [SerializeField] private float flamePixels = 1f;
+    [SerializeField] private float ringMin = 56f;
+    [SerializeField] private float ringMax = 92f;
+    [Tooltip("Raio da roda de chamas em relação à metade da diagonal da casa.")]
     [SerializeField] private float ringScale = .9f;
-    [SerializeField] private Vector2 barSize = new Vector2(132f, 15f);
-    [SerializeField] private float labelSize = 26f;
+    [SerializeField] private Vector2 barSize = new Vector2(92f, 10f);
+    [SerializeField] private float labelSize = 18f;
+    [Tooltip("Ordem da dica no mundo: acima da fumaça do incêndio (10000), que sobe por cima dela e apagava letras.")]
+    [SerializeField] private int hintOrder = 10010;
+    [SerializeField] private Color hintBack = new Color(0f, 0f, 0f, .6f);
+    [Tooltip("Folga da faixa escura em volta da dica, em pixels da cidade.")]
+    [SerializeField] private float hintPadding = 3f;
     [SerializeField] private string dragHint = "ARRASTE NAS CHAMAS!";
     [Tooltip("Quantas janelas mostram a dica escrita (depois o jogador já sabe).")]
     [SerializeField] private int hintTimes = 4;
+    [Tooltip("Altura da chama no HUD (1080p) para a qual o FireEnergyData.jetHitRadius foi medido: com zoom maior o alcance cresce junto.")]
+    [SerializeField] private float hitReferenceSize = 72f;
 
     [Header("FIRE LEVEL PIPS")]
-    [SerializeField] private float pipSize = 30f;
-    [SerializeField] private float pipGap = 2f;
+    [Tooltip("Pixels da cidade por pixel do ícone de fogo (16x16)")]
+    [SerializeField] private float pipPixels = 1f;
+    [SerializeField] private float pipGap = 1f;
 
     [Header("COLORS")]
     [SerializeField] private Color waterColor = new Color(.45f, .8f, 1f, .95f);
@@ -49,13 +60,17 @@ public class FireMinigame : MonoBehaviour
         public readonly List<Vector2> offsets = new();
         public readonly List<bool> alive = new();
         public Image barFill;
+        public RectTransform hint;
         public TMP_Text label;
     }
 
     private readonly Dictionary<House, JetView> jets = new();
     private readonly Dictionary<House, RectTransform> pips = new();
     private readonly List<House> scratch = new();
+    private static readonly Vector3[] corners = new Vector3[4];
+    // HUD: só as gotas do jato, no ponteiro. Mundo: chamas, barra, dica e nível do fogo.
     private RectTransform layer;
+    private RectTransform world;
     private Sprite flameSprite;
     private Sprite pipSprite;
     private float dropTimer;
@@ -85,12 +100,13 @@ public class FireMinigame : MonoBehaviour
 
     private void OnJetOpened(House house)
     {
-        if (house == null || house.Jet == null || Layer() == null) return;
+        if (house == null || house.Jet == null || World() == null) return;
 
         if (jets.TryGetValue(house, out JetView old)) Close(old, false);
 
-        JetView view = new JetView { house = house, root = FeelUI.CreateRect("Jet_" + house.name, layer) };
+        JetView view = new JetView { house = house, root = FeelUI.CreateRect("Jet_" + house.name, world) };
         view.root.sizeDelta = Vector2.zero;
+        float pixel = PixelFx.ArtPixel;
 
         int count = house.Jet.Flames;
         float start = Random.Range(0f, 360f);
@@ -100,31 +116,39 @@ public class FireMinigame : MonoBehaviour
             view.offsets.Add(new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)));
             view.alive.Add(true);
 
-            Image flame = FeelUI.CreateImage("Flame", view.root, Color.white, FlameSprite());
-            flame.preserveAspect = true;
-            flame.rectTransform.sizeDelta = Vector2.one * flameSize;
+            // Pivô no centro: a chama cintila e cresce em volta do próprio meio
+            Image flame = PixelFx.CreateSprite("Flame", view.root, FlameSprite(), Color.white, flamePixels);
+            flame.rectTransform.pivot = new Vector2(.5f, .5f);
             flame.rectTransform.localScale = Vector3.zero;
             flame.rectTransform.DOScale(1f, .22f).SetDelay(i * .05f).SetEase(Ease.OutBack).SetUpdate(true).SetLink(flame.gameObject);
             view.flames.Add(flame);
         }
 
-        Image barBack = FeelUI.CreateInset("Bar", view.root, new Color(0f, 0f, 0f, .7f));
-        barBack.rectTransform.sizeDelta = barSize;
+        // Barra lisa com 1 pixel da cidade de borda escura (a moldura fatiada do HUD sai torta no mundo)
+        Image barBack = FeelUI.CreateImage("Bar", view.root, new Color(0f, 0f, 0f, .7f));
+        barBack.rectTransform.sizeDelta = barSize * pixel;
         view.barFill = FeelUI.CreateImage("Fill", barBack.transform, barFull);
         RectTransform fill = view.barFill.rectTransform;
         fill.anchorMin = new Vector2(0f, 0f);
         fill.anchorMax = new Vector2(1f, 1f);
         fill.pivot = new Vector2(0f, .5f);
-        float inset = FeelUI.PixelSize;
-        fill.offsetMin = new Vector2(inset, inset);
-        fill.offsetMax = new Vector2(-inset, -inset);
+        fill.offsetMin = new Vector2(pixel, pixel);
+        fill.offsetMax = new Vector2(-pixel, -pixel);
 
         if (hintsShown < hintTimes)
         {
             hintsShown++;
-            view.label = FeelUI.CreateText("Hint", view.root, dragHint, labelSize, FeelUI.PixelCream);
+            // Faixa escura atrás: o creme sumia na calçada clara
+            Image plate = FeelUI.CreateImage("Hint", view.root, hintBack);
+            view.hint = plate.rectTransform;
+            view.label = FeelUI.CreateText("Text", view.hint, dragHint, labelSize * pixel, FeelUI.PixelCream);
             FeelUI.Outline(view.label, .3f);
-            view.label.rectTransform.sizeDelta = new Vector2(420f, 40f);
+            FeelUI.Stretch(view.label.rectTransform);
+            view.hint.sizeDelta = new Vector2(view.label.preferredWidth + hintPadding * 2f * pixel, (labelSize + hintPadding * 2f) * pixel);
+            Canvas above = plate.gameObject.AddComponent<Canvas>();
+            above.overrideSorting = true;
+            above.sortingLayerID = above.rootCanvas.sortingLayerID;
+            above.sortingOrder = hintOrder;
         }
 
         jets[house] = view;
@@ -157,13 +181,15 @@ public class FireMinigame : MonoBehaviour
                 continue;
             }
 
-            Vector2 center = MiniGameFeel.HudCenter(house.transform, out Vector2 size);
-            float ring = Mathf.Clamp(size.magnitude * .5f * ringScale, ringMin, ringMax);
-            center = OnScreen(center, ring + flameSize);
+            // No mundo, em volta da casa: fora da tela fica fora da tela (o pino da borda do MapMarkers aponta a casa)
+            float pixel = PixelFx.ArtPixel;
+            Vector2 center = WorldCenter(house.transform, out Vector2 size);
+            float ring = Mathf.Clamp(size.magnitude * .5f * ringScale, ringMin * pixel, ringMax * pixel);
             view.root.anchoredPosition = center;
             view.root.localScale = Vector3.one;
+            float flameHeight = view.flames.Count > 0 ? view.flames[0].rectTransform.rect.height : 0f;
 
-            float t = Time.unscaledTime;
+            float t = GameClock.Time;
             for (int i = 0; i < view.flames.Count; i++)
             {
                 if (!view.alive[i]) continue;
@@ -174,7 +200,7 @@ public class FireMinigame : MonoBehaviour
                 float flicker = 1f + Mathf.Sin(t * 13f + i * 1.7f) * .07f;
                 flame.rectTransform.localScale = flame.rectTransform.localScale.x >= .98f ? new Vector3(flicker, 2f - flicker, 1f) : flame.rectTransform.localScale;
 
-                if (spraying && Vector2.Distance(pointer, center + at) <= Data.jetHitRadius && house.DouseFlame())
+                if (spraying && Hits(pointer, flame.rectTransform) && house.DouseFlame())
                 {
                     view.alive[i] = false;
                     Douse(view, flame);
@@ -187,10 +213,10 @@ public class FireMinigame : MonoBehaviour
                 float left = house.Jet != null ? house.Jet.TimeLeft01 : 0f;
                 view.barFill.rectTransform.localScale = new Vector3(left, 1f, 1f);
                 view.barFill.color = Color.Lerp(barEmpty, barFull, left);
-                view.barFill.transform.parent.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -ring - flameSize * .5f - barSize.y);
+                view.barFill.transform.parent.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -ring - flameHeight * .5f - barSize.y * pixel);
             }
 
-            if (view.label != null) view.label.rectTransform.anchoredPosition = new Vector2(0f, ring + flameSize * .5f + labelSize);
+            if (view.hint != null) view.hint.anchoredPosition = new Vector2(0f, ring + flameHeight * .5f + (labelSize + hintPadding * 2f) * pixel);
         }
 
         if (spraying) Spray(pointer);
@@ -210,15 +236,33 @@ public class FireMinigame : MonoBehaviour
         return RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)canvas.transform, pointer.position.ReadValue(), canvasCamera, out hud);
     }
 
-    // Casa fora da tela: o anel fica preso na borda, inteiro, para o jato sempre dar para jogar.
-    private static Vector2 OnScreen(Vector2 center, float extent)
+    // O jato pega a chama no HUD: o alcance (FireEnergyData.jetHitRadius, em 1080p) cresce com a chama quando a
+    // câmera aproxima e nunca fica menor que o medido no zoom do começo
+    private bool Hits(Vector2 pointer, RectTransform flame)
     {
-        Canvas canvas = FeelUI.HudCanvas;
-        if (canvas == null) return center;
+        Vector2 at = MiniGameFeel.HudCenter(flame, out Vector2 hudSize);
+        float radius = Data.jetHitRadius * Mathf.Max(1f, hudSize.y / Mathf.Max(1f, hitReferenceSize));
+        return Vector2.Distance(pointer, at) <= radius;
+    }
 
-        Rect area = ((RectTransform)canvas.transform).rect;
-        return new Vector2(Mathf.Clamp(center.x, area.xMin + extent, area.xMax - extent),
-            Mathf.Clamp(center.y, area.yMin + extent, area.yMax - extent));
+    // Centro e tamanho da casa na camada do mundo. A casa tem o pivô no pé: o centro sai do retângulo.
+    private Vector2 WorldCenter(Transform target, out Vector2 size)
+    {
+        size = Vector2.zero;
+        if (target is not RectTransform rect) return PixelFx.ToLocal(world, target.position);
+
+        rect.GetWorldCorners(corners);
+        Vector2 min = Vector2.positiveInfinity;
+        Vector2 max = Vector2.negativeInfinity;
+        foreach (Vector3 corner in corners)
+        {
+            Vector2 point = PixelFx.ToLocal(world, corner);
+            min = Vector2.Min(min, point);
+            max = Vector2.Max(max, point);
+        }
+
+        size = max - min;
+        return (min + max) * .5f;
     }
 
     private static bool AnyAlive(JetView view)
@@ -241,7 +285,7 @@ public class FireMinigame : MonoBehaviour
 
         Image puff = FeelUI.CreateCircle("Steam", view.root, steamColor);
         puff.rectTransform.anchoredPosition = rect.anchoredPosition;
-        puff.rectTransform.sizeDelta = Vector2.one * flameSize * .6f;
+        puff.rectTransform.sizeDelta = Vector2.one * rect.rect.height * .6f;
         puff.rectTransform.DOScale(2.2f, .35f).SetEase(Ease.OutCubic).SetUpdate(true).SetLink(puff.gameObject);
         puff.DOFade(0f, .35f).SetUpdate(true).SetLink(puff.gameObject).OnComplete(() => Destroy(puff.gameObject));
     }
@@ -275,7 +319,7 @@ public class FireMinigame : MonoBehaviour
     private void Spray(Vector2 pointer)
     {
         dropTimer -= Time.unscaledDeltaTime;
-        if (dropTimer > 0f) return;
+        if (dropTimer > 0f || Layer() == null) return;
         dropTimer = dropInterval;
 
         Image drop = FeelUI.CreateImage("Drop", layer, waterColor);
@@ -300,29 +344,30 @@ public class FireMinigame : MonoBehaviour
             return;
         }
 
-        if (Layer() == null) return;
+        if (World() == null) return;
 
         if (!pips.TryGetValue(house, out RectTransform row) || row == null)
         {
-            row = FeelUI.CreateRect("FireLevel_" + house.name, layer);
+            row = FeelUI.CreateRect("FireLevel_" + house.name, world);
             pips[house] = row;
         }
 
         for (int i = row.childCount; i < level; i++)
         {
-            Image pip = FeelUI.CreateImage("Pip", row, Color.white, PipSprite());
-            pip.preserveAspect = true;
-            pip.rectTransform.sizeDelta = Vector2.one * pipSize;
+            Image pip = PixelFx.CreateSprite("Pip", row, PipSprite(), Color.white, pipPixels);
+            pip.rectTransform.pivot = new Vector2(.5f, .5f);
             pip.rectTransform.localScale = Vector3.zero;
             pip.rectTransform.DOScale(1f, .25f).SetEase(Ease.OutBack).SetUpdate(true).SetLink(pip.gameObject);
         }
 
-        float width = level * pipSize + (level - 1) * pipGap;
+        float pipSize = PipSize();
+        float gap = pipGap * PixelFx.ArtPixel;
+        float width = level * pipSize + (level - 1) * gap;
         for (int i = 0; i < row.childCount; i++)
         {
             RectTransform pip = (RectTransform)row.GetChild(i);
             pip.gameObject.SetActive(i < level);
-            pip.anchoredPosition = new Vector2(-width * .5f + pipSize * .5f + i * (pipSize + pipGap), 0f);
+            pip.anchoredPosition = new Vector2(-width * .5f + pipSize * .5f + i * (pipSize + gap), 0f);
         }
 
         // Soco no nível novo: o jogador vê o fogo crescer.
@@ -354,9 +399,15 @@ public class FireMinigame : MonoBehaviour
             row.gameObject.SetActive(show);
             if (!show) continue;
 
-            Vector2 center = MiniGameFeel.HudCenter(house.transform, out Vector2 size);
-            row.anchoredPosition = center + new Vector2(0f, -size.y * .5f - pipSize * .3f);
+            Vector2 center = WorldCenter(house.transform, out Vector2 size);
+            row.anchoredPosition = center + new Vector2(0f, -size.y * .5f - PipSize() * .3f);
         }
+    }
+
+    private float PipSize()
+    {
+        Sprite sprite = PipSprite();
+        return (sprite != null ? sprite.rect.height : 16f) * pipPixels * PixelFx.ArtPixel;
     }
 
     private void HidePips(House house)
@@ -373,6 +424,13 @@ public class FireMinigame : MonoBehaviour
     {
         if (layer == null) layer = FeelUI.HudLayer(LayerName);
         return layer;
+    }
+
+    // Céu do mundo: acima das casas e abaixo dos painéis delas
+    private RectTransform World()
+    {
+        if (world == null) world = PixelFx.Sky;
+        return world;
     }
 
     // Ícone do Pixel Lab (fire_flame) se chegou; senão o fogo do kit pixel.

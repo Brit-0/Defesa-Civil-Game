@@ -370,7 +370,7 @@ public class TutorialTips : MonoBehaviour
 
         Vector2 half = pointer.rect.size * .5f - Vector2.one * edgeMargin;
         bool onScreen = Mathf.Abs(middle.x) <= half.x && Mathf.Abs(middle.y) <= half.y;
-        float bob = Mathf.Sin(Time.unscaledTime * bobSpeed) * bobHeight;
+        float bob = Mathf.Sin(GameClock.Time * bobSpeed) * bobHeight;
 
         ring.enabled = onScreen;
 

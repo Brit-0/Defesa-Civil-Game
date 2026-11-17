@@ -83,9 +83,10 @@ public class FeedbacksManager : MonoBehaviour
         GameEvents.GameStateChanged -= OnGameStateChanged;
     }
 
-    //Com a automação da base, o GuardManager esconde o texto logo em seguida, no SelectBase
+    //Só quando a base vai ser pedida: com a automação da base (escolhida sozinha) o texto não aparece e some (#535)
     private void OnCallOpened(Call call)
     {
+        if (!GuardManager.selectBaseMode) return;
         ShowText(chooseBaseText);
     }
 

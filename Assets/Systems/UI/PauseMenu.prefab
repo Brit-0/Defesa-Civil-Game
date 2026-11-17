@@ -51,7 +51,7 @@ MonoBehaviour:
   title: PAUSADO
   resumeText: CONTINUAR
   restartText: REINICIAR
-  hintText: Tecla P pausa e continua
+  hintText: Esc ou P pausa e continua
   pauseButtonText: II
   buttonAnchor: {x: 0, y: 0}
   buttonPosition: {x: 60, y: 60}

@@ -10,14 +10,18 @@ public class GoalTracker : MonoBehaviour
     public static GoalTracker Instance;
 
     [Header("LAYOUT (tela de referência 1920x1080)")]
-    //O topo fica a 138 do chão, como antes: mais alto, entraria embaixo do painel de melhorias aberto
-    [SerializeField] private Vector2 position = new Vector2(140f, 14f);
-    [SerializeField] private Vector2 size = new Vector2(540f, 124f);
+    //O topo fica a 138 do chão, como antes: mais alto, entraria embaixo do painel de melhorias aberto. O painel cresceu
+    //para baixo e para a direita (#535; era 540x124 a 14 do chão)
+    [SerializeField] private Vector2 position = new Vector2(140f, 8f);
+    [SerializeField] private Vector2 size = new Vector2(560f, 130f);
     [SerializeField] private float border = 4f;
     [Tooltip("Margem interna dos lados: o texto e a barra não encostam na moldura (#531)")]
     [SerializeField] private float padding = 32f;
-    [Tooltip("Margem interna de cima e de baixo")]
-    [SerializeField] private float paddingY = 16f;
+    [Tooltip("Margem interna de cima e de baixo, iguais: em cima do título e embaixo do marco (#535; era 16 e o marco descia a 14)")]
+    [SerializeField] private float paddingY = 18f;
+    [SerializeField] private float titleHeight = 28f;
+    [SerializeField] private float barHeight = 30f;
+    [SerializeField] private float milestoneHeight = 24f;
 
     [Header("COLORS")]
     [SerializeField] private Color frameColor = FeelUI.ButtonColor;
@@ -73,17 +77,21 @@ public class GoalTracker : MonoBehaviour
         FeelUI.Place(frame, zero, zero, position, size);
         FeelUI.Stretch(FeelUI.CreatePanel("Back", frame, backColor).rectTransform, border);
 
-        titleLbl = FeelUI.CreateText("Title", frame, "", 22f, Color.white, TextAlignmentOptions.MidlineLeft);
+        //Título, barra e marco empilhados com a mesma folga entre eles; a mesma margem em cima e embaixo
         float inner = size.x - padding * 2f;
-        FeelUI.Place(titleLbl.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(padding, -paddingY), new Vector2(inner, 28f));
+        float gap = Mathf.Max(0f, (size.y - paddingY * 2f - titleHeight - barHeight - milestoneHeight) * .5f);
+
+        titleLbl = FeelUI.CreateText("Title", frame, "", 22f, Color.white, TextAlignmentOptions.MidlineLeft);
+        FeelUI.Place(titleLbl.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(padding, -paddingY), new Vector2(inner, titleHeight));
         titleLbl.enableAutoSizing = true;
         titleLbl.fontSizeMin = 14f;
         titleLbl.fontSizeMax = 22f;
 
         Image barBack = FeelUI.CreatePanel("BarBack", frame, barBackColor);
-        FeelUI.Place(barBack.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(padding, -paddingY - 32f), new Vector2(inner, 30f));
+        FeelUI.Place(barBack.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(padding, -paddingY - titleHeight - gap), new Vector2(inner, barHeight));
 
-        Image fillImage = FeelUI.CreatePanel("Fill", barBack.rectTransform, barColor);
+        //Preenchimento liso, sem sprite: o PixelSkin trocava o painel arredondado pela janela branca e a barra nunca enchia (#535)
+        Image fillImage = FeelUI.CreateImage("Fill", barBack.rectTransform, barColor, null);
         fill = fillImage.rectTransform;
         fill.anchorMin = Vector2.zero;
         fill.anchorMax = new Vector2(0f, 1f);
@@ -95,7 +103,7 @@ public class GoalTracker : MonoBehaviour
         FeelUI.Outline(valueLbl, .3f);
 
         milestoneLbl = FeelUI.CreateText("Milestone", frame, "", 17f, milestoneColor, TextAlignmentOptions.MidlineLeft);
-        FeelUI.Place(milestoneLbl.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(padding, paddingY - 2f), new Vector2(inner, 24f));
+        FeelUI.Place(milestoneLbl.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(padding, paddingY), new Vector2(inner, milestoneHeight));
         milestoneLbl.enableAutoSizing = true;
         milestoneLbl.fontSizeMin = 12f;
         milestoneLbl.fontSizeMax = 17f;

@@ -433,8 +433,9 @@ public class MapMarkers : MonoBehaviour
         float unitsPerPixel = area.height / Mathf.Max(1, cam.pixelHeight);
         float zoom01 = Mathf.InverseLerp(8f, 16f, cam.orthographicSize);
         float zoomScale = Mathf.Lerp(1f, farPinScale, zoom01);
-        float dt = Time.unscaledDeltaTime;
-        float now = Time.unscaledTime;
+        //Relógio que para na pausa: os pinos seguem as casas, mas o quique e a onda congelam (#535)
+        float dt = GameClock.DeltaTime;
+        float now = GameClock.Time;
 
         edgePins.Clear();
         foreach (Pin p in pins)
@@ -661,7 +662,7 @@ public class MapMarkers : MonoBehaviour
         if (!inCall) return;
 
         float step = pointerStepTime * .5f;
-        int phase = Mathf.FloorToInt((Time.unscaledTime + p.phase) / Mathf.Max(.01f, step)) % 4;
+        int phase = Mathf.FloorToInt((GameClock.Time + p.phase) / Mathf.Max(.01f, step)) % 4;
         float bounce = (phase == 2 ? 4f : phase == 0 ? 0f : 2f) * 2f;
         p.pointer.anchoredPosition = new Vector2(Mathf.Round(x), plateHalfHeight + gapAboveHouse + p.pointer.sizeDelta.y * .5f + bounce);
     }

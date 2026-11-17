@@ -156,7 +156,7 @@ public class MiniGameFeel : MonoBehaviour
             float progress = house.WorkProgress01;
             bool inside = progress >= house.CritWindowStart && progress <= house.CritWindowStart + house.CritWindowSize;
             arc.color = inside ? critHotColor : critColor;
-            float pulse = inside ? critHotScale + .04f * Mathf.Sin(Time.unscaledTime * 20f) : 1f;
+            float pulse = inside ? critHotScale + .04f * Mathf.Sin(GameClock.Time * 20f) : 1f;
             arc.rectTransform.localScale = Vector3.one * pulse;
         }
     }
@@ -339,7 +339,8 @@ public class MiniGameFeel : MonoBehaviour
             return;
         }
 
-        float pulse = 1f + targetPulse * Mathf.Sin(Time.unscaledTime * targetPulseSpeed);
+        // Pulso no brilho, não na escala: o aro pixel esticado por fração quadriculava (#535)
+        float pulse = 1f - targetPulse * 2f * (.5f + .5f * Mathf.Sin(GameClock.Time * targetPulseSpeed));
         bool any = false;
 
         foreach (House house in forecast.targets)
@@ -350,8 +351,9 @@ public class MiniGameFeel : MonoBehaviour
             Image ring = GetTarget(house);
             ring.rectTransform.anchoredPosition = HudCenter(house.transform, out Vector2 size);
             ring.rectTransform.sizeDelta = Vector2.one * RingSize(size, targetSize);
-            ring.rectTransform.localScale = Vector3.one * (house.IsShored ? 1f : pulse);
-            ring.color = house.IsShored ? shoreColor : targetColor;
+            Color color = house.IsShored ? shoreColor : targetColor;
+            if (!house.IsShored) color.a *= pulse;
+            ring.color = color;
             any |= canShore;
         }
 
@@ -366,21 +368,21 @@ public class MiniGameFeel : MonoBehaviour
             return ring;
         }
 
+        // O aro fino do tutorial (Mk_Ring, Simple e quadrado): o Button2 fatiado esticava e quadriculava (#535)
         RectTransform layer = FeelUI.HudLayer(PopupLayer);
-        FeelUITheme theme = FeelUI.Theme;
-        ring = FeelUI.CreateImage("ShoreTarget", layer, targetColor, theme != null ? theme.button2 : null);
-        FeelUI.Slice(ring); // aro fino como o pixel da cidade, em qualquer tamanho
+        ring = FeelUI.CreateRing("ShoreTarget", layer, targetColor);
         ring.rectTransform.sizeDelta = Vector2.one * targetSize;
         ring.transform.SetAsFirstSibling();
         targets[house] = ring;
         return ring;
     }
 
-    // Aro um pouco maior que a casa, sem sumir nem cobrir a quadra quando a câmera aproxima ou afasta.
+    // Aro um pouco maior que a casa, sem sumir nem cobrir a quadra quando a câmera aproxima ou afasta. O lado cai no
+    // passo de 32 do sprite (FeelUI.RingSide): cada pixel do aro vira um número inteiro de pixels do HUD.
     public static float RingSize(Vector2 targetSize, float fallback)
     {
         float biggest = Mathf.Max(targetSize.x, targetSize.y);
-        return biggest > 0f ? Mathf.Clamp(biggest + 24f, 90f, 260f) : fallback;
+        return biggest > 0f ? FeelUI.RingSide(targetSize) : FeelUI.RingSide(Vector2.one * fallback, 0f);
     }
 
     private void HideTarget(House house)

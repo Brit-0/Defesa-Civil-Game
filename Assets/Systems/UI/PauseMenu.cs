@@ -4,15 +4,20 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-//Pausa: botão no canto do HUD e tecla P chamam GameManager.Pause/Resume; a tela aparece em GameState.Paused.
-//O Esc fica de fora: já é o cancelar do chamado. Monta a própria UI e anima fora do timeScale.
+//Pausa: botão no canto do HUD e as teclas Esc e P chamam GameManager.Pause/Resume; a tela aparece em GameState.Paused.
+//Com um chamado aberto, o Esc primeiro fecha o chamado (CancelCall); o próximo pausa (#535). Monta a própria UI, num
+//Canvas por cima de todo o HUD, e anima fora do timeScale.
 public class PauseMenu : MonoBehaviour
 {
     [Header("TEXTS")]
     [SerializeField] private string title = "PAUSADO";
     [SerializeField] private string resumeText = "CONTINUAR";
     [SerializeField] private string restartText = "REINICIAR";
-    [SerializeField] private string hintText = "Tecla P pausa e continua";
+    [SerializeField] private string hintText = "Esc ou P pausa e continua";
+
+    [Header("LAYER")]
+    [Tooltip("Acima do texto de instrução (100) e do resto do HUD, abaixo da tela de fim (20000) e da transição (30000)")]
+    [SerializeField] private int sortingOrder = 15000;
     [SerializeField] private string pauseButtonText = "II";
 
     [Header("PAUSE BUTTON (canto do HUD, tela de referência 1920x1080)")]
@@ -44,7 +49,10 @@ public class PauseMenu : MonoBehaviour
     private RectTransform screen;
     private RectTransform panel;
     private CanvasGroup group;
+    private Canvas screenCanvas;
     private GameObject pauseButton;
+    //Chamado aberto no fim do quadro anterior: o Esc deste quadro já fechou o chamado (CancelCall roda antes do Update)
+    private bool callWasOpen;
 
     private void Awake()
     {
@@ -70,6 +78,9 @@ public class PauseMenu : MonoBehaviour
         screen = FeelUI.CreateRect("Screen", parent);
         FeelUI.Stretch(screen);
         group = screen.gameObject.AddComponent<CanvasGroup>();
+        //Canvas próprio por cima de todo o HUD (balão do tutorial, instrução do topo); com raycaster para os botões
+        screenCanvas = screen.gameObject.AddComponent<Canvas>();
+        screen.gameObject.AddComponent<GraphicRaycaster>();
 
         Image dim = FeelUI.CreateImage("Dim", screen, dimColor);
         dim.raycastTarget = true;
@@ -124,7 +135,15 @@ public class PauseMenu : MonoBehaviour
     private void Update()
     {
         Keyboard keyboard = Keyboard.current;
-        if (keyboard != null && keyboard.pKey.wasPressedThisFrame) Toggle();
+        if (keyboard == null) return;
+
+        bool paused = GameManager.Instance != null && GameManager.Instance.State == GameState.Paused;
+        if (keyboard.pKey.wasPressedThisFrame || (keyboard.escapeKey.wasPressedThisFrame && (paused || !callWasOpen))) Toggle();
+    }
+
+    private void LateUpdate()
+    {
+        callWasOpen = GuardManager.Instance != null && GuardManager.Instance.CurrentCall != null;
     }
 
     private void OnGameStateChanged(GameState state)
@@ -144,6 +163,7 @@ public class PauseMenu : MonoBehaviour
 
         screen.gameObject.SetActive(true);
         screen.parent.SetAsLastSibling();
+        SortAboveHud();
 
         group.DOKill();
         group.alpha = 0f;
@@ -152,6 +172,16 @@ public class PauseMenu : MonoBehaviour
         panel.DOKill();
         panel.localScale = Vector3.one * .85f;
         panel.DOScale(1f, popTime).SetEase(Ease.OutBack).SetUpdate(true).SetLink(screen.gameObject);
+    }
+
+    //Mesma camada de ordenação do HUD (UI), numa ordem acima dele. Feito ao abrir: o Canvas aninhado só guarda o
+    //overrideSorting quando já está ativo
+    private void SortAboveHud()
+    {
+        Canvas parentCanvas = screen.parent != null ? screen.parent.GetComponentInParent<Canvas>() : null;
+        screenCanvas.overrideSorting = true;
+        if (parentCanvas != null) screenCanvas.sortingLayerID = parentCanvas.rootCanvas.sortingLayerID;
+        screenCanvas.sortingOrder = sortingOrder;
     }
 
     private void Hide()

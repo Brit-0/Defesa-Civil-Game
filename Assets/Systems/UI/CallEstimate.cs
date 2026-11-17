@@ -8,6 +8,7 @@ using UnityEngine.UI;
 //Estimativa na aba de chamado (GuardTab): quanto a equipe leva para chegar e quanto leva o conserto, com o número de
 //trabalhadores escolhido no + e no - (pedido do Pietro 17/11, #531). A conta é a do jogo: caminho do GPS ÷ velocidade
 //mais o intervalo entre as saídas (Stats.GetTravelTime) e Stats.GetWorkTime com a equipe escolhida.
+//No Armazém, uma terceira linha diz quanto material a equipe traz (Stats.GetRestockAmount, #535).
 //A aba cresce para cima para caber a faixa; montada em runtime em toda cena, sem editar o Gameplay.unity.
 public class CallEstimate : MonoBehaviour
 {
@@ -18,14 +19,22 @@ public class CallEstimate : MonoBehaviour
     [SerializeField] private string repairLabel = "Conserto";
     [SerializeField] private string fireLabel = "Apagar";
     [SerializeField] private string restockLabel = "Coleta";
+    [SerializeField] private string materialLabel = "Material";
+    [SerializeField] private string materialFormat = "+{0}";
     [SerializeField] private string emptyHint = "Escolha a equipe no +";
     [SerializeField] private string noValue = "--";
 
     [Header("LAYOUT (tela de referência 1920x1080)")]
-    [SerializeField] private float extraHeight = 96f;
+    [Tooltip("Da borda da aba até a faixa funda")]
     [SerializeField] private float sideMargin = 27f;
     [SerializeField] private float topMargin = 24f;
-    [SerializeField] private float innerPadding = 15f;
+    [Tooltip("Quanto o pé da faixa entra na margem de cima que a aba já tinha")]
+    [SerializeField] private float overlap = 9f;
+    [Tooltip("Folga dentro da faixa: o texto não encosta na moldura (#535; era 15 e a linha 25)")]
+    [SerializeField] private float padX = 24f;
+    [SerializeField] private float padY = 16f;
+    [SerializeField] private float lineHeight = 32f;
+    [SerializeField] private float lineGap = 8f;
     [SerializeField] private float textSize = 26f;
     [Tooltip("Rótulo da barra de CAOS (de pé, na direita): a aba mais alta não entra embaixo dele")]
     [SerializeField] private string chaosLabelText = "CAOS";
@@ -36,13 +45,20 @@ public class CallEstimate : MonoBehaviour
     [SerializeField] private float hintPunch = .2f;
     [SerializeField] private float punchTime = .25f;
 
+    private RectTransform tab;
     private RectTransform rows;
     private TMP_Text arriveLbl;
     private TMP_Text arriveValue;
     private TMP_Text workLbl;
     private TMP_Text workValue;
+    private TMP_Text materialLbl;
+    private TMP_Text materialValue;
     private TMP_Text hintLbl;
     private Transform plusButton;
+    //Altura que a aba ganhou em cima, linhas da faixa agora (2, ou 3 no Armazém) e o x de antes do desvio do CAOS
+    private float grown;
+    private int lines;
+    private float baseX;
 
     private Call pathCall;
     private CityGuard pathGuard;
@@ -78,9 +94,10 @@ public class CallEstimate : MonoBehaviour
 
     private void Awake()
     {
-        GrowUp((RectTransform)transform, extraHeight);
-        ClearChaosLabel((RectTransform)transform);
+        tab = (RectTransform)transform;
+        baseX = tab.anchoredPosition.x;
         Build();
+        SetLines(2);
 
         plusButton = FeelUI.FindChild(transform, "PlusButton");
         Transform send = FeelUI.FindChild(transform, "SendButton");
@@ -127,7 +144,8 @@ public class CallEstimate : MonoBehaviour
         if (below && overlap > 0f) tab.anchoredPosition -= new Vector2(overlap, 0f);
     }
 
-    //Faixa funda no alto da aba: "Chegada" e "Conserto" à esquerda, os tempos à direita, em dourado
+    //Faixa funda no alto da aba: "Chegada" e "Conserto" (e "Material" no Armazém) à esquerda, os valores à direita,
+    //em dourado. SetLines dá o tamanho e o lugar de cada linha.
     private void Build()
     {
         Image inset = FeelUI.CreateInset("Estimate", transform, new Color(0f, 0f, 0f, .35f));
@@ -135,32 +153,62 @@ public class CallEstimate : MonoBehaviour
         rows.anchorMin = new Vector2(0f, 1f);
         rows.anchorMax = new Vector2(1f, 1f);
         rows.pivot = new Vector2(.5f, 1f);
-        rows.offsetMin = new Vector2(sideMargin, -(topMargin + extraHeight - innerPadding));
-        rows.offsetMax = new Vector2(-sideMargin, -topMargin);
 
-        float lineHeight = (extraHeight - innerPadding * 3f) * .5f;
-        arriveLbl = Line("ArriveLbl", arriveLabel, FeelUI.PixelCream, TextAlignmentOptions.MidlineLeft, 0, lineHeight);
-        arriveValue = Line("ArriveValue", noValue, FeelUI.PixelGold, TextAlignmentOptions.MidlineRight, 0, lineHeight);
-        workLbl = Line("WorkLbl", repairLabel, FeelUI.PixelCream, TextAlignmentOptions.MidlineLeft, 1, lineHeight);
-        workValue = Line("WorkValue", noValue, FeelUI.PixelGold, TextAlignmentOptions.MidlineRight, 1, lineHeight);
+        arriveLbl = Line("ArriveLbl", arriveLabel, FeelUI.PixelCream, TextAlignmentOptions.MidlineLeft);
+        arriveValue = Line("ArriveValue", noValue, FeelUI.PixelGold, TextAlignmentOptions.MidlineRight);
+        workLbl = Line("WorkLbl", repairLabel, FeelUI.PixelCream, TextAlignmentOptions.MidlineLeft);
+        workValue = Line("WorkValue", noValue, FeelUI.PixelGold, TextAlignmentOptions.MidlineRight);
+        materialLbl = Line("MaterialLbl", materialLabel, FeelUI.PixelCream, TextAlignmentOptions.MidlineLeft);
+        materialValue = Line("MaterialValue", noValue, FeelUI.PixelGold, TextAlignmentOptions.MidlineRight);
 
         hintLbl = FeelUI.CreateText("Hint", rows, emptyHint, textSize, FeelUI.PixelGold);
-        FeelUI.Stretch(hintLbl.rectTransform, innerPadding * .5f);
+        FeelUI.Stretch(hintLbl.rectTransform, padX * .5f);
         hintLbl.enableAutoSizing = true;
         hintLbl.fontSizeMin = textSize * .6f;
         hintLbl.fontSizeMax = textSize;
     }
 
-    private TMP_Text Line(string lineName, string text, Color color, TextAlignmentOptions alignment, int index, float height)
+    private TMP_Text Line(string lineName, string text, Color color, TextAlignmentOptions alignment)
     {
         TextMeshProUGUI label = FeelUI.CreateText(lineName, rows, text, textSize, color, alignment);
         RectTransform rect = label.rectTransform;
         rect.anchorMin = new Vector2(0f, 1f);
         rect.anchorMax = new Vector2(1f, 1f);
         rect.pivot = new Vector2(.5f, 1f);
-        rect.offsetMin = new Vector2(innerPadding, -(innerPadding + height * (index + 1) + innerPadding * index));
-        rect.offsetMax = new Vector2(-innerPadding, -(innerPadding + (height + innerPadding) * index));
         return label;
+    }
+
+    private void PlaceLine(TMP_Text label, int index)
+    {
+        float top = padY + (lineHeight + lineGap) * index;
+        label.rectTransform.offsetMin = new Vector2(padX, -(top + lineHeight));
+        label.rectTransform.offsetMax = new Vector2(-padX, -top);
+    }
+
+    public float BlockHeight(int count) => padY * 2f + lineHeight * count + lineGap * (count - 1);
+
+    //A aba cresce (ou volta) em cima para a faixa de 2 ou 3 linhas e sai de baixo do rótulo CAOS de novo
+    private void SetLines(int count)
+    {
+        if (count == lines) return;
+        lines = count;
+
+        float block = BlockHeight(count);
+        float extra = topMargin + block - overlap;
+        GrowUp(tab, extra - grown);
+        grown = extra;
+
+        rows.offsetMin = new Vector2(sideMargin, -(topMargin + block));
+        rows.offsetMax = new Vector2(-sideMargin, -topMargin);
+        PlaceLine(arriveLbl, 0);
+        PlaceLine(arriveValue, 0);
+        PlaceLine(workLbl, 1);
+        PlaceLine(workValue, 1);
+        PlaceLine(materialLbl, 2);
+        PlaceLine(materialValue, 2);
+
+        tab.anchoredPosition = new Vector2(baseX, tab.anchoredPosition.y);
+        ClearChaosLabel(tab);
     }
 
     private void OnEnable()
@@ -184,11 +232,16 @@ public class CallEstimate : MonoBehaviour
         if (call == null || call.house == null || guard == null || arriveValue == null) return;
 
         int team = guards.TeamSize;
+        bool restock = call.type == CallType.Restock;
+        SetLines(restock ? 3 : 2);
+
         bool empty = team < Mathf.Max(1, call.workersNeeded);
         SetVisible(arriveLbl, !empty);
         SetVisible(arriveValue, !empty);
         SetVisible(workLbl, !empty);
         SetVisible(workValue, !empty);
+        SetVisible(materialLbl, restock && !empty);
+        SetVisible(materialValue, restock && !empty);
         SetVisible(hintLbl, empty);
         if (empty)
         {
@@ -200,12 +253,14 @@ public class CallEstimate : MonoBehaviour
         workLbl.text = WorkLabel(call);
         bool changed = SetValue(arriveValue, length >= 0f ? FormatTime(Stats.GetTravelTime(length, team)) : noValue);
         changed |= SetValue(workValue, FormatTime(Stats.GetWorkTime(call, team)));
+        if (restock) changed |= SetValue(materialValue, string.Format(materialFormat, Stats.GetRestockAmount(team)));
 
-        //Resposta ao + e ao -: os tempos pulam quando mudam (não na abertura da aba)
+        //Resposta ao + e ao -: os valores pulam quando mudam (não na abertura da aba)
         if (changed && shown)
         {
             Punch(arriveValue.transform, valuePunch);
             Punch(workValue.transform, valuePunch);
+            if (restock) Punch(materialValue.transform, valuePunch);
         }
         shown = true;
     }

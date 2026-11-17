@@ -95,16 +95,14 @@ public class GuardManager : MonoBehaviour
         currentCall = call;
         selectedGuard = null;
         callTab.SetActive(false);
-        GameEvents.RaiseCallOpened(call);
 
         // Automação 1 (Central de rádio): a base mais próxima da casa é escolhida sozinha.
+        // O modo sai antes do evento: quem escuta CallOpened (o "Escolha a base" do FeedbacksManager) já sabe se a base
+        // vai ser pedida; antes o texto aparecia e sumia a cada chamado com a automação comprada (#535).
         CityGuard nearestGuard = Stats.AutomationLevel >= AutomationLevels.AutoBase ? GetNearestGuard(call.house) : null;
-        if (nearestGuard == null)
-        {
-            selectBaseMode = true;
-            FeedbacksManager.ShowText("Escolha a base encarregada para o chamado");
-            return;
-        }
+        selectBaseMode = nearestGuard == null;
+        GameEvents.RaiseCallOpened(call);
+        if (nearestGuard == null) return;
 
         // Automação 2 (Protocolo padrão): a equipe sugerida sai num clique. No Armazém o jogador ainda escolhe a equipe.
         if (Stats.AutomationLevel >= AutomationLevels.AutoTeam && call.type == CallType.Problem)
@@ -126,6 +124,8 @@ public class GuardManager : MonoBehaviour
     {
         // O PlayerInput chama em started, performed e canceled: só performed conta (B5).
         if (!context.performed) return;
+        // Na pausa o Esc só continua o jogo (PauseMenu): o chamado aberto fica como estava (#535)
+        if (GameManager.Instance != null && GameManager.Instance.State == GameState.Paused) return;
 
         CloseCall();
     }

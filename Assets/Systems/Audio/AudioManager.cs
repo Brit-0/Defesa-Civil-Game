@@ -179,6 +179,9 @@ public class AudioManager : MonoBehaviour
         calmSource = CreateSource("Music Calm", true);
         tenseSource = CreateSource("Music Tense", true);
         dangerSource = CreateSource("Music Danger", true);
+
+        //Na pausa (GameClock, AudioListener.pause) a música só abaixa; chuva, fogo e os sons do jogo param (#535)
+        calmSource.ignoreListenerPause = tenseSource.ignoreListenerPause = dangerSource.ignoreListenerPause = true;
     }
 
     private AudioSource CreateSource(string sourceName, bool loop)
@@ -293,6 +296,8 @@ public class AudioManager : MonoBehaviour
         source.clip = clip;
         source.volume = Mathf.Clamp01(volume) * Volume(category);
         source.pitch = 1f + Random.Range(-pitchVariation, pitchVariation);
+        //Clique e hover tocam com a pausa aberta (botões da tela de pausa); o resto espera o jogo voltar
+        source.ignoreListenerPause = category == SoundCategory.Interface;
         source.Play();
 
         if (volume >= duckMinVolume && duckers.Contains(clip)) Duck(Mathf.Min(clip.length, duckMaxHold));

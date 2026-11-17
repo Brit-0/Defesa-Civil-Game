@@ -314,7 +314,7 @@ public class TutorialView : MonoBehaviour
         // Fora da tela (só casas e prédios; o HUD está sempre à vista): a seta fica na borda apontando para lá, sem aro.
         Vector2 half = root.rect.size * .5f - Vector2.one * edgeMargin;
         bool offScreen = !hasHud && (Mathf.Abs(position.x) > half.x || Mathf.Abs(position.y) > half.y);
-        float bob = arrowBob * (.5f + .5f * Mathf.Sin(Time.unscaledTime * arrowBobSpeed));
+        float bob = arrowBob * (.5f + .5f * Mathf.Sin(GameClock.Time * arrowBobSpeed));
 
         Vector2 direction;
         Vector2 tip;
@@ -345,7 +345,7 @@ public class TutorialView : MonoBehaviour
         ring.rectTransform.sizeDelta = ringSize;
         // Pulso no brilho, não na escala: o aro fica sempre do mesmo tamanho e o pixel dele não treme.
         Color pulse = arrowColor;
-        pulse.a *= 1f - ringPulse * (.5f + .5f * Mathf.Sin(Time.unscaledTime * arrowBobSpeed));
+        pulse.a *= 1f - ringPulse * (.5f + .5f * Mathf.Sin(GameClock.Time * arrowBobSpeed));
         ring.color = pulse;
     }
 

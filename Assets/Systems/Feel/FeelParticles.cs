@@ -292,7 +292,8 @@ public class FeelParticles : MonoBehaviour
     private void Update()
     {
         float scaled = Time.deltaTime;
-        float unscaled = Time.unscaledDeltaTime;
+        //Fora do timeScale, mas parado na pausa (#535)
+        float unscaled = GameClock.DeltaTime;
 
         for (int i = live.Count - 1; i >= 0; i--)
         {
