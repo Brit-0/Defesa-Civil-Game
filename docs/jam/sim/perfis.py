@@ -199,6 +199,13 @@ def com_base(plano):
     return plano[:i] + ["base2"] + plano[i:]
 
 
+def com_pararaio(plano, quantos=1):
+    """PARARAIO.md: para-raios logo depois da base nova (ou antes da meta), um seguido do outro."""
+    plano = [p for p in plano if p != "rod"]
+    i = plano.index("base2") + 1 if "base2" in plano else len(plano) - 1
+    return plano[:i] + ["rod"] * quantos + plano[i:]
+
+
 def perfis(plano_bom="carrinho", expansao=True):
     plano = com_base(PLANOS[plano_bom]) if expansao else PLANOS[plano_bom]
     ingenuo = com_base(PLANOS["ingenuo"]) if expansao else PLANOS["ingenuo"]

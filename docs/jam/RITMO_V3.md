@@ -201,5 +201,8 @@ do Editor ao abrir.
 - `sim.py` (#534): casa destelhada da tempestade (`vazar`, igual ao `StormLeak.Tick`).
 - `sim.py` e `fogo_energia.py`: guardam a estreia de cada sistema, os chamados e o caos por minuto.
 - `dados.py`: lê `Base2.asset` e `Depot2.asset` como já lia o gerador.
+- `sim.py`, `dados.py`, `perfis.py` e `pararaio.py` (#537): para-raio por quarteirão. A casa sabe o quarteirão dela, o
+  raio sorteia com as casas protegidas pesando a atração do `LightningRodData`, e o raio absorvido não faz dano. Sem
+  para-raio, a tabela fica igual. Tabela própria em PARARAIO.md (`python -X utf8 docs/jam/sim/pararaio.py`).
 
 Para repetir: `python -X utf8 docs/jam/sim/tabela.py` (depois), `--curva`, `--linha médio`, `--sem-estreia`.

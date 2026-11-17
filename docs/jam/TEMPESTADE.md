@@ -34,6 +34,8 @@ seguem o dano, a casa que esperou pede mais material e mais tempo (e paga mais).
   dispara `GameEvents.StormLeaked(house, dano)` (`GameEvents.Storm.cs`).
 - `Assets/Systems/Disasters/DisasterManager.cs`: a tempestade chama `ApplyProblem` com `storm: true`.
 - Testes: `Assets/Systems/Disasters/Editor/StormTests.cs` (2 testes EditMode).
+- Para-raio (#537, PARARAIO.md): o raio sorteado numa casa de quarteirão protegido vai para a ponta do para-raio, sem
+  dano nem destelhada (`LightningRodManager.PickStrikeTarget` e `TryAbsorb`, no laço da tempestade).
 
 ## Como testar no Play
 
