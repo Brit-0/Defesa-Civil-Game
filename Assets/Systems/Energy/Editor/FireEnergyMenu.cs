@@ -2,13 +2,15 @@ using UnityEditor;
 using UnityEngine;
 
 // Fogo e energia (docs/jam/ENERGIA_FOGO.md): cria o que falta, sem mexer no que já existe.
-// Os três já vêm commitados; o menu é para refazer um que foi apagado.
+// Todos já vêm commitados; o menu é para refazer um que foi apagado.
 //   Resources/Balance/FireEnergyData.asset — números do jato e da energia
+//   Resources/Balance/FuseBoxData.asset    — números do quadro de força (minigame do RELIGAR)
 //   Resources/Upgrades/Generator.asset     — o upgrade do gerador
 //   Systems/Energy/Resources/FireEnergy/FireEnergy.prefab — componente de ligação com os 5 sistemas
 public static class FireEnergyMenu
 {
     private const string DataPath = "Assets/Resources/Balance/FireEnergyData.asset";
+    private const string FuseDataPath = "Assets/Resources/Balance/FuseBoxData.asset";
     private const string GeneratorPath = "Assets/Resources/Upgrades/Generator.asset";
     private const string PrefabFolder = "Assets/Systems/Energy/Resources/FireEnergy";
     private const string PrefabPath = PrefabFolder + "/FireEnergy.prefab";
@@ -21,6 +23,12 @@ public static class FireEnergyMenu
         if (AssetDatabase.LoadAssetAtPath<FireEnergyData>(DataPath) == null)
         {
             AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<FireEnergyData>(), DataPath);
+            created++;
+        }
+
+        if (AssetDatabase.LoadAssetAtPath<FuseBoxData>(FuseDataPath) == null)
+        {
+            AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<FuseBoxData>(), FuseDataPath);
             created++;
         }
 

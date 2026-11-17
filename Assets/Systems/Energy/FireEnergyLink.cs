@@ -2,7 +2,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 // Componente de ligação do fogo e da energia (docs/jam/ENERGIA_FOGO.md). O prefab FireEnergy (Resources/FireEnergy)
-// já traz EnergyManager, EnergyHud, EnergyMarkers, FireMinigame e EnergyTutorial; solto na cena, ele vale e nada é duplicado.
+// já traz EnergyManager, EnergyHud, EnergyMarkers, FireMinigame e EnergyTutorial; o quadro de força (FuseBoxMinigame)
+// entra pelo Ensure. Solto na cena, ele vale e nada é duplicado.
 // Sem ele na cena, o bootstrap cria o prefab sozinho em toda cena com GameManager, como o GameloopBootstrap.
 public class FireEnergyLink : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class FireEnergyLink : MonoBehaviour
         Ensure<EnergyMarkers>();
         Ensure<FireMinigame>();
         Ensure<EnergyTutorial>();
+        Ensure<FuseBoxMinigame>();
     }
 
     private void Ensure<T>() where T : Component

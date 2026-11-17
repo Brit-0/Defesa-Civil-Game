@@ -18,6 +18,19 @@ public static class FireEnergyArt
     public const string SfxUnlock = "sfx_energy_on";
     public const string SfxDenied = "sfx_no_energy";
 
+    // Quadro de força (FuseBoxMinigame): arte e sons de scripts/v4b/arte_quadro.py (analises-lilith).
+    public const string FuseSwitchOff = "fuse_switch_off";
+    public const string FuseSwitchOn = "fuse_switch_on";
+    public const string FuseLedOff = "fuse_led_off";
+    public const string FuseLedOn = "fuse_led_on";
+    public const string FuseLedBad = "fuse_led_bad";
+    public const string FuseSpark = "fuse_spark";
+    public const string FuseStripe = "fuse_stripe";
+    public const string SfxFuseOpen = "sfx_fuse_open";
+    public const string SfxFuseSwitch = "sfx_fuse_switch";
+    public const string SfxFuseWrong = "sfx_fuse_wrong";
+    public const string SfxFuseDone = "sfx_fuse_done";
+
     private static readonly Dictionary<string, Object> cache = new();
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

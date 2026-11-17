@@ -38,7 +38,7 @@ No menu de cima do Unity:
 1. **Tools → Jam → Create Default Data**: cria o que faltar de balanceamento, desastres e upgrades. Não apaga ajustes.
 2. **Tools → Jam → Create Feel Prefabs**: monta os efeitos e sons.
 
-Se o Console mostrar aviso `[FireEnergyData]` ou da expansão, rode também **Tools → Jam → Create Fire And Energy Data** e **Tools → Jam → Expansão → Criar dados**.
+Se o Console mostrar aviso `[FireEnergyData]` ou da expansão, rode também **Tools → Jam → Create Fire And Energy Data** e **Tools → Jam → Expansão → Criar dados**. Sem o dia e a noite (a cidade fica sempre igual), rode **Tools → Jam → Create Day Night Data**.
 
 **Não rode** `Tools → Jam → Reset Data To Defaults`: ele reescreve o balanceamento que já foi ajustado.
 
@@ -54,6 +54,8 @@ O que olhar:
 - **Mini games:** escorar a casa no aviso de terremoto, coleta no ponto certo, e o **jato** no incêndio (arraste o mouse apertado por cima das chamas antes do tempo acabar).
 - **Ritmo (RITMO_V3):** um sistema por vez. Terremoto de 2 casas no começo; o primeiro incêndio vem logo depois de 1:30 e a primeira tempestade logo depois de 2:50 (o primeiro desastre depois de liberar um tipo é sempre desse tipo); o terremoto forte só a cada 8 desastres, perto de 6:10. O intervalo entre desastres cai de 50 s para 22 s em 12 minutos e a barra de caos enche com 20.
 - **Energia:** liga sozinha aos 5:15 de partida, com um segundo tutorial de 3 passos (apagão e botão **RELIGAR**). No último passo (**VAMOS**) os desastres voltam a cair; antes ficavam parados para sempre.
+- **Quadro de força (#536, ENERGIA_DIA_NOITE.md):** no apagão, **RELIGAR** abre o quadro ao lado do botão, com 4 chaves numeradas fora de ordem. Ligue de 1 a 4: cada chave sobe com um clique cada vez mais agudo e o LED fica verde; no último, "LUZ!", um clarão e a energia volta. Chave fora da ordem: zumbido, o quadro treme, todas descem, o LED fica vermelho e as chaves ficam cinza por meio segundo; depois é só recomeçar do 1. No tutorial de energia, o balão muda para a explicação do quadro e a seta aponta a próxima chave. Clicar em **RELIGAR** de novo fecha o quadro.
+- **Dia e noite (#536):** um dia inteiro a cada 7 minutos, só na luz: amanhecer rosado, dia com a luz de antes, entardecer laranja e noite azul, escura mas legível. Ao escurecer, os postes, as luzes da Base e dos Armazéns e as janelas de 3 em cada 4 casas acendem aos poucos (a Base e os Armazéns acendem sempre). No apagão à noite a cidade pisca e apaga; ao religar, as luzes voltam numa onda saindo da Base. Para ver uma fase sem esperar: no Play, selecione o objeto **DayNight** e use **Jump To** (Amanhecer, Manhã, Dia, Tarde, Entardecer, Noite, Madrugada) ou **Set Phase** (0 a 1) no Inspector. O ciclo não muda nada da jogabilidade e para junto com a pausa.
 - **Tempestade (TEMPESTADE.md):** a casa quebrada por raio fica destelhada (pino azul). Sem equipe, a chuva sobe o dano em 1 a cada 25 s, até 3, com respingo no telhado e o selo do dano pulsando; mandar a equipe para a piora na hora.
 - **Setas só nos chamados:** parados, a Base e os Armazéns ficam só com a placa do nome; a seta, o anel e o pino de borda da Base aparecem quando é hora de escolher a base de um chamado.
 - **Rastro:** cada trabalhador andando deixa uma fita clara e fina atrás que some em menos de 1 s; pegadas e a trilha da equipe aparecem por cima do chão.
