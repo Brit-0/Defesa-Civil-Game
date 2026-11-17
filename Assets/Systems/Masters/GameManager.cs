@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     public float ElapsedTime { get; private set; }
     public int HousesRepaired { get; private set; }
     public int TotalMoneyEarned { get; private set; }
+    public int DisastersFaced { get; private set; }
 
     [Header("DEBUG")]
     public float debugTimeScale = 4f;
@@ -33,12 +34,14 @@ public class GameManager : MonoBehaviour
     {
         GameEvents.CallResolved += OnCallResolved;
         GameEvents.MoneyChanged += OnMoneyChanged;
+        GameEvents.DisasterStarted += OnDisasterStarted;
     }
 
     private void OnDisable()
     {
         GameEvents.CallResolved -= OnCallResolved;
         GameEvents.MoneyChanged -= OnMoneyChanged;
+        GameEvents.DisasterStarted -= OnDisasterStarted;
     }
 
     private void Start()
@@ -97,12 +100,13 @@ public class GameManager : MonoBehaviour
         SetState(GameState.Lost);
     }
 
-    public void Restart()
+    // toMenu: a cena volta pelo menu inicial (botão MENU da tela de fim), sem começar a partida sozinha.
+    public void Restart(bool toMenu = false)
     {
         DOTween.KillAll();
         Time.timeScale = 1f;
         inputBlocks = 0;
-        restartRequested = true;
+        restartRequested = !toMenu;
         GuardManager.selectBaseMode = false;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
@@ -148,7 +152,7 @@ public class GameManager : MonoBehaviour
 
         milestonesReached++;
         int volunteers = Stats.Balance.volunteersPerMilestone;
-        if (volunteers > 0 && ResourcesManager.Instance != null) ResourcesManager.Workers += volunteers;
+        if (volunteers > 0) ResourcesManager.HireWorkers(volunteers);
         GameEvents.RaiseMilestoneReached(HousesRepaired, volunteers);
     }
 
@@ -162,9 +166,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // O dinheiro inicial não é arrecadado: a tela de fim contava os 500 do começo (lista Para Arrumar, item 20).
     private void OnMoneyChanged(int before, int after)
     {
+        if (ResourcesManager.Seeding) return;
         if (after > before) TotalMoneyEarned += after - before;
+    }
+
+    private void OnDisasterStarted(DisasterData disaster, Vector3 epicenter)
+    {
+        if (State == GameState.Playing) DisastersFaced++;
     }
 
     #endregion

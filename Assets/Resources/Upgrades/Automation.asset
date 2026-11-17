@@ -17,6 +17,7 @@ MonoBehaviour:
   description: "Cada n\xEDvel tira um passo do despacho: base autom\xE1tica, equipe autom\xE1tica, coleta autom\xE1tica e despacho autom\xE1tico."
   icon: {fileID: 1626110622, guid: 2b89dc3da1935ac58d86d65e37cc4924, type: 3}
   order: 5
+  category: 1
   maxLevel: 4
   baseCost: 80
   costGrowth: 2

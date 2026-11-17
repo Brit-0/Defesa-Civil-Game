@@ -223,7 +223,8 @@ public class HudJuice : MonoBehaviour
         if (value != counter.shown && counter.countTween != null && counter.countTween.IsActive()) Tick(counter);
         counter.shown = value;
         counter.forceWrite = false;
-        counter.label.text = value.ToString();
+        //Trabalhadores aparecem como livres/total
+        counter.label.text = counter == workers && ResourcesManager.Instance != null ? ResourcesManager.FormatWorkers(value) : value.ToString();
     }
 
     //Cada número novo da contagem dá um pulinho no rótulo; contagem rápida segura o número grande até parar

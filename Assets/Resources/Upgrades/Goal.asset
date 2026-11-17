@@ -17,6 +17,7 @@ MonoBehaviour:
   description: "Objetivo final: a cidade ganha uma central de Defesa Civil. Comprar \xE9 vencer."
   icon: {fileID: 941281885, guid: d1ff1aedda5d52c0ba2f9ae6587a90e4, type: 3}
   order: 8
+  category: 2
   maxLevel: 1
   baseCost: 2500
   costGrowth: 1

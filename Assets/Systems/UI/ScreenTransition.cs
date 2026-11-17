@@ -177,8 +177,8 @@ public class ScreenTransition : MonoBehaviour
         });
     }
 
-    //Cobre, recarrega a cena pelo GameManager e a cena nova abre com a onda
-    public static void Restart()
+    //Cobre, recarrega a cena pelo GameManager e a cena nova abre com a onda (toMenu: abre no menu inicial)
+    public static void Restart(bool toMenu = false)
     {
         ScreenTransition runner = Runner;
         runner.Cover(() =>
@@ -186,7 +186,7 @@ public class ScreenTransition : MonoBehaviour
             runner.revealOnLoad = true;
             FeelParticles.Clear();
 
-            if (GameManager.Instance != null) GameManager.Instance.Restart();
+            if (GameManager.Instance != null) GameManager.Instance.Restart(toMenu);
             else SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         });
     }

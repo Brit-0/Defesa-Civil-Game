@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddc0646d5f8fad464cce33cd2fe1e28c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenu
-  title: <wave>DEFESA CIVIL</wave>
+  title: <wave a=0.45>DEFESA CIVIL</wave>
   subtitle: "Mantenha a cidade de p\xE9."
   howToPlay: '1. Clique numa casa com problema para abrir um chamado
 

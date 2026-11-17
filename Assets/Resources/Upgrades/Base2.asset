@@ -17,6 +17,7 @@ MonoBehaviour:
   description: "Constr\xF3i uma base da Guarda num terreno vazio. As casas mais perto dela passam a ser atendidas de l\xE1: a equipe anda menos."
   icon: {fileID: 21300000, guid: 0e04e70f581978b919448e2ac0e2386e, type: 3}
   order: 7
+  category: 2
   maxLevel: 2
   baseCost: 150
   costGrowth: 1.6

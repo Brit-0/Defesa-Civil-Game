@@ -31,6 +31,7 @@ public static class FireEnergyMenu
             generator.displayName = "Gerador";
             generator.description = "Cada nível dá mais energia para bases, armazéns e automação.";
             generator.order = 7;
+            generator.category = UpgradeCategory.Energy;
             generator.maxLevel = 4;
             generator.baseCost = 60;
             generator.costGrowth = 1.8f;

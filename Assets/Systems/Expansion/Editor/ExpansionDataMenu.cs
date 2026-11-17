@@ -53,6 +53,7 @@ public static class ExpansionDataMenu
         asset.description = description;
         asset.icon = AssetDatabase.LoadAssetAtPath<Sprite>(SpriteFolder + icon + ".png");
         asset.order = order;
+        asset.category = UpgradeCategory.Expansion;
         asset.maxLevel = maxLevel;
         asset.baseCost = baseCost;
         asset.costGrowth = costGrowth;

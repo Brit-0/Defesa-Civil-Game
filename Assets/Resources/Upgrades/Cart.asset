@@ -17,6 +17,7 @@ MonoBehaviour:
   description: "+1 material por trabalhador no Armaz\xE9m"
   icon: {fileID: 21300000, guid: c431b24c76905ee4bbb887f642f87f30, type: 3}
   order: 3
+  category: 0
   maxLevel: 4
   baseCost: 25
   costGrowth: 1.8

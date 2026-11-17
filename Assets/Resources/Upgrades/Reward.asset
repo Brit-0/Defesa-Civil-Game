@@ -17,6 +17,7 @@ MonoBehaviour:
   description: +25% de dinheiro por conserto
   icon: {fileID: 154236942, guid: a2fd02e26a8f5b31a65f44cdce840855, type: 3}
   order: 4
+  category: 1
   maxLevel: 10
   baseCost: 50
   costGrowth: 1.55

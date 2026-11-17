@@ -8,6 +8,7 @@ public class Tweener : MonoBehaviour
     [SerializeField] private float hoverTime = .1f;
 
     [Header("PRESS")]
+    [SerializeField] private float pressScale = .9f;
     [SerializeField] private float holdTime = .08f;
     [SerializeField] private float releaseTime = .15f;
     [SerializeField] private float releaseOvershoot = 5f;
@@ -19,6 +20,13 @@ public class Tweener : MonoBehaviour
     private Tween scaleTween;
     //Mão do cursor ligada por este objeto (casa ou botão): some junto se ele desligar com o mouse em cima
     private bool hovered;
+
+    //Botão largo (linha de upgrade) cresce menos que o padrão, para não passar da borda do painel
+    public void SetScales(float hover, float press)
+    {
+        hoverScale = hover;
+        pressScale = press;
+    }
 
     public void HoverEnter()
     {
@@ -34,9 +42,9 @@ public class Tweener : MonoBehaviour
         ScaleTo(1f, hoverTime);
     }
 
-    public void Hold(float scale = .9f)
+    public void Hold()
     {
-        ScaleTo(scale, holdTime);
+        ScaleTo(pressScale, holdTime);
     }
 
     public void Release()

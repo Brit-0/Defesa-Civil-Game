@@ -191,7 +191,7 @@ public class UpgradesManager : MonoBehaviour
         switch (upgrade.id)
         {
             case UpgradeIds.Workers:
-                ResourcesManager.Workers += Mathf.RoundToInt(upgrade.effectPerLevel);
+                ResourcesManager.HireWorkers(Mathf.RoundToInt(upgrade.effectPerLevel));
                 break;
             // Centro de Operações: comprar o objetivo final é a vitória (GDD, seção 9).
             case UpgradeIds.Goal:

@@ -17,6 +17,7 @@ MonoBehaviour:
   description: "A Prefeitura paga por casa intacta de tempos em tempos. Paga menos quando o caos est\xE1 alto."
   icon: {fileID: 2136852644, guid: 1d6c0329376253c69e069c1b9fb1a9fb, type: 3}
   order: 6
+  category: 1
   maxLevel: 5
   baseCost: 150
   costGrowth: 2

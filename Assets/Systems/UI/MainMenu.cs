@@ -10,7 +10,7 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
     [Header("TEXTS (o título aceita tags do Text Animator)")]
-    [SerializeField] private string title = "<wave>DEFESA CIVIL</wave>";
+    [SerializeField] private string title = "<wave a=0.45>DEFESA CIVIL</wave>";
     [SerializeField] private string subtitle = "Mantenha a cidade de pé.";
     [SerializeField, TextArea(3, 6)] private string howToPlay =
         "1. Clique numa casa com problema para abrir um chamado\n" +

@@ -102,6 +102,23 @@ public static class JamDataMenu
     #region UPGRADES
 
     // O menu conhece tudo menos o ícone, que é ligado à mão e nunca é tocado.
+    // Aba do painel de melhorias: equipe é o padrão; renda e automação juntas; o objetivo final fica com a expansão
+    private static UpgradeCategory CategoryFor(string id)
+    {
+        switch (id)
+        {
+            case UpgradeIds.Automation:
+            case UpgradeIds.Income:
+            case UpgradeIds.Reward:
+                return UpgradeCategory.Automation;
+            case UpgradeIds.Base2:
+            case UpgradeIds.Goal:
+                return UpgradeCategory.Expansion;
+            default:
+                return UpgradeCategory.Workers;
+        }
+    }
+
     private static void CreateUpgrade(string assetName, string id, string displayName, string description, int order, int maxLevel, int baseCost, float costGrowth, float effectPerLevel, bool overwrite, ref int created, ref int updated)
     {
         UpgradeData asset = LoadOrCreate<UpgradeData>(UpgradesFolder, assetName, candidate => candidate.id == id, out bool isNew);
@@ -111,6 +128,7 @@ public static class JamDataMenu
         asset.displayName = displayName;
         asset.description = description;
         asset.order = order;
+        asset.category = CategoryFor(id);
         asset.maxLevel = maxLevel;
         asset.baseCost = baseCost;
         asset.costGrowth = costGrowth;

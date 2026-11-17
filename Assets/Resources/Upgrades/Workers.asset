@@ -17,6 +17,7 @@ MonoBehaviour:
   description: +1 trabalhador
   icon: {fileID: 21300000, guid: 385edc976b0a8f745951b8b97397bc7c, type: 3}
   order: 0
+  category: 0
   maxLevel: 12
   baseCost: 30
   costGrowth: 1.45

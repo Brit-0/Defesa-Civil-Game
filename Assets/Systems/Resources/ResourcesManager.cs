@@ -7,7 +7,11 @@ public class ResourcesManager : MonoBehaviour
 
     [Header("WORKERS")]
     [SerializeField] private TMP_Text workersLbl;
+    //Rótulo do HUD: livres/total (lista Para Arrumar, item 16)
+    [SerializeField] private string workersFormat = "{0}/{1}";
     private int workers;
+    private int totalWorkers;
+    //Livres na base. Despacho e volta da equipe mexem só aqui.
     public static int Workers
     {
         get => Instance.workers;
@@ -15,9 +19,26 @@ public class ResourcesManager : MonoBehaviour
         {
             value = NotNegative(value, "trabalhadores");
             Instance.workers = value;
-            Instance.workersLbl.text = value.ToString();
+            Instance.workersLbl.text = FormatWorkers(value);
             GameEvents.RaiseWorkersChanged(value);
         }
+    }
+
+    //Equipe inteira, livres e na rua. Só sobe com contratação e voluntários (HireWorkers).
+    public static int TotalWorkers => Instance != null ? Instance.totalWorkers : 0;
+
+    //Gente nova na equipe: entra livre e conta no total
+    public static void HireWorkers(int amount)
+    {
+        if (Instance == null || amount <= 0) return;
+
+        Instance.totalWorkers += amount;
+        Workers += amount;
+    }
+
+    public static string FormatWorkers(int free)
+    {
+        return Instance != null ? string.Format(Instance.workersFormat, free, Instance.totalWorkers) : free.ToString();
     }
 
     [Header("FIRSTAID")]
@@ -80,11 +101,17 @@ public class ResourcesManager : MonoBehaviour
         return 0;
     }
 
+    //Verdadeiro só enquanto o estoque inicial entra: quem conta o que foi ganho ignora essas mudanças
+    public static bool Seeding { get; private set; }
+
     private void Start()
     {
+        Seeding = true;
+        totalWorkers = Stats.Balance.startWorkers;
         Workers = Stats.Balance.startWorkers;
         BuildMaterial = Stats.Balance.startMaterial;
         Money = Stats.Balance.startMoney;
+        Seeding = false;
     }
 
     private void Update()

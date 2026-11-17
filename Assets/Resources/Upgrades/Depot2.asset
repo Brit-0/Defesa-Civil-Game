@@ -17,6 +17,7 @@ MonoBehaviour:
   description: "Constr\xF3i um armaz\xE9m num terreno vazio, ao lado de uma base nova: o material fica mais perto de quem conserta."
   icon: {fileID: 21300000, guid: 1ee86ba4a22f4c8db8677f47be282092, type: 3}
   order: 7
+  category: 2
   maxLevel: 2
   baseCost: 90
   costGrowth: 1.6
