@@ -74,6 +74,9 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     private float jetChunk;  // progresso que cada chama apagada adianta
     // Escorada no aviso do terremoto.
     public bool IsShored { get; private set; }
+    // Quebrada por raio (docs/jam/TEMPESTADE.md): sem telhado, a chuva sobe o dano enquanto espera equipe.
+    public bool IsRoofless { get; private set; }
+    private float leakTimer;
 
     static readonly int crackFade = Shader.PropertyToID("_TextureLayer1Fade");
     //static readonly int outlineFade = Shader.PropertyToID("_OuterOutlineFade");
@@ -86,6 +89,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     protected virtual void Update()
     {
         TickFire();
+        TickLeak();
         TickWork();
     }
 
@@ -172,12 +176,15 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     }
 
     // Único jeito de uma casa ganhar problema. Só age em casa comum e intacta (GDD, seção 4).
-    public bool ApplyProblem(State problem, int severity)
+    // storm: dano de raio, a casa fica destelhada e piora esperando equipe (docs/jam/TEMPESTADE.md).
+    public bool ApplyProblem(State problem, int severity, bool storm = false)
     {
         if (this is Location) return false;
         if (currentState != State.Intact) return false;
         if (problem != State.Damaged && problem != State.OnFire) return false;
 
+        IsRoofless = storm && problem == State.Damaged;
+        leakTimer = 0f;
         damageAmount = problem == State.Damaged ? Mathf.Max(Stats.MinDamage, severity) : 0;
         fireTimeLeft = problem == State.OnFire ? Stats.Balance.fireDuration : 0f;
         currentCall = new()
@@ -415,6 +422,22 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         if (fireTimeLeft <= 0f) BurnOut();
     }
 
+    // Casa destelhada esperando equipe: a chuva sobe o dano (material, tempo e recompensa sobem junto, pelo Stats).
+    // Para quando a equipe é enviada: o material já saiu do estoque no envio.
+    private void TickLeak()
+    {
+        if (!IsRoofless || currentState != State.Damaged || HasTeam) return;
+        if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) return;
+
+        BalanceData balance = Stats.Balance;
+        int before = damageAmount;
+        damageAmount = StormLeak.Tick(damageAmount, ref leakTimer, Time.deltaTime, balance.stormLeakInterval, balance.stormLeakMaxDamage);
+        if (damageAmount == before) return;
+
+        RefreshStateVisual();
+        GameEvents.RaiseStormLeaked(this, damageAmount);
+    }
+
     private void SetFireLevel(int level)
     {
         if (level == FireLevel) return;
@@ -564,6 +587,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
         currentState = newState;
         if (newState == State.Intact) damageAmount = 0;
+        if (newState != State.Damaged) IsRoofless = false;
         if (newState != State.OnFire)
         {
             Jet = null;

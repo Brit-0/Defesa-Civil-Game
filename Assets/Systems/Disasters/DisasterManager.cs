@@ -484,7 +484,7 @@ public class DisasterManager : MonoBehaviour
             GameEvents.RaiseLightningStruck(house.transform.position);
             bool applied = Random.value < balance.lightningFireChance
                 ? house.ApplyProblem(State.OnFire, 0)
-                : house.ApplyProblem(State.Damaged, Random.Range(balance.stormMinDamage, balance.stormMaxDamage + 1));
+                : house.ApplyProblem(State.Damaged, Random.Range(balance.stormMinDamage, balance.stormMaxDamage + 1), true);
             Track(occurrence, house, applied);
         }
 

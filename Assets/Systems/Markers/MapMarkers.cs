@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,7 +10,8 @@ using UnityEngine.UI;
 //- casa com problema: pino grande com contorno grosso, cor e ícone do tipo (fogo, dano, tempestade), pulsando e
 //  soltando ondas; pronto para coletar: pino verde que quica; equipe a caminho: pino menor e calmo;
 //- casa fora da câmera: o mesmo pino preso na borda com uma seta apontando para ela; clicar leva a câmera até lá;
-//- Base da Guarda e Armazéns: placa com ícone e nome sempre em cima do prédio, e pino calmo na borda fora da tela.
+//- Base da Guarda e Armazéns: placa com ícone e nome em cima do prédio, sem seta nem pino de borda; a Base só ganha
+//  a seta e o pino de borda quando faz parte de um chamado (escolher a base). Setas e anéis só nos chamados (#532).
 //Só apresentação: lê o estado das casas e escuta GameEvents; não muda regra nenhuma. Um na cena ("[Markers]").
 public class MapMarkers : MonoBehaviour
 {
@@ -72,7 +74,7 @@ public class MapMarkers : MonoBehaviour
     [SerializeField] private float waveScale = 2f;
     [SerializeField] private float bouncePixels = 10f;
     [SerializeField] private float popTime = .22f;
-    [Tooltip("Segundos de cada passo do quique da seta da Base e do Armazém (4 passos por ciclo)")]
+    [Tooltip("Segundos de cada passo do quique da seta da Base ao escolher a base (4 passos por ciclo, na metade deste tempo)")]
     [SerializeField] private float pointerStepTime = .16f;
 
     [Header("NATIVE MARKERS")]
@@ -102,13 +104,10 @@ public class MapMarkers : MonoBehaviour
 
     private readonly List<Pin> pins = new List<Pin>();
     private readonly List<Pin> edgePins = new List<Pin>();
-    private readonly Dictionary<House, DisasterType> causes = new Dictionary<House, DisasterType>();
     private static readonly Vector3[] corners = new Vector3[4];
     private Canvas canvas;
     private RectTransform backLayer, edgeLayer;
     private Camera cam;
-    private bool disasterActive;
-    private DisasterType disasterType;
     private Coroutine pan;
     private System.Comparison<Pin> byPriority;
 
@@ -121,17 +120,13 @@ public class MapMarkers : MonoBehaviour
 
     private void OnEnable()
     {
-        GameEvents.DisasterStarted += OnDisasterStarted;
-        GameEvents.DisasterEnded += OnDisasterEnded;
-        GameEvents.HouseStateChanged += OnHouseStateChanged;
+        GameEvents.StormLeaked += OnStormLeaked;
         ExpansionEvents.LocationBuilt += OnLocationBuilt;
     }
 
     private void OnDisable()
     {
-        GameEvents.DisasterStarted -= OnDisasterStarted;
-        GameEvents.DisasterEnded -= OnDisasterEnded;
-        GameEvents.HouseStateChanged -= OnHouseStateChanged;
+        GameEvents.StormLeaked -= OnStormLeaked;
         ExpansionEvents.LocationBuilt -= OnLocationBuilt;
         foreach (Pin p in pins)
         {
@@ -326,19 +321,17 @@ public class MapMarkers : MonoBehaviour
 
     #region EVENTS
 
-    private void OnDisasterStarted(DisasterData disaster, Vector3 epicenter)
+    // A chuva entrou na casa destelhada (TEMPESTADE.md): respingo no telhado e o número do pino pula
+    private void OnStormLeaked(House house, int damage)
     {
-        disasterActive = disaster != null;
-        if (disaster != null) disasterType = disaster.type;
-    }
+        Pin p = pins.Find(pin => pin.house == house);
+        if (p == null) return;
 
-    private void OnDisasterEnded(DisasterData disaster) => disasterActive = false;
-
-    private void OnHouseStateChanged(House house, State before, State after)
-    {
-        if (house == null) return;
-        if (after == State.Intact) causes.Remove(house);
-        else if (before == State.Intact && disasterActive) causes[house] = disasterType;
+        if (PixelFx.Sky != null) FeelParticles.EmitAt(FxKind.Splash, PixelFx.Sky, p.top, PixelFx.HouseUnit * .6f, 6);
+        if (p.badge == null) return;
+        Transform badge = p.badge.transform;
+        badge.DOKill(true);
+        badge.DOPunchScale(Vector3.one * .45f, .35f, 6).SetUpdate(true).SetLink(p.badge);
     }
 
     #endregion
@@ -356,7 +349,8 @@ public class MapMarkers : MonoBehaviour
             case State.OnFire: return Kind.Fire;
             case State.PowerOutage: return Kind.Power;
             case State.Damaged:
-                return causes.TryGetValue(h, out DisasterType cause) && cause == DisasterType.Storm ? Kind.Storm : Kind.Damage;
+                // pino azul = casa destelhada pelo raio, que piora esperando (TEMPESTADE.md)
+                return h.IsRoofless ? Kind.Storm : Kind.Damage;
             default: return Kind.None;
         }
     }
@@ -459,8 +453,8 @@ public class MapMarkers : MonoBehaviour
             p.edge = !safe.Contains(middle) && !safe.Contains(p.target);
             if (p.edge)
             {
-                // fora da tela só o que pede ação (e os prédios de referência); equipe a caminho não ocupa a borda
-                if (p.attention || IsLandmarkKind(p.kind)) edgePins.Add(p);
+                // fora da tela só o que pede ação (e a Base na hora de escolhê-la); equipe a caminho não ocupa a borda
+                if (p.attention || LandmarkInCall(p)) edgePins.Add(p);
                 else p.wanted = false;
             }
             else if (IsLandmarkKind(p.kind)) p.target = anchor + Vector2.up * (gapAboveHouse + p.plate.sizeDelta.y * .5f);
@@ -656,24 +650,24 @@ public class MapMarkers : MonoBehaviour
         PlacePointer(p, anchor.x - Mathf.Round(left) - p.plateWidth * .5f, size.y * .5f);
     }
 
-    // Seta dourada v2 em cima da placa, apontando o prédio: quica em passos de pixel inteiro (0, 2, 4, 2 px) e
-    // dobra o passo e o ritmo quando o prédio pede ação (escolher a base, Armazém sem material). Item 17.
+    // Seta dourada v2 em cima da placa, apontando o prédio, só na Base e só na hora de escolhê-la para um chamado:
+    // quica em passos de pixel inteiro (0, 4, 8, 4 px). Em repouso Base e Armazém ficam só com a placa (#532).
     private void PlacePointer(Pin p, float x, float plateHalfHeight)
     {
         if (p.pointer == null) return;
 
-        bool attention = LandmarkAttention(p);
-        float step = attention ? pointerStepTime * .5f : pointerStepTime;
+        bool inCall = LandmarkInCall(p);
+        if (p.pointer.gameObject.activeSelf != inCall) p.pointer.gameObject.SetActive(inCall);
+        if (!inCall) return;
+
+        float step = pointerStepTime * .5f;
         int phase = Mathf.FloorToInt((Time.unscaledTime + p.phase) / Mathf.Max(.01f, step)) % 4;
-        float bounce = (phase == 2 ? 4f : phase == 0 ? 0f : 2f) * (attention ? 2f : 1f);
+        float bounce = (phase == 2 ? 4f : phase == 0 ? 0f : 2f) * 2f;
         p.pointer.anchoredPosition = new Vector2(Mathf.Round(x), plateHalfHeight + gapAboveHouse + p.pointer.sizeDelta.y * .5f + bounce);
     }
 
-    private static bool LandmarkAttention(Pin p)
-    {
-        if (p.house is CityGuard) return GuardManager.selectBaseMode;
-        return ResourcesManager.Instance != null && ResourcesManager.BuildMaterial <= 0 && !p.house.HasTeam;
-    }
+    // A Base faz parte do chamado enquanto o jogador escolhe quem atende; o Armazém nunca pede seta nem pino de borda
+    private static bool LandmarkInCall(Pin p) => p.house is CityGuard && GuardManager.selectBaseMode;
 
     #endregion
 
