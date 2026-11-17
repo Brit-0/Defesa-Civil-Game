@@ -127,7 +127,8 @@ class Jogador:
     def _despachar(self, jogo):
         if jogo.workers <= 0:
             return False
-        espera = [c for c in jogo.casas if c.estado != INTACTA and not c.equipe and self._visivel(jogo, c)]
+        espera = [c for c in jogo.casas if c.estado != INTACTA and not c.equipe and self._visivel(jogo, c)
+                  and jogo.blocos.chamado(c)]
         if not espera:
             return False
         espera.sort(key=lambda c: (0, c.fogo) if c.estado == FOGO else (1, c.dano))
@@ -135,7 +136,11 @@ class Jogador:
         for c in espera:
             if jogo.custo_material(c) > jogo.material:
                 continue
-            if automacao >= 2:
+            if c.inc:  # enchente e meteoro: equipe fixa (a aba já abre nela); sem gente para ela, espera
+                n = jogo.equipe_sugerida(c)
+                if n > jogo.workers:
+                    continue
+            elif automacao >= 2:
                 n = jogo.equipe_sugerida(c)
             elif self.equipe == "um":
                 n = 1

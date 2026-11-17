@@ -36,6 +36,9 @@ public class MiniGameFeel : MonoBehaviour
     [SerializeField] private string shoredText = "ESCORADA!";
     [SerializeField] private string shoreHeldFormat = "FICOU DE PÉ! +{0}";
     [SerializeField] private string shoreHint = "TERREMOTO VINDO: CLIQUE NAS CASAS MARCADAS PARA ESCORAR ({0} MATERIAL)";
+    [Tooltip("Acerto na reconstrução do meteoro: {0} = velocidade da obra agora (ENCHENTE_METEORO.md).")]
+    [SerializeField] private string rebuildHitFormat = "NO PONTO! OBRA x{0:0.0}";
+    [SerializeField] private string valveSlipText = "SOLTOU! A ÁGUA VOLTOU";
 
     [Header("SHORING TARGETS")]
     [SerializeField] private Color targetColor = new Color(1f, .45f, .2f, .95f);
@@ -111,16 +114,23 @@ public class MiniGameFeel : MonoBehaviour
         House house = call != null ? call.house : null;
         if (house == null || !house.CritAvailable || house.ProgressCircle == null) return;
 
-        Image arc = GetArc(house);
-        Image circle = house.ProgressCircle;
-        float sign = circle.fillClockwise ? -1f : 1f;
+        ShowArc(house, GetArc(house));
+    }
 
-        arc.fillAmount = house.CritWindowSize;
-        arc.rectTransform.localEulerAngles = new Vector3(0f, 0f, sign * house.CritWindowStart * 360f);
+    private void ShowArc(House house, Image arc)
+    {
+        PlaceArc(house, arc);
         arc.rectTransform.localScale = Vector3.one;
         arc.color = critColor;
         arc.DOKill();
         arc.gameObject.SetActive(true);
+    }
+
+    private static void PlaceArc(House house, Image arc)
+    {
+        float sign = house.ProgressCircle.fillClockwise ? -1f : 1f;
+        arc.fillAmount = house.CritWindowSize;
+        arc.rectTransform.localEulerAngles = new Vector3(0f, 0f, sign * house.CritWindowStart * 360f);
     }
 
     private Image GetArc(House house)
@@ -145,14 +155,21 @@ public class MiniGameFeel : MonoBehaviour
         {
             House house = pair.Key;
             Image arc = pair.Value;
-            if (house == null || arc == null || !arc.gameObject.activeSelf || DOTween.IsTweening(arc)) continue;
+            if (house == null || arc == null || DOTween.IsTweening(arc)) continue;
 
+            // Obra com janelas em sequência (reconstrução do meteoro): a próxima janela reaparece à frente.
+            if (!arc.gameObject.activeSelf)
+            {
+                if (house.IsWorking && house.CritAvailable) ShowArc(house, arc);
+                continue;
+            }
             if (!house.IsWorking || !house.CritAvailable)
             {
                 arc.DOFade(0f, critFadeTime).SetLink(arc.gameObject).OnComplete(() => arc.gameObject.SetActive(false));
                 continue;
             }
 
+            PlaceArc(house, arc);
             float progress = house.WorkProgress01;
             bool inside = progress >= house.CritWindowStart && progress <= house.CritWindowStart + house.CritWindowSize;
             arc.color = inside ? critHotColor : critColor;
@@ -205,6 +222,23 @@ public class MiniGameFeel : MonoBehaviour
             case SkillResult.ShoreHeld:
                 Popup(string.Format(shoreHeldFormat, balance.shoreHeldReward), at, shoreColor, bigPopupSize, true);
                 PlayHit(heldClip);
+                break;
+            // Reconstrução do meteoro: acertos em sequência aceleram a obra; o arco volta à frente (UpdateArcs).
+            case SkillResult.RebuildHit:
+                float speed = house.currentCall != null && house.currentCall.rule is BlockIncident incident ? BlockDisasterRules.RebuildSpeed(incident.Boost) : 1f;
+                Popup(string.Format(rebuildHitFormat, speed), at, criticalColor, bigPopupSize, true);
+                PlayHit(critClip);
+                FlashArc(house);
+                break;
+            case SkillResult.RebuildMiss:
+                Popup(missText, at, missColor, popupSize, false);
+                Play(missClip, 1f);
+                combo = 0;
+                break;
+            case SkillResult.ValveSlip:
+                Popup(valveSlipText, at, missColor, popupSize, false);
+                Play(missClip, .8f);
+                combo = 0;
                 break;
         }
     }

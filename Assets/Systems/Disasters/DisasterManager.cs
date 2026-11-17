@@ -11,6 +11,7 @@ public class DisasterForecast
     public int houses;          // casas que o desastre vai tentar atingir
     public bool isStrong;       // terremoto forte (aviso mais longo, mais casas)
     public float seconds;       // até começar
+    public Rect area;           // quarteirão da enchente e do meteoro (ENCHENTE_METEORO.md); vazio nos outros
     public readonly List<House> targets = new(); // casas já escolhidas (terremoto e incêndio); vazia na tempestade
 }
 
@@ -37,7 +38,7 @@ public class DisasterManager : MonoBehaviour
 
     private const string DisastersPath = "Disasters";
 
-    private static readonly DisasterType[] disasterTypes = { DisasterType.Earthquake, DisasterType.Storm, DisasterType.Fire };
+    private static readonly DisasterType[] disasterTypes = { DisasterType.Earthquake, DisasterType.Storm, DisasterType.Fire, DisasterType.Flood, DisasterType.Meteor };
 
     private DisasterData[] disasters;
     private bool isFirstDisaster = true;
@@ -184,7 +185,8 @@ public class DisasterManager : MonoBehaviour
             if (earthquake != null) return earthquake;
         }
 
-        if (TryGetDebut(Stats.Balance, RampTime, debuted, out DisasterType debut) && FindDisaster(debut) is DisasterData fresh)
+        if (TryGetDebut(Stats.Balance, RampTime, debuted, out DisasterType debut) && FindDisaster(debut) is DisasterData fresh
+            && BlockDisasterManager.Allows(debut))
         {
             return fresh;
         }
@@ -194,7 +196,8 @@ public class DisasterManager : MonoBehaviour
         foreach (DisasterType type in disasterTypes)
         {
             DisasterData disaster = FindDisaster(type);
-            float weight = disaster != null ? GetWeight(Stats.Balance, type, RampTime) : 0f;
+            // Enchente e meteoro só com quarteirão livre (e o meteoro fora do intervalo entre um e outro).
+            float weight = disaster != null && BlockDisasterManager.Allows(type) ? GetWeight(Stats.Balance, type, RampTime) : 0f;
             if (weight <= 0f) continue;
 
             // Sorteio por peso numa passada só: cada tipo toma o lugar com chance peso ÷ peso acumulado.
@@ -231,6 +234,8 @@ public class DisasterManager : MonoBehaviour
             DisasterType.Earthquake => balance.earthquakeWeight,
             DisasterType.Storm => balance.stormWeight,
             DisasterType.Fire => balance.fireWeight,
+            DisasterType.Flood => BlockDisasterData.Instance.floodWeight,
+            DisasterType.Meteor => BlockDisasterData.Instance.meteorWeight,
             _ => 0f,
         };
     }
@@ -241,6 +246,8 @@ public class DisasterManager : MonoBehaviour
         {
             DisasterType.Storm => balance.stormUnlockTime,
             DisasterType.Fire => balance.fireUnlockTime,
+            DisasterType.Flood => BlockDisasterData.Instance.floodUnlockTime,
+            DisasterType.Meteor => BlockDisasterData.Instance.meteorUnlockTime,
             _ => 0f,
         };
     }
@@ -254,6 +261,15 @@ public class DisasterManager : MonoBehaviour
         return null;
     }
 
+    // Debug: roda já um desastre do tipo, com o aviso de sempre (botões do [Enchente e meteoro] no Inspector).
+    public bool ForceDisaster(DisasterType type)
+    {
+        if (isRunning || !IsPlaying() || FindDisaster(type) is not DisasterData disaster) return false;
+
+        StartCoroutine(RunDisaster(disaster, 1, false, false));
+        return true;
+    }
+
     // A previsão em curso (do aviso até o desastre começar a cair). Null fora do aviso.
     public DisasterForecast CurrentForecast { get; private set; }
 
@@ -263,6 +279,8 @@ public class DisasterManager : MonoBehaviour
 
         BalanceData balance = Stats.Balance;
         float warningTime = strong ? balance.strongDisasterWarningTime : balance.warningTime;
+        // O meteoro avisa mais cedo: a sombra cresce e o chão treme até o impacto (ENCHENTE_METEORO.md).
+        if (disaster.type == DisasterType.Meteor) warningTime = BlockDisasterData.Instance.meteorWarningTime;
         DisasterForecast forecast = Forecast(disaster, houseCount, nearGuard, strong, warningTime);
 
         CurrentForecast = forecast;
@@ -293,6 +311,10 @@ public class DisasterManager : MonoBehaviour
                     break;
                 case DisasterType.Fire:
                     IsolatedFire(disaster, forecast, occurrence);
+                    break;
+                case DisasterType.Flood:
+                case DisasterType.Meteor:
+                    if (BlockDisasterManager.Instance != null) yield return BlockDisasterManager.Instance.Run(disaster, forecast, occurrence);
                     break;
                 default:
                     break;
@@ -343,6 +365,10 @@ public class DisasterManager : MonoBehaviour
                 }
                 forecast.houses = forecast.targets.Count;
                 forecast.position = forecast.targets.Count > 0 ? forecast.targets[0].transform.position : GetCityCenter();
+                break;
+            case DisasterType.Flood:
+            case DisasterType.Meteor:
+                if (BlockDisasterManager.Instance == null || !BlockDisasterManager.Instance.Forecast(forecast)) forecast.position = GetCityCenter();
                 break;
             default:
                 forecast.position = GetCityCenter();

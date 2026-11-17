@@ -13,7 +13,10 @@ public enum State
     Intact,
     PowerOutage,
     Damaged,
-    OnFire
+    OnFire,
+    // Quarteirão alagado ou destruído pelo meteoro: um chamado único no líder (docs/jam/ENCHENTE_METEORO.md)
+    Flooded,
+    Destroyed
 }
 
 public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
@@ -65,7 +68,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     // Mini game do ponto certo (GAMELOOP_REVISAO): uma tentativa por trabalho, na janela sorteada.
     public bool CritAvailable { get; private set; }
     public float CritWindowStart { get; private set; }
-    public float CritWindowSize => Stats.Balance.critWindowSize;
+    public float CritWindowSize => Rule != null ? Rule.CritWindowSize : Stats.Balance.critWindowSize;
     // Incêndio que cresce (ENERGIA_FOGO.md): nível de 1 ao máximo, 0 fora de OnFire.
     // Jet é a janela do minigame do jato, aberta quando a equipe chega; null fora dela.
     public int FireLevel { get; private set; }
@@ -77,6 +80,12 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     // Quebrada por raio (docs/jam/TEMPESTADE.md): sem telhado, a chuva sobe o dano enquanto espera equipe.
     public bool IsRoofless { get; private set; }
     private float leakTimer;
+    // Enchente e meteoro (docs/jam/ENCHENTE_METEORO.md): o líder guarda o chamado único do quarteirão; as outras casas
+    // passam o clique para ele. Fogo com equipe a caminho num quarteirão alagado: a água apagou, a obra acaba na chegada.
+    public House IncidentLeader { get; private set; }
+    public bool IsIncidentLeader => IncidentLeader == this;
+    private bool fireDoused;
+    private IWorkRule Rule => currentCall != null ? currentCall.rule : null;
 
     static readonly int crackFade = Shader.PropertyToID("_TextureLayer1Fade");
     //static readonly int outlineFade = Shader.PropertyToID("_OuterOutlineFade");
@@ -144,6 +153,11 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
 
     public virtual void OnPointerClick(PointerEventData eventData)
     {
+        if (IncidentLeader != null && IncidentLeader != this)
+        {
+            IncidentLeader.OnPointerClick(eventData);
+            return;
+        }
         if (TrySkillClick(eventData)) return;
         if (!CanClick(eventData)) return;
 
@@ -196,11 +210,65 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         IsWorking = false;
         isComplete = false;
         Jet = null;
+        fireDoused = false;
 
         SetState(problem);
         if (problem == State.OnFire) SetFireLevel(1);
         ShowCall();
         return true;
+    }
+
+    // Enchente e meteoro: a casa entra no quarteirão atingido (sem equipe, de qualquer estado; o fogo apaga).
+    // O líder recebe o chamado único e o balão; as outras ficam sem balão e passam o clique para ele.
+    public bool JoinIncident(State problem, House leader, Call call)
+    {
+        if (this is Location || HasTeam || isComplete) return false;
+        if (problem != State.Flooded && problem != State.Destroyed) return false;
+
+        IsRoofless = false;
+        leakTimer = 0f;
+        damageAmount = 0;
+        fireTimeLeft = 0f;
+        fireDoused = false;
+        IsShored = false;
+        IncidentLeader = leader;
+        currentCall = leader == this ? call : null;
+        IsWorking = false;
+        Jet = null;
+
+        SetState(problem);
+        if (leader == this) ShowCall();
+        else callDisplay.SetActive(false);
+        return true;
+    }
+
+    // Fim do quarteirão atingido: o líder já voltou a Intact na coleta; as outras voltam junto.
+    public void LeaveIncident()
+    {
+        IncidentLeader = null;
+        if (currentState != State.Flooded && currentState != State.Destroyed) return;
+
+        currentCall = null;
+        callDisplay.SetActive(false);
+        SetState(State.Intact);
+    }
+
+    // A água da enchente chegou numa casa em chamas que já tem equipe: trabalhando, o fogo acaba agora;
+    // a caminho, acaba quando a equipe chega (e o fogo para de crescer até lá).
+    public void DouseByFlood()
+    {
+        if (currentState != State.OnFire || !HasTeam || isComplete) return;
+
+        if (IsWorking)
+        {
+            Jet = null;
+            AdvanceWork(1f);
+        }
+        else
+        {
+            fireDoused = true;
+        }
+        GameEvents.RaiseFireDousedByFlood(this);
     }
 
     private void ShowCall()
@@ -237,12 +305,22 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         progressIcon.enabled = icon != null;
         progressCircle.gameObject.SetActive(true);
 
-        // Ponto certo vale no conserto e no Armazém; o incêndio tem o jato.
+        // Ponto certo vale no conserto e no Armazém; o incêndio tem o jato. Obra com regra própria escolhe (meteoro sim,
+        // enchente não: lá é a válvula).
         BalanceData balance = Stats.Balance;
-        CritAvailable = currentState != State.OnFire;
-        CritWindowStart = Random.Range(balance.critWindowMin, balance.critWindowMax);
+        IWorkRule rule = Rule;
+        CritAvailable = rule != null ? rule.HasCritical : currentState != State.OnFire;
+        CritWindowStart = rule != null ? rule.NextWindow(0f) : Random.Range(balance.critWindowMin, balance.critWindowMax);
+        if (CritWindowStart < 0f) CritAvailable = false;
+        rule?.Begin(this);
 
         GameEvents.RaiseWorkStarted(currentCall);
+        if (currentState == State.OnFire && fireDoused)
+        {
+            fireDoused = false;
+            AdvanceWork(1f);
+            return;
+        }
         if (currentState == State.OnFire) OpenJet();
     }
 
@@ -259,7 +337,22 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
             return;
         }
 
+        IWorkRule rule = Rule;
+        if (rule != null)
+        {
+            // Janela que passou sem clique: a próxima vem à frente, sem castigo.
+            if (CritAvailable && workProgress > CritWindowStart + CritWindowSize) MoveCritWindow(rule);
+            AdvanceWork(rule.Tick(this, Time.deltaTime, workDuration));
+            return;
+        }
+
         AdvanceWork(workDuration > 0f ? Time.deltaTime / workDuration : 1f);
+    }
+
+    private void MoveCritWindow(IWorkRule rule)
+    {
+        CritWindowStart = rule.NextWindow(workProgress);
+        CritAvailable = CritWindowStart >= 0f;
     }
 
     private void AdvanceWork(float amount)
@@ -355,6 +448,8 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
             {
                 State.OnFire => Pick(theme != null ? theme.callFire : null, fireIcon),
                 State.PowerOutage => Pick(theme != null ? theme.callPower : null, damagedIcon),
+                State.Flooded => Pick(BlockDisasterArt.CallFlood, damagedIcon),
+                State.Destroyed => Pick(BlockDisasterArt.CallRebuild, damagedIcon),
                 _ => Pick(theme != null ? theme.callRepair : null, damagedIcon),
             },
             CallType.Restock => Pick(theme != null ? theme.callSupply : null, ResourcesManager.Instance.materialIcon),
@@ -412,7 +507,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     // O temporizador só para com a equipe trabalhando no local (ou com o fogo já apagado, esperando a coleta).
     private void TickFire()
     {
-        if (currentState != State.OnFire || IsWorking || isComplete) return;
+        if (currentState != State.OnFire || IsWorking || isComplete || fireDoused) return;
         if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) return;
 
         fireTimeLeft -= Time.deltaTime;
@@ -526,6 +621,18 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     private void TryCritical()
     {
         if (!CritAvailable) return;
+
+        // Reconstrução do meteoro: o acerto acelera a obra em vez de acabar com ela; a janela volta à frente.
+        IWorkRule rule = Rule;
+        if (rule != null)
+        {
+            bool inside = workProgress >= CritWindowStart && workProgress <= CritWindowStart + CritWindowSize;
+            float gain = rule.Critical(this, inside);
+            GameEvents.RaiseSkillCheck(this, inside ? SkillResult.RebuildHit : SkillResult.RebuildMiss);
+            AdvanceWork(gain);
+            if (IsWorking) MoveCritWindow(rule);
+            return;
+        }
 
         CritAvailable = false;
         BalanceData balance = Stats.Balance;

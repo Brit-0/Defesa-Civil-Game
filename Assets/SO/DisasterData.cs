@@ -1,6 +1,7 @@
 using UnityEngine;
 
-public enum DisasterType { Earthquake, Storm, Fire }
+// Valor novo só no fim: os .asset guardam o tipo como número. Flood e Meteor: docs/jam/ENCHENTE_METEORO.md
+public enum DisasterType { Earthquake, Storm, Fire, Flood, Meteor }
 
 [CreateAssetMenu(fileName = "DisasterSO", menuName = "Scriptable Objects/DisasterSO")]
 public class DisasterData : ScriptableObject

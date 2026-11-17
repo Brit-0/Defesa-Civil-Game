@@ -9,6 +9,7 @@ O jogador é um robô com tempo de reação e tempo por clique (perfis em perfis
 Revisão do gameloop: terremoto forte, bônus de ocorrência encerrada, marcos com voluntários e os três
 mini games (ponto certo, jato no incêndio, escorar no aviso), que disputam a atenção do robô.
 Fogo e energia (ENERGIA_FOGO.md, fogo_energia.py): o fogo cresce de nível; jato na chegada; rede de energia.
+Enchente e meteoro (ENCHENTE_METEORO.md, quarteirao.py): o quarteirão inteiro num chamado só, no líder.
 """
 import heapq
 import math
@@ -20,6 +21,8 @@ from fogo_energia import Rede, abrir_jato, tick_fogo
 
 INTACTA, DANIFICADA, FOGO = "I", "D", "F"
 PARARAIO = ler_pararaio()  # LightningRodData.asset (PARARAIO.md)
+import quarteirao  # noqa: E402  (depois dos estados: o quarteirao.py os importa daqui)
+from quarteirao import ALAGADA, DESTRUIDA  # noqa: E402
 
 
 def vazar(dano, espera, dt, intervalo, maximo):
@@ -37,7 +40,7 @@ def vazar(dano, espera, dt, intervalo, maximo):
 class Local:
     __slots__ = ("nome", "pos", "dist", "armazem", "estado", "dano", "fogo", "equipe", "trabalhando",
                  "pronta", "enviados", "pago", "desde", "bonus", "critico", "trabalho", "ocorrencia", "escorada",
-                 "nivel_fogo", "partes", "apagadas", "destelhada", "vazamento", "quarteirao")
+                 "nivel_fogo", "partes", "apagadas", "destelhada", "vazamento", "quarteirao", "inc")
 
     def __init__(self, dados, armazem=False):
         self.nome, self.pos, self.dist, self.armazem = dados["nome"], dados["pos"], dados["dist"], armazem
@@ -47,6 +50,7 @@ class Local:
         self.nivel_fogo = self.partes = self.apagadas = 0  # fogo: nível 1-3, partes de trabalho, chamas do jato
         self.destelhada, self.vazamento = False, 0.0  # TEMPESTADE.md: a chuva sobe o dano esperando equipe
         self.quarteirao = dados.get("quarteirao", "")  # polígono do city_layout.json (para-raio, PARARAIO.md)
+        self.inc = None  # enchente ou meteoro em que a casa está (quarteirao.py)
         self.bonus = 0.0       # Call.rewardBonus (crítico, herói)
         self.ocorrencia = None  # o desastre que quebrou a casa (bônus quando todas voltam)
         self.desde = 0.0  # quando o chamado abriu ou o trabalho terminou (para o tempo de reação)
@@ -83,6 +87,7 @@ class Jogo:
         # Para-raio (PARARAIO.md): quarteirões protegidos, raios absorvidos e os que caíram em casa
         self.pararaio = dict(PARARAIO)
         self.para_raios, self.absorvidos, self.raios = [], 0, 0
+        self.blocos = quarteirao.Quarteiroes(self, mapa)  # enchente e meteoro (ENCHENTE_METEORO.md)
 
     # --- valores (Stats)
     def efeito(self, uid):
@@ -104,15 +109,21 @@ class Jogo:
         return self.b["materialPerWorker"] + round(self.efeito("cart"))
 
     def custo_material(self, c):
+        if c.inc:
+            return self.blocos.material(c)
         return c.dano if (not c.armazem and c.estado == DANIFICADA) else 0
 
     def equipe_sugerida(self, c):
+        if c.inc:  # equipe fixa, sem limite pela gente livre: com menos o envio é negado
+            return self.blocos.equipe(c)
         if c.armazem:  # Stats.GetRestockNeed: material que falta para as casas sem equipe, menos o estoque
             falta = sum(x.dano for x in self.casas if x.estado == DANIFICADA and not x.equipe) - self.material
             return max(1, min(math.ceil(max(1, falta) / self.material_por_trabalhador()), self.workers))
         return max(1, min(max(1, c.dano), self.workers))
 
     def tempo_trabalho(self, c):
+        if c.inc:
+            return self.blocos.tempo(c, c.enviados)
         if c.armazem:
             return self.b["restockTime"]
         total = self.b["fireWorkTime"] * max(1, c.partes) if c.estado == FOGO else self.b["workTimePerDamage"] * c.dano
@@ -121,6 +132,8 @@ class Jogo:
 
     def recompensa(self, c):
         base = self.b["fireReward"] if c.estado == FOGO else self.b["moneyPerDamage"] * c.dano
+        if c.inc:
+            base = self.blocos.recompensa(c)
         return round(base * (1 + self.efeito("reward") + c.bonus))
 
     # --- agenda
@@ -144,7 +157,7 @@ class Jogo:
         return True
 
     def negado(self, c, n):
-        if n < 1 or n > self.workers:
+        if n < 1 or n > self.workers or (c.inc and n < self.blocos.equipe(c)):
             return "NoWorkers"
         if self.custo_material(c) > self.material:
             return "NoMaterial"
@@ -182,6 +195,9 @@ class Jogo:
             c.pago += falta
         c.trabalhando = True
         c.trabalho += 1
+        if c.inc:  # válvula da enchente ou obra do meteoro
+            self.blocos.comecar(c)
+            return
         if c.estado == FOGO:  # House.OpenJet: o trabalho espera a janela do jato
             abrir_jato(self, c)
             return
@@ -222,11 +238,14 @@ class Jogo:
             self.material += trazido + (math.ceil(trazido * self.b["critRewardBonus"]) if c.critico else 0)
         else:
             ganho = self.recompensa(c)
-            c.estado, c.dano = INTACTA, 0
+            casas = self.blocos.resolver(c) if c.inc else [c]  # enchente e meteoro: o quarteirão inteiro volta
+            for x in casas:
+                x.estado, x.dano = INTACTA, 0
             self.ganhar(ganho)
             self.consertos += 1
             self.marco()
-            self.ocorrencia_consertada(c)
+            for x in casas:
+                self.ocorrencia_consertada(x)
         c.equipe = False
         self.voltar(c, c.enviados)
 
@@ -315,12 +334,12 @@ class Jogo:
             return "terremoto"
         b = self.b
         if self.estreia_garantida:
-            for tipo, libera in (("incendio", b["fireUnlockTime"]), ("tempestade", b["stormUnlockTime"])):
-                if self.t >= libera and tipo not in self.estreias:
+            for tipo, libera in (("incendio", b["fireUnlockTime"]), ("tempestade", b["stormUnlockTime"])) + self.blocos.estreias():
+                if self.t >= libera and tipo not in self.estreias and self.blocos.permite(tipo):
                     return tipo
         pesos = [("terremoto", b["earthquakeWeight"]),
                  ("tempestade", b["stormWeight"] if self.t >= b["stormUnlockTime"] else 0),
-                 ("incendio", b["fireWeight"] if self.t >= b["fireUnlockTime"] else 0)]
+                 ("incendio", b["fireWeight"] if self.t >= b["fireUnlockTime"] else 0)] + self.blocos.pesos()
         escolhido, total = None, 0.0
         for tipo, peso in pesos:
             if peso <= 0:
@@ -348,7 +367,7 @@ class Jogo:
         n = b["firstDisasterHouses"] if self.primeiro else self.casas_por_desastre()
         if forte:
             tipo, n = "terremoto", round(n * b["strongDisasterHouseMultiplier"])
-        aviso = b["strongDisasterWarningTime"] if forte else b["warningTime"]
+        aviso = self.blocos.aviso(tipo, b["strongDisasterWarningTime"] if forte else b["warningTime"])
         alvos = self.alvos_terremoto(n, self.primeiro) if tipo == "terremoto" else None
         if alvos and self.jogador is not None:  # Forecast: o aviso já mostra as casas; o robô escora no aviso
             self.jogador.escorar(self, alvos, aviso)
@@ -369,6 +388,9 @@ class Jogo:
             for i in range(n):
                 self.agendar(self.t + intervalo * (i + 1), self.raio, o)
             self.agendar(self.t + intervalo * n, self.fim_desastre, o)
+        elif tipo in ("enchente", "meteoro"):
+            self.blocos.executar(tipo, o)
+            self.fim_desastre(o)
         else:
             intactas = [c for c in self.casas if c.estado == INTACTA]
             k = min(self.rng.randint(self.b["fireMinHouses"], self.b["fireMaxHouses"]), len(intactas))
@@ -474,6 +496,8 @@ class Jogo:
                     if c.fogo <= 0:  # BurnOut
                         c.fogo, c.dano, c.estado = 0.0, b["fireBurnoutDamage"], DANIFICADA
                 peso += b["chaosWeightFire"] if c.estado == FOGO else b["chaosWeightDamaged"]
+            elif c.estado in (ALAGADA, DESTRUIDA):  # cada casa do quarteirão pesa (Stats.ChaosWeight)
+                peso += self.blocos.caos(c)
             elif c.estado == DANIFICADA:
                 peso += b["chaosWeightDamaged"]
                 if c.destelhada and not c.equipe:  # House.TickLeak / StormLeak.Tick
@@ -513,7 +537,7 @@ class Jogo:
         if self.auto_cd > 0:
             return
         self.auto_cd = self.b["autoDispatchInterval"]
-        espera = [c for c in self.casas if c.estado != INTACTA and not c.equipe]
+        espera = [c for c in self.casas if c.estado != INTACTA and not c.equipe and self.blocos.chamado(c)]
         espera.sort(key=lambda c: (0, c.fogo) if c.estado == FOGO else (1, c.dano))
         for c in espera:
             n = self.equipe_sugerida(c)
