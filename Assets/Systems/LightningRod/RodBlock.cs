@@ -286,7 +286,7 @@ public class RodBlock : MonoBehaviour
         bool choosing = live && IsFree && manager.Placing;
         if (!choosing) hover = false;
 
-        float pulse = 0.75f + 0.25f * Mathf.Sin(Time.unscaledTime * 5f);
+        float pulse = 0.75f + 0.25f * Mathf.Sin(GameClock.Time * 5f);
         PaintArea(choosing, live, pulse);
         PaintGhost(pulse);
         PaintSign(choosing, live);
@@ -311,7 +311,7 @@ public class RodBlock : MonoBehaviour
         {
             fillColor = Color.Lerp(fillColor, WithAlpha(Shield, 0.4f), flash);
             borderColor = Color.Lerp(borderColor, Shield, flash);
-            flash = Mathf.MoveTowards(flash, 0f, Time.unscaledDeltaTime * 1.6f);
+            flash = Mathf.MoveTowards(flash, 0f, GameClock.DeltaTime * 1.6f);
         }
 
         fill.color = fillColor;
@@ -337,10 +337,10 @@ public class RodBlock : MonoBehaviour
         Vector2 anchor = ToLayer(building ? RodTip + Vector3.up * SignLift : SignWorldPosition, area);
         bool wanted = live && (choosing || building) && area.Contains(anchor);
 
-        float scale = hover ? 1.08f : choosing ? 1f + 0.05f * Mathf.Sin(Time.unscaledTime * 6f + Slot.id.GetHashCode() % 7) : 1f;
+        float scale = hover ? 1.08f : choosing ? 1f + 0.05f * Mathf.Sin(GameClock.Time * 6f + Slot.id.GetHashCode() % 7) : 1f;
         sign.localPosition = anchor;
         sign.localScale = Vector3.one * scale;
-        signGroup.alpha = Mathf.MoveTowards(signGroup.alpha, wanted ? 1f : 0f, Time.unscaledDeltaTime * 8f);
+        signGroup.alpha = Mathf.MoveTowards(signGroup.alpha, wanted ? 1f : 0f, GameClock.DeltaTime * 8f);
         signGroup.blocksRaycasts = wanted && choosing;
         if (!wanted && signGroup.alpha <= 0f)
         {

@@ -86,7 +86,7 @@ public class FuseBoxMinigame : MonoBehaviour
     {
         if (!IsOpen) return;
 
-        fuse.Tick(Time.unscaledDeltaTime);
+        fuse.Tick(GameClock.DeltaTime);
         if (wasLocked && !fuse.Locked) Tint(Color.white);
         wasLocked = fuse.Locked;
     }
