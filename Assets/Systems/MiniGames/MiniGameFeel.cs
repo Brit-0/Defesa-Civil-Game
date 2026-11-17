@@ -368,7 +368,7 @@ public class MiniGameFeel : MonoBehaviour
             return ring;
         }
 
-        // O aro fino do tutorial (Mk_Ring, Simple e quadrado): o Button2 fatiado esticava e quadriculava (#535)
+        // O aro fino do tutorial (anel de 1 pixel do kit, PixelRing): o Button2 fatiado esticava e quadriculava (#535)
         RectTransform layer = FeelUI.HudLayer(PopupLayer);
         ring = FeelUI.CreateRing("ShoreTarget", layer, targetColor);
         ring.rectTransform.sizeDelta = Vector2.one * targetSize;
@@ -378,7 +378,7 @@ public class MiniGameFeel : MonoBehaviour
     }
 
     // Aro um pouco maior que a casa, sem sumir nem cobrir a quadra quando a câmera aproxima ou afasta. O lado cai no
-    // passo de 32 do sprite (FeelUI.RingSide): cada pixel do aro vira um número inteiro de pixels do HUD.
+    // passo do FeelUI.RingSide (8 pixels do kit): cada pixel do aro vira um número inteiro de pixels do HUD.
     public static float RingSize(Vector2 targetSize, float fallback)
     {
         float biggest = Mathf.Max(targetSize.x, targetSize.y);

@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
   id: automation
   displayName: "Automa\xE7\xE3o"
-  description: "Cada n\xEDvel tira um passo do despacho: base autom\xE1tica, equipe autom\xE1tica, coleta autom\xE1tica e despacho autom\xE1tico."
+  description: "Cada n\xEDvel tira um passo do despacho: base autom\xE1tica, equipe autom\xE1tica e coleta autom\xE1tica. O despacho sozinho \xE9 das guaritas."
   icon: {fileID: 1626110622, guid: 2b89dc3da1935ac58d86d65e37cc4924, type: 3}
   order: 5
   category: 1
-  maxLevel: 4
+  maxLevel: 3
   baseCost: 80
   costGrowth: 2
   effectPerLevel: 1

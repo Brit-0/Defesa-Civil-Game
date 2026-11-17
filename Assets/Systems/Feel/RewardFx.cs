@@ -97,7 +97,8 @@ public class RewardFx : MonoBehaviour
         if (layer == null) return;
 
         Vector2 at = ButtonPosition(upgrade, layer);
-        bool maxed = upgrade != null && level >= upgrade.maxLevel;
+        int max = upgrade == null ? 0 : UpgradesManager.Instance != null ? UpgradesManager.Instance.GetMaxLevel(upgrade) : upgrade.maxLevel;
+        bool maxed = upgrade != null && level >= max;
         float boost = maxed ? maxLevelMultiplier : 1f;
 
         FeelParticles.Emit(FxKind.Glint, layer, at, upgradeGlintScale * boost, VfxQuality.Scale(upgradeGlints));

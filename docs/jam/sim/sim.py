@@ -15,11 +15,13 @@ import math
 import random
 
 from dados import (BALANCE_CS, MAPA_PADRAO, MENU_CS, RAIZ, aplicar_ajustes, ler_assets,  # noqa: F401
-                   ler_balance, ler_mapa, ler_pararaio, ler_upgrades)
+                   ler_balance, ler_guarita, ler_mapa, ler_pararaio, ler_upgrades)
 from fogo_energia import Rede, abrir_jato, tick_fogo
 
 INTACTA, DANIFICADA, FOGO = "I", "D", "F"
 PARARAIO = ler_pararaio()  # LightningRodData.asset (PARARAIO.md)
+GUARITA = ler_guarita()  # OutpostData (GUARITAS.md)
+POR_QUARTEIRAO = ("rod", "outpost")  # v5A: um por quarteirão com casa, sem teto fixo no .asset
 
 
 def vazar(dano, espera, dt, intervalo, maximo):
@@ -68,7 +70,7 @@ class Jogo:
         self.fim = None
         self.primeiro, self.desastre_rodando = True, False
         self.contagem = max(0.0, balance["firstDisasterDelay"] - balance["warningTime"])
-        self.renda_timer, self.auto_cd = 0.0, 0.0
+        self.renda_timer = 0.0
         self.consertos = self.ganho_total = self.renda_total = self.negados = 0
         self.compras = []  # (minuto, id, nível)
         self.desastres = []  # (minuto, tipo, casas)
@@ -83,6 +85,10 @@ class Jogo:
         # Para-raio (PARARAIO.md): quarteirões protegidos, raios absorvidos e os que caíram em casa
         self.pararaio = dict(PARARAIO)
         self.para_raios, self.absorvidos, self.raios = [], 0, 0
+        # Guaritas (GUARITAS.md): quarteirão -> segundos até olhar de novo; despachos feitos sozinhos
+        self.guarita = dict(GUARITA)
+        self.guaritas, self.auto_despachos = {}, 0
+        self.quarteiroes = len({c.quarteirao for c in self.casas if c.quarteirao})
 
     # --- valores (Stats)
     def efeito(self, uid):
@@ -92,6 +98,11 @@ class Jogo:
     def nivel(self, uid):
         n = self.niveis.get(uid, 0)
         return self.rede.automacao(n) if uid == "automation" else n  # Stats.AutomationLevel
+
+    def teto(self, uid):
+        """UpgradesManager.GetMaxLevel: para-raio e guarita param no número de quarteirões com casa (SetLevelCap)."""
+        maximo = self.ups[uid]["maxLevel"]
+        return min(maximo, self.quarteiroes) if uid in POR_QUARTEIRAO else maximo
 
     def custo(self, uid):
         u = self.ups[uid]
@@ -280,7 +291,7 @@ class Jogo:
     # --- upgrades (UpgradesManager)
     def comprar(self, uid):
         u = self.ups.get(uid)
-        if u is None or self.niveis[uid] >= u["maxLevel"] or self.money < self.custo(uid):
+        if u is None or self.niveis[uid] >= self.teto(uid) or self.money < self.custo(uid):
             return False
         self.money -= self.custo(uid)
         self.niveis[uid] += 1
@@ -289,6 +300,8 @@ class Jogo:
             self.estreias.setdefault("expansão", self.t)
         if uid == "rod":
             self.agendar(self.t + self.pararaio["obra"], self._erguer_pararaio)
+        if uid == "outpost":
+            self.agendar(self.t + self.guarita["obra"], self._erguer_guarita)
         if uid == "workers":
             self.workers += round(u["effectPerLevel"])
         elif uid == "automation" and self.niveis[uid] >= 3:
@@ -420,6 +433,16 @@ class Jogo:
             self.para_raios.append(min(conta, key=lambda q: (-conta[q], q)))
             self.estreias.setdefault("para-raio", self.t)
 
+    def _erguer_guarita(self):
+        """O robô põe a guarita no quarteirão livre com mais casas (empate: o de id menor)."""
+        conta = {}
+        for c in self.casas:
+            if c.quarteirao and c.quarteirao not in self.guaritas:
+                conta[c.quarteirao] = conta.get(c.quarteirao, 0) + 1
+        if conta:
+            self.guaritas[min(conta, key=lambda q: (-conta[q], q))] = 0.0
+            self.estreias.setdefault("guarita", self.t)
+
     def alvo_do_raio(self, intactas):
         """LightningRodMath.PickIndex: casa de quarteirão protegido pesa 'atracao' no sorteio (sem para-raio, o sorteio
         de sempre, com a mesma sequência de números)."""
@@ -506,19 +529,24 @@ class Jogo:
             self.ganho_total += valor
             self.renda_total += valor
 
-    def tick_despacho_automatico(self):
-        if self.nivel("automation") < 4:
-            return
-        self.auto_cd -= self.passo
-        if self.auto_cd > 0:
-            return
-        self.auto_cd = self.b["autoDispatchInterval"]
-        espera = [c for c in self.casas if c.estado != INTACTA and not c.equipe]
-        espera.sort(key=lambda c: (0, c.fogo) if c.estado == FOGO else (1, c.dano))
-        for c in espera:
-            n = self.equipe_sugerida(c)
-            if not self.negado(c, n) and self.enviar(c, n, automatico=True):
-                return
+    def tick_guaritas(self):
+        """OutpostManager.Update/Dispatch (v5A, no lugar do antigo nível 4 da Automação): cada guarita olha só o
+        próprio quarteirão a cada 'intervalo'; manda a equipe sugerida ao chamado mais urgente que já esperou a reação."""
+        for q in self.guaritas:
+            self.guaritas[q] -= self.passo
+            if self.guaritas[q] > 0:
+                continue
+            espera = [c for c in self.casas if c.quarteirao == q and c.estado != INTACTA and not c.equipe
+                      and self.t - c.desde >= self.guarita["reacao"]]
+            if not espera:
+                continue
+            self.guaritas[q] = self.guarita["intervalo"]
+            espera.sort(key=lambda c: (0, c.fogo) if c.estado == FOGO else (1, c.dano))
+            for c in espera:
+                n = self.equipe_sugerida(c)
+                if not self.negado(c, n) and self.enviar(c, n, automatico=True):
+                    self.auto_despachos += 1
+                    break
 
     # --- partida
     def rodar(self):
@@ -532,7 +560,7 @@ class Jogo:
             self.tick_desastres()
             self.rede.tick(self)
             self.tick_renda()
-            self.tick_despacho_automatico()
+            self.tick_guaritas()
             if self.jogador is not None:
                 self.jogador.agir(self)
             if self.fim:

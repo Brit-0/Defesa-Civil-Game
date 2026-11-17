@@ -5,8 +5,8 @@ using TMPro;
 using UnityEngine;
 
 // Para-raio por quarteirão (PARARAIO.md): proteção permanente contra os raios da tempestade num quarteirão escolhido.
-// - A compra é a das melhorias, como a expansão: UpgradesManager.TryBuy do upgrade "rod" (preço, crescimento e máximo
-//   no Rod.asset). Comprado pela aba, a obra fica paga, o jogador entra no modo de escolha e cada quarteirão livre na
+// - A compra é a das melhorias, como a expansão: UpgradesManager.TryBuy do upgrade "rod" (preço e crescimento no
+//   Rod.asset; o máximo é um por quarteirão com casa, SetLevelCap, v5A). Comprado pela aba, a obra fica paga, o jogador entra no modo de escolha e cada quarteirão livre na
 //   tela ganha um marcador; o mouse em cima mostra a área protegida e o clique começa a obra ali.
 // - Pronto, o para-raio fica no telhado mais alto do quarteirão. O raio que ia cair numa casa dele é absorvido: nenhum
 //   dano nem fogo. As casas protegidas pesam LightningRodData.attraction no sorteio do raio (o para-raio puxa o raio).
@@ -60,7 +60,10 @@ public class LightningRodManager : MonoBehaviour
 
     private void Start()
     {
-        if (!Setup()) enabled = false;
+        bool ready = Setup();
+        // v5A (pedido do Pietro): sem limite fixo de compras, um para-raio por quarteirão com casa. Desligado, nenhum.
+        if (UpgradesManager.Instance != null) UpgradesManager.Instance.SetLevelCap(UpgradeId, ready ? blocks.Count : 0);
+        if (!ready) enabled = false;
     }
 
     #region SETUP
@@ -191,7 +194,7 @@ public class LightningRodManager : MonoBehaviour
         // Comprado pela aba: a obra fica paga e o jogador escolhe o quarteirão.
         if (FreeBlocks() == 0)
         {
-            Debug.LogWarning("Comprou um para-raio sem quarteirão livre: maxLevel do rod maior que o número de quarteirões.");
+            Debug.LogWarning("Comprou um para-raio sem quarteirão livre: o teto do rod (SetLevelCap) não segurou a compra.");
             return;
         }
         Credits++;

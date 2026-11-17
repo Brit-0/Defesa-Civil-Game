@@ -48,7 +48,7 @@ public static class JamDataMenu
         CreateUpgrade("Tools", UpgradeIds.Tools, "Ferramentas melhores", "-10% de tempo de trabalho", 2, 8, 40, 1.5f, 0.1f, overwrite, ref created, ref updated);
         CreateUpgrade("Cart", UpgradeIds.Cart, "Carrinho de mão", "+1 material por trabalhador no Armazém", 3, 4, 25, 1.8f, 1f, overwrite, ref created, ref updated);
         CreateUpgrade("Reward", UpgradeIds.Reward, "Seguro municipal", "+25% de dinheiro por conserto", 4, 10, 50, 1.55f, 0.25f, overwrite, ref created, ref updated);
-        CreateUpgrade("Automation", UpgradeIds.Automation, "Automação", "Cada nível tira um passo do despacho: base automática, equipe automática, coleta automática e despacho automático.", 5, 4, 80, 2f, 1f, overwrite, ref created, ref updated);
+        CreateUpgrade("Automation", UpgradeIds.Automation, "Automação", "Cada nível tira um passo do despacho: base automática, equipe automática e coleta automática. O despacho sozinho é das guaritas.", 5, 3, 80, 2f, 1f, overwrite, ref created, ref updated);
         CreateUpgrade("Income", UpgradeIds.Income, "Repasse da Prefeitura", "A Prefeitura paga por casa intacta de tempos em tempos. Paga menos quando o caos está alto.", 6, 5, 150, 2f, 1f, overwrite, ref created, ref updated);
         CreateUpgrade("Goal", UpgradeIds.Goal, "Centro de Operações", "Objetivo final: a cidade ganha uma central de Defesa Civil. Comprar é vencer.", 8, 1, 2500, 1f, 0f, overwrite, ref created, ref updated);
 

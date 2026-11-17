@@ -114,7 +114,7 @@ class Jogador:
         return True  # sem dinheiro: junta para o gerador antes da próxima compra
 
     def _comprar(self, jogo):
-        while self.plano and jogo.niveis[self.plano[0]] >= jogo.ups[self.plano[0]]["maxLevel"]:
+        while self.plano and jogo.niveis[self.plano[0]] >= jogo.teto(self.plano[0]):
             self.plano.pop(0)
         if self._gerador(jogo, self.plano[0] if self.plano else None):
             return jogo.t < self.ocupado_ate
@@ -204,6 +204,13 @@ def com_pararaio(plano, quantos=1):
     plano = [p for p in plano if p != "rod"]
     i = plano.index("base2") + 1 if "base2" in plano else len(plano) - 1
     return plano[:i] + ["rod"] * quantos + plano[i:]
+
+
+def com_guaritas(plano, quantas=1):
+    """GUARITAS.md: guaritas logo depois da última automação (o despacho sozinho era o nível 4 dela)."""
+    plano = [p for p in plano if p != "outpost"]
+    i = len(plano) - 1 - plano[::-1].index("automation") + 1 if "automation" in plano else len(plano) - 1
+    return plano[:i] + ["outpost"] * quantas + plano[i:]
 
 
 def perfis(plano_bom="carrinho", expansao=True):

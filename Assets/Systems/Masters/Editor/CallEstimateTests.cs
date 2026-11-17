@@ -79,20 +79,59 @@ public class CallEstimateTests
     }
 
     [Test]
-    public void RingSide_IsSquareStepOf32BetweenTheLimits()
+    public void RingSide_IsSquareStepOfWholeKitPixelsBetweenTheLimits()
     {
         Assert.AreEqual(FeelUI.RingMin, FeelUI.RingSide(new Vector2(20f, 20f)), 1e-4f);
-        Assert.AreEqual(128f, FeelUI.RingSide(new Vector2(100f, 40f)), 1e-4f);
+        Assert.AreEqual(144f, FeelUI.RingSide(new Vector2(100f, 40f)), 1e-4f);
         Assert.AreEqual(FeelUI.RingMax, FeelUI.RingSide(new Vector2(900f, 300f)), 1e-4f);
+        Assert.AreEqual(0f, FeelUI.RingStep % 3f, 1e-4f, "passo em pixels inteiros do kit (3 unidades)");
 
         for (float w = 0f; w < 400f; w += 7f)
         {
             float side = FeelUI.RingSide(new Vector2(w, w * .5f));
-            Assert.AreEqual(0f, side % FeelUI.RingStep, 1e-4f, "lado " + side + " fora do passo de 32");
+            Assert.AreEqual(0f, side % FeelUI.RingStep, 1e-4f, "lado " + side + " fora do passo");
             Assert.That(side, Is.InRange(FeelUI.RingMin, FeelUI.RingMax));
         }
 
         Assert.IsTrue(FeelUI.RingFits(new Vector2(144f, 60f)));
         Assert.IsFalse(FeelUI.RingFits(new Vector2(332f, 312f)));
+    }
+
+    // v5A: o aro é um traço de 1 pixel, fechado (sem buraco nas diagonais) e meio transparente
+    [Test]
+    public void ThinRing_IsOnePixelClosedAndTranslucent()
+    {
+        foreach (int diameter in new[] { 32, 40, 56, 80 })
+        {
+            Assert.AreEqual(diameter, PixelFx.ThinRing(diameter, FeelUI.RingAlpha).texture.width);
+            var pixels = new Color32[diameter * diameter];
+            PixelFx.PaintThinRing(pixels, diameter, FeelUI.RingAlpha);
+            int lit = 0;
+            foreach (Color32 p in pixels)
+            {
+                if (p.a == 0) continue;
+                lit++;
+                Assert.AreEqual(FeelUI.RingAlpha, p.a);
+            }
+            // um anel de 1 pixel tem por volta de 2,8 × diâmetro pixels acesos; traço de 2 passaria de 5 ×
+            Assert.That(lit, Is.InRange(diameter * 2.5f, diameter * 3.6f), "diâmetro " + diameter);
+
+            // fechado: andando em volta do centro, todo ângulo cruza o traço
+            float c = (diameter - 1) * .5f, r = diameter * .5f - .5f;
+            for (int k = 0; k < 360; k++)
+            {
+                float a = k * Mathf.Deg2Rad;
+                int x = Mathf.Clamp(Mathf.RoundToInt(c + Mathf.Cos(a) * r), 0, diameter - 1);
+                int y = Mathf.Clamp(Mathf.RoundToInt(c + Mathf.Sin(a) * r), 0, diameter - 1);
+                bool near = false;
+                for (int dy = -1; dy <= 1 && !near; dy++)
+                    for (int dx = -1; dx <= 1 && !near; dx++)
+                    {
+                        int px = x + dx, py = y + dy;
+                        near = px >= 0 && py >= 0 && px < diameter && py < diameter && pixels[py * diameter + px].a > 0;
+                    }
+                Assert.IsTrue(near, $"buraco no aro de {diameter} no ângulo {k}");
+            }
+        }
     }
 }

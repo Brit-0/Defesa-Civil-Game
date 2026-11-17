@@ -66,7 +66,7 @@ public static class LightningRodDataMenu
         asset.icon = AssetDatabase.LoadAssetAtPath<Sprite>(IconPath);
         asset.order = 8;
         asset.category = UpgradeCategory.Expansion;
-        asset.maxLevel = 3;
+        asset.maxLevel = OutpostDataMenu.NoFixedCap; // v5A: o teto é um por quarteirão com casa (LightningRodManager.Start)
         asset.baseCost = 80;
         asset.costGrowth = 1.5f;
         asset.effectPerLevel = 1f;

@@ -382,7 +382,7 @@ public class RodBlock : MonoBehaviour
 
     #region HELPERS
 
-    private static Sprite Load(string folder, string spriteName) => Resources.Load<Sprite>(folder + spriteName);
+    internal static Sprite Load(string folder, string spriteName) => Resources.Load<Sprite>(folder + spriteName);
 
     private static Color WithAlpha(Color color, float alpha)
     {
@@ -392,7 +392,7 @@ public class RodBlock : MonoBehaviour
 
     // Borda tracejada do tamanho do quarteirão, pixel art (32 por unidade): traço claro com 1 pixel de contorno escuro.
     // Uma textura por tamanho (o mapa tem dois), tingida pela cor da Image.
-    private static Sprite BorderSprite(Vector2 size, LightningRodData data)
+    internal static Sprite BorderSprite(Vector2 size, LightningRodData data)
     {
         var key = new Vector2Int(Mathf.RoundToInt(size.x * ArtPpu), Mathf.RoundToInt(size.y * ArtPpu));
         if (borderCache.TryGetValue(key, out Sprite cached) && cached != null) return cached;
@@ -422,7 +422,7 @@ public class RodBlock : MonoBehaviour
     }
 
     // Retângulo em unidades do mundo dentro de um Canvas World Space (o tamanho passa pela escala do pai).
-    private static void PlaceWorld(RectTransform rect, Vector2 center, Vector2 size)
+    internal static void PlaceWorld(RectTransform rect, Vector2 center, Vector2 size)
     {
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
         Transform parent = rect.parent;
@@ -432,14 +432,14 @@ public class RodBlock : MonoBehaviour
         rect.sizeDelta = size / scale;
     }
 
-    private static void Stretch(RectTransform rect)
+    internal static void Stretch(RectTransform rect)
     {
         rect.anchorMin = Vector2.zero;
         rect.anchorMax = Vector2.one;
         rect.offsetMin = rect.offsetMax = Vector2.zero;
     }
 
-    private static RectTransform NewRect(string objectName, Transform parent)
+    internal static RectTransform NewRect(string objectName, Transform parent)
     {
         var go = new GameObject(objectName, typeof(RectTransform));
         var rect = (RectTransform)go.transform;
@@ -447,7 +447,7 @@ public class RodBlock : MonoBehaviour
         return rect;
     }
 
-    private static Image NewImage(string objectName, Transform parent, Sprite sprite)
+    internal static Image NewImage(string objectName, Transform parent, Sprite sprite)
     {
         Image image = NewRect(objectName, parent).gameObject.AddComponent<Image>();
         image.sprite = sprite;
@@ -468,7 +468,7 @@ public class RodBlock : MonoBehaviour
     }
 
     // anchor = pivot = canto de referência dentro do pai
-    private static void SetBox(RectTransform rect, Vector2 anchor, Vector2 position, Vector2 size)
+    internal static void SetBox(RectTransform rect, Vector2 anchor, Vector2 position, Vector2 size)
     {
         rect.anchorMin = rect.anchorMax = rect.pivot = anchor;
         rect.anchoredPosition = position;

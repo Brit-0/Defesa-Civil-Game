@@ -122,6 +122,32 @@ public static partial class PixelFx
         });
     }
 
+    //Aro fino do tutorial e das dicas (v5A): círculo de 'diameter' pixels com traço de 1 pixel, sem contorno, e
+    //'alpha' (0 a 255) no próprio sprite. Cada coluna e cada linha acendem os dois pontos onde o círculo passa: a
+    //união fecha o anel sem buraco nas diagonais
+    public static Sprite ThinRing(int diameter, byte alpha)
+    {
+        diameter = Mathf.Max(4, diameter);
+        return Cached($"ThinRing{diameter}a{alpha}", diameter, diameter, (p, w, h) => PaintThinRing(p, w, alpha));
+    }
+
+    //Pixels do ThinRing (a textura pronta não fica legível; os testes leem por aqui)
+    public static void PaintThinRing(Color32[] p, int w, byte alpha)
+    {
+        var on = new Color32(255, 255, 255, alpha);
+        float c = (w - 1) * .5f;
+        float r = w * .5f - .5f;
+        for (int i = 0; i < w; i++)
+        {
+            float d = i - c;
+            float s = Mathf.Sqrt(Mathf.Max(0f, r * r - d * d));
+            int lo = Mathf.Clamp(Mathf.FloorToInt(c - s + .5f), 0, w - 1);
+            int hi = Mathf.Clamp(Mathf.FloorToInt(c + s + .5f), 0, w - 1);
+            p[lo * w + i] = p[hi * w + i] = on;
+            p[i * w + lo] = p[i * w + hi] = on;
+        }
+    }
+
     //Brilho em faixas (luz de pixel art, sem degradê liso): centro forte, bordas fracas
     public static Sprite Glow(int width, int height, int bands = 4)
     {

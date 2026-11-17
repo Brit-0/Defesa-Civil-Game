@@ -71,7 +71,7 @@ public class UpgradeButton : MonoBehaviour, IPointerClickHandler
 
         if (icon != null && Data.icon != null) icon.sprite = Data.icon;
         if (nameLbl != null) nameLbl.text = Data.displayName;
-        if (levelLbl != null) levelLbl.text = string.Format(levelFormat, manager.GetLevel(Data), Data.maxLevel);
+        if (levelLbl != null) levelLbl.text = string.Format(levelFormat, manager.GetLevel(Data), manager.GetMaxLevel(Data));
         if (priceLbl != null) priceLbl.text = isMaxLevel ? maxLevelText : manager.GetCost(Data).ToString();
         if (button != null) button.interactable = manager.CanBuy(Data);
     }

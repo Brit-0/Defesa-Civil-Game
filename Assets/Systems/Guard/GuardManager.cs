@@ -55,9 +55,6 @@ public class GuardManager : MonoBehaviour
     [Header("CALL")]
     [SerializeField] private GameObject callTab;
 
-    // Segundos de partida até o próximo despacho automático.
-    private float autoDispatchCountdown;
-
     private void Awake()
     {
         Instance = this;
@@ -79,11 +76,6 @@ public class GuardManager : MonoBehaviour
     private void OnGameStateChanged(GameState state)
     {
         if (state == GameState.Won || state == GameState.Lost) CloseCall();
-    }
-
-    private void Update()
-    {
-        TickAutoDispatch();
     }
 
     #region CALL FLOW
@@ -280,42 +272,32 @@ public class GuardManager : MonoBehaviour
         }
     }
 
-    // Automação 4 (Despacho automático): um chamado por vez, no ritmo do BalanceData, enquanto houver gente e material.
-    private void TickAutoDispatch()
+    // Despacho automático da guarita do quarteirão (GUARITAS.md, v5A; antes era a Automação 4, na cidade inteira):
+    // a equipe sugerida sai da base com energia mais perto da casa. Falta de gente, de material ou de energia não é
+    // erro do jogador: o chamado só espera, sem ActionDenied. O Armazém continua manual.
+    public bool TryAutoDispatch(House house)
     {
-        if (Stats.AutomationLevel < AutomationLevels.AutoDispatch) return;
-        if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) return;
+        if (!WaitsForTeam(house)) return false;
 
-        autoDispatchCountdown -= Time.deltaTime;
-        if (autoDispatchCountdown > 0f) return;
+        Call call = house.currentCall;
+        int size = Stats.GetSuggestedTeam(call);
+        if (GetDeniedReason(call, size).HasValue) return false;
 
-        autoDispatchCountdown = Stats.Balance.autoDispatchInterval;
-        AutoDispatchNextCall();
+        CityGuard guard = GetNearestGuard(house);
+        if (guard == null || EnergyManager.DeniesDispatch(call, guard)) return false;
+        return TrySendTeam(call, guard, size);
     }
 
-    // Atende o chamado mais urgente que couber no estoque. Falta de gente ou de material não é erro do jogador:
-    // o chamado só espera, sem ActionDenied. O Armazém continua manual.
-    private void AutoDispatchNextCall()
+    // Casa com problema de verdade e sem equipe. Call é [Serializable]: casa intacta da cena tem um currentCall vazio
+    // (house nulo), nunca null; por isso o estado decide, como no LocationsManager.GetTroubledHouses.
+    public static bool WaitsForTeam(House house)
     {
-        if (LocationsManager.Instance == null) return;
-
-        List<House> waiting = LocationsManager.Instance.GetTroubledHouses();
-        waiting.RemoveAll(house => house.HasTeam || house.currentCall == null || house.currentCall.type != CallType.Problem);
-        waiting.Sort(CompareUrgency);
-
-        foreach (House house in waiting)
-        {
-            Call call = house.currentCall;
-            int size = Stats.GetSuggestedTeam(call);
-            if (GetDeniedReason(call, size).HasValue) continue;
-
-            CityGuard guard = GetNearestGuard(house);
-            if (guard != null && TrySendTeam(call, guard, size)) return;
-        }
+        return house != null && house.currentState != State.Intact && !house.HasTeam
+            && house.currentCall != null && house.currentCall.house == house && house.currentCall.type == CallType.Problem;
     }
 
     // Fogo primeiro (o que está mais perto de apagar sozinho); depois os consertos de menor dano, que gastam menos.
-    private static int CompareUrgency(House a, House b)
+    public static int CompareUrgency(House a, House b)
     {
         bool aOnFire = a.currentState == State.OnFire;
         bool bOnFire = b.currentState == State.OnFire;
