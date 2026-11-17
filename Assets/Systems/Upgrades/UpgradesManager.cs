@@ -15,13 +15,13 @@ public static class UpgradeIds
     public const string Goal = "goal";
 }
 
-// O que cada nível do upgrade automation liga (GDD, seção 7).
+// O que cada nível do upgrade automation liga (GDD, seção 7). O nível 4 (despacho automático em toda a cidade) saiu
+// na v5A: agora são as guaritas, uma por quarteirão (GUARITAS.md).
 public static class AutomationLevels
 {
     public const int AutoBase = 1;      // Central de rádio: base escolhida sozinha
     public const int AutoTeam = 2;      // Protocolo padrão: equipe dimensionada sozinha
     public const int AutoCollect = 3;   // Coleta automática
-    public const int AutoDispatch = 4;  // Despacho automático
 }
 
 // Níveis, custo e compra dos upgrades. Adicionar um upgrade = criar um asset em Resources/Upgrades.
@@ -40,6 +40,7 @@ public class UpgradesManager : MonoBehaviour
     private readonly Dictionary<string, UpgradeData> upgradesById = new();
     private readonly Dictionary<string, int> levels = new();
     private readonly Dictionary<UpgradeData, UpgradeButton> buttons = new();
+    private readonly Dictionary<string, int> levelCaps = new();
 
     public IReadOnlyList<UpgradeData> Upgrades => upgrades;
 
@@ -129,7 +130,20 @@ public class UpgradesManager : MonoBehaviour
 
     public bool IsMaxLevel(UpgradeData upgrade)
     {
-        return GetLevel(upgrade) >= upgrade.maxLevel;
+        return GetLevel(upgrade) >= GetMaxLevel(upgrade);
+    }
+
+    // Nível máximo de verdade: o maxLevel do asset ou, se a cena registrou um teto (um para-raio ou uma guarita por
+    // quarteirão com casa, v5A), o menor dos dois.
+    public int GetMaxLevel(UpgradeData upgrade)
+    {
+        if (upgrade == null) return 0;
+        return levelCaps.TryGetValue(upgrade.id, out int cap) ? Mathf.Min(upgrade.maxLevel, cap) : upgrade.maxLevel;
+    }
+
+    public void SetLevelCap(string id, int cap)
+    {
+        if (!string.IsNullOrEmpty(id)) levelCaps[id] = Mathf.Max(0, cap);
     }
 
     // Custo do próximo nível: custo base × crescimento^nível, arredondado.

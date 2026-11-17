@@ -40,8 +40,8 @@ cairiam ali, para sempre. É comprado como upgrade, pelo mesmo fluxo e visual do
 
 | o quê | valor | onde |
 |---|---|---|
-| preço | 80, 120, 180 (×1,5 a cada um) | `Assets/Resources/Upgrades/Rod.asset` |
-| máximo | 3 para-raios, um por quarteirão | `Rod.asset` (`maxLevel`) |
+| preço | 80, 120, 180, 270, 405… (×1,5 a cada um) | `Assets/Resources/Upgrades/Rod.asset` |
+| máximo | v5A: sem limite fixo; um por quarteirão com casa (36 no mapa). O `maxLevel` do asset é 99 e o jogo corta no número de quarteirões (`UpgradesManager.SetLevelCap`, chamado no `LightningRodManager.Start`) | `Rod.asset` (`maxLevel`) |
 | obra | 3 s | `LightningRodData.buildTime` |
 | atração | 6 | `LightningRodData.attraction` **[PROPOSTA]** |
 | quarteirões | 36 (os polígonos `Block` do `city_layout.json`, com as 153 casas) | `LightningRodData.blocks` |

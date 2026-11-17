@@ -249,18 +249,21 @@ public static class FeelUI
         image.pixelsPerUnitMultiplier = IsPixelSprite(image.sprite) ? Theme.MultiplierFor(image.sprite) : Theme.pixelsPerUnitMultiplier;
     }
 
-    //Aro do tutorial e das dicas (#531): o Mk_Ring fino, sempre Simple e quadrado (nunca Sliced, que quadriculava),
-    //com o lado em múltiplo dos 32 pixels do sprite, para cada pixel dele virar um número inteiro de pixels do HUD.
-    public const float RingStep = 32f;
+    //Aro do tutorial e das dicas (#531): sempre Simple e quadrado (nunca Sliced, que quadriculava). Desde a v5A o
+    //desenho é o anel de 1 pixel do kit (PixelRing), do tamanho do lado: o Mk_Ring esticado tinha traço de 9 a 24
+    //unidades do HUD. O lado anda em passos de 24 (8 pixels do kit de 3), para o anel cair em pixels inteiros.
+    public const float RingStep = 24f;
     public const float RingMin = 96f;
-    public const float RingMax = 256f;
+    public const float RingMax = 240f;
+    //Opacidade do traço no próprio sprite (a cor de quem usa multiplica por cima): o aro destaca sem cobrir a casa
+    public const byte RingAlpha = 150;
 
     public static Image CreateRing(string objectName, Transform parent, Color color)
     {
-        Sprite sprite = Theme != null ? Theme.thinRing != null ? Theme.thinRing : Theme.circle : null;
-        Image ring = CreateImage(objectName, parent, color, sprite);
+        Image ring = CreateImage(objectName, parent, color, PixelFx.ThinRing(Mathf.RoundToInt(RingMin / PixelSize), RingAlpha));
         ring.type = Image.Type.Simple;
         ring.preserveAspect = true;
+        ring.gameObject.AddComponent<PixelRing>();
         return ring;
     }
 

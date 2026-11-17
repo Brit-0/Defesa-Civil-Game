@@ -101,6 +101,12 @@ public class LightningRodTests
             Assert.AreEqual(s.polygonId, blocks[index].id, $"casa {s.id} caiu no quarteirão errado");
         }
         Assert.Greater(houses, 100);
+
+        // v5A: um para-raio (e uma guarita) por quarteirão com casa vai bem além dos 3 de antes
+        var withHouses = new HashSet<string>();
+        foreach (StructureData s in layout.structures)
+            if (s.type == StructureType.House) withHouses.Add(s.polygonId);
+        Assert.Greater(withHouses.Count, 3);
     }
 
     [Test]
@@ -129,7 +135,9 @@ public class LightningRodTests
         Assert.IsNotNull(rod.icon, "ícone Rod_Icon");
         Assert.AreEqual(64, rod.icon.texture.width);
         Assert.Greater(rod.baseCost, 0);
-        Assert.Less(rod.maxLevel, 36, "um quarteirão por para-raio");
+        // v5A: sem limite fixo de compras; o jogo corta em um por quarteirão com casa (UpgradesManager.SetLevelCap)
+        var data = AssetDatabase.LoadAssetAtPath<LightningRodData>(DataPath);
+        Assert.GreaterOrEqual(rod.maxLevel, data.blocks.Count, "o teto é o mapa, não o asset");
 
         var pole = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Systems/LightningRod/Resources/LightningRod/Rod_Pole.png");
         Assert.IsNotNull(pole, "sprite do mastro");

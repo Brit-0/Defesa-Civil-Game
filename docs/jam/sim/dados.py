@@ -13,6 +13,9 @@ GENERATOR_ASSET = RAIZ / "Assets/Resources/Upgrades/Generator.asset"  # fora do 
 EXPANSION_ASSETS = [RAIZ / "Assets/Resources/Upgrades/Base2.asset", RAIZ / "Assets/Resources/Upgrades/Depot2.asset"]
 ROD_ASSET = RAIZ / "Assets/Resources/Upgrades/Rod.asset"  # para-raio (PARARAIO.md)
 ROD_DATA = RAIZ / "Assets/Systems/LightningRod/Resources/LightningRod/LightningRodData.asset"
+OUTPOST_ASSET = RAIZ / "Assets/Resources/Upgrades/Outpost.asset"  # guarita (GUARITAS.md)
+OUTPOST_CS = RAIZ / "Assets/SO/OutpostData.cs"
+OUTPOST_DATA = RAIZ / "Assets/Systems/Outpost/Resources/Outpost/OutpostData.asset"
 MAPA_PADRAO = RAIZ / "Assets/_Project/Data/Cities/city_layout.json"
 
 
@@ -38,7 +41,7 @@ def ler_upgrades(caminho=MENU_CS):
     for nome, ordem, maximo, base, cresc, efeito in re.findall(padrao, texto):
         ups[nome.lower()] = dict(order=int(ordem), maxLevel=int(maximo), baseCost=int(base),
                                  costGrowth=float(cresc), effectPerLevel=float(efeito))
-    for arquivo in [GENERATOR_ASSET] + EXPANSION_ASSETS + [ROD_ASSET]:  # base2, depot2 e rod vêm só pelo .asset
+    for arquivo in [GENERATOR_ASSET] + EXPANSION_ASSETS + [ROD_ASSET, OUTPOST_ASSET]:  # base2, depot2, rod e outpost só pelo .asset
         if arquivo.exists() and arquivo.stem.lower() not in ups:
             ups.update(_upgrade_do_asset(arquivo))
     return ups
@@ -48,6 +51,18 @@ def ler_pararaio(caminho=ROD_DATA):
     """LightningRodData.asset: atração do raio pelo quarteirão protegido e tempo de obra (padrões do C# sem o asset)."""
     dados = _ler_yaml_simples(caminho) if Path(caminho).exists() else {}
     return dict(atracao=float(dados.get("attraction", 1.0)), obra=float(dados.get("buildTime", 3.0)))
+
+
+def ler_guarita(caminho=OUTPOST_DATA):
+    """OutpostData (GUARITAS.md): intervalo do despacho, reação e obra. Do .asset; sem ele, os padrões do OutpostData.cs."""
+    padrao = {}
+    if OUTPOST_CS.exists():
+        for nome, valor in re.findall(r"public\s+float\s+(\w+)\s*=\s*(-?[\d.]+)f?\s*;", OUTPOST_CS.read_text(encoding="utf-8")):
+            padrao[nome] = float(valor)
+    if Path(caminho).exists():
+        padrao.update({k: float(v) for k, v in _ler_yaml_simples(caminho).items() if k in padrao})
+    return dict(intervalo=padrao.get("dispatchInterval", 1.0), reacao=padrao.get("reactionDelay", 1.5),
+                obra=padrao.get("buildTime", 3.0))
 
 
 def _ler_yaml_simples(caminho):

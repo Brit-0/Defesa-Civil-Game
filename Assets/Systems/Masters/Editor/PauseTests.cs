@@ -88,12 +88,12 @@ public class PauseTests
     }
 
     [Test]
-    public void ShoreTargetRing_IsSquareStepOf32()
+    public void ShoreTargetRing_IsSquareInTheRingStep()
     {
         for (float w = 0f; w < 400f; w += 9f)
         {
             float side = MiniGameFeel.RingSize(new Vector2(w, w * .7f), 110f);
-            Assert.AreEqual(0f, side % FeelUI.RingStep, 1e-4f, "lado " + side + " fora do passo de 32");
+            Assert.AreEqual(0f, side % FeelUI.RingStep, 1e-4f, "lado " + side + " fora do passo do aro");
             Assert.That(side, Is.InRange(FeelUI.RingMin, FeelUI.RingMax));
         }
     }

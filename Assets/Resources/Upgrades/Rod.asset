@@ -18,7 +18,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 81c6c125fafea2b1ef846c40c7b10218, type: 3}
   order: 8
   category: 2
-  maxLevel: 3
+  maxLevel: 99
   baseCost: 80
   costGrowth: 1.5
   effectPerLevel: 1

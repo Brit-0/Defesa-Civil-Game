@@ -106,7 +106,8 @@ Comprados na aba de upgrades (já existe o botão e o prefab `UpgradeButton`). C
 | `tools` | Ferramentas melhores | −10% tempo de trabalho | 8 | 40 | 1,5 |
 | `cart` | Carrinho de mão | +1 material por trabalhador no Armazém | 4 | 60 | 1,8 |
 | `reward` | Seguro municipal | +25% dinheiro por conserto | 10 | 50 | 1,55 |
-| `automation` | Automação | Remove passos do despacho (abaixo) | 4 | 150 | 2,6 |
+| `automation` | Automação | Remove passos do despacho (abaixo) | 3 (v5A; era 4) | 150 | 2,6 |
+| `outpost` | Guarita (v5A) | Despacho sozinho num quarteirão escolhido (`GUARITAS.md`) | 1 por quarteirão | 90 | 1,25 |
 | `income` | Repasse da Prefeitura | Nível 1 destrava o repasse; cada nível aumenta o valor (seção 8) | 5 | 200 | 2,0 |
 | `base2` | Segunda base (stretch S2) | Liga a segunda Guarda | 1 | 400 | — |
 | `goal` | Centro de Operações | Vitória | 1 | 5.000 **PLACEHOLDER** | — |
@@ -121,9 +122,9 @@ Comprados na aba de upgrades (já existe o botão e o prefab `UpgradeButton`). C
 | 1 | Central de rádio | A base é escolhida sozinha (a mais próxima da casa). Some o passo "escolher a base". |
 | 2 | Protocolo padrão | A equipe é dimensionada sozinha (a equipe sugerida da seção 3.1). Despachar vira 1 clique na casa. |
 | 3 | Coleta automática | A recompensa entra sozinha quando o trabalho termina. Vale também para o Armazém. |
-| 4 | Despacho automático | Chamados são atendidos sem clique enquanto houver gente e material. O Armazém continua manual. |
+| ~~4~~ | ~~Despacho automático~~ | **Removido na v5A (pedido do Pietro: tirava a graça).** Virou as **Guaritas** (`GUARITAS.md`): compradas uma por quarteirão, o jogador escolhe onde; só os chamados daquele quarteirão saem sozinhos. |
 
-No nível 4 o jogador vira gestor: decide upgrades, reabastece material e cobre picos manualmente.
+Com as guaritas o jogador vira gestor aos poucos e escolhendo onde: decide upgrades, reabastece material e cobre o resto da cidade no clique.
 
 **Trabalhadores são um estoque único da cidade [DECISÃO]:** não existe "gente por base". A base só define de onde a equipe sai e para onde volta. Isso mantém o código atual e deixa a base extra barata de fazer.
 

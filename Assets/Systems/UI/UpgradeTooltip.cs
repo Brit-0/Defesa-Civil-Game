@@ -142,7 +142,7 @@ public class UpgradeTooltip : MonoBehaviour
         int level = manager.GetLevel(data);
         nameLbl.text = data.displayName;
         descriptionLbl.text = data.description;
-        levelLbl.text = string.Format(levelFormat, level, data.maxLevel);
+        levelLbl.text = string.Format(levelFormat, level, manager.GetMaxLevel(data));
 
         if (manager.IsMaxLevel(data))
         {
