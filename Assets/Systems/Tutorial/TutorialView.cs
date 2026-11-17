@@ -10,7 +10,10 @@ using UnityEngine.UI;
 public class TutorialView : MonoBehaviour
 {
     [Header("LAYOUT (tela de referência 1920x1080)")]
-    [SerializeField] private Vector2 bubbleSize = new Vector2(1040f, 150f);
+    [SerializeField] private Vector2 bubbleSize = new Vector2(1060f, 172f);
+    [Tooltip("Margem interna do balão dos lados e em cima/embaixo")]
+    [SerializeField] private float textPadding = 44f;
+    [SerializeField] private float textPaddingY = 20f;
     [SerializeField] private float bubbleBottom = 150f;
     [SerializeField] private Vector2 cardSize = new Vector2(1000f, 540f);
     [SerializeField] private float border = 5f;
@@ -30,7 +33,8 @@ public class TutorialView : MonoBehaviour
     [SerializeField] private float slideTime = .35f;
     [SerializeField] private float arrowBob = 18f;
     [SerializeField] private float arrowBobSpeed = 6f;
-    [SerializeField] private float ringPulse = .1f;
+    [Tooltip("Quanto o aro apaga no pulso (0 a 1)")]
+    [SerializeField] private float ringPulse = .45f;
     [SerializeField] private float worldRingSize = 170f;
 
     private RectTransform root;
@@ -62,8 +66,8 @@ public class TutorialView : MonoBehaviour
         rootGroup = root.gameObject.AddComponent<CanvasGroup>();
         Vector2 center = new Vector2(.5f, .5f);
 
-        ring = FeelUI.CreateImage("Ring", root, arrowColor, FeelUI.Theme != null ? FeelUI.Theme.button2 : null);
-        FeelUI.Slice(ring);
+        // Aro fino do Mk_Ring, Simple e quadrado (o Button2 fatiado esticava e quadriculava, #531).
+        ring = FeelUI.CreateRing("Ring", root, arrowColor);
         ring.gameObject.SetActive(false);
         arrow = BuildArrow(root);
         arrow.gameObject.SetActive(false);
@@ -73,11 +77,14 @@ public class TutorialView : MonoBehaviour
         FeelUI.Place(bubble, new Vector2(.5f, 0f), center, new Vector2(0f, -bubbleSize.y), bubbleSize);
         FeelUI.Stretch(FeelUI.CreatePanel("Back", bubble, backColor).rectTransform, border);
 
+        // Margem interna: texto longe da moldura dos lados e de cima, e abaixo da linha do passo (#531).
         stepLbl = FeelUI.CreateText("Step", bubble, "", textSize * .6f, frameColor, TextAlignmentOptions.TopLeft);
-        FeelUI.Place(stepLbl.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(24f, -14f), new Vector2(300f, textSize));
+        FeelUI.Place(stepLbl.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(textPadding, -textPaddingY), new Vector2(300f, textSize));
 
+        float textTop = textPaddingY + textSize;
         TMP_Text text = FeelUI.CreateText("Lbl", bubble, "", textSize, Color.white, TextAlignmentOptions.MidlineLeft);
-        FeelUI.Place(text.rectTransform, new Vector2(0f, .5f), new Vector2(0f, .5f), new Vector2(24f, -8f), new Vector2(bubbleSize.x - 300f, bubbleSize.y - 50f));
+        FeelUI.Place(text.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(textPadding, -textTop),
+            new Vector2(bubbleSize.x - textPadding - 290f, bubbleSize.y - textTop - textPaddingY));
         text.textWrappingMode = TextWrappingModes.Normal;
         text.enableAutoSizing = true;
         text.fontSizeMin = textSize * .6f;
@@ -96,6 +103,30 @@ public class TutorialView : MonoBehaviour
         // Seta por cima do balão: alvo embaixo à esquerda (META) deixava a seta escondida atrás dele.
         arrow.SetAsLastSibling();
         bubble.gameObject.SetActive(false);
+    }
+
+    // Ponta na borda do aro, medida na direção da seta (aro largo e baixo não afasta a seta por cima).
+    private static Vector2 TipFor(Vector2 position, Vector2 direction, Vector2 ringSize, float size, float bob)
+    {
+        float reachX = Mathf.Abs(direction.x) > .001f ? ringSize.x * .5f / Mathf.Abs(direction.x) : float.MaxValue;
+        float reachY = Mathf.Abs(direction.y) > .001f ? ringSize.y * .5f / Mathf.Abs(direction.y) : float.MaxValue;
+        return position - direction * (Mathf.Min(reachX, reachY, size * .5f) + 10f + bob);
+    }
+
+    // A seta (uns 100 de comprimento atrás da ponta, 40 de largura) passaria por cima do balão aberto?
+    private bool ArrowHitsBubble(Vector2 tip, Vector2 direction)
+    {
+        if (!bubbleShown || bubble == null || !bubble.gameObject.activeInHierarchy) return false;
+
+        Bounds box = RectTransformUtility.CalculateRelativeRectTransformBounds(root, bubble);
+        box.Expand(new Vector3(40f, 40f, 0f));
+        for (float back = 0f; back <= 100f; back += 25f)
+        {
+            Vector2 point = tip - direction * back;
+            if (box.Contains(new Vector3(point.x, point.y, box.center.z))) return true;
+        }
+
+        return false;
     }
 
     // Seta apontando para a direita (+x), ponta na origem: haste e duas barras da cabeça, com contorno escuro.
@@ -142,10 +173,10 @@ public class TutorialView : MonoBehaviour
         FeelUI.Stretch(FeelUI.CreatePanel("Back", panel, backColor).rectTransform, border);
 
         TMP_Text titleLbl = FeelUI.CreateText("Title", panel, title, 64f, frameColor);
-        FeelUI.Place(titleLbl.rectTransform, new Vector2(.5f, 1f), center, new Vector2(0f, -70f), new Vector2(cardSize.x - 60f, 80f));
+        FeelUI.Place(titleLbl.rectTransform, new Vector2(.5f, 1f), center, new Vector2(0f, -76f), new Vector2(cardSize.x - textPadding * 3f, 80f));
 
         TMP_Text bodyLbl = FeelUI.CreateText("Body", panel, body, 32f, Color.white);
-        FeelUI.Place(bodyLbl.rectTransform, center, center, new Vector2(0f, 20f), new Vector2(cardSize.x - 100f, 260f));
+        FeelUI.Place(bodyLbl.rectTransform, center, center, new Vector2(0f, 20f), new Vector2(cardSize.x - textPadding * 4f, 260f));
         bodyLbl.textWrappingMode = TextWrappingModes.Normal;
         bodyLbl.lineSpacing = 12f;
 
@@ -257,19 +288,26 @@ public class TutorialView : MonoBehaviour
             return;
         }
 
+        // Aro sempre redondo, no passo de 32 do sprite (FeelUI.RingSide). Painel inteiro do HUD (maior que o aro
+        // maior) fica só com a seta, sem aro por cima.
+        // A seta encosta no aro ou, sem aro, na borda do painel (ringSize é só o alcance dela).
         Vector2 position;
+        bool ringFits = true;
+        float side;
         Vector2 ringSize;
         if (hasHud)
         {
-            // Aro do tamanho do elemento (botão largo ganha aro largo, e não um quadrado por cima do painel).
             Bounds bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(root, hudTarget);
             position = bounds.center;
-            ringSize = (Vector2)bounds.size + Vector2.one * 24f;
+            ringFits = FeelUI.RingFits(bounds.size);
+            side = FeelUI.RingSide(bounds.size);
+            ringSize = ringFits ? Vector2.one * side : (Vector2)bounds.size + Vector2.one * 24f;
         }
         else
         {
             position = MiniGameFeel.HudCenter(worldTarget, out Vector2 targetSize);
-            ringSize = Vector2.one * MiniGameFeel.RingSize(targetSize, worldRingSize);
+            side = targetSize.sqrMagnitude > 0f ? FeelUI.RingSide(targetSize) : FeelUI.RingSide(Vector2.one * worldRingSize, 0f);
+            ringSize = Vector2.one * side;
         }
         float size = Mathf.Max(ringSize.x, ringSize.y);
 
@@ -289,20 +327,26 @@ public class TutorialView : MonoBehaviour
         {
             // A seta vem do lado do meio da tela; alvo perto do meio recebe a seta por cima.
             direction = position.sqrMagnitude > 250f * 250f ? position.normalized : Vector2.down;
-            // Ponta na borda do aro, medida na direção da seta (aro largo e baixo não afasta a seta por cima).
-            float reachX = Mathf.Abs(direction.x) > .001f ? ringSize.x * .5f / Mathf.Abs(direction.x) : float.MaxValue;
-            float reachY = Mathf.Abs(direction.y) > .001f ? ringSize.y * .5f / Mathf.Abs(direction.y) : float.MaxValue;
-            tip = position - direction * (Mathf.Min(reachX, reachY, size * .5f) + 10f + bob);
+            tip = TipFor(position, direction, ringSize, size, bob);
+            // Alvo do HUD logo abaixo do balão (a META): a seta por cima cobria o texto, então vem de lado (#531).
+            if (hasHud && ArrowHitsBubble(tip, direction))
+            {
+                direction = new Vector2(position.x < 0f ? -1f : 1f, 0f);
+                tip = TipFor(position, direction, ringSize, size, bob);
+            }
         }
 
         arrow.gameObject.SetActive(true);
         arrow.anchoredPosition = tip;
         arrow.localEulerAngles = new Vector3(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
 
-        ring.gameObject.SetActive(!offScreen);
+        ring.gameObject.SetActive(!offScreen && ringFits);
         ring.rectTransform.anchoredPosition = position;
         ring.rectTransform.sizeDelta = ringSize;
-        ring.rectTransform.localScale = Vector3.one * (1f + ringPulse * Mathf.Sin(Time.unscaledTime * arrowBobSpeed));
+        // Pulso no brilho, não na escala: o aro fica sempre do mesmo tamanho e o pixel dele não treme.
+        Color pulse = arrowColor;
+        pulse.a *= 1f - ringPulse * (.5f + .5f * Mathf.Sin(Time.unscaledTime * arrowBobSpeed));
+        ring.color = pulse;
     }
 
     #endregion

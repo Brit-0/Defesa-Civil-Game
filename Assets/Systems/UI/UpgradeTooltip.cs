@@ -16,7 +16,8 @@ public class UpgradeTooltip : MonoBehaviour
     [Header("LAYOUT (tela de referência 1920x1080)")]
     [SerializeField] private float width = 450f;
     [SerializeField] private float gap = 12f;
-    [SerializeField] private float padding = 27f;
+    [Tooltip("Margem interna: a moldura pixel já ocupa 18 unidades, o texto fica 21 além dela (#531)")]
+    [SerializeField] private float padding = 39f;
     [SerializeField] private float nameSize = 32f;
     [SerializeField] private float textSize = 26f;
 

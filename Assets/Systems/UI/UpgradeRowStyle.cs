@@ -14,8 +14,8 @@ public class UpgradeRowStyle
     public float priceSize = 30f;
     public float levelSize = 30f;
     [Tooltip("A linha larga cresce menos no hover que os outros botões, para não passar da borda do painel")]
-    public float hoverScale = 1.03f;
-    public float pressScale = .97f;
+    public float hoverScale = 1.05f;
+    public float pressScale = .94f;
 
     //Linha maior e legível: ícone à esquerda, nome em cima ocupando a largura, preço e nível embaixo
     public void Apply(UpgradeButton row)
@@ -58,8 +58,11 @@ public class UpgradeRowStyle
         RectTransform level = PlaceChild(r, "LvlLbl", new Vector2(1f, .5f), new Vector2(1f, .5f), new Vector2(-left, -line + lift), new Vector2(150f, levelSize * 1.2f));
         StyleText(level, levelSize, TextAlignmentOptions.Right, false);
 
-        //Mesmo hover e clique dos outros botões (escala, som, mãozinha); o ButtonPress já vem no prefab
-        if (row.GetComponent<ButtonJuice>() == null) row.gameObject.AddComponent<ButtonJuice>();
+        //Mesmo hover e clique dos outros botões (escala, som, mãozinha), também sem dinheiro: a linha fica
+        //desabilitada, mas responde, e o clique negado treme em vermelho (UpgradeButtonJuice). #531
+        ButtonJuice juice = row.GetComponent<ButtonJuice>();
+        if (juice == null) juice = row.gameObject.AddComponent<ButtonJuice>();
+        juice.ReactWhenDisabled = true;
         row.GetComponent<Tweener>().SetScales(hoverScale, pressScale);
         if (row.GetComponent<UpgradeRowHover>() == null) row.gameObject.AddComponent<UpgradeRowHover>();
     }

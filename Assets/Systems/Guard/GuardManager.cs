@@ -31,6 +31,10 @@ public class GuardManager : MonoBehaviour
     private CityGuard selectedGuard;
     private Call currentCall;
 
+    // A aba de chamado aberta agora (nulos fora dela): a estimativa de tempo da aba lê daqui.
+    public Call CurrentCall => currentCall;
+    public CityGuard SelectedGuard => selectedGuard;
+
     public static bool selectBaseMode;
 
     [Header("WORKERS")]
@@ -142,8 +146,8 @@ public class GuardManager : MonoBehaviour
         selectBaseMode = false;
         selectedGuard = guard;
         FeedbacksManager.HideText();
-        // A aba já abre com a equipe sugerida: o + e o - viram ajuste fino, Enviar resolve (GAMELOOP_REVISAO).
-        TeamSize = Mathf.Min(Stats.GetSuggestedTeam(currentCall), ResourcesManager.Workers);
+        // A aba abre sempre vazia: o jogador escolhe quantos vão no + e no - (pedido do Pietro 17/11, #531).
+        TeamSize = 0;
         callTab.SetActive(true);
         GameEvents.RaiseBaseSelected(currentCall, guard);
     }
@@ -152,6 +156,8 @@ public class GuardManager : MonoBehaviour
     {
         // Os botões da aba não passam pelo clique das casas: fora de Playing não enviam ninguém.
         if (GameManager.InputBlocked) return;
+        // Equipe ainda vazia não é falta de gente: a aba responde (CallEstimate) apontando o +.
+        if (currentCall != null && TeamSize < currentCall.workersNeeded) return;
 
         TrySendTeam(currentCall, selectedGuard, TeamSize);
     }

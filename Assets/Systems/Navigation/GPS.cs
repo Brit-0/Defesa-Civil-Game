@@ -66,6 +66,22 @@ public class GPS : MonoBehaviour
         }
     }
 
+    // Distância que o trabalhador anda no FollowPath: do ponto de saída até cada waypoint, em ordem (unidades de mundo).
+    public static float PathLength(List<Waypoint> path, Vector3 start)
+    {
+        if (path == null) return 0f;
+
+        float length = 0f;
+        Vector3 from = start;
+        foreach (Waypoint waypoint in path)
+        {
+            if (waypoint == null) continue;
+            length += Vector3.Distance(from, waypoint.transform.position);
+            from = waypoint.transform.position;
+        }
+        return length;
+    }
+
     [Button]
     public List<Waypoint> FindShortestPath(Waypoint entryWaypoint, Waypoint destinationWaypoint)
     {

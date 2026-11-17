@@ -45,6 +45,7 @@ MonoBehaviour:
   dotOn: {fileID: 21300000, guid: 18182fc39958de7590f68dd773ccaa46, type: 3}
   dotOff: {fileID: 21300000, guid: ef47b4017265e73d887dc6845d5b7722, type: 3}
   ring: {fileID: 21300000, guid: 12d3ee12b4bea553ee471b12bb9c26c6, type: 3}
+  thinRing: {fileID: 21300000, guid: 7819306c71b8ef543be9c2d4425e627f, type: 3}
   iconCoin: {fileID: 21300000, guid: 169553fe5f83dd776a8a332bbb956a8d, type: 3}
   iconChaos: {fileID: 21300000, guid: 656a8553b29e23d9a8ec1c01d528b4f1, type: 3}
   iconEarthquake: {fileID: 21300000, guid: db5cc82a58ecc3ac8b3e1f8e52d90bb7, type: 3}

@@ -47,6 +47,15 @@ public static class Stats
     // speed: +X% de velocidade por nível.
     public static float WorkerSpeed => Balance.workerSpeed * (1f + GetUpgradeEffect(UpgradeIds.Speed));
     public static float DispatchInterval => Balance.dispatchInterval;
+
+    // Até o trabalho começar: o último da equipe sai (equipe − 1) intervalos depois do primeiro e anda o caminho
+    // inteiro (GuardManager.SendTeam e GPS.FollowPath); a obra começa quando ele chega. Sem equipe, 0.
+    public static float GetTravelTime(float pathLength, int teamSize)
+    {
+        if (teamSize <= 0) return 0f;
+
+        return (teamSize - 1) * DispatchInterval + pathLength / Mathf.Max(.01f, WorkerSpeed);
+    }
     // cart: +X de material por trabalhador por nível.
     public static int MaterialPerWorker => Balance.materialPerWorker + Mathf.RoundToInt(GetUpgradeEffect(UpgradeIds.Cart));
 
@@ -92,9 +101,15 @@ public static class Stats
     // GDD 3.1: tempo = tempo por ponto de dano × dano ÷ equipe, com um mínimo. Armazém tem tempo fixo.
     public static float GetWorkTime(Call call)
     {
+        return GetWorkTime(call, call.workersSent);
+    }
+
+    // O mesmo tempo para uma equipe de tamanho dado (estimativa da aba de chamado, antes de enviar).
+    public static float GetWorkTime(Call call, int teamSize)
+    {
         if (call.type == CallType.Restock) return Balance.restockTime;
 
-        int team = Mathf.Max(call.workersNeeded, call.workersSent);
+        int team = Mathf.Max(call.workersNeeded, teamSize);
         float total = call.house.currentState == State.OnFire ? Balance.fireWorkTime : Balance.workTimePerDamage * call.house.damageAmount;
         // tools: -X% de tempo de trabalho por nível.
         total *= Mathf.Max(0f, 1f - GetUpgradeEffect(UpgradeIds.Tools));

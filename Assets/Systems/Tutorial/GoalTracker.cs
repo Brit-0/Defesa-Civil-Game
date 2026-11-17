@@ -10,9 +10,14 @@ public class GoalTracker : MonoBehaviour
     public static GoalTracker Instance;
 
     [Header("LAYOUT (tela de referência 1920x1080)")]
-    [SerializeField] private Vector2 position = new Vector2(140f, 26f);
-    [SerializeField] private Vector2 size = new Vector2(500f, 112f);
+    //O topo fica a 138 do chão, como antes: mais alto, entraria embaixo do painel de melhorias aberto
+    [SerializeField] private Vector2 position = new Vector2(140f, 14f);
+    [SerializeField] private Vector2 size = new Vector2(540f, 124f);
     [SerializeField] private float border = 4f;
+    [Tooltip("Margem interna dos lados: o texto e a barra não encostam na moldura (#531)")]
+    [SerializeField] private float padding = 32f;
+    [Tooltip("Margem interna de cima e de baixo")]
+    [SerializeField] private float paddingY = 16f;
 
     [Header("COLORS")]
     [SerializeField] private Color frameColor = FeelUI.ButtonColor;
@@ -69,13 +74,14 @@ public class GoalTracker : MonoBehaviour
         FeelUI.Stretch(FeelUI.CreatePanel("Back", frame, backColor).rectTransform, border);
 
         titleLbl = FeelUI.CreateText("Title", frame, "", 22f, Color.white, TextAlignmentOptions.MidlineLeft);
-        FeelUI.Place(titleLbl.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(18f, -10f), new Vector2(size.x - 36f, 28f));
+        float inner = size.x - padding * 2f;
+        FeelUI.Place(titleLbl.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(padding, -paddingY), new Vector2(inner, 28f));
         titleLbl.enableAutoSizing = true;
         titleLbl.fontSizeMin = 14f;
         titleLbl.fontSizeMax = 22f;
 
         Image barBack = FeelUI.CreatePanel("BarBack", frame, barBackColor);
-        FeelUI.Place(barBack.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(18f, -42f), new Vector2(size.x - 36f, 30f));
+        FeelUI.Place(barBack.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(padding, -paddingY - 32f), new Vector2(inner, 30f));
 
         Image fillImage = FeelUI.CreatePanel("Fill", barBack.rectTransform, barColor);
         fill = fillImage.rectTransform;
@@ -89,7 +95,7 @@ public class GoalTracker : MonoBehaviour
         FeelUI.Outline(valueLbl, .3f);
 
         milestoneLbl = FeelUI.CreateText("Milestone", frame, "", 17f, milestoneColor, TextAlignmentOptions.MidlineLeft);
-        FeelUI.Place(milestoneLbl.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(18f, 8f), new Vector2(size.x - 36f, 26f));
+        FeelUI.Place(milestoneLbl.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(padding, paddingY - 2f), new Vector2(inner, 24f));
         milestoneLbl.enableAutoSizing = true;
         milestoneLbl.fontSizeMin = 12f;
         milestoneLbl.fontSizeMax = 17f;
