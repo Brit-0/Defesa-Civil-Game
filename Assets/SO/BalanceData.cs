@@ -99,6 +99,10 @@ public class BalanceData : ScriptableObject
     [Range(0f, 1f)] public float lightningFireChance = 0.2f;
     public int stormMinDamage = 1;
     public int stormMaxDamage = 2;
+    [Tooltip("Casa quebrada por raio fica destelhada: esperando equipe, a chuva sobe o dano em 1 a cada tantos segundos (0 desliga). docs/jam/TEMPESTADE.md")]
+    public float stormLeakInterval = 25f;
+    [Tooltip("Até onde a chuva leva o dano da casa destelhada.")]
+    public int stormLeakMaxDamage = 3;
 
     [Header("ISOLATED FIRE")]
     public int fireMinHouses = 1;

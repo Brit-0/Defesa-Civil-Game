@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
+using UnityEngine;
 
-// Regras puras do jato e da rede de energia (docs/jam/ENERGIA_FOGO.md). EditMode, sem cena.
+// Regras puras do jato e da rede de energia (docs/jam/ENERGIA_FOGO.md) e o fim do tutorial de energia. EditMode, sem cena.
 public class FireEnergyTests
 {
     #region FIRE JET
@@ -152,6 +154,49 @@ public class FireEnergyTests
 
         Assert.AreEqual(0, EnergyGrid.Distribute(city, 99, true));
         Assert.IsTrue(city.TrueForAll(c => !c.powered));
+    }
+
+    #endregion
+
+    #region ENERGY TUTORIAL
+
+    // O VAMOS do último passo solta os desastres, grava o feito e esconde o balão. Antes o Go(3) punha o passo em 3
+    // e o Finish saía achando que já tinha acabado: desastres segurados para sempre (#532).
+    [Test]
+    public void EnergyTutorialLastStepReleasesDisasters()
+    {
+        bool hadKey = PlayerPrefs.HasKey(EnergyTutorial.DoneKey);
+        int oldValue = PlayerPrefs.GetInt(EnergyTutorial.DoneKey, 0);
+        DisasterManager oldDisasters = DisasterManager.Instance;
+        GameObject holder = new GameObject("EnergyTutorialTest");
+        try
+        {
+            PlayerPrefs.SetInt(EnergyTutorial.DoneKey, 0);
+            DisasterManager.Instance = holder.AddComponent<DisasterManager>();
+            EnergyTutorial tutorial = holder.AddComponent<EnergyTutorial>();
+            BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
+            typeof(EnergyTutorial).GetField("view", flags).SetValue(tutorial, holder.AddComponent<TutorialView>());
+            typeof(EnergyTutorial).GetMethod("SetHold", flags).Invoke(tutorial, new object[] { true });
+            MethodInfo go = typeof(EnergyTutorial).GetMethod("Go", flags);
+
+            go.Invoke(tutorial, new object[] { 2 });
+            Assert.IsTrue(tutorial.Running);
+            Assert.IsTrue(DisasterManager.Instance.IsHeld);
+
+            // o que o Update faz depois do VAMOS
+            go.Invoke(tutorial, new object[] { 3 });
+
+            Assert.IsFalse(tutorial.Running);
+            Assert.IsFalse(DisasterManager.Instance.IsHeld, "os desastres voltam depois do último passo");
+            Assert.AreEqual(1, PlayerPrefs.GetInt(EnergyTutorial.DoneKey, 0), "o tutorial não repete na próxima partida");
+        }
+        finally
+        {
+            DisasterManager.Instance = oldDisasters;
+            Object.DestroyImmediate(holder);
+            if (hadKey) PlayerPrefs.SetInt(EnergyTutorial.DoneKey, oldValue);
+            else PlayerPrefs.DeleteKey(EnergyTutorial.DoneKey);
+        }
     }
 
     #endregion

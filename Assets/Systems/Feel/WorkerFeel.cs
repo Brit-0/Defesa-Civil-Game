@@ -37,6 +37,16 @@ public class WorkerFeel : MonoBehaviour
     [Tooltip("A cada quantas pegadas sobe um pouco de poeira (0 = nunca)")]
     [SerializeField] private int dustEvery = 5;
 
+    [Header("SOFT TRAIL (fita clara para achar o trabalhador na rua; tamanhos em alturas dele)")]
+    [SerializeField] private bool softTrail = true;
+    [SerializeField] private Color trailColor = new Color(1f, .95f, .82f, 1f);
+    [SerializeField, Range(0f, 1f)] private float trailAlpha = .32f;
+    [SerializeField] private float trailLife = .75f;
+    [SerializeField] private float trailWidth = .3f;
+    [SerializeField] private float trailSpacing = .12f;
+
+    private WorkerTrail trail;
+
     private class Walker
     {
         public Transform transform;
@@ -88,6 +98,20 @@ public class WorkerFeel : MonoBehaviour
         walkers.Add(walker);
         Apply(walker, 0f);
         Puff(walker, spawnPuffCount);
+
+        WorkerTrail trails = Trails();
+        if (trails != null && walker.rect != null)
+        {
+            float height = walker.rect.rect.height;
+            trails.Track(worker, height * trailWidth, height * trailSpacing);
+        }
+    }
+
+    //Uma fita por trabalhador, todas num Graphic só no chão (criado no primeiro que nasce)
+    private WorkerTrail Trails()
+    {
+        if (trail == null && softTrail && PixelFx.Ground != null) trail = WorkerTrail.Create(PixelFx.Ground, trailColor, trailLife, trailAlpha);
+        return trail;
     }
 
     private void OnWorkerArrived(Transform worker, Call call)
@@ -96,6 +120,7 @@ public class WorkerFeel : MonoBehaviour
         if (walker == null || walker.leaving) return;
 
         walker.leaving = true;
+        if (trail != null) trail.Release(worker);
 
         Puff(walker, puffCount);
     }

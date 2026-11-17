@@ -72,7 +72,9 @@ public static partial class PixelFx
         }
     }
 
-    //Chão: logo acima do PolygonsDisplay, embaixo de toda casa, árvore e trabalhador (eles têm Canvas com ordem própria)
+    //Chão: logo acima do chão assado da cidade ([CG] Ground; sem ele, o PolygonsDisplay), embaixo de toda casa, árvore e
+    //trabalhador (eles têm Canvas com ordem própria). Acima só do PolygonsDisplay o [CG] Ground cobria pegadas, a trilha
+    //da equipe e o rastro dos trabalhadores (#532).
     public static RectTransform Ground
     {
         get
@@ -80,7 +82,8 @@ public static partial class PixelFx
             if (ground == null && Container != null)
             {
                 ground = Layer("FxGround", container);
-                Transform floor = container.Find("PolygonsDisplay");
+                Transform floor = container.Find("[CG] Ground");
+                if (floor == null) floor = container.Find("PolygonsDisplay");
                 ground.SetSiblingIndex(floor != null ? floor.GetSiblingIndex() + 1 : 0);
             }
             return ground;

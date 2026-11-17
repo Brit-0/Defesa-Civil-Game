@@ -205,8 +205,26 @@ public class ExpansionManager : MonoBehaviour
             Debug.LogWarning($"Terreno {slot.label} ({KindName(slot.kind)}): entrada a {distance:0.0} u da rua mais perto; ligada só ao waypoint {(nearest != null ? nearest.name : "nenhum")}. Confira ExpansionData.lots.");
         }
 
+        entry.transform.position = new Vector3(slot.entry.x, slot.entry.y, StreetZ(entry, graph));
         graph.Add(entry);
         return entry;
+    }
+
+    // Profundidade (z) da rua onde a entrada foi ligada. O pai dos waypoints fica em z 90 e as ruas em z 0: a entrada
+    // em z 90 fazia cada trabalhador da base nova andar 90 u em profundidade, parado na tela uns 36 s, e a obra nascia
+    // fora do plano da cidade (#532).
+    private static float StreetZ(Waypoint entry, List<Waypoint> graph)
+    {
+        float sum = 0f;
+        int count = 0;
+        foreach (Waypoint neighbor in entry.neighbors)
+        {
+            if (neighbor == null) continue;
+            sum += neighbor.transform.position.z;
+            count++;
+        }
+        if (count > 0) return sum / count;
+        return graph.Count > 0 ? graph[0].transform.position.z : entry.transform.position.z;
     }
 
     private static void Connect(Waypoint a, Waypoint b)

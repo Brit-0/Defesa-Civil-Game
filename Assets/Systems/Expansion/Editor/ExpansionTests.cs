@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
@@ -137,6 +138,55 @@ public class ExpansionTests
             bool sameSide = b.y > lot.entry.y && b.y - lot.entry.y < 8f;
             Assert.IsFalse(sameSide && Mathf.Abs(b.x - lot.entry.x) < 3.5f, $"terreno {lot.label} {lot.kind} ocupado por um prédio em {b}");
         }
+    }
+
+    // A entrada do terreno fica no plano das ruas, mesmo com o pai dos waypoints em outra profundidade (na cena, z 90
+    // com as ruas em z 0). Em z 90 o trabalhador da base nova andava 90 u em profundidade e demorava ~36 s (#532).
+    [Test]
+    public void MakeEntry_SitsOnTheStreetPlaneAndConnectsBothWays()
+    {
+        var root = new GameObject("ExpansionEntryTest");
+        try
+        {
+            Transform parent = new GameObject("Waypoints").transform;
+            parent.SetParent(root.transform, false);
+            parent.position = new Vector3(0f, 0f, 90f);
+            parent.localScale = Vector3.one * .01f;
+            Waypoint a = NewWaypoint(parent, new Vector3(0f, 0f, 0f));
+            Waypoint b = NewWaypoint(parent, new Vector3(6f, 0f, 0f));
+            a.neighbors.Add(b);
+            b.neighbors.Add(a);
+
+            ExpansionManager manager = root.AddComponent<ExpansionManager>();
+            BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
+            typeof(ExpansionManager).GetField("waypointsParent", flags).SetValue(manager, parent);
+            var slot = new LotSlot { label = "TESTE", kind = LotKind.Base, entry = new Vector2(2f, -.5f) };
+            var graph = new List<Waypoint> { a, b };
+            var entry = (Waypoint)typeof(ExpansionManager).GetMethod("MakeEntry", flags).Invoke(manager, new object[] { slot, graph });
+
+            Assert.AreEqual(0f, entry.transform.position.z, 1e-3f, "na profundidade da rua");
+            Assert.AreEqual(slot.entry, (Vector2)entry.transform.position);
+
+            // O GPS anda em 3D: o caminho pela entrada mede o mesmo que no mapa
+            List<Waypoint> path = Pathfinder.FindPath(entry, b);
+            Assert.IsNotNull(path, "ida da base nova");
+            float length = 0f;
+            for (int i = 1; i < path.Count; i++) length += Vector3.Distance(path[i - 1].transform.position, path[i].transform.position);
+            Assert.AreEqual(Vector2.Distance(slot.entry, new Vector2(6f, 0f)), length, 1e-3f);
+            Assert.IsNotNull(Pathfinder.FindPath(a, entry), "volta para a base nova");
+        }
+        finally
+        {
+            Object.DestroyImmediate(root);
+        }
+    }
+
+    private static Waypoint NewWaypoint(Transform parent, Vector3 world)
+    {
+        var go = new GameObject("Waypoint");
+        go.transform.SetParent(parent, false);
+        go.transform.position = world;
+        return go.AddComponent<Waypoint>();
     }
 
     // Um ponto ("entry" ou "bottomCenter") de cada estrutura do tipo no city_layout.json ("type" vem antes deles).

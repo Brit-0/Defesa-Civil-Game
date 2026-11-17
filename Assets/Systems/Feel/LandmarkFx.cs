@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-//Base e Depósito sempre reconhecíveis, de perto e de longe, sem cobrir nada (tudo no chão, embaixo do desenho):
-//- Base (CityGuard): halo laranja da Defesa Civil e dois fachos de sirene girando; no modo de escolher a base,
-//  o halo pulsa forte e solta ondas, porque é ali que o jogador precisa clicar.
-//- Depósito (Warehouse): halo dourado e brilhos subindo; com o material zerado, pulsa e solta ondas.
-//Com a arte v2 no tema, o halo é o anel de 4 quadros (mais rápido quando pede atenção); a seta que quica em cima
-//da placa com o nome é do MapMarkers.
+//Base e Depósito reconhecíveis sem cobrir nada (tudo no chão, embaixo do desenho):
+//- Base (CityGuard): dois fachos de sirene girando; no modo de escolher a base, halo forte que solta ondas,
+//  porque é ali que o jogador precisa clicar para o chamado.
+//- Depósito (Warehouse): brilhos subindo.
+//Anel e ondas só quando a Base faz parte de um chamado: em repouso, só a placa com o nome do MapMarkers (lista nova
+//do Pietro, #532: setas e anéis piscando só nos chamados). Com a arte v2 no tema, o halo é o anel de 4 quadros.
 //Um na cena (Feel.prefab). Acha as duas pelo tipo; refaz no Reiniciar (a cena recarrega com ele).
 public class LandmarkFx : MonoBehaviour
 {
@@ -158,11 +158,8 @@ public class LandmarkFx : MonoBehaviour
         if (frame != null && mark.halo.sprite != frame) mark.halo.sprite = frame;
     }
 
-    private bool NeedsAttention(Mark mark)
-    {
-        if (mark.isBase) return GuardManager.selectBaseMode;
-        return ResourcesManager.Instance != null && ResourcesManager.BuildMaterial <= 0 && !mark.house.HasTeam;
-    }
+    // Só a escolha da base de um chamado pede atenção (o Armazém sem material não pisca mais, #532)
+    private static bool NeedsAttention(Mark mark) => mark.isBase && GuardManager.selectBaseMode;
 
     private void Update()
     {
@@ -181,10 +178,12 @@ public class LandmarkFx : MonoBehaviour
             float rest = mark.isBase ? baseHaloAlpha : depotHaloAlpha;
             bool attention = NeedsAttention(mark);
 
-            if (mark.frames != null) AnimateHalo(mark, attention, Time.unscaledDeltaTime);
-            else
+            //Anel só com chamado; em repouso o prédio fica limpo
+            if (mark.halo.enabled != attention) mark.halo.enabled = attention;
+            if (attention && mark.frames != null) AnimateHalo(mark, true, Time.unscaledDeltaTime);
+            else if (attention)
             {
-                float alpha = attention ? Mathf.Lerp(rest, attentionHaloAlpha, .5f + .5f * Mathf.Sin(Time.unscaledTime * attentionPulseSpeed)) : rest;
+                float alpha = Mathf.Lerp(rest, attentionHaloAlpha, .5f + .5f * Mathf.Sin(Time.unscaledTime * attentionPulseSpeed));
                 mark.halo.color = PixelFx.WithAlpha(color, alpha);
             }
 

@@ -60,6 +60,14 @@ public class EnergyTutorial : MonoBehaviour
 
     private void Go(int next)
     {
+        // Depois do último passo: Finish antes de mexer no step. Com o step já em StepCount o Finish achava que tinha
+        // acabado e saía sem soltar os desastres nem esconder o balão (o jogo parava no VAMOS, #532).
+        if (next >= StepCount)
+        {
+            Finish();
+            return;
+        }
+
         step = next;
         okPressed = false;
         string header = $"ENERGIA {step + 1}/{StepCount}";
@@ -79,9 +87,6 @@ public class EnergyTutorial : MonoBehaviour
                 break;
             case 2:
                 view.ShowStep(header, generatorText, lastLabel, () => okPressed = true, true);
-                break;
-            default:
-                Finish();
                 break;
         }
     }

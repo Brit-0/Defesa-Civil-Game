@@ -199,7 +199,7 @@ public class HouseStatusFx : MonoBehaviour
         {
             problemTime = 0f;
             cause = after == State.OnFire || before == State.OnFire ? Cause.Fire
-                : DisasterFx.Current == DisasterType.Storm ? Cause.Storm : Cause.Earthquake;
+                : changed.IsRoofless ? Cause.Storm : Cause.Earthquake;
         }
 
         if (after == State.Damaged) ShowMarks(cause == Cause.Earthquake);

@@ -52,6 +52,8 @@ MonoBehaviour:
   lightningFireChance: 0.2
   stormMinDamage: 1
   stormMaxDamage: 2
+  stormLeakInterval: 25
+  stormLeakMaxDamage: 3
   fireMinHouses: 1
   fireMaxHouses: 2
   incomeInterval: 10
