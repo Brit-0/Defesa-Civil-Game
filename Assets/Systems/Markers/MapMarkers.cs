@@ -351,6 +351,9 @@ public class MapMarkers : MonoBehaviour
             case State.Damaged:
                 // pino azul = casa destelhada pelo raio, que piora esperando (TEMPESTADE.md)
                 return h.IsRoofless ? Kind.Storm : Kind.Damage;
+            // enchente e meteoro: um pino só, no chamado único do quarteirão (ENCHENTE_METEORO.md)
+            case State.Flooded: return h.IsIncidentLeader ? Kind.Storm : Kind.None;
+            case State.Destroyed: return h.IsIncidentLeader ? Kind.Damage : Kind.None;
             default: return Kind.None;
         }
     }

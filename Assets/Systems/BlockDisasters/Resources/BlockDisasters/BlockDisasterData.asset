@@ -1,0 +1,195 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ad461ac8d5fced4ca5ed2bb893e4fbb, type: 3}
+  m_Name: BlockDisasterData
+  m_EditorClassIdentifier: Assembly-CSharp::BlockDisasterData
+  blocks:
+  - id: 002
+    district: Suburban
+    min: {x: -27.585243, y: -30.348568}
+    max: {x: -19.885242, y: -22.848568}
+  - id: 003
+    district: Suburban
+    min: {x: -18.685244, y: -30.348568}
+    max: {x: -10.985245, y: -22.848568}
+  - id: 004
+    district: Suburban
+    min: {x: -9.785244, y: -30.348568}
+    max: {x: 2.9147568, y: -22.848568}
+  - id: 005
+    district: Suburban
+    min: {x: 4.1147575, y: -30.348568}
+    max: {x: 11.814758, y: -22.848568}
+  - id: 008
+    district: Suburban
+    min: {x: -36.085243, y: -21.648567}
+    max: {x: -28.785244, y: -14.148567}
+  - id: 010
+    district: Suburban
+    min: {x: -18.685244, y: -21.648567}
+    max: {x: -10.985245, y: -14.148567}
+  - id: 011
+    district: Suburban
+    min: {x: -9.785244, y: -21.648567}
+    max: {x: 2.9147568, y: -14.148567}
+  - id: 012
+    district: Suburban
+    min: {x: 4.1147575, y: -21.648567}
+    max: {x: 11.814758, y: -14.148567}
+  - id: 013
+    district: Suburban
+    min: {x: 13.014759, y: -21.648567}
+    max: {x: 20.71476, y: -14.148567}
+  - id: 015
+    district: Suburban
+    min: {x: -36.085243, y: -12.948568}
+    max: {x: -28.785244, y: -5.4485683}
+  - id: 016
+    district: Suburban
+    min: {x: -27.585243, y: -12.948568}
+    max: {x: -19.885242, y: -5.4485683}
+  - id: 017
+    district: Commercial
+    min: {x: -18.685244, y: -12.948568}
+    max: {x: -10.985245, y: -5.4485683}
+  - id: 019
+    district: Commercial
+    min: {x: 4.1147575, y: -12.948568}
+    max: {x: 11.814758, y: -5.4485683}
+  - id: 020
+    district: Suburban
+    min: {x: 13.014759, y: -12.948568}
+    max: {x: 20.71476, y: -5.4485683}
+  - id: 021
+    district: Suburban
+    min: {x: 21.91476, y: -12.948568}
+    max: {x: 29.21476, y: -5.4485683}
+  - id: 022
+    district: Suburban
+    min: {x: -36.085243, y: -4.2485676}
+    max: {x: -28.785244, y: 3.2514305}
+  - id: 023
+    district: Commercial
+    min: {x: -27.585243, y: -4.2485676}
+    max: {x: -19.885242, y: 3.2514305}
+  - id: 024
+    district: Commercial
+    min: {x: -18.685244, y: -4.2485676}
+    max: {x: -10.985245, y: 3.2514305}
+  - id: 025
+    district: Commercial
+    min: {x: -9.785244, y: -4.2485676}
+    max: {x: 2.9147568, y: 3.2514305}
+  - id: 026
+    district: Commercial
+    min: {x: 4.1147575, y: -4.2485676}
+    max: {x: 11.814758, y: 3.2514305}
+  - id: 027
+    district: Commercial
+    min: {x: 13.014759, y: -4.2485676}
+    max: {x: 20.71476, y: 3.2514305}
+  - id: 028
+    district: Suburban
+    min: {x: 21.91476, y: -4.2485676}
+    max: {x: 29.21476, y: 3.2514305}
+  - id: 029
+    district: Industrial
+    min: {x: -36.085243, y: 4.4514313}
+    max: {x: -28.785244, y: 11.951431}
+  - id: 030
+    district: Suburban
+    min: {x: -27.585243, y: 4.4514313}
+    max: {x: -19.885242, y: 11.951431}
+  - id: 031
+    district: Industrial
+    min: {x: -18.685244, y: 4.4514313}
+    max: {x: -10.985245, y: 11.951431}
+  - id: 032
+    district: Commercial
+    min: {x: -9.785244, y: 4.4514313}
+    max: {x: 2.9147568, y: 11.951431}
+  - id: 033
+    district: Industrial
+    min: {x: 4.1147575, y: 4.4514313}
+    max: {x: 11.814758, y: 11.951431}
+  - id: 034
+    district: Suburban
+    min: {x: 13.014759, y: 4.4514313}
+    max: {x: 20.71476, y: 11.951431}
+  - id: 035
+    district: Industrial
+    min: {x: 21.91476, y: 4.4514313}
+    max: {x: 29.21476, y: 11.951431}
+  - id: 036
+    district: Industrial
+    min: {x: -36.085243, y: 13.151432}
+    max: {x: -28.785244, y: 20.651432}
+  - id: 037
+    district: Industrial
+    min: {x: -27.585243, y: 13.151432}
+    max: {x: -19.885242, y: 20.651432}
+  - id: 038
+    district: Suburban
+    min: {x: -18.685244, y: 13.151432}
+    max: {x: -10.985245, y: 20.651432}
+  - id: 039
+    district: Suburban
+    min: {x: -9.785244, y: 13.151432}
+    max: {x: 2.9147568, y: 20.651432}
+  - id: 040
+    district: Suburban
+    min: {x: 4.1147575, y: 13.151432}
+    max: {x: 11.814758, y: 20.651432}
+  - id: 041
+    district: Industrial
+    min: {x: 13.014759, y: 13.151432}
+    max: {x: 20.71476, y: 20.651432}
+  - id: 042
+    district: Industrial
+    min: {x: 21.91476, y: 13.151432}
+    max: {x: 29.21476, y: 20.651432}
+  houseMargin: 0.4
+  floodUnlockTime: 225
+  floodWeight: 25
+  floodMinHouses: 3
+  floodRiseTime: 6
+  floodChaosPerHouse: 0.6
+  floodWorkers: 2
+  floodRewardPerHouse: 12
+  floodAutoDrainTime: 30
+  valvePressurePerTurn: 0.55
+  valvePressureDecay: 0.3
+  valveDrainPerSecond: 0.28
+  valveSlipPressure: 0.2
+  valveSlipPenalty: 0.08
+  valveReach: 300
+  meteorUnlockTime: 470
+  meteorWeight: 6
+  meteorCooldown: 180
+  meteorWarningTime: 7
+  meteorTremors: 5
+  meteorMinHouses: 3
+  meteorChaosPerHouse: 0.75
+  meteorWorkers: 8
+  meteorMaterial: 6
+  meteorWorkTime: 90
+  meteorRewardPerHouse: 45
+  rebuildWindowSize: 0.06
+  rebuildWindowGapMin: 0.04
+  rebuildWindowGapMax: 0.09
+  rebuildHitProgress: 0.02
+  rebuildHitBoost: 0.5
+  rebuildMaxBoost: 2
+  rebuildBoostDecay: 0.04
+  rebuildMissPenalty: 0.02
+  callFloodIcon: {fileID: 21300000, guid: 771b08b982a44302b3ecc9a34ad6afca, type: 3}
+  callRebuildIcon: {fileID: 21300000, guid: ac3f8b30d7b54bfc8409bb5964632b0a, type: 3}

@@ -16,6 +16,8 @@ public class Call
     // Mini games (GAMELOOP_REVISAO): fração a mais na recompensa (acerto no ponto certo, herói do incêndio).
     public float rewardBonus;
     public bool critical;
+    // Obra com regra própria: enchente e meteoro (docs/jam/ENCHENTE_METEORO.md). Null no chamado comum.
+    [System.NonSerialized] public IWorkRule rule;
 }
 
 public enum CallType

@@ -248,6 +248,8 @@ public class HouseStatusFx : MonoBehaviour
         if (house.IsWorking) return Phase.Working;
         if (house.HasTeam) return Phase.EnRoute;
         if (house.currentState == State.Damaged || house.currentState == State.OnFire) return Phase.Problem;
+        // Quarteirão alagado ou destruído: o anel só no chamado único (ENCHENTE_METEORO.md)
+        if (house.IsIncidentLeader) return Phase.Problem;
         return Phase.Hidden;
     }
 
@@ -260,12 +262,14 @@ public class HouseStatusFx : MonoBehaviour
     private Color ProblemColor(float urgency)
     {
         if (house.currentState == State.OnFire) return Color.Lerp(settings.fireColor, settings.fireUrgentColor, urgency);
+        if (house.currentState == State.Flooded) return settings.stormColor;
         return cause == Cause.Storm ? settings.stormColor : settings.damageColor;
     }
 
     private RingStyle ProblemStyle()
     {
         if (house.currentState == State.OnFire) return RingStyle.Spiky;
+        if (house.currentState == State.Flooded) return RingStyle.Zigzag;
         return cause == Cause.Storm ? RingStyle.Zigzag : RingStyle.Broken;
     }
 

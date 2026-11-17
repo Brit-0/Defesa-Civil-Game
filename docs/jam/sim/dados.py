@@ -145,7 +145,7 @@ def ler_mapa(caminho=MAPA_PADRAO):
         return dict(nome=f"{s['type']} {s['id']}", pos=(s["bottomCenter"]["x"], s["bottomCenter"]["y"]),
                     dist=dist[f"{s['type']} {s['id']}"], quarteirao=s.get("polygonId", ""))
 
-    return dict(guarda=(guarda["bottomCenter"]["x"], guarda["bottomCenter"]["y"]),
+    return dict(guarda=(guarda["bottomCenter"]["x"], guarda["bottomCenter"]["y"]), bloco_guarda=guarda.get("polygonId", ""),
                 casas=[item(s) for s in dados["structures"] if s["type"] == "House"],
                 armazens=sorted((item(s) for s in dados["structures"] if s["type"] == "Warehouse"),
                                 key=lambda a: a["dist"]))

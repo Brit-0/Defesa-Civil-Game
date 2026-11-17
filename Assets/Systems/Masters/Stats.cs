@@ -110,9 +110,13 @@ public static class Stats
         if (call.type == CallType.Restock) return Balance.restockTime;
 
         int team = Mathf.Max(call.workersNeeded, teamSize);
-        float total = call.house.currentState == State.OnFire ? Balance.fireWorkTime : Balance.workTimePerDamage * call.house.damageAmount;
         // tools: -X% de tempo de trabalho por nível.
-        total *= Mathf.Max(0f, 1f - GetUpgradeEffect(UpgradeIds.Tools));
+        float tools = Mathf.Max(0f, 1f - GetUpgradeEffect(UpgradeIds.Tools));
+        // Enchente e meteoro (ENCHENTE_METEORO.md): o tempo vem da regra do quarteirão (0 = só pelo mini game).
+        if (call.rule != null) return call.rule.WorkTime(team) * tools;
+
+        float total = call.house.currentState == State.OnFire ? Balance.fireWorkTime : Balance.workTimePerDamage * call.house.damageAmount;
+        total *= tools;
         return Mathf.Max(Balance.minWorkTime, total / team);
     }
 
@@ -121,7 +125,8 @@ public static class Stats
     {
         if (call.type != CallType.Problem) return 0;
 
-        int reward = call.house.currentState == State.OnFire ? Balance.fireReward : Balance.moneyPerDamage * call.house.damageAmount;
+        int reward = call.rule != null ? call.rule.Reward
+            : call.house.currentState == State.OnFire ? Balance.fireReward : Balance.moneyPerDamage * call.house.damageAmount;
         // reward: +X% de dinheiro por conserto por nível; mini games somam o bônus do chamado.
         return Mathf.RoundToInt(reward * (1f + GetUpgradeEffect(UpgradeIds.Reward) + call.rewardBonus));
     }
@@ -142,7 +147,9 @@ public static class Stats
     // Material que o envio gasta: só casa danificada usa material.
     public static int GetMaterialCost(Call call)
     {
-        if (call.type != CallType.Problem || call.house.currentState != State.Damaged) return 0;
+        if (call.type != CallType.Problem) return 0;
+        if (call.rule != null) return call.rule.MaterialCost;
+        if (call.house.currentState != State.Damaged) return 0;
 
         return call.house.damageAmount;
     }
@@ -169,6 +176,8 @@ public static class Stats
     public static float GetChaosWeight(State state)
     {
         if (state == State.Intact) return 0f;
+        if (state == State.Flooded) return BlockDisasterData.Instance.floodChaosPerHouse;
+        if (state == State.Destroyed) return BlockDisasterData.Instance.meteorChaosPerHouse;
 
         return state == State.OnFire ? Balance.chaosWeightFire : Balance.chaosWeightDamaged;
     }

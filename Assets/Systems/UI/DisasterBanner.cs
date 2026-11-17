@@ -215,8 +215,10 @@ public class DisasterBanner : MonoBehaviour
 
         switch (disaster.type)
         {
-            case DisasterType.Storm: return stormColor;
-            case DisasterType.Fire: return fireColor;
+            case DisasterType.Storm:
+            case DisasterType.Flood: return stormColor;
+            case DisasterType.Fire:
+            case DisasterType.Meteor: return fireColor;
             default: return earthquakeColor;
         }
     }

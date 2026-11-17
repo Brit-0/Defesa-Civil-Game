@@ -6,7 +6,7 @@ public enum GameState { Menu, Playing, Paused, Won, Lost }
 public enum DeniedReason { NoWorkers, NoMaterial, NoMoney, MaxLevel, NoEnergy }
 // Mini games (GAMELOOP_REVISAO): o resultado de cada clique de habilidade numa casa.
 // FireClick e FireHero eram do mutirão, trocado pelo jato (ENERGIA_FOGO.md): ficam sem uso para não mudar a ordem.
-public enum SkillResult { Critical, Miss, FireClick, FireHero, Shored, ShoreHeld, FireDouse, FireOut, FireGrew }
+public enum SkillResult { Critical, Miss, FireClick, FireHero, Shored, ShoreHeld, FireDouse, FireOut, FireGrew, ValveSlip, RebuildHit, RebuildMiss }
 
 // Contrato entre sistemas e apresentação (ARCHITECTURE.md, seção 6.1).
 // Sistemas chamam Raise...; feel, áudio e HUD só assinam (OnEnable) e desassinam (OnDisable).
