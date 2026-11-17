@@ -105,8 +105,11 @@ Nada disto pôde ser feito na sessão de 16/11, porque o PC dela não tem o Unit
 | [x] | M3 | Luz 2D com normal map em casas, árvores e chão; sol, postes, Guarda, Armazéns; bloom leve. | Relevo visível no Play; testes passando. |
 | [x] | M4 | Densidade: miudezas no chão assado e props novos. | Conferido no Play. |
 | [x] | M4b | Sombras: projetadas e assadas no chão para tudo o que fica parado; `ProjectedShadow` nos trabalhadores. | Conferido no Play (capturas 14 e 15). |
-| [ ] | M5 | Playtest do loop no mapa v6 com capturas em `analises-lilith/jogo-defesa-civil/resultados/` (14_ em diante). | Loop inteiro jogado; bugs aqui embaixo. |
-| [ ] | M6 | WebGL com o mapa v6: medir FPS (meta 60). | Número registrado em `DECISIONS.md`. |
+| [x] | M5 | Playtest do loop no mapa v6 com capturas em `analises-lilith/jogo-defesa-civil/resultados/` (14_ em diante). | Loop inteiro jogado; bugs aqui embaixo. — tutorial de 13 passos, 3 mini games e PULAR jogados como iniciante (`04e97dd`, capturas 23 a 26). |
+| [x] | M7 | Escala real das plantas e props, canteiro de terra no pé de planta em chão duro, sombra de contato no pé, zoom inicial 12; `Tools/City/Auditar Escala` + `ScaleAuditTests` (`f803e45`, `bada1eb`). | Árvore maior 0,59 da casa média, arbusto 0,32, flor 0,15; capturas 27 a 29. |
+| [x] | M8 | Expansão do B (`Assets/Systems/Expansion`): 2 bases e 2 armazéns comprados no upgrade, placa no terreno, obra, marcador na base nova (`bada1eb`). | Comprado, construído e com marcador no Play; capturas 30 e 31. |
+| [x] | M9 | Fogo e energia do B (`Assets/Systems/Fire`, `Assets/Systems/Energy`): jato, energia com Unlock, apagão, RELIGAR e 2º tutorial; dica do jato no `Tutorial.cs` (`bada1eb`). | Jato apagou 4 chamas, RELIGAR fecha o apagão, balão do 2º tutorial fica na tela com incêndio; capturas 32 a 37. |
+| [x] | M6 | WebGL com o mapa v6: medir FPS (meta 60). | Número registrado em `DECISIONS.md`. — 152 a 235 FPS no PC do Pietro; 51 a 59 com a CPU 2x mais lenta (era 31 a 37), depois de juntar o Canvas das árvores e do atlas das decorações. |
 
 ## Pedidos entre agentes
 
@@ -120,7 +123,8 @@ Nada disto pôde ser feito na sessão de 16/11, porque o PC dela não tem o Unit
 
 Pedidos da revisão do gameloop (`GAMELOOP_REVISAO.md`; o Pietro pediu que ficassem aqui, 16/11):
 
-- [ ] (B → MEGABRAIN) **Ligar o tutorial, a META e os mini games: nada a fazer na cena.** O `GameloopBootstrap` (`Assets/Systems/Tutorial/`) cria `MiniGameFeel`, `GoalTracker` e `Tutorial` sozinho em todo carregamento de cena que tenha `GameManager`, e o `Tutorial` desliga o `TutorialTips` de C em tempo de execução. Pedido:
+- [x] (MEGABRAIN → B, informativo) Corrigido na integração (`bada1eb`), nos arquivos do B: `ExpansionManager.MakeSignLayer` achava o `UICanvas` do mundo (as placas iam para o mapa e a aba não fechava), agora pega o `Canvas` raiz que não é World Space; `EnergyTutorial.Running` (novo) e o `Tutorial` não mostra nem esconde dica enquanto o 2º tutorial usa o balão (a dica do fogo sumia com o passo ENERGIA 1/3).
+- [x] (B → MEGABRAIN) **Ligar o tutorial, a META e os mini games: nada a fazer na cena.** — feito em `04e97dd`, capturas 23 a 26. O `GameloopBootstrap` (`Assets/Systems/Tutorial/`) cria `MiniGameFeel`, `GoalTracker` e `Tutorial` sozinho em todo carregamento de cena que tenha `GameManager`, e o `Tutorial` desliga o `TutorialTips` de C em tempo de execução. Pedido:
   1. Fazer o merge da `jam-sistemas`, compilar no Unity e mandar os erros para cá (U5). Pelo Roslyn, com as DLLs do 6000.6.7f1, deu 0 erros.
   2. Rodar `Tools/Jam/Reset Tutorial` e dar Play.
   3. Tirar quatro capturas e pôr em `analises-lilith/jogo-defesa-civil/resultados/`, no lugar das prévias `B3_previa_*`:

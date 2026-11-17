@@ -175,7 +175,8 @@ namespace DefesaCivil.CityGen
         /// <summary>Mede o retângulo visível (alfa > 8%) do sprite dentro do seu retângulo.</summary>
         static void Measure(Sprite s, CatalogSprite cs)
         {
-            var tex = s.texture;
+            // o PNG de origem: com Sprite Atlas, s.texture é a página do atlas e s.rect não vale nela
+            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetDatabase.GetAssetPath(s)) ?? s.texture;
             var rt = RenderTexture.GetTemporary(tex.width, tex.height, 0, RenderTextureFormat.ARGB32);
             var prev = RenderTexture.active;
             Graphics.Blit(tex, rt);

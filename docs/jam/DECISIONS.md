@@ -134,6 +134,36 @@ Feita lendo os docs e o código, sem abrir o Editor (o PC desta sessão não tem
 - Texto de instrução (`FeedbackText`) descido para baixo da barra de CAOS e com contorno escuro (`Assets/_Project/Data/UI/ModernDOS Contorno.mat`). — ficava em cima da barra e sumia no chão claro.
 - Cortes: carros estacionados nas ruas (R20 manda decoração dentro de quarteirão e os trabalhadores andam pelas ruas); horta, plantação e acampamento seguem fora (exclusão pedida pelo usuário no catálogo).
 
+## 2026-11-16 — Escala do mapa e integração da expansão e do fogo/energia (MEGABRAIN, pedidos do usuário)
+
+**Escala e sombras (commits `f803e45` e `bada1eb`)**
+- Plantas e props deixam de ficar no tamanho nativo: o `SpriteCatalog` reduz cada decoração por família (árvore 0,62, palmeira 0,55, arbusto e vaso 0,45, flor 0,38, cogumelo 0,35, toco e pedra 0,5) e reamostra os pixels pelo vizinho mais próximo. — no tamanho nativo uma árvore tinha 0,9 da altura de uma casa e um arbusto metade; o usuário pediu escala real. Isso substitui a regra "todo sprite no tamanho nativo" da seção acima só para decoração; casas, Guarda e Armazéns seguem nativos.
+- Limites medidos contra a casa média (2,65 u): árvore até 0,65, arbusto 0,35, flor 0,2, cone 0,3. `Tools/City/Auditar Escala` e o teste `ScaleAuditTests` acusam quem passar.
+- Planta só nasce onde tem terra: em lajota, concreto ou praça, cada planta ganha um canteiro de terra com meio-fio assado no chão.
+- Sombra: projeção 0,42 → 0,32 u por unidade de altura e uma sombra de contato elíptica no pé de cada decoração, na direção da projeção (sudeste, luz da arte vinda de noroeste). — a sombra da copa saía solta do tronco.
+- Zoom inicial 12 (era 8), mínimo 3, máximo 16; constante no `CityBuilder.Lighting`, que grava os campos do `CameraController` a cada Build. — Base e os dois Armazéns cabem na primeira tela.
+
+**Expansão do B (`EXPANSAO.md`)**
+- Fica como o usuário pediu: até 2 bases (150, a 2ª 240) e 2 armazéns (90, a 2ª 144) comprados no upgrade. Isso troca a linha do GDD (1 base a 400).
+- A base nova ganha marcador no mapa pelo `ExpansionEvents.LocationBuilt` (`MapMarkers`).
+
+**Fogo e energia do B (`ENERGIA_FOGO.md`)**
+- O mutirão do incêndio sai e entra o jato. A dica do fogo no `Tutorial.cs` passa a ensinar o jato.
+- O 2º tutorial (energia) usa o mesmo balão do 1º. Enquanto ele roda, as dicas de contexto do `Tutorial` esperam (`EnergyTutorial.Running`). — a dica do fogo apagava o passo ENERGIA 1/3 e a partida ficava com desastres presos.
+
+**Desempenho no WebGL (M6)**
+- Medição: build WebGL (Brotli) no Chrome, canvas 1280x720, média de FPS em 10 s no menu, na vista inicial e em partida. PC do Pietro (RTX 5070 Ti, tela de 240 Hz). Para simular um PC mais fraco, a CPU do Chrome foi deixada 2x e 4x mais lenta (DevTools).
+- Antes: 903 draw calls e 524 SetPass por quadro. Cada árvore tinha um Canvas próprio (579), e o passe de normal map desenhava cada espelho `[N]` sozinho (62 texturas). FPS: 84 a 136 no PC do Pietro, 31 a 42 com CPU 2x e 12 a 15 com CPU 4x.
+- Mudanças:
+  - `TreeCanvasMerge` (runtime): no Play, as árvores perdem o Canvas e ficam na ordem de irmãos pela mesma ordem por Y. A cena e o gerador não mudam (R30 segue valendo no Editor). — árvore x casa não muda, porque o Visual da casa já fica em `OverlayOrder`.
+  - Sprite Atlas `Assets/_Project/Data/Atlas/CidadeDecoracao.spriteatlasv2`: os 63 sprites de decoração em uma página de 1024x512 com o normal map junto (Point, sem compressão, padding 4).
+  - O `SpriteCatalog.Measure` passa a ler o PNG de origem. — com o atlas, `sprite.texture` é a página do atlas.
+- Depois: 224 draw calls e 95 SetPass; `PlayerLoop` no Editor caiu de 6,8 para 3,6 ms. FPS: 152 a 235 no PC do Pietro, 51 a 76 com CPU 2x e 20 a 29 com CPU 4x. Visual igual (capturas 40 e 42).
+- Próximos candidatos, se faltar FPS em PC fraco:
+  - os 2 Canvas por casa (155);
+  - a `PolygonCamera`, que renderiza uma textura de 640x360 a cada quadro;
+  - normal map só no sol, tirando dos 20 postes.
+
 ## Pendências
 
 Design: nenhuma (P1 a P7 resolvidas; ver o fim do `GDD.md`). Do Unity: U1 a U8 no `TASKS.md`.
