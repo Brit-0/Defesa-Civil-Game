@@ -6,9 +6,9 @@ using UnityEngine.UI;
 
 // HUD da energia (docs/jam/ENERGIA_FOGO.md), em pixel art com o kit do FeelUI. Aparece quando a energia entra no jogo.
 // Plaquinha embaixo dos contadores (raio, consumo/capacidade, barra verde, amarela ou vermelha); clicar abre o gerador
-// com o botão MELHORAR e o que está desligado. No apagão vira vermelha e o botão RELIGAR pisca embaixo dela.
-// A tomada riscada em cima de base ou depósito sem energia fica no EnergyMarkers. Só escuta GameEvents e chama
-// EnergyManager.Restore e UpgradesManager.TryBuy, como os botões de upgrade.
+// com o botão MELHORAR e o que está desligado. No apagão vira vermelha e o botão RELIGAR pisca embaixo dela; ele abre
+// o quadro de força (FuseBoxMinigame, docs/jam/ENERGIA_DIA_NOITE.md). A tomada riscada em cima de base ou depósito sem
+// energia fica no EnergyMarkers. Só escuta GameEvents e chama UpgradesManager.TryBuy, como os botões de upgrade.
 public class EnergyHud : MonoBehaviour
 {
     [Header("LAYOUT (unidades do HUD em 1080p)")]
@@ -346,11 +346,13 @@ public class EnergyHud : MonoBehaviour
         UpgradesManager.Instance.TryBuy(data, Camera.main != null ? Camera.main.transform.position : Vector3.zero);
     }
 
+    // RELIGAR abre o quadro de força (FuseBoxMinigame); sem ele na cena, religa direto como antes.
     private void Restore()
     {
         if (Grid == null || GameManager.InputBlocked) return;
 
-        Grid.Restore();
+        if (FuseBoxMinigame.Instance != null) FuseBoxMinigame.Instance.Toggle(RestoreButton);
+        else Grid.Restore();
     }
 
     private static UpgradeData GeneratorData()

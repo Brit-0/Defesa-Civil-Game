@@ -1,8 +1,8 @@
 using UnityEngine;
 
 // Segundo tutorial, curto (docs/jam/ENERGIA_FOGO.md): quando a energia entra no jogo, 3 passos com o mesmo balão e a
-// mesma seta do primeiro. 1) o que gasta energia e onde ver; 2) um apagão de verdade que o jogador religa;
-// 3) gerador e sobrecarga. Desastres esperam enquanto ele roda. Uma vez só (PlayerPrefs); depois, só o aviso do HUD.
+// mesma seta do primeiro. 1) o que gasta energia e onde ver; 2) um apagão de verdade que o jogador religa no quadro de
+// força (FuseBoxMinigame, docs/jam/ENERGIA_DIA_NOITE.md: a seta segue a próxima chave); 3) gerador e sobrecarga. Desastres esperam enquanto ele roda. Uma vez só (PlayerPrefs); depois, só o aviso do HUD.
 public class EnergyTutorial : MonoBehaviour
 {
     public const string DoneKey = "DefesaCivil.EnergyTutorialDone";
@@ -10,6 +10,7 @@ public class EnergyTutorial : MonoBehaviour
     [Header("TEXTS")]
     [SerializeField, TextArea] private string introText = "A cidade agora usa ENERGIA. Bases, armazéns e a automação gastam. Aqui: o que gasta / o que o gerador dá.";
     [SerializeField, TextArea] private string blackoutText = "APAGÃO! Tempestade pode derrubar a rede e aí nada sai das bases. Clique em RELIGAR!";
+    [SerializeField, TextArea] private string fuseText = "Quadro de força: ligue as chaves na ordem dos números, 1, 2, 3... Errou? Elas descem e você tenta de novo.";
     [SerializeField, TextArea] private string generatorText = "Base nova e automação gastam mais. Clique na ENERGIA e melhore o GERADOR. Passou do limite? A automação desliga primeiro.";
     [SerializeField] private string okLabel = "ENTENDI";
     [SerializeField] private string lastLabel = "VAMOS!";
@@ -22,6 +23,7 @@ public class EnergyTutorial : MonoBehaviour
     private bool okPressed;
     private bool holding;
     private bool ownBlackout;
+    private bool fuseShown;
 
     private void OnEnable()
     {
@@ -83,6 +85,7 @@ public class EnergyTutorial : MonoBehaviour
                     ownBlackout = true;
                     EnergyManager.Instance.StartBlackout(Camera.main != null ? Camera.main.transform.position : Vector3.zero);
                 }
+                fuseShown = false;
                 view.ShowStep(header, blackoutText, null, null, true);
                 break;
             case 2:
@@ -95,15 +98,29 @@ public class EnergyTutorial : MonoBehaviour
     {
         if (step < 0 || step >= StepCount || view == null) return;
 
+        if (step == 1) UpdateFuseText();
         view.SetTarget(Target(), null);
         bool done = step == 1 ? EnergyManager.Instance == null || !EnergyManager.Instance.Blackout : okPressed;
         if (done) Go(step + 1);
     }
 
+    // Passo do apagão: com o quadro de força aberto, o balão explica a ordem e a seta vai na próxima chave.
     private RectTransform Target()
     {
         if (hud == null) return null;
-        return step == 1 ? hud.RestoreButton : hud.Panel;
+        if (step != 1) return hud.Panel;
+
+        FuseBoxMinigame fuse = FuseBoxMinigame.Instance;
+        return fuse != null && fuse.IsOpen && fuse.NextSwitch != null ? fuse.NextSwitch : hud.RestoreButton;
+    }
+
+    private void UpdateFuseText()
+    {
+        bool open = FuseBoxMinigame.Instance != null && FuseBoxMinigame.Instance.IsOpen;
+        if (open == fuseShown) return;
+
+        fuseShown = open;
+        view.ShowStep($"ENERGIA {step + 1}/{StepCount}", open ? fuseText : blackoutText, null, null, true);
     }
 
     private void Finish()
