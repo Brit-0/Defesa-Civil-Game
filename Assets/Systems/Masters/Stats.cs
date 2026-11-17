@@ -129,8 +129,14 @@ public static class Stats
     // Material que a ida ao Armazém traz; o acerto no ponto certo traz uma parte a mais.
     public static int GetRestockAmount(Call call)
     {
-        int amount = call.workersSent * MaterialPerWorker;
+        int amount = GetRestockAmount(call.workersSent);
         return call.critical ? amount + Mathf.CeilToInt(amount * Balance.critRewardBonus) : amount;
+    }
+
+    // O mesmo material para uma equipe de tamanho dado, sem o acerto (estimativa da aba de chamado, #535).
+    public static int GetRestockAmount(int teamSize)
+    {
+        return Mathf.Max(0, teamSize) * MaterialPerWorker;
     }
 
     // Material que o envio gasta: só casa danificada usa material.

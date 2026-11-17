@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
     [Header("DEBUG")]
     public float debugTimeScale = 4f;
     private float playTimeScale = 1f;
+    private float resumeTimeScale = 1f;
 
     private static int inputBlocks;
     // Reiniciar pela tela final ou pela pausa volta direto para a partida, sem passar pelo menu de novo.
@@ -72,7 +73,10 @@ public class GameManager : MonoBehaviour
     {
         if (State != GameState.Playing) return;
 
+        // A câmera lenta do tutorial volta igual depois da pausa (#535)
+        resumeTimeScale = Time.timeScale > 0f ? Time.timeScale : playTimeScale;
         Time.timeScale = 0f;
+        GameClock.Freeze();
         SetState(GameState.Paused);
     }
 
@@ -80,8 +84,15 @@ public class GameManager : MonoBehaviour
     {
         if (State != GameState.Paused) return;
 
-        Time.timeScale = playTimeScale;
+        Time.timeScale = resumeTimeScale > 0f ? resumeTimeScale : playTimeScale;
+        GameClock.Thaw();
         SetState(GameState.Playing);
+    }
+
+    // Ritmo mudado durante a pausa (o passo do tutorial avançou e ligou ou desligou a câmera lenta): é o que a volta devolve
+    public void SetResumeTimeScale(float scale)
+    {
+        if (State == GameState.Paused && scale > 0f) resumeTimeScale = scale;
     }
 
     public void Win()
@@ -105,6 +116,7 @@ public class GameManager : MonoBehaviour
     {
         DOTween.KillAll();
         Time.timeScale = 1f;
+        GameClock.Reset();
         inputBlocks = 0;
         restartRequested = !toMenu;
         GuardManager.selectBaseMode = false;

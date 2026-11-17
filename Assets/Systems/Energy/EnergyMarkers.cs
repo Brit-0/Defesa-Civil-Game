@@ -70,7 +70,7 @@ public class EnergyMarkers : MonoBehaviour
     {
         if (markers.Count == 0) return;
 
-        float blink = .65f + .35f * Mathf.Sin(Time.unscaledTime * blinkSpeed);
+        float blink = .65f + .35f * Mathf.Sin(GameClock.Time * blinkSpeed);
         scratch.Clear();
         scratch.AddRange(markers.Keys);
         foreach (House location in scratch)

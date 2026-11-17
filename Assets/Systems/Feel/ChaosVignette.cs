@@ -86,9 +86,9 @@ public class ChaosVignette : MonoBehaviour
         if (vignette == null) return;
 
         float target = Mathf.InverseLerp(startChaos, fullChaos, chaos);
-        amount = Mathf.MoveTowards(amount, target, changeSpeed * Time.unscaledDeltaTime);
+        amount = Mathf.MoveTowards(amount, target, changeSpeed * GameClock.DeltaTime);
 
-        float pulse = chaos >= pulseChaos ? Mathf.Sin(Time.unscaledTime * pulseSpeed) * pulseAmount : 0f;
+        float pulse = chaos >= pulseChaos ? Mathf.Sin(GameClock.Time * pulseSpeed) * pulseAmount : 0f;
         Apply(amount, pulse);
     }
 

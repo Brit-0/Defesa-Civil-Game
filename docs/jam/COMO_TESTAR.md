@@ -77,6 +77,12 @@ O que olhar:
 - **Janela das estruturas (#531):** passe o mouse numa casa, na Base ou num Armazém. A janela de informação usa a janela pixel do HUD (moldura do tamanho do pixel da cidade), o nome em dourado e o texto em creme, com margem dentro da moldura.
 - **Aro do tutorial (#531):** é o anel fino redondo, nunca esticado nem quadriculado. O lado sempre cai num múltiplo de 32 (de 96 a 256) e o anel pisca no brilho, sem mudar de tamanho. Num painel inteiro (a aba da equipe, a aba de melhorias), fica só a seta.
 - **Margens (#531):** a **META**, a janelinha das melhorias, o balão e o cartão do tutorial e a barra de dicas deixam folga entre o texto e a moldura.
+- **Pausa no Esc (#535):** **Esc** (ou **P**) pausa e o mesmo Esc continua. A tela **PAUSADO** fica por cima de tudo (até do balão do tutorial) e o mapa escurece; trabalhadores, fogo, contadores, aros e sons param; a música só abaixa e os cliques da tela de pausa tocam. Com um chamado aberto, o primeiro Esc fecha o chamado e o segundo pausa. No passo lento do tutorial, a volta da pausa continua lenta. Na tela de fim o Esc não faz nada.
+- **Automação 1 (#535):** com a Central de rádio comprada, clicar num chamado abre direto a aba da equipe, sem o "Escolha a base" piscando no topo (sem a automação, ele aparece e fica até você escolher a base).
+- **Incêndio (#535):** as chamas para arrastar, a barra de tempo e a dica "ARRASTE NAS CHAMAS!" (numa faixa escura) ficam no mapa, em volta da casa, do tamanho do pixel da cidade. Arraste a câmera para longe: elas ficam na casa e saem da tela (antes ficavam presas na borda).
+- **Aba da equipe (#535):** o bloco de tempos tem mais folga dentro da moldura. No Armazém aparece uma terceira linha, **Material +N**: o material que a equipe traz (trabalhadores × material por trabalhador), mudando a cada **+** ou **−**.
+- **META (#535):** um pouco maior, com a mesma folga em cima do título e embaixo do marco; a barra enche em dourado até o preço do Centro de Operações.
+- **Aro do terremoto (#535):** o aro laranja nas casas para escorar é o mesmo anel fino do tutorial (Simple, lado múltiplo de 32), piscando no brilho, sem quadricular.
 
 Para ver os tutoriais de novo: **Tools → Jam → Reset Tutorial** e **Tools → Jam → Reset Energy Tutorial**, com o Play parado.
 

@@ -245,7 +245,7 @@ public class BuildLot : MonoBehaviour
         if (placingMine && !safe.Contains(anchor)) position = ExpansionMath.ClampToEdge(anchor, safe, out angle, out clamped);
         else if (!onScreen) wanted = false;
 
-        float now = Time.unscaledTime;
+        float now = GameClock.Time;
         float scale = placingMine ? 1f + 0.08f * Mathf.Sin(now * 6f) : hover ? 1.06f : 1f;
         sign.localPosition = position;
         sign.localScale = Vector3.one * scale;
@@ -379,7 +379,7 @@ public class BuildLot : MonoBehaviour
     private void ShowPreview(bool visible)
     {
         if (previewGroup == null) return;
-        float pulse = 0.75f + 0.25f * Mathf.Sin(Time.unscaledTime * 4f);
+        float pulse = 0.75f + 0.25f * Mathf.Sin(GameClock.Time * 4f);
         previewGroup.alpha = visible ? pulse : 0f;
         if (!visible) nextHint = 0f;
     }

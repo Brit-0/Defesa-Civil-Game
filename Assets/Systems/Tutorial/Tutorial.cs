@@ -154,8 +154,12 @@ public class Tutorial : MonoBehaviour
         if (slow == slowed) return;
 
         slowed = slow;
-        if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) return;
-        Time.timeScale = slow ? miniGameSlowMotion : 1f;
+        if (GameManager.Instance == null) return;
+        float scale = slow ? miniGameSlowMotion : 1f;
+        // Na pausa (Esc, #535) o passo pode avançar: a volta da pausa devolve o ritmo novo
+        GameManager.Instance.SetResumeTimeScale(scale);
+        if (GameManager.Instance.State != GameState.Playing) return;
+        Time.timeScale = scale;
     }
 
     private void Update()
