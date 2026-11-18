@@ -43,7 +43,7 @@ public static class OutpostDataMenu
         asset.category = UpgradeCategory.Automation;
         asset.maxLevel = NoFixedCap;
         asset.baseCost = 90;
-        asset.costGrowth = 1.25f;
+        asset.costGrowth = 1.1f; // BALANCEAMENTO_V5: 1,25
         asset.effectPerLevel = 1f;
         EditorUtility.SetDirty(asset);
         return asset;

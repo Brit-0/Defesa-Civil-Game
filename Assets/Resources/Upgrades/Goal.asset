@@ -19,6 +19,6 @@ MonoBehaviour:
   order: 8
   category: 2
   maxLevel: 1
-  baseCost: 2500
+  baseCost: 33000
   costGrowth: 1
   effectPerLevel: 0

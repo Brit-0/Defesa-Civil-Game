@@ -20,5 +20,5 @@ MonoBehaviour:
   category: 2
   maxLevel: 99
   baseCost: 80
-  costGrowth: 1.5
+  costGrowth: 1.2
   effectPerLevel: 1

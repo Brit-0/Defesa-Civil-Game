@@ -68,7 +68,7 @@ public static class LightningRodDataMenu
         asset.category = UpgradeCategory.Expansion;
         asset.maxLevel = OutpostDataMenu.NoFixedCap; // v5A: o teto é um por quarteirão com casa (LightningRodManager.Start)
         asset.baseCost = 80;
-        asset.costGrowth = 1.5f;
+        asset.costGrowth = 1.2f; // BALANCEAMENTO_V5: 1,5
         asset.effectPerLevel = 1f;
         EditorUtility.SetDirty(asset);
         return asset;

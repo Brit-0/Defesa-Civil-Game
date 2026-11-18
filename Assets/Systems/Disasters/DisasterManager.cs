@@ -149,23 +149,65 @@ public class DisasterManager : MonoBehaviour
 
     #region TIMELINE
 
-    // 0 no começo da partida, 1 quando a rampa termina.
-    private float GetRamp()
-    {
-        float duration = Stats.Balance.disasterRampDuration;
-        if (duration <= 0f || GameManager.Instance == null) return 1f;
-
-        return Mathf.Clamp01(RampTime / duration);
-    }
+    // Sem GameManager vale o fim da rampa (o teto), como antes.
+    private float CurrentRampTime => GameManager.Instance != null ? RampTime : GetCeilingTime(Stats.Balance);
 
     private float GetRampedInterval()
     {
-        return Mathf.Lerp(Stats.Balance.disasterIntervalStart, Stats.Balance.disasterIntervalEnd, GetRamp());
+        return GetInterval(Stats.Balance, CurrentRampTime);
     }
 
     private int GetRampedHouseCount()
     {
-        return Mathf.RoundToInt(Mathf.Lerp(Stats.Balance.disasterHousesStart, Stats.Balance.disasterHousesEnd, GetRamp()));
+        return GetHouseCount(Stats.Balance, CurrentRampTime);
+    }
+
+    // Segundos de rampa: 0 durante a calma do começo (disasterRampDelay, BALANCEAMENTO_V5).
+    public static float GetRampProgressTime(BalanceData balance, float rampTime)
+    {
+        return Mathf.Max(0f, rampTime - Mathf.Max(0f, balance.disasterRampDelay));
+    }
+
+    // Quando a rampa chega ao teto: a calma do começo mais a rampa.
+    public static float GetCeilingTime(BalanceData balance)
+    {
+        return Mathf.Max(0f, balance.disasterRampDelay) + Mathf.Max(0f, balance.disasterRampDuration);
+    }
+
+    // 0 até o fim da calma do começo, 1 quando a rampa termina.
+    public static float GetRamp(BalanceData balance, float rampTime)
+    {
+        float duration = balance.disasterRampDuration;
+        return duration <= 0f ? 1f : Mathf.Clamp01(GetRampProgressTime(balance, rampTime) / duration);
+    }
+
+    // Minutos depois do fim da rampa (o teto): dali a dificuldade continua subindo, mais devagar (BALANCEAMENTO_V5).
+    public static float GetLateMinutes(BalanceData balance, float rampTime)
+    {
+        return Mathf.Max(0f, rampTime - GetCeilingTime(balance)) / 60f;
+    }
+
+    // Intervalo entre desastres: rampa de Start a End; depois do teto cai disasterLateIntervalPerMinute por minuto,
+    // sem passar de disasterIntervalFloor.
+    public static float GetInterval(BalanceData balance, float rampTime)
+    {
+        float interval = Mathf.Lerp(balance.disasterIntervalStart, balance.disasterIntervalEnd, GetRamp(balance, rampTime));
+        float late = GetLateMinutes(balance, rampTime);
+        if (late <= 0f) return interval;
+
+        return Mathf.Max(Mathf.Min(interval, balance.disasterIntervalFloor), interval - balance.disasterLateIntervalPerMinute * late);
+    }
+
+    // Casas por desastre: rampa de Start a End; depois do teto sobem disasterLateHousesPerMinute por minuto, até
+    // disasterHousesMax.
+    public static int GetHouseCount(BalanceData balance, float rampTime)
+    {
+        float houses = Mathf.Lerp(balance.disasterHousesStart, balance.disasterHousesEnd, GetRamp(balance, rampTime));
+        float late = GetLateMinutes(balance, rampTime);
+        if (late > 0f)
+            houses = Mathf.Min(Mathf.Max(houses, balance.disasterHousesMax), houses + balance.disasterLateHousesPerMinute * late);
+
+        return Mathf.RoundToInt(houses);
     }
 
     // Depois do terremoto forte vem uma calma maior: o pico e o respiro fazem o ritmo (GAMELOOP_REVISAO).

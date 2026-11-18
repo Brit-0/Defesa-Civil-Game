@@ -27,10 +27,10 @@ public class BalanceData : ScriptableObject
     [Tooltip("Tempo para apagar um incêndio, dividido pela equipe, com o mesmo mínimo.")]
     public float fireWorkTime = 4f;
     [Tooltip("Tempo fixo de uma ida ao Armazém.")]
-    public float restockTime = 3f; // GDD: 5
+    public float restockTime = 5f; // BALANCEAMENTO_V5: 3 (o Pietro: estocar estava fácil demais; volta ao GDD)
 
     [Header("REWARD")]
-    public int moneyPerDamage = 15; // GDD: 10
+    public int moneyPerDamage = 18; // BALANCEAMENTO_V5: 15 (quem conserta muito aguenta a escalada nova; GDD: 10)
     public int fireReward = 20; // GDD: 15
 
     [Header("DAMAGE")]
@@ -48,27 +48,37 @@ public class BalanceData : ScriptableObject
     public float chaosWeightDamaged = 1f;
     public float chaosWeightFire = 2f;
     [Tooltip("Soma dos pesos que enche a barra de caos.")]
-    public float chaosLimit = 20f; // RITMO_V3: 22 (volta ao GDD; o começo mais calmo deixa folga, o fim continua pedindo atenção)
+    public float chaosLimit = 25f; // BALANCEAMENTO_V5: 20 (folga para a escalada mais rápida; RITMO_V3: 22)
     public float chaosRisePerSecond = 0.06f;
     public float chaosFallPerSecond = 0.10f;
 
     [Header("DISASTERS")]
     public float firstDisasterDelay = 6f;
     public int firstDisasterHouses = 2;
-    [Tooltip("Intervalo entre desastres: cai em linha reta de Start a End ao longo de disasterRampDuration.")]
+    [Tooltip("Intervalo entre desastres: fica em Start na calma do começo (disasterRampDelay) e cai em linha reta até End ao longo de disasterRampDuration.")]
     public float disasterIntervalStart = 50f; // RITMO_V3: 45 (GDD: 35)
-    public float disasterIntervalEnd = 22f; // RITMO_V3: 20 (GDD: 12)
-    public float disasterRampDuration = 720f; // RITMO_V3: 780 (GDD: 600). Com Start/End novos fica abaixo da curva antiga em todo minuto.
+    public float disasterIntervalEnd = 21f; // BALANCEAMENTO_V5: 22 (RITMO_V3: 20; GDD: 12)
+    [Tooltip("Segundos de calma no começo, antes de a rampa começar.")]
+    public float disasterRampDelay = 60f; // BALANCEAMENTO_V5 (só o início é calmo; antes a rampa começava no 0:00)
+    public float disasterRampDuration = 480f; // BALANCEAMENTO_V5: 720 (depois da calma o intervalo cai logo; teto aos 9:00, antes aos 12:00; GDD: 600)
     [Tooltip("Casas por desastre, na mesma rampa.")]
     public int disasterHousesStart = 2; // RITMO_V3: 3 (2 casas até 1:30, 3 até 4:30, 4 até 7:30)
     public int disasterHousesEnd = 6; // GDD: 9
+    [Tooltip("Depois da rampa (o teto), o intervalo continua caindo estes segundos por minuto, bem mais devagar que na rampa.")]
+    public float disasterLateIntervalPerMinute = 0.4f; // BALANCEAMENTO_V5 (na rampa: 3,6 s por minuto)
+    [Tooltip("Piso do intervalo depois do teto.")]
+    public float disasterIntervalFloor = 15f; // BALANCEAMENTO_V5: chega aos 24:00
+    [Tooltip("Depois da rampa, casas a mais por desastre a cada minuto (arredondado).")]
+    public float disasterLateHousesPerMinute = 0.15f; // BALANCEAMENTO_V5 (na rampa: 0,5 por minuto)
+    [Tooltip("Teto das casas por desastre depois da rampa (o terremoto forte multiplica este número).")]
+    public int disasterHousesMax = 9; // BALANCEAMENTO_V5: chega aos 29:00
     public float warningTime = 4f; // T25: 3 (GAMELOOP_REVISAO: 1 s a mais para ler o alvo e escorar)
 
     [Header("STRONG EARTHQUAKE (GAMELOOP_REVISAO)")]
     [Tooltip("A cada N desastres (sem contar o primeiro) vem um terremoto forte. 0 desliga.")]
     public int strongDisasterEvery = 8; // RITMO_V3: 5. O primeiro cai perto de 6:10, depois de todos os sistemas apresentados.
     [Tooltip("Casas do terremoto forte = casas da rampa x este valor.")]
-    public float strongDisasterHouseMultiplier = 2.5f; // RITMO_V3: 2 (o primeiro forte tem 10 casas, era 8 aos 3:48)
+    public float strongDisasterHouseMultiplier = 2f; // BALANCEAMENTO_V5: 2,5 (o 2º forte, perto de 10:30, tinha 15 casas e derrubava quem jogava mais de 10 min; agora 12)
     [Tooltip("Aviso mais longo: dá tempo de se preparar.")]
     public float strongDisasterWarningTime = 6f;
     [Tooltip("Segundos a mais de calma depois do terremoto forte.")]
@@ -112,7 +122,7 @@ public class BalanceData : ScriptableObject
     [Header("PASSIVE INCOME")]
     public float incomeInterval = 10f;
     [Tooltip("Repasse = incomePerHouse x nível x casas intactas x (1 - caos), arredondado.")]
-    public float incomePerHouse = 0.5f;
+    public float incomePerHouse = 1.2f; // BALANCEAMENTO_V5: 0,5 (paga a meta de 33000; quem compra o Repasse cedo e segura o caos vence antes)
 
     [Header("MILESTONES (GAMELOOP_REVISAO)")]
     [Tooltip("Casas consertadas que viram marco. Cada marco traz voluntários (trabalhadores grátis).")]

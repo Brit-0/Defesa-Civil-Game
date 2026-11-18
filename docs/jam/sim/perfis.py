@@ -218,18 +218,44 @@ def com_guaritas(plano, quantas=1):
     return plano[:i] + ["outpost"] * quantas + plano[i:]
 
 
-def perfis(plano_bom="carrinho", expansao=True):
-    plano = com_base(PLANOS[plano_bom]) if expansao else PLANOS[plano_bom]
-    ingenuo = com_base(PLANOS["ingenuo"]) if expansao else PLANOS["ingenuo"]
+# BALANCEAMENTO_V5: partida de 10 a 20 minutos. Com a meta cara, o plano curto acabava aos 4 min e o robô passava o resto
+# juntando, sem crescer. Os três continuam comprando a MESMA lista antes da meta; só a ordem muda: o bom e o médio põem a
+# renda no começo dela, o ruim compra o que é barato na ordem das abas e deixa a renda por último. As guaritas vêm
+# depois da última Automação (com_guaritas), já dentro da continuação: com 4 e mais cedo o ruim vencia só 51%.
+CONTINUACAO = ["income", "workers", "tools", "workers", "speed", "income", "reward", "workers", "automation",
+               "tools", "workers", "income", "speed", "reward", "workers"]
+CONTINUACAO_INGENUA = ["workers", "speed", "tools", "reward", "workers", "speed", "tools", "reward",
+                       "automation", "workers", "workers", "workers", "income", "income", "income"]
+
+
+def longo(plano, continuacao, pararaios=1, guaritas=2, armazens=1):
+    """BALANCEAMENTO_V5: a continuação antes da meta; para-raio logo depois da base nova, um armazém novo logo depois
+    dele (o Pietro: 'são muito bons', todo mundo compra) e as guaritas depois da última Automação, como sempre."""
+    i = plano.index("goal") if "goal" in plano else len(plano)
+    plano = com_pararaio(plano[:i] + list(continuacao) + plano[i:], pararaios)
+    i = len(plano) - plano[::-1].index("rod") if "rod" in plano else plano.index("goal")
+    return com_guaritas(plano[:i] + ["depot2"] * armazens + plano[i:], guaritas)
+
+
+def perfis(plano_bom="renda", expansao=True, plano_medio="carrinho", curto=False):
+    """bom: reflexo rápido e o melhor plano para a partida longa (renda primeiro); médio: o plano carrinho (o melhor
+    das partidas de 8 min do RITMO_V3); ruim: o plano ingênuo. curto=True volta aos planos do RITMO_V3 (sem a
+    continuação, o para-raio e as guaritas)."""
+    def montar(nome, continuacao):
+        plano = com_base(PLANOS[nome]) if expansao else PLANOS[nome]
+        return plano if curto else longo(plano, continuacao)
+    plano = montar(plano_bom, CONTINUACAO)
+    medio = montar(plano_medio, CONTINUACAO)
+    ingenuo = montar("ingenuo", CONTINUACAO_INGENUA)
     return {
         "ignora": None,
         "bom": Jogador("bom", reacao=1.0, clique=0.35, mira=1.0, plano=plano, equipe="espalha", estoque_alvo=6),
-        "médio": Jogador("médio", reacao=2.0, clique=0.5, mira=1.6, plano=plano, equipe="sugerida", acerto=0.55),
+        "médio": Jogador("médio", reacao=2.0, clique=0.5, mira=1.6, plano=medio, equipe="sugerida", acerto=0.55),
         # RITMO_V3: demora para ver o chamado e para mirar, acerta pouco os mini games e compra sem plano.
         "ruim": Jogador("ruim", reacao=2.5, clique=0.6, mira=2.0, plano=ingenuo, equipe="sugerida", acerto=0.4),
         "bom, sem mini games": Jogador("bom-inc", reacao=1.0, clique=0.35, mira=1.0, plano=plano, equipe="espalha",
                                        estoque_alvo=6, mini=False),
-        "médio, sem mini games": Jogador("médio-inc", reacao=2.0, clique=0.5, mira=1.6, plano=plano,
+        "médio, sem mini games": Jogador("médio-inc", reacao=2.0, clique=0.5, mira=1.6, plano=medio,
                                          equipe="sugerida", mini=False),
         "bom, larga aos 6 min": Jogador("bom6", reacao=1.0, clique=0.35, mira=1.0, plano=plano, equipe="espalha",
                                         estoque_alvo=6, para_em=360),

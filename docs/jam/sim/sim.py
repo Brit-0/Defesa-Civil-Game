@@ -331,13 +331,39 @@ class Jogo:
         return True
 
     # --- desastres (DisasterManager)
+    def tempo_rampa(self):
+        """DisasterManager.GetRampProgressTime: a rampa só começa depois da calma do começo (disasterRampDelay)."""
+        return max(0.0, self.t - max(0.0, self.b.get("disasterRampDelay", 0.0)))
+
     def rampa(self):
         dur = self.b["disasterRampDuration"]
-        return 1.0 if dur <= 0 else min(1.0, self.t / dur)
+        return 1.0 if dur <= 0 else min(1.0, self.tempo_rampa() / dur)
+
+    def minutos_depois_do_teto(self):
+        """BALANCEAMENTO_V5: minutos desde o fim da rampa (o teto); dali a dificuldade sobe mais devagar."""
+        return max(0.0, self.tempo_rampa() - max(0.0, self.b["disasterRampDuration"])) / 60
+
+    def intervalo_desastre(self):
+        """DisasterManager.GetInterval: rampa de Start a End; depois do teto, cai disasterLateIntervalPerMinute por
+        minuto, sem passar de disasterIntervalFloor."""
+        b = self.b
+        intervalo = b["disasterIntervalStart"] + (b["disasterIntervalEnd"] - b["disasterIntervalStart"]) * self.rampa()
+        tarde = self.minutos_depois_do_teto()
+        if tarde <= 0:
+            return intervalo
+        piso = b.get("disasterIntervalFloor", intervalo)
+        return max(min(intervalo, piso), intervalo - b.get("disasterLateIntervalPerMinute", 0.0) * tarde)
 
     def casas_por_desastre(self):
+        """DisasterManager.GetHouseCount: rampa de Start a End; depois do teto, sobe disasterLateHousesPerMinute por
+        minuto, até disasterHousesMax (arredonda como o Mathf.RoundToInt: metade para o par)."""
         b = self.b
-        return round(b["disasterHousesStart"] + (b["disasterHousesEnd"] - b["disasterHousesStart"]) * self.rampa())
+        casas = b["disasterHousesStart"] + (b["disasterHousesEnd"] - b["disasterHousesStart"]) * self.rampa()
+        tarde = self.minutos_depois_do_teto()
+        if tarde > 0:
+            teto = b.get("disasterHousesMax", casas)
+            casas = min(max(casas, teto), casas + b.get("disasterLateHousesPerMinute", 0.0) * tarde)
+        return round(casas)
 
     # RITMO_V3, igual ao DisasterManager.TryGetDebut (#534): o primeiro sorteio depois de liberar um tipo é esse tipo.
     estreia_garantida = True
@@ -502,8 +528,7 @@ class Jogo:
 
     def proximo_desastre(self):
         b = self.b
-        intervalo = b["disasterIntervalStart"] + (b["disasterIntervalEnd"] - b["disasterIntervalStart"]) * self.rampa()
-        self.contagem = max(0.0, intervalo - b["warningTime"]) + self.calma
+        self.contagem = max(0.0, self.intervalo_desastre() - b["warningTime"]) + self.calma
         self.calma = 0.0
         self.desastre_rodando = False
 

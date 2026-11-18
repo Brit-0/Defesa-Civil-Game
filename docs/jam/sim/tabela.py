@@ -9,8 +9,9 @@
   python docs/jam/sim/tabela.py --curva               # a curva dos dados minuto a minuto (RITMO_V3.md)
   python docs/jam/sim/tabela.py --sem-expansao        # os robôs não compram a base nova (por padrão compram uma)
   python docs/jam/sim/tabela.py --sem-estreia         # sem a estreia garantida do RITMO_V3 (o C# a faz desde a #534)
-Perfis principais: bom, médio e ruim (RITMO_V3); a tabela também mostra a estreia de cada sistema, os chamados por
-minuto e o pico do caos em cada fase de 2 minutos.
+  python docs/jam/sim/tabela.py --curto               # planos curtos do RITMO_V3 (sem continuação, para-raio e guaritas)
+Perfis principais: bom, médio e ruim (RITMO_V3, com os planos longos do BALANCEAMENTO_V5); a tabela também mostra a
+estreia de cada sistema, os chamados por minuto e o pico do caos em cada fase de 4 minutos.
 """
 import argparse
 import random
@@ -118,7 +119,8 @@ def linha_fogo(nome, jogos):
             f"{med(lambda j: j.rede.sobrecarga_s):.0f} | {med(lambda j: j.negados):.0f} |")
 
 
-ESTREIAS = ("terremoto", "fogo", "incendio", "tempestade", "expansão", "energia", "terremoto forte")
+ESTREIAS = ("fogo", "tempestade", "expansão", "para-raio", "enchente", "guarita", "energia", "terremoto forte",
+            "meteoro")
 
 CABECALHO_ESTREIA = ("| Jogador | " + " | ".join(ESTREIAS) + " |\n|---|" + "---|" * len(ESTREIAS))
 
@@ -138,7 +140,7 @@ def linha_estreia(nome, jogos):
     return f"| {nome} | " + " | ".join(celulas) + " |"
 
 
-FASES = ((0, 2), (2, 4), (4, 6), (6, 8), (8, 10))
+FASES = ((0, 4), (4, 8), (8, 12), (12, 16), (16, 20), (20, 24))  # BALANCEAMENTO_V5: partidas de 10 a 20 min
 
 CABECALHO_FASES = ("| Jogador | " + " | ".join(f"min {a}–{b}" for a, b in FASES) + " |\n|---|" + "---|" * len(FASES))
 
@@ -160,20 +162,25 @@ def linha_fases(nome, jogos, medida):
     return f"| {nome} | " + " | ".join(celulas) + " |"
 
 
-def curva(balance, limite_min=10):
-    """RITMO_V3: a curva que os dados descrevem, minuto a minuto (sem sorteio)."""
+def curva(balance, limite_min=24):
+    """RITMO_V3: a curva que os dados descrevem, minuto a minuto (sem sorteio); BALANCEAMENTO_V5: a rampa até o teto
+    e a subida lenta depois dele (as contas do Jogo, iguais às do DisasterManager.GetInterval/GetHouseCount)."""
+    from quarteirao import DADOS
     b = balance
-    print("| Minuto | Intervalo (s) | Casas por desastre | Chamados/min (nominal) | Tipos no sorteio | Energia |")
-    print("|---|---|---|---|---|---|")
+    jogo = Jogo.__new__(Jogo)  # só as contas da rampa, que leem b e t
+    jogo.b = b
+    print("| Minuto | Intervalo (s) | Casas por desastre | Terremoto forte | Chamados/min (nominal) | Tipo novo | Energia |")
+    print("|---|---|---|---|---|---|---|")
     for m in range(limite_min + 1):
-        t = m * 60
-        rampa = 1.0 if b["disasterRampDuration"] <= 0 else min(1.0, t / b["disasterRampDuration"])
-        intervalo = b["disasterIntervalStart"] + (b["disasterIntervalEnd"] - b["disasterIntervalStart"]) * rampa
-        casas = round(b["disasterHousesStart"] + (b["disasterHousesEnd"] - b["disasterHousesStart"]) * rampa)
-        tipos = ["terremoto"] + (["incêndio"] if t >= b["fireUnlockTime"] else []) + \
-                (["tempestade"] if t >= b["stormUnlockTime"] else [])
+        jogo.t = t = m * 60
+        intervalo, casas = jogo.intervalo_desastre(), jogo.casas_por_desastre()
+        novos = [nome for nome, libera in (("incêndio", b["fireUnlockTime"]), ("tempestade", b["stormUnlockTime"]),
+                                           ("enchente", DADOS["floodUnlockTime"]), ("meteoro", DADOS["meteorUnlockTime"]))
+                 if t - 60 < libera <= t]
         energia = "sim" if 0 <= b.get("unlockTime", -1) <= t else "não"
-        print(f"| {m} | {intervalo:.0f} | {casas} | {60 * casas / intervalo:.1f} | {', '.join(tipos)} | {energia} |")
+        forte = round(casas * b["strongDisasterHouseMultiplier"])
+        print(f"| {m} | {intervalo:.1f} | {casas} | {forte} | {60 * casas / intervalo:.1f} | {', '.join(novos) or '—'} "
+              f"| {energia} |")
 
 
 def main():
@@ -183,7 +190,9 @@ def main():
     p.add_argument("--set", action="append", default=[], help="campo=valor ou upgrade.campo=valor")
     p.add_argument("--assets", help="pasta Assets/Resources com os .asset do jogo")
     p.add_argument("--mapa", help="outro city_layout.json")
-    p.add_argument("--plano", default="carrinho", choices=sorted(PLANOS), help="plano de compra do bom e do médio")
+    p.add_argument("--plano", default="renda", choices=sorted(PLANOS), help="plano de compra do bom")
+    p.add_argument("--plano-medio", default="carrinho", choices=sorted(PLANOS), help="plano de compra do médio")
+    p.add_argument("--curto", action="store_true", help="planos curtos do RITMO_V3 (sem continuação, para-raio e guaritas)")
     p.add_argument("--planos", action="store_true", help="compara os planos de compra do jogador bom")
     p.add_argument("--linha", help="imprime a linha do tempo da semente 0 deste jogador")
     p.add_argument("--busca", type=int, default=0, help="sorteia N planos de compra e mostra os 5 melhores (o teto)")
@@ -209,7 +218,7 @@ def main():
           f"{armazens}; {a.sementes} partidas por linha\n")
 
     if a.linha:
-        jogador = perfis(a.plano, not a.sem_expansao)[a.linha]
+        jogador = perfis(a.plano, not a.sem_expansao, a.plano_medio, a.curto)[a.linha]
         jogador = jogador.copia() if jogador else None
         jogo = novo_jogo(balance, ups, mapa, jogador, 0, a.limite).rodar()
         for minuto, uid, nivel in jogo.compras:
@@ -230,12 +239,12 @@ def main():
     print(CABECALHO)
     if a.planos:
         for nome in sorted(PLANOS):
-            jogador = perfis(nome)["bom"]
+            jogador = perfis(nome, curto=a.curto)["bom"]
             print(linha_tabela(f"bom, plano {nome}", rodar_perfil(balance, ups, mapa, jogador, a.sementes, a.limite)))
         return
 
     resultados = {nome: rodar_perfil(balance, ups, mapa, jogador, a.sementes, a.limite)
-                  for nome, jogador in perfis(a.plano, not a.sem_expansao).items()}
+                  for nome, jogador in perfis(a.plano, not a.sem_expansao, a.plano_medio, a.curto).items()}
     for nome, jogos in resultados.items():
         print(linha_tabela(nome, jogos))
     principais = [n for n in ("bom", "médio", "ruim") if n in resultados]

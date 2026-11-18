@@ -19,7 +19,7 @@ public static class ExpansionDataMenu
             "Lot_IconBase", 7, 2, 150, 1.6f);
         UpgradeData depot2 = Upgrade("Depot2", ExpansionManager.DepotUpgradeId, "Novo armazém",
             "Constrói um armazém num terreno vazio, ao lado de uma base nova: o material fica mais perto de quem conserta.",
-            "Lot_IconDepot", 7, 2, 90, 1.6f);
+            "Lot_IconDepot", 7, 2, 300, 1.6f); // BALANCEAMENTO_V5: 90 (muito bom pelo preço)
 
         string dataPath = DataFolder + "/ExpansionData.asset";
         var data = AssetDatabase.LoadAssetAtPath<ExpansionData>(dataPath);
