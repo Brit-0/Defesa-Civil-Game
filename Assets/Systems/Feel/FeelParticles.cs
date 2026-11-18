@@ -168,6 +168,13 @@ public class FeelParticles : MonoBehaviour
         EmitInternal(kind, parent, localPosition, scale, count, direction, width, color);
     }
 
+    //Estouro com uma receita fora das do Inspector (VfxKit da v5C: jato de água, bola de fogo, coluna de fumaça)
+    public static void EmitPreset(FxPreset preset, Transform parent, Vector2 localPosition, float scale, int count = -1, float direction = float.NaN, float width = 0f, Color? color = null)
+    {
+        if (parent == null || scale <= 0f || preset == null) return;
+        EmitWith(Runner, preset, parent, localPosition, scale, count, direction, width, color);
+    }
+
     private static void EmitInternal(FxKind kind, Transform parent, Vector2 localPosition, float scale, int count, float direction, float width, Color? color)
     {
         if (parent == null || scale <= 0f) return;
@@ -175,6 +182,11 @@ public class FeelParticles : MonoBehaviour
         FeelParticles runner = Runner;
         FxPreset preset = runner.PresetFor(kind);
         if (preset == null) return;
+        EmitWith(runner, preset, parent, localPosition, scale, count, direction, width, color);
+    }
+
+    private static void EmitWith(FeelParticles runner, FxPreset preset, Transform parent, Vector2 localPosition, float scale, int count, float direction, float width, Color? color)
+    {
 
         int amount = VfxQuality.Scale(count >= 0 ? count : Random.Range(preset.count.x, preset.count.y + 1));
         float angle = float.IsNaN(direction) ? preset.direction : direction;

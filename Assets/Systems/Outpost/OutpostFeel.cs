@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -9,6 +10,9 @@ using UnityEngine.UI;
 // guarita: o rádio chiando, as ondas saindo da antena, os pontos de sinal até a casa, a área piscando em verde, a
 // guarita pulando e o "GUARITA!" em cima da casa. Também o aviso do modo de escolha, as marteladas da obra, a guarita
 // subindo pronta e a dica da primeira guarita da partida. Tudo no GameClock: para junto com a pausa (Esc).
+// v5C (VFX_V5.md): no despacho a lâmpada acende num halo verde, um pulso de radar grande sai da guarita e um alvo verde
+// fecha em cima da casa; cada trabalhador que chega pisca, e quando a equipe inteira chega (WorkStarted) sobe uma coluna
+// de luz verde na casa, com halo, anel no chão e brilhos.
 // Os sons vão pelo SoundBank da v5D (AudioManager.Play com a posição da guarita); o rádio é o outpost_radio.
 public class OutpostFeel : MonoBehaviour
 {
@@ -35,6 +39,22 @@ public class OutpostFeel : MonoBehaviour
     [SerializeField] private float textRise = 60f;
     [SerializeField] private float textTime = 1.1f;
 
+    [Header("DISPATCH V5C")]
+    [Tooltip("Pulso de radar da guarita, em alturas de casa.")]
+    [SerializeField] private float radarSize = 3.2f;
+    [SerializeField] private float radarTime = 0.9f;
+    [Tooltip("Alvo que fecha em cima da casa despachada, em alturas de casa.")]
+    [SerializeField] private float lockSize = 1.3f;
+    [SerializeField] private float lockTime = 0.45f;
+
+    [Header("ARRIVAL")]
+    [SerializeField] private Color arrivalColor = new Color32(0xA8, 0xF0, 0x8A, 0xFF);
+    [Tooltip("Coluna de luz na casa quando a equipe da guarita chega: largura e altura em alturas de casa.")]
+    [SerializeField] private Vector2 pillarSize = new Vector2(0.6f, 2.4f);
+    [SerializeField] private float pillarTime = 1f;
+    [Tooltip("Segundos que a guarita espera a equipe chegar antes de esquecer o despacho.")]
+    [SerializeField] private float arrivalTimeout = 60f;
+
     [Header("BUILD")]
     [SerializeField] private float popDuration = 0.45f;
 
@@ -49,6 +69,9 @@ public class OutpostFeel : MonoBehaviour
     private OutpostBlock tipSite;
     private float tipUntil;
 
+    // Casas para onde a guarita mandou equipe, com a hora do despacho (GameClock): a chegada acende a coluna de luz.
+    private readonly Dictionary<House, float> dispatched = new Dictionary<House, float>();
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics() => tipShown = false;
 
@@ -58,6 +81,8 @@ public class OutpostFeel : MonoBehaviour
         OutpostEvents.BuildStarted += OnBuildStarted;
         OutpostEvents.BuildFinished += OnBuildFinished;
         OutpostEvents.AutoDispatched += OnAutoDispatched;
+        GameEvents.WorkerArrived += OnWorkerArrived;
+        GameEvents.WorkStarted += OnWorkStarted;
     }
 
     private void OnDisable()
@@ -66,6 +91,8 @@ public class OutpostFeel : MonoBehaviour
         OutpostEvents.BuildStarted -= OnBuildStarted;
         OutpostEvents.BuildFinished -= OnBuildFinished;
         OutpostEvents.AutoDispatched -= OnAutoDispatched;
+        GameEvents.WorkerArrived -= OnWorkerArrived;
+        GameEvents.WorkStarted -= OnWorkStarted;
         StopAllCoroutines();
     }
 
@@ -122,8 +149,73 @@ public class OutpostFeel : MonoBehaviour
         site.Flash();
         Pop(site, 0.12f);
         Waves(site);
+        Radar(site, house);
         StartCoroutine(Signal(site, house));
         FloatText(house.transform.position + Vector3.up * 2.2f);
+        dispatched[house] = GameClock.Time;
+    }
+
+    // Lâmpada num halo verde, pulso de radar grande saindo da guarita e o alvo que fecha em cima da casa.
+    private void Radar(OutpostBlock site, House house)
+    {
+        RectTransform sky = PixelFx.Sky;
+        if (sky == null) return;
+        float unit = VfxKit.House(sky);
+        Vector2 lamp = PixelFx.ToLocal(sky, site.BoothTop);
+        VfxKit.Halo(sky, lamp, PixelFx.WithAlpha(waveColor, 0.85f), Vector2.one * unit * 0.9f, 0.6f);
+        VfxKit.Ring(sky, PixelFx.ToLocal(sky, site.BoothFoot), PixelFx.Ring(64, 32, 1, RingStyle.Segmented),
+            PixelFx.WithAlpha(waveColor, 0.8f), new Vector2(1f, 0.5f) * unit * radarSize, 0.1f, 1f, radarTime);
+        Vector2 foot = Foot(sky, house);
+        Vector2 size = new Vector2(1f, 0.5f) * unit * lockSize;
+        VfxKit.Ring(sky, foot, PixelFx.Ring(64, 32, 2, RingStyle.Segmented), PixelFx.WithAlpha(arrivalColor, 0.95f), size, 2.2f, 1f, lockTime, signalTime);
+        VfxKit.Ring(sky, foot, PixelFx.Ring(32, 16, 1, RingStyle.Solid, false), PixelFx.WithAlpha(waveColor, 0.9f), size, 1f, 1.5f, 0.5f, signalTime + lockTime);
+    }
+
+    // Cada trabalhador que a guarita mandou pisca verde ao chegar.
+    private void OnWorkerArrived(Transform worker, Call call)
+    {
+        RectTransform sky = PixelFx.Sky;
+        if (worker == null || call == null || call.house == null || sky == null || !dispatched.ContainsKey(call.house)) return;
+        FeelParticles.EmitColored(FxKind.Glint, sky, PixelFx.ToLocal(sky, worker.position), VfxKit.House(sky) * 0.5f, arrivalColor, 2);
+    }
+
+    // A equipe inteira chegou na casa que a guarita despachou: coluna de luz verde, halo, anel no chão e brilhos.
+    private void OnWorkStarted(Call call)
+    {
+        if (call == null || call.house == null || !dispatched.TryGetValue(call.house, out float since)) return;
+        dispatched.Remove(call.house);
+        Forget();
+        if (GameClock.Time - since > arrivalTimeout) return;
+
+        RectTransform sky = PixelFx.Sky;
+        if (sky == null) return;
+        float unit = VfxKit.House(sky);
+        Vector2 foot = Foot(sky, call.house);
+        VfxKit.Pillar(sky, foot, PixelFx.WithAlpha(arrivalColor, 0.75f), unit * pillarSize.x, unit * pillarSize.y, pillarTime);
+        VfxKit.Halo(sky, foot + Vector2.up * unit * 0.5f, PixelFx.WithAlpha(arrivalColor, 0.6f), new Vector2(1.6f, 1.3f) * unit, pillarTime * 0.8f);
+        VfxKit.Ring(sky, foot, PixelFx.Ring(48, 24, 2, RingStyle.Solid), PixelFx.WithAlpha(arrivalColor, 0.9f), new Vector2(1f, 0.5f) * unit * 1.4f, 0.3f, 1.4f, 0.6f);
+        FeelParticles.Emit(FxKind.Glint, sky, foot + Vector2.up * unit * 0.8f, unit * 0.8f, 6);
+        FeelParticles.EmitColored(FxKind.Burst, sky, foot + Vector2.up * unit * 0.3f, unit * 0.9f, arrivalColor, 10);
+    }
+
+    // Despachos velhos (equipe desviada, chamado resolvido sem chegar) saem da lista.
+    private void Forget()
+    {
+        if (dispatched.Count < 8) return;
+        var old = new List<House>();
+        foreach (var pair in dispatched)
+        {
+            if (pair.Key == null || GameClock.Time - pair.Value > arrivalTimeout) old.Add(pair.Key);
+        }
+        foreach (House house in old) dispatched.Remove(house);
+    }
+
+    // Pé visível da casa (o BaseOf fica uns 11 pixels da arte abaixo do desenho), nas coordenadas da camada.
+    private static Vector2 Foot(RectTransform layer, House house)
+    {
+        Vector2 baseOf = LightningRodManager.BaseOf(house);
+        float pixel = PixelFx.ArtPixel * (PixelFx.Container != null ? PixelFx.Container.lossyScale.y : 1f);
+        return PixelFx.ToLocal(layer, new Vector3(baseOf.x, baseOf.y + pixel * 9f, house.transform.position.z));
     }
 
     // A guarita pula (escala no pé) sem mudar de lugar.
