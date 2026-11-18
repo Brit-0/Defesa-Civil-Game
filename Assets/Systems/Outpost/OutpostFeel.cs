@@ -9,15 +9,19 @@ using UnityEngine.UI;
 // guarita: o rádio chiando, as ondas saindo da antena, os pontos de sinal até a casa, a área piscando em verde, a
 // guarita pulando e o "GUARITA!" em cima da casa. Também o aviso do modo de escolha, as marteladas da obra, a guarita
 // subindo pronta e a dica da primeira guarita da partida. Tudo no GameClock: para junto com a pausa (Esc).
+// Os sons vão pelo SoundBank da v5D (AudioManager.Play com a posição da guarita); o rádio é o outpost_radio.
 public class OutpostFeel : MonoBehaviour
 {
+    // Ids do SoundBank que este script toca (SoundBankTests confere que estão no banco)
+    public static readonly string[] UsedIds = { "ui_popup", "build_start", "repair_tool", "build_done", "outpost_radio" };
+
     private const float HouseHeight = 3.5f; // altura de uma casa em unidades do mundo (escala das partículas)
 
     [Header("SOUND")]
     [SerializeField] private float hammerInterval = 0.6f;
     [SerializeField, Range(0f, 1f)] private float hammerVolume = 0.7f;
     [SerializeField, Range(0f, 1f)] private float radioVolume = 0.55f;
-    [SerializeField, Range(0f, 0.5f)] private float radioPitchVariation = 0.08f;
+    [SerializeField, Range(0f, 1f)] private float buildVolume = 0.8f;
 
     [Header("DISPATCH")]
     [SerializeField] private Color waveColor = new Color32(0x5C, 0xC4, 0x5E, 0xFF);
@@ -41,7 +45,6 @@ public class OutpostFeel : MonoBehaviour
     // A dica aparece uma vez por sessão (sem disco, por causa do WebGL), como as do TutorialTips
     private static bool tipShown;
 
-    private AudioClip radio;
     private RectTransform tip;
     private OutpostBlock tipSite;
     private float tipUntil;
@@ -66,25 +69,28 @@ public class OutpostFeel : MonoBehaviour
         StopAllCoroutines();
     }
 
-    private AudioClip Radio => radio != null ? radio : radio = Resources.Load<AudioClip>("Outpost/Outpost_Radio");
-
     private void LateUpdate() => FollowTip();
 
     #region BUILD
 
     private void OnPlacementChanged(bool placing)
     {
-        if (placing && AudioManager.Sfx != null) AudioManager.PlaySfx(AudioManager.Sfx.popup);
+        if (placing) AudioManager.Play("ui_popup");
     }
 
-    private void OnBuildStarted(OutpostBlock site) => StartCoroutine(Hammer(site));
+    private void OnBuildStarted(OutpostBlock site)
+    {
+        if (site == null) return;
+        AudioManager.Play("build_start", site.BoothFoot, buildVolume);
+        StartCoroutine(Hammer(site));
+    }
 
     private IEnumerator Hammer(OutpostBlock site)
     {
         var wait = new WaitForSeconds(hammerInterval);
         while (site != null && site.State == LotState.Building)
         {
-            if (AudioManager.Sfx != null) AudioManager.PlaySfx(AudioManager.Sfx.hammer, hammerVolume, 0.15f);
+            AudioManager.Play("repair_tool", site.BoothFoot, hammerVolume);
             yield return wait;
         }
     }
@@ -93,8 +99,8 @@ public class OutpostFeel : MonoBehaviour
     private void OnBuildFinished(OutpostBlock site)
     {
         if (site == null) return;
-        if (AudioManager.Sfx != null) AudioManager.PlaySfx(AudioManager.Sfx.repaired);
-        AudioManager.PlaySfx(Radio, radioVolume * 0.7f, radioPitchVariation);
+        AudioManager.Play("build_done", site.BoothFoot, buildVolume);
+        AudioManager.Play("outpost_radio", site.BoothTop, radioVolume * 0.7f);
         site.Flash();
         Pop(site, 0.25f);
         Waves(site);
@@ -112,7 +118,7 @@ public class OutpostFeel : MonoBehaviour
     {
         if (site == null || house == null) return;
 
-        AudioManager.PlaySfx(Radio, radioVolume, radioPitchVariation);
+        AudioManager.Play("outpost_radio", site.BoothTop, radioVolume);
         site.Flash();
         Pop(site, 0.12f);
         Waves(site);

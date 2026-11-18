@@ -16,7 +16,8 @@ enum, para não mudar os números já salvos).
 - **Fogo:** casa em chamas do quarteirão apaga na hora, com vapor e o som de apagar. A casa entra na enchente.
 - **Chamado:** um só, no **bueiro**, que é a casa livre mais perto do meio do quarteirão.
   - O balão do chamado mostra o ícone de enchente de 64 px.
-  - O aro e o pino do mapa são os da tempestade, porque não há arte própria para eles.
+  - O pino do mapa tem ícone próprio: casa na água (`Assets/Arts/UI/Chamados/call_flood_pin.png`, Pixel Lab, #524),
+    no disco azul da tempestade. O aro em volta da casa continua o da tempestade.
   - Clicar em qualquer casa alagada vale como clique no bueiro.
 - **Equipe:** 2 trabalhadores; com menos, o envio é negado.
 - **DESENTUPIR O BUEIRO** (quando a equipe chega):
@@ -147,7 +148,8 @@ Para deixar o meteoro mais frequente, suba `meteorWeight` ou desça `meteorUnloc
   - `ValveMinigame.cs` (válvula);
   - `MeteorFx.cs` (aviso, queda, cratera, obra);
   - `RebuildBar.cs` (barra da obra);
-  - `BlockDisasterAudio.cs` (sons em `Resources/BlockDisasters`, gerados por `Tools/BlockDisasters/sons_quarteirao.py`);
+  - `BlockDisasterAudio.cs` (sons em `Resources/BlockDisasters`, gerados por `Tools/BlockDisasters/sons_quarteirao.py`,
+    tocados pelo SoundBank da v5D com a posição do quarteirão: ids `flood_*`, `valve_*`, `meteor_*`, ver `SFX_V5.md`);
   - `BlockDisasterTips.cs` (dicas);
   - `BlockDisasterArt.cs` (pixel art feita por código).
 - **Sem cena:** o `BlockDisasterBootstrap` cria o objeto `[Enchente e meteoro]` ao rodar. A `Gameplay.unity` não muda.

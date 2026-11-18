@@ -77,12 +77,12 @@ public class BlockDisasterTips : MonoBehaviour
         PlayerPrefs.Save();
         view.ShowStep(header, text, okLabel, Hide, false);
         view.SetTarget(null, target);
-        hideTime = Time.unscaledTime + tipTime;
+        hideTime = GameClock.Time + tipTime;
     }
 
     private void Update()
     {
-        if (hideTime > 0f && Time.unscaledTime >= hideTime) Hide();
+        if (hideTime > 0f && GameClock.Time >= hideTime) Hide();
     }
 
     private void Hide()

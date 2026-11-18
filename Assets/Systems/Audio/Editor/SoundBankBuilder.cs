@@ -78,7 +78,19 @@ public static class SoundBankBuilder
         ["music_layer_3"] = D(SoundCategory.Music, 1f, 0f, 1, 0f, loop: true),
         ["jingle_win"] = D(SoundCategory.Gameplay, 1f, 0f, 1, 1f, ducks: true),
         ["jingle_lose"] = D(SoundCategory.Gameplay, 1f, 0f, 1, 1f, ducks: true),
+        // Enchente e meteoro (v5B) e guarita (v5A): clipes das próprias pastas, ligados abaixo em LegacyEntries
+        ["flood_rush"] = D(SoundCategory.Disaster, 1f, .3f, 1, .5f, ducks: true),
+        ["flood_drained"] = D(SoundCategory.Disaster, .9f, .4f, 2, .3f),
+        ["valve_creak"] = D(SoundCategory.Gameplay, .8f, 1f, 3, .08f),
+        ["valve_slip"] = D(SoundCategory.Gameplay, .9f, .5f, 2, .2f),
+        ["valve_drain_loop"] = D(SoundCategory.Gameplay, 1f, 0f, 1, 0f, loop: true),
+        ["meteor_rumble"] = D(SoundCategory.Disaster, 1f, .4f, 2, .2f),
+        ["meteor_whoosh"] = D(SoundCategory.Disaster, 1f, .3f, 1, .5f),
+        ["meteor_impact"] = D(SoundCategory.Disaster, 1f, 0f, 1, .5f, ducks: true),
+        ["outpost_radio"] = D(SoundCategory.Gameplay, .9f, .8f, 2, .2f),
     };
+
+    private const string BlockSounds = "Assets/Systems/BlockDisasters/Resources/BlockDisasters/";
 
     // Sons antigos que viram entrada do banco como estão (sem arquivo novo): id -> caminho
     private static readonly Dictionary<string, string> LegacyEntries = new Dictionary<string, string>
@@ -88,6 +100,15 @@ public static class SoundBankBuilder
         ["ui_confetti"] = "Assets/Audio/Sfx_Confetti.wav",
         ["siren"] = "Assets/Audio/Sfx_Siren.wav",
         ["fire_loop"] = "Assets/Audio/Amb_Fire.ogg",
+        ["flood_rush"] = BlockSounds + "Flood_Rush.wav",
+        ["flood_drained"] = BlockSounds + "Flood_Drained.wav",
+        ["valve_creak"] = BlockSounds + "Valve_Creak.wav",
+        ["valve_slip"] = BlockSounds + "Valve_Slip.wav",
+        ["valve_drain_loop"] = BlockSounds + "Valve_Drain.wav",
+        ["meteor_rumble"] = BlockSounds + "Meteor_Rumble.wav",
+        ["meteor_whoosh"] = BlockSounds + "Meteor_Whoosh.wav",
+        ["meteor_impact"] = BlockSounds + "Meteor_Impact.wav",
+        ["outpost_radio"] = "Assets/Systems/Outpost/Resources/Outpost/Outpost_Radio.wav",
     };
 
     // Clipe antigo -> som novo (quem ainda toca o clipe antigo ganha o novo, com variações e escada)

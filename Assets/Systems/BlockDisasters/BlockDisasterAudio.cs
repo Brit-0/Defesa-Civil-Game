@@ -1,28 +1,44 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Sons da enchente e do meteoro (docs/jam/ENCHENTE_METEORO.md). Só escuta: os clipes ficam em
-// Resources/BlockDisasters (feitos por script, Tools/BlockDisasters/sons_quarteirao.py) e tocam pelo AudioManager.
-// - enchente: a água chegando, o rangido da válvula a cada quarto de volta, o gorgolejo que sobe com a pressão
-//   (loop próprio), o tranco da falha leve e o ralo engolindo no fim;
-// - meteoro: um ronco por tremor do aviso, o assobio da queda, a explosão; martelo nos acertos da obra.
+// Sons da enchente e do meteoro (docs/jam/ENCHENTE_METEORO.md). Só escuta. Tudo toca pelo SoundBank da v5D
+// (AudioManager.Play com a posição do quarteirão: lado pela tela, variação, grupo do mixer, música abaixando). Os clipes
+// próprios ficam em Resources/BlockDisasters (Tools/BlockDisasters/sons_quarteirao.py) e entram no banco pelo
+// SoundBankBuilder (flood_*, valve_*, meteor_*).
+// - enchente: a água chegando com o aviso de chamado novo, o rangido da válvula a cada quarto de volta, o gorgolejo
+//   que sobe com a pressão (fonte própria, o tom segue a pressão), o tranco da falha leve e o ralo engolindo no fim;
+// - meteoro: um ronco por tremor do aviso, o assobio da queda, a explosão com o baque do terremoto e as réplicas, o
+//   aviso do chamado da obra, ferramentas nos acertos, o erro abafado e o quarteirão de volta com confete.
 public class BlockDisasterAudio : MonoBehaviour
 {
-    private const string SoundPath = "BlockDisasters/";
+    // Ids do SoundBank que este script toca (SoundBankTests confere que estão no banco)
+    public static readonly string[] UsedIds =
+    {
+        "flood_rush", "flood_drained", "valve_creak", "valve_slip", "valve_drain_loop",
+        "meteor_rumble", "meteor_whoosh", "meteor_impact", "quake_hit", "quake_rumble",
+        "call_new_storm", "call_new_quake", "repair_tool", "ui_denied", "build_done", "ui_confetti", "fire_out"
+    };
 
     [Header("VOLUME")]
     [SerializeField, Range(0f, 1f)] private float volume = .9f;
     [SerializeField, Range(0f, 1f)] private float drainLoopVolume = .55f;
+    [SerializeField, Range(0f, 1f)] private float missVolume = .45f;
     [Tooltip("Graus de giro da válvula entre um rangido e outro.")]
     [SerializeField] private float creakEvery = 90f;
     [Tooltip("Segundos antes do impacto em que o assobio da queda começa (o MeteorFx mostra a rocha no mesmo tempo).")]
     [SerializeField] private float whooshLead = 1.1f;
 
-    private AudioClip floodRush, valveCreak, valveDrain, valveSlip, floodDrained, meteorRumble, meteorWhoosh, meteorImpact;
+    [Header("METEORO")]
+    [Tooltip("Réplicas do baque depois da explosão (segundos do GameClock).")]
+    [SerializeField] private float[] impactEchoes = { .45f, 1.1f };
+    [Tooltip("Segundos depois da explosão até o aviso do chamado da obra.")]
+    [SerializeField] private float meteorCallDelay = 1.4f;
+
     private AudioSource drainSource;
 
     private class Warning
     {
+        public Vector3? at;
         public float start;
         public float seconds;
         public int tremorsDone;
@@ -32,27 +48,13 @@ public class BlockDisasterAudio : MonoBehaviour
     private readonly List<Warning> warnings = new();
     private readonly Dictionary<BlockIncident, float> creakAngles = new();
 
-    private static SfxLibrary Sfx => AudioManager.Sfx;
-
     private void Awake()
     {
-        floodRush = Load("Flood_Rush");
-        valveCreak = Load("Valve_Creak");
-        valveDrain = Load("Valve_Drain");
-        valveSlip = Load("Valve_Slip");
-        floodDrained = Load("Flood_Drained");
-        meteorRumble = Load("Meteor_Rumble");
-        meteorWhoosh = Load("Meteor_Whoosh");
-        meteorImpact = Load("Meteor_Impact");
-
         drainSource = gameObject.AddComponent<AudioSource>();
         drainSource.playOnAwake = false;
         drainSource.loop = true;
-        drainSource.clip = valveDrain;
         drainSource.volume = 0f;
     }
-
-    private static AudioClip Load(string clipName) => Resources.Load<AudioClip>(SoundPath + clipName);
 
     private void OnEnable()
     {
@@ -74,52 +76,74 @@ public class BlockDisasterAudio : MonoBehaviour
         GameEvents.FireDousedByFlood -= OnFireDoused;
     }
 
-    private void Play(AudioClip clip, float scale = 1f, float pitch = .05f)
-    {
-        AudioManager.PlaySfx(clip, SoundCategory.Disaster, volume * scale, pitch);
-    }
+    private void Play(string id, Vector3? at, float scale = 1f) => AudioManager.Play(id, at, volume * scale);
+
+    private static Vector3? At(House house) => house != null ? house.transform.position : (Vector3?)null;
 
     private void OnMeteorIncoming(BlockIncident incident, float seconds)
     {
-        warnings.Add(new Warning { start = GameClock.Time, seconds = Mathf.Max(.5f, seconds) });
+        warnings.Add(new Warning { at = incident?.Center, start = GameClock.Time, seconds = Mathf.Max(.5f, seconds) });
     }
 
     private void OnStarted(BlockIncident incident)
     {
         if (incident == null) return;
+
+        Vector3 at = incident.Center;
+        Vector3 call = At(incident.leader) ?? at;
         if (incident.kind == IncidentKind.Flood)
         {
-            Play(floodRush);
+            Play("flood_rush", at);
+            Play("call_new_storm", call);
             return;
         }
+
         warnings.Clear();
-        Play(meteorImpact, 1f, 0f);
+        Play("meteor_impact", at);
+        Play("quake_hit", at);
+        Play("quake_rumble", at, .8f);
+        for (int i = 0; i < impactEchoes.Length; i++)
+        {
+            Vector3 near = at + (Vector3)(Random.insideUnitCircle * 2f);
+            AudioManager.PlayDelayed("quake_hit", impactEchoes[i], near, volume * Mathf.Max(.2f, .7f - .2f * i));
+        }
+        AudioManager.PlayDelayed("call_new_quake", meteorCallDelay, call, volume);
     }
 
     private void OnResolved(BlockIncident incident)
     {
         if (incident == null) return;
+
         creakAngles.Remove(incident);
-        if (incident.kind == IncidentKind.Flood) Play(floodDrained);
-        else AudioManager.PlaySfx(Sfx?.repaired, SoundCategory.Gameplay, volume);
+        Vector3 at = incident.Center;
+        if (incident.kind == IncidentKind.Flood)
+        {
+            Play("flood_drained", at);
+            return;
+        }
+        Play("build_done", at);
+        Play("ui_confetti", at, .8f);
     }
 
     private void OnValveOpened(BlockIncident incident)
     {
+        if (incident == null) return;
+
         creakAngles[incident] = 0f;
-        AudioManager.PlaySfx(valveCreak, SoundCategory.Gameplay, volume, .1f);
+        Play("valve_creak", incident.Center);
     }
 
     private void OnSkillCheck(House house, SkillResult result)
     {
-        if (result == SkillResult.ValveSlip) AudioManager.PlaySfx(valveSlip, SoundCategory.Gameplay, volume, .08f);
-        else if (result == SkillResult.RebuildHit) AudioManager.PlaySfx(Sfx?.hammer, SoundCategory.Gameplay, volume, .12f);
+        switch (result)
+        {
+            case SkillResult.ValveSlip: Play("valve_slip", At(house)); break;
+            case SkillResult.RebuildHit: Play("repair_tool", At(house)); break;
+            case SkillResult.RebuildMiss: Play("ui_denied", At(house), missVolume); break;
+        }
     }
 
-    private void OnFireDoused(House house)
-    {
-        AudioManager.PlaySfx(Sfx?.extinguish, SoundCategory.Disaster, volume * .6f, .1f);
-    }
+    private void OnFireDoused(House house) => Play("fire_out", At(house), .6f);
 
     private void Update()
     {
@@ -142,12 +166,12 @@ public class BlockDisasterAudio : MonoBehaviour
             if (warning.tremorsDone < due)
             {
                 warning.tremorsDone = due;
-                Play(meteorRumble, Mathf.Lerp(.4f, 1f, due / (float)tremors));
+                Play("meteor_rumble", warning.at, Mathf.Lerp(.4f, 1f, due / (float)tremors));
             }
             if (!warning.whoosh && (1f - t) * warning.seconds <= whooshLead)
             {
                 warning.whoosh = true;
-                Play(meteorWhoosh, 1f, 0f);
+                Play("meteor_whoosh", warning.at);
             }
             if (t >= 1f) warnings.RemoveAt(i);
         }
@@ -168,17 +192,32 @@ public class BlockDisasterAudio : MonoBehaviour
                 if (incident.valve.angle - last >= creakEvery)
                 {
                     last = incident.valve.angle;
-                    AudioManager.PlaySfx(valveCreak, SoundCategory.Gameplay, volume * .7f, .15f);
+                    Play("valve_creak", incident.Center, .7f);
                 }
                 creakAngles[incident] = Mathf.Min(last, incident.valve.angle);
             }
         }
 
-        if (drainSource.clip == null) return;
+        if (!EnsureDrainClip()) return;
         float target = playing ? pressure * drainLoopVolume * volume * AudioManager.CategoryVolume(SoundCategory.Gameplay) : 0f;
-        drainSource.volume = Mathf.MoveTowards(drainSource.volume, target, Time.unscaledDeltaTime * 2f);
+        drainSource.volume = Mathf.MoveTowards(drainSource.volume, target, GameClock.DeltaTime * 2f);
         drainSource.pitch = .85f + pressure * .35f;
         if (drainSource.volume > .001f && !drainSource.isPlaying) drainSource.Play();
         else if (drainSource.volume <= .001f && drainSource.isPlaying) drainSource.Stop();
+    }
+
+    // O gorgolejo muda de tom com a pressão, então não é um loop do banco: fonte própria com o clipe do banco,
+    // no grupo do mixer dele (o volume de SFX e a pausa valem para ele).
+    private bool EnsureDrainClip()
+    {
+        if (drainSource.clip != null) return true;
+
+        SoundBank bank = AudioManager.Bank;
+        SoundEntry entry = bank != null ? bank.Find("valve_drain_loop") : null;
+        if (entry == null || entry.clips == null || entry.clips.Length == 0 || entry.clips[0] == null) return false;
+
+        drainSource.clip = entry.clips[0];
+        if (AudioManager.Instance != null) drainSource.outputAudioMixerGroup = AudioManager.Instance.Group(entry.category);
+        return true;
     }
 }

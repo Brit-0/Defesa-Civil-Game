@@ -154,6 +154,7 @@ public class GameAudio : MonoBehaviour
         GameEvents.DisasterStarted += OnDisasterStarted;
         GameEvents.DisasterEnded += OnDisasterEnded;
         GameEvents.LightningStruck += OnLightningStruck;
+        GameEvents.BlockIncidentResolved += OnBlockIncidentResolved;
         GameEvents.ChaosChanged += OnChaosChanged;
         GameEvents.GameStateChanged += OnGameStateChanged;
         ExpansionEvents.BuildStarted += OnLotBuildStarted;
@@ -183,6 +184,7 @@ public class GameAudio : MonoBehaviour
         GameEvents.DisasterStarted -= OnDisasterStarted;
         GameEvents.DisasterEnded -= OnDisasterEnded;
         GameEvents.LightningStruck -= OnLightningStruck;
+        GameEvents.BlockIncidentResolved -= OnBlockIncidentResolved;
         GameEvents.ChaosChanged -= OnChaosChanged;
         GameEvents.GameStateChanged -= OnGameStateChanged;
         ExpansionEvents.BuildStarted -= OnLotBuildStarted;
@@ -499,8 +501,17 @@ public class GameAudio : MonoBehaviour
         active[disaster.type] = Mathf.Max(0, count - 1);
 
         if (disaster.type == DisasterType.Storm && !Active(DisasterType.Storm)) StopStorm(3f);
-        if (!Active(DisasterType.Earthquake) && !Active(DisasterType.Storm) && !Active(DisasterType.Fire)) AudioManager.SetMusicActivity(0f);
+        CalmMusicIfQuiet();
     }
+
+    //Enchente e meteoro acabam como desastre na hora em que o quarteirão é atingido: a música segue até a coleta
+    private void CalmMusicIfQuiet()
+    {
+        bool blocks = BlockDisasterManager.Instance != null && BlockDisasterManager.Instance.Incidents.Count > 0;
+        if (!blocks && !Active(DisasterType.Earthquake) && !Active(DisasterType.Storm) && !Active(DisasterType.Fire)) AudioManager.SetMusicActivity(0f);
+    }
+
+    private void OnBlockIncidentResolved(BlockIncident incident) => CalmMusicIfQuiet();
 
     private void StopStorm(float fadeTime)
     {

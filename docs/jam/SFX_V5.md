@@ -13,7 +13,8 @@ AudioManager.StartLoop("fire_jet_loop", casa, .75f, .15f);  // loop com dono; ch
 AudioManager.StopLoop("fire_jet_loop", casa, .4f);          // StopAllLoops(id) para todos os donos
 ```
 
-Som novo: receita em `Tools/Audio/sons_v5.py` (`@receita('Desastres', alvo_LUFS)`, arquivo `<id>_NN.wav`), rodar o
+Sons da enchente, do meteoro e da guarita (#524) ficam nas pastas deles e entram no banco pela lista `LegacyEntries` do
+`SoundBankBuilder` (clipe -> id, com padrões na `Table`). Som novo: receita em `Tools/Audio/sons_v5.py` (`@receita('Desastres', alvo_LUFS)`, arquivo `<id>_NN.wav`), rodar o
 script, depois **Tools > Audio > Montar SoundBank v5** no Unity. O montador acha o id pelo nome do arquivo, aplica a
 importação e cria a entrada com os padrões da tabela `SoundBankBuilder.Table` (sem linha na tabela: Gameplay, volume
 0,9). Quem ainda toca um clipe antigo por `AudioManager.PlaySfx(clip)` ganha o som novo pela lista "clipes antigos" do
@@ -56,6 +57,9 @@ banco (moedas, martelo da obra, raio absorvido do para-raio...), sem mexer no sc
 | Apagão e religar | arquivos da energia trocados no lugar (`sfx_blackout`, `sfx_restore`, `sfx_energy_on`, `sfx_fuse_*`...) |
 | Obra (terreno, para-raio) / raio absorvido | `build_start` / `build_done` / `rod_absorb` |
 | Vitória / derrota | `jingle_win` / `jingle_lose` |
+| Enchente (#524) | `siren` no aviso; `flood_rush` + `call_new_storm` no bueiro; `valve_creak` a cada 1/4 de volta, `valve_drain_loop` (fonte própria, tom pela pressão), `valve_slip` na falha; `fire_out` no fogo que a água apaga; `flood_drained` na coleta |
+| Meteoro (#524) | `siren` no aviso; `meteor_rumble` por tremor, `meteor_whoosh` 1,1 s antes; `meteor_impact` + `quake_hit` + `quake_rumble` e 2 réplicas; `call_new_quake` 1,4 s depois; `repair_tool` no acerto, `ui_denied` baixo no erro; `build_done` + `ui_confetti` na volta |
+| Guarita (#524) | `ui_popup` ao escolher; `build_start`, `repair_tool` a cada 0,6 s, `build_done`; `outpost_radio` pronta e a cada despacho sozinho |
 | Cidade | `amb_day` cruza com `amb_night` pelo `DayNightCycle`; `amb_cricket` (4) soltos de noite; tudo mais baixo com chuva |
 
 ## Conferência (17/11)

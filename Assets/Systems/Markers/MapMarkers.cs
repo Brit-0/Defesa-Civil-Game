@@ -17,7 +17,7 @@ public class MapMarkers : MonoBehaviour
 {
     public static MapMarkers Instance;
 
-    private enum Kind { None, Fire, Damage, Storm, Power, Done, Guard, Depot }
+    private enum Kind { None, Fire, Damage, Storm, Power, Done, Guard, Depot, Flood }
 
     [Header("SPRITES (Tools/City/Ligar Marcadores preenche)")]
     [SerializeField] private Sprite discSpr;
@@ -352,7 +352,7 @@ public class MapMarkers : MonoBehaviour
                 // pino azul = casa destelhada pelo raio, que piora esperando (TEMPESTADE.md)
                 return h.IsRoofless ? Kind.Storm : Kind.Damage;
             // enchente e meteoro: um pino só, no chamado único do quarteirão (ENCHENTE_METEORO.md)
-            case State.Flooded: return h.IsIncidentLeader ? Kind.Storm : Kind.None;
+            case State.Flooded: return h.IsIncidentLeader ? Kind.Flood : Kind.None;
             case State.Destroyed: return h.IsIncidentLeader ? Kind.Damage : Kind.None;
             default: return Kind.None;
         }
@@ -365,7 +365,8 @@ public class MapMarkers : MonoBehaviour
         switch (kind)
         {
             case Kind.Fire: return fireColor;
-            case Kind.Storm: return stormColor;
+            case Kind.Storm:
+            case Kind.Flood: return stormColor;
             case Kind.Power: return powerColor;
             case Kind.Done: return doneColor;
             case Kind.Guard: return guardColor;
@@ -382,6 +383,7 @@ public class MapMarkers : MonoBehaviour
         {
             case Kind.Fire: return V2(t != null ? t.callFire : null, fireIcon);
             case Kind.Storm: return V2(t != null ? t.callStorm : null, stormIcon);
+            case Kind.Flood: return V2(t != null ? t.callFloodPin : null, V2(t != null ? t.callStorm : null, stormIcon));
             case Kind.Power: return V2(t != null ? t.callPower : null, stormIcon);
             case Kind.Done: return V2(t != null ? t.callDoneCheck : null, doneIcon);
             case Kind.Guard: return V2(t != null ? t.landmarkBase : null, guardIcon);
@@ -404,6 +406,7 @@ public class MapMarkers : MonoBehaviour
             case Kind.Fire: return 5;
             case Kind.Damage:
             case Kind.Storm:
+            case Kind.Flood:
             case Kind.Power: return 4;
             case Kind.Done: return 3;
             default: return 1;

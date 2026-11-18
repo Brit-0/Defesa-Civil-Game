@@ -122,6 +122,8 @@ public class FeelUITheme : ScriptableObject
     public Sprite callRepair;
     public Sprite callFire;
     public Sprite callStorm;
+    [Tooltip("Pino do mapa do quarteirão alagado (casa na água, #524); o balão do chamado usa o BlockDisasterData.callFloodIcon")]
+    public Sprite callFloodPin;
     public Sprite callPower;
     public Sprite callSupply;
     [Tooltip("Selo inteiro (disco verde com check): sozinho, cor branca")]
@@ -252,6 +254,7 @@ public class FeelUITheme : ScriptableObject
         FillCall(ref callRepair, "call_repair");
         FillCall(ref callFire, "call_fire");
         FillCall(ref callStorm, "call_storm");
+        FillCall(ref callFloodPin, "call_flood_pin");
         FillCall(ref callPower, "call_power");
         FillCall(ref callSupply, "call_supply");
         FillCall(ref callDone, "call_done");

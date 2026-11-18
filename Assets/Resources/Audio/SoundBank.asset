@@ -245,6 +245,34 @@ MonoBehaviour:
     ladderStep: 0
     ladderMax: 12
     ladderReset: 0.6
+  - id: flood_drained
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 45c5da107c2485ec98fa942b9b205645, type: 3}
+    volume: 0.9
+    volumeJitterDb: 1.5
+    pitchJitter: 0.4
+    maxVoices: 2
+    cooldown: 0.3
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: flood_rush
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 24e65846c99acac8353a87cce2e490e0, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0.3
+    maxVoices: 1
+    cooldown: 0.5
+    loop: 0
+    ducks: 1
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
   - id: jingle_lose
     category: 1
     clips:
@@ -270,6 +298,48 @@ MonoBehaviour:
     cooldown: 1
     loop: 0
     ducks: 1
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: meteor_impact
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 33fcd33743aa1f327a90fc1f712846d5, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0.5
+    loop: 0
+    ducks: 1
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: meteor_rumble
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 14d609f99a43cf4060e715d6b2937bb8, type: 3}
+    volume: 1
+    volumeJitterDb: 1.5
+    pitchJitter: 0.4
+    maxVoices: 2
+    cooldown: 0.2
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: meteor_whoosh
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 96ad6c0699739b702f666fea46aa8662, type: 3}
+    volume: 1
+    volumeJitterDb: 1.5
+    pitchJitter: 0.3
+    maxVoices: 1
+    cooldown: 0.5
+    loop: 0
+    ducks: 0
     ladderStep: 0
     ladderMax: 12
     ladderReset: 0.6
@@ -325,6 +395,20 @@ MonoBehaviour:
     maxVoices: 1
     cooldown: 0
     loop: 1
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: outpost_radio
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: fcac2da85e05425898c75e5d5e2afd92, type: 3}
+    volume: 0.9
+    volumeJitterDb: 1.5
+    pitchJitter: 0.8
+    maxVoices: 2
+    cooldown: 0.2
+    loop: 0
     ducks: 0
     ladderStep: 0
     ladderMax: 12
@@ -640,6 +724,48 @@ MonoBehaviour:
     pitchJitter: 0.4
     maxVoices: 1
     cooldown: 0.1
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: valve_creak
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: 04282bef433f3372110f09ccdb860da5, type: 3}
+    volume: 0.8
+    volumeJitterDb: 1.5
+    pitchJitter: 1
+    maxVoices: 3
+    cooldown: 0.08
+    loop: 0
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: valve_drain_loop
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: 0a24d78afcc9677bc8dedcd2050558db, type: 3}
+    volume: 1
+    volumeJitterDb: 0
+    pitchJitter: 0
+    maxVoices: 1
+    cooldown: 0
+    loop: 1
+    ducks: 0
+    ladderStep: 0
+    ladderMax: 12
+    ladderReset: 0.6
+  - id: valve_slip
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: a5af55c1d304765bd2302cca3ae2e2e9, type: 3}
+    volume: 0.9
+    volumeJitterDb: 1.5
+    pitchJitter: 0.5
+    maxVoices: 2
+    cooldown: 0.2
     loop: 0
     ducks: 0
     ladderStep: 0

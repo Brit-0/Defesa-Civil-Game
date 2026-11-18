@@ -82,6 +82,9 @@ public class SoundBankTests
             SoundEntry entry = bank.Find(id);
             Assert.IsNotNull(entry, "som " + id + " (GameAudio) fora do banco");
         }
+        foreach (string id in BlockDisasterAudio.UsedIds) Assert.IsNotNull(bank.Find(id), "som " + id + " (enchente e meteoro) fora do banco");
+        foreach (string id in OutpostFeel.UsedIds) Assert.IsNotNull(bank.Find(id), "som " + id + " (guarita) fora do banco");
+        Assert.IsTrue(bank.Find("valve_drain_loop").loop, "gorgolejo da válvula em loop");
         foreach (SoundEntry entry in bank.entries)
         {
             Assert.IsNotEmpty(entry.clips, entry.id);
