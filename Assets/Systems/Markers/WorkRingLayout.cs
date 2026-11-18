@@ -57,7 +57,7 @@ public class WorkRingLayout : MonoBehaviour
         t.anchorMin = t.anchorMax = t.pivot = new Vector2(.5f, .5f);
         t.anchoredPosition = local;
         t.sizeDelta = Vector2.one * (size + trackPadding);
-        t.SetSiblingIndex(ring.GetSiblingIndex());
+        PlaceBehind(t, ring);
         track.gameObject.SetActive(true);
     }
 
@@ -91,6 +91,14 @@ public class WorkRingLayout : MonoBehaviour
             Image iconImage = icon.GetComponent<Image>();
             if (iconImage != null) iconImage.preserveAspect = true;
         }
+    }
+
+    // Trilha logo antes do anel (desenhada atrás). SetSiblingIndex(índice do anel) com a trilha já antes dele, a partir
+    // da 2ª obra na mesma casa, a punha DEPOIS: a trilha escura (85%) cobria o anel e a janela dourada (v5F).
+    public static void PlaceBehind(Transform track, Transform ring)
+    {
+        int ringIndex = ring.GetSiblingIndex();
+        track.SetSiblingIndex(track.GetSiblingIndex() < ringIndex ? ringIndex - 1 : ringIndex);
     }
 
     private Image Track(House house, RectTransform parent, RectTransform ring)

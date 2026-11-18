@@ -10,12 +10,14 @@ public static partial class GameEvents
     public static event Action<BlockIncident> ValveOpened;            // a equipe chegou ao bueiro: válvula na mão do jogador
     public static event Action<BlockIncident, float> MeteorIncoming;  // (quarteirão alvo, segundos até cair)
     public static event Action<House> FireDousedByFlood;              // a água apagou um incêndio do quarteirão
+    public static event Action<BlockIncident> MeteorCancelled;        // o meteoro anunciado não caiu (quarteirão sem casa livre)
 
     public static void RaiseBlockIncidentStarted(BlockIncident incident) => BlockIncidentStarted?.Invoke(incident);
     public static void RaiseBlockIncidentResolved(BlockIncident incident) => BlockIncidentResolved?.Invoke(incident);
     public static void RaiseValveOpened(BlockIncident incident) => ValveOpened?.Invoke(incident);
     public static void RaiseMeteorIncoming(BlockIncident target, float seconds) => MeteorIncoming?.Invoke(target, seconds);
     public static void RaiseFireDousedByFlood(House house) => FireDousedByFlood?.Invoke(house);
+    public static void RaiseMeteorCancelled(BlockIncident target) => MeteorCancelled?.Invoke(target);
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ClearBlockDisasters()
@@ -25,5 +27,6 @@ public static partial class GameEvents
         ValveOpened = null;
         MeteorIncoming = null;
         FireDousedByFlood = null;
+        MeteorCancelled = null;
     }
 }

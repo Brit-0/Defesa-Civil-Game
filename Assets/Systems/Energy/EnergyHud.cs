@@ -48,6 +48,7 @@ public class EnergyHud : MonoBehaviour
     private RectTransform root;
     private RectTransform panel;
     private Image barFill;
+    private TMP_Text titleLbl;
     private TMP_Text valueLbl;
     private TMP_Text statusLbl;
     private Image boltIcon;
@@ -141,14 +142,18 @@ public class EnergyHud : MonoBehaviour
         boltIcon.preserveAspect = true;
         FeelUI.Place(boltIcon.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(12f, -10f), Vector2.one * 54f);
 
-        TMP_Text titleLbl = FeelUI.CreateText("Title", panel, title, 20f, FeelUI.PixelLilac, TextAlignmentOptions.Left);
+        titleLbl = FeelUI.CreateText("Title", panel, title, 20f, FeelUI.PixelLilac, TextAlignmentOptions.Left);
         FeelUI.Place(titleLbl.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(74f, -12f), new Vector2(150f, 22f));
 
         valueLbl = FeelUI.CreateText("Value", panel, "0/0", 36f, FeelUI.PixelCream, TextAlignmentOptions.Left);
-        FeelUI.Place(valueLbl.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(74f, -32f), new Vector2(90f, 38f));
+        FeelUI.Place(valueLbl.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(74f, -32f), new Vector2(150f, 38f));
 
-        statusLbl = FeelUI.CreateText("Status", panel, "", 18f, badColor, TextAlignmentOptions.Right);
-        FeelUI.Place(statusLbl.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-12f, -40f), new Vector2(110f, 22f));
+        // Estado (SOBRECARGA, APAGÃO!) na linha do título, no lugar de ENERGIA: ao lado do número ele cobria "12/10" (v5F).
+        statusLbl = FeelUI.CreateText("Status", panel, "", 20f, badColor, TextAlignmentOptions.Left);
+        FeelUI.Place(statusLbl.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(74f, -12f), new Vector2(150f, 22f));
+        statusLbl.enableAutoSizing = true;
+        statusLbl.fontSizeMax = 20f;
+        statusLbl.fontSizeMin = 14f;
 
         Image barBack = FeelUI.CreateInset("Bar", panel, new Color(0f, 0f, 0f, .6f));
         FeelUI.Place(barBack.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(12f, 12f), new Vector2(panelSize.x - 24f, 20f));
@@ -277,6 +282,7 @@ public class EnergyHud : MonoBehaviour
         barFill.color = load > 1f ? badColor : load >= warnAt ? warnColor : okColor;
         statusLbl.text = blackout ? blackoutText : Grid.Overloaded ? overloadText : "";
         statusLbl.color = badColor;
+        if (titleLbl != null) titleLbl.enabled = string.IsNullOrEmpty(statusLbl.text);
         valueLbl.color = blackout || Grid.Overloaded ? badColor : FeelUI.PixelCream;
         if (boltIcon != null) boltIcon.color = blackout ? darkColor : Color.white;
 

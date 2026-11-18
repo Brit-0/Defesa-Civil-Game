@@ -33,8 +33,14 @@ public abstract class Location : House
     public override void OnPointerEnter(PointerEventData eventData)
     {
         base.OnPointerEnter(eventData);
-        if (infoPanel != null) infoPanel.Show();
+        if (infoPanel == null) return;
+
+        infoPanel.SetSpecific(SpecificText);
+        infoPanel.Show();
     }
+
+    // Linha de baixo da aba de informação, lida a cada vez que ela abre (o Armazém troca pelo valor de agora).
+    protected virtual string SpecificText => data != null ? data.specific : "";
 
     public override void OnPointerExit(PointerEventData eventData)
     {

@@ -33,6 +33,12 @@ public class InfoPanel : MonoBehaviour
         specificLbl.text = data.specific;
     }
 
+    //Linha de baixo com valor que muda no jogo (Armazém: material por trabalhador com o upgrade Carrinho, v5F)
+    public void SetSpecific(string text)
+    {
+        if (specificLbl != null) specificLbl.text = text;
+    }
+
     public void Show()
     {
         Skin();

@@ -191,7 +191,11 @@ public class BlockDisasterManager : MonoBehaviour
         BlockIncident incident = meteor && PendingMeteor != null ? PendingMeteor : new BlockIncident();
         PendingMeteor = null;
 
-        if (!planned.Remove(forecast, out Block block)) yield break;
+        if (!planned.Remove(forecast, out Block block))
+        {
+            if (meteor) GameEvents.RaiseMeteorCancelled(incident);
+            yield break;
+        }
 
         incident.kind = meteor ? IncidentKind.Meteor : IncidentKind.Flood;
         incident.disaster = disaster;
@@ -207,6 +211,9 @@ public class BlockDisasterManager : MonoBehaviour
         House leader = order.Find(house => CanJoin(house, meteor));
         if (leader == null)
         {
+            // Sem casa livre o meteoro não cai: sem este aviso a rocha ficava parada no céu do quarteirão, soltando
+            // fogo e fumaça escura por cima das casas até o fim da partida (v5F).
+            if (meteor) GameEvents.RaiseMeteorCancelled(incident);
             if (meteor) lastMeteorTime = Elapsed;
             GameEvents.RaiseDisasterStarted(disaster, forecast.position);
             GameEvents.RaiseDisasterEnded(disaster);

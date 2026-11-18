@@ -14,6 +14,9 @@ public class Warehouse : Location
         currentCall = defaultCall;
     }
 
+    // O "1 por trabalhador" do asset é o material que cada um traz: acompanha o upgrade Carrinho (v5F).
+    protected override string SpecificText => $"{Stats.MaterialPerWorker} por trabalhador";
+
     public override void ExecuteLocationAction()
     {
         if (HasTeam) return;

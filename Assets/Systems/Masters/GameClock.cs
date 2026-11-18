@@ -15,7 +15,10 @@ public static class GameClock
     public static bool Frozen => pausedSince >= 0f;
 
     public static float Time => (Frozen ? pausedSince : UnityEngine.Time.unscaledTime) - pausedTotal;
-    public static float DeltaTime => Frozen ? 0f : UnityEngine.Time.unscaledDeltaTime;
+    // Com o mesmo teto do Time.deltaTime (Maximum Allowed Timestep): depois de um engasgo do Editor o quadro seguinte
+    // vinha com segundos de uma vez e os laços de efeito por tempo (ondas da enchente, respingos) criavam centenas de
+    // objetos num quadro só, o que segurava o quadro seguinte também (v5F).
+    public static float DeltaTime => Frozen ? 0f : Mathf.Min(UnityEngine.Time.unscaledDeltaTime, UnityEngine.Time.maximumDeltaTime);
 
     public static void Freeze()
     {
