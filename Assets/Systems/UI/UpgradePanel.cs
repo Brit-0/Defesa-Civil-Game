@@ -65,12 +65,13 @@ public class UpgradePanel : MonoBehaviour
 
     public static UpgradePanel Instance { get; set; }
     public UpgradeTooltip Tooltip => tooltip;
+    public bool IsOpen => gameObject.activeSelf && !closing;
 
     #region OPEN AND CLOSE
 
     public void Toggle()
     {
-        if (gameObject.activeSelf && !closing) Close();
+        if (IsOpen) Close();
         else Open();
     }
 

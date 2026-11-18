@@ -103,4 +103,16 @@ public static class ExpansionMath
         angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
         return new Vector2(Mathf.Clamp(point.x, safe.xMin, safe.xMax), Mathf.Clamp(point.y, safe.yMin, safe.yMax));
     }
+
+    // Placa no modo de escolher o terreno. Presa na borda, com a seta para fora (ClampToEdge), só com o terreno (lot)
+    // fora de safe. Terreno à vista e placa (sign) na faixa da margem: a placa só entra em safe e a seta segue para
+    // baixo, no terreno; antes ela ia para a borda e a seta apontava para longe do terreno à vista (v6A).
+    public static Vector2 PlaceSign(Vector2 sign, Vector2 lot, Rect safe, out float angle, out bool clamped)
+    {
+        if (!safe.Contains(lot)) return ClampToEdge(sign, safe, out angle, out clamped);
+
+        angle = 0f;
+        clamped = false;
+        return new Vector2(Mathf.Clamp(sign.x, safe.xMin, safe.xMax), Mathf.Clamp(sign.y, safe.yMin, safe.yMax));
+    }
 }

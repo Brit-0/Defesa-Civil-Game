@@ -41,6 +41,7 @@ public class BuildLot : MonoBehaviour
     public Location Building { get; private set; }
     public Vector2 SitePosition { get; private set; }      // base visível do prédio que vai nascer
     public Vector3 SignWorldPosition { get; private set; } // onde a placa se apoia, em cima do terreno
+    public Vector2 LotMiddle { get; private set; }         // meio do terreno de terra (a placa só vai para a borda sem ele à vista)
     public float Progress01 { get; private set; }
 
     private ExpansionManager manager;
@@ -68,6 +69,7 @@ public class BuildLot : MonoBehaviour
         float patchBottom = baseY - PatchDrop;
         SitePosition = new Vector2(slot.entry.x, baseY);
         SignWorldPosition = new Vector3(slot.entry.x, patchBottom + PatchHeight + 0.2f, entry.transform.position.z);
+        LotMiddle = new Vector2(slot.entry.x, patchBottom + PatchHeight * 0.5f);
 
         // Chão do terreno logo antes de Houses: em cima do chão assado, embaixo de casas e árvores (que têm Canvas
         // próprio com ordem por Y). O material das árvores dá a mesma luz 2D do resto da cidade.
@@ -242,7 +244,7 @@ public class BuildLot : MonoBehaviour
         float angle = 0f;
         bool clamped = false;
         Vector2 position = anchor;
-        if (placingMine && !safe.Contains(anchor)) position = ExpansionMath.ClampToEdge(anchor, safe, out angle, out clamped);
+        if (placingMine) position = ExpansionMath.PlaceSign(anchor, ToLayer(LotMiddle, area), safe, out angle, out clamped);
         else if (!onScreen) wanted = false;
 
         float now = GameClock.Time;

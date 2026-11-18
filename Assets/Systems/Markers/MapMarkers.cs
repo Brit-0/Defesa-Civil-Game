@@ -589,7 +589,7 @@ public class MapMarkers : MonoBehaviour
         p.icon.localRotation = Quaternion.Euler(0f, 0f, urgent && p.kind != Kind.Done ? Mathf.Sin(t * 5f) * wobbleDegrees : 0f);
 
         // seta: do pino para o prédio (reta para baixo quando está em cima dele)
-        Vector2 anchor = ToLayer(onEdge ? p.center : p.top, area, unitsPerPixel);
+        Vector2 anchor = ArrowAim(pos, ToLayer(p.top, area, unitsPerPixel), ToLayer(p.center, area, unitsPerPixel), onEdge);
         Vector2 dir = anchor - pos;
         dir = dir.sqrMagnitude > 1f ? dir.normalized : Vector2.down;
         float reach = p.root.sizeDelta.y * .5f + p.arrow.sizeDelta.y * .28f;
@@ -620,6 +620,11 @@ public class MapMarkers : MonoBehaviour
             }
         }
     }
+
+    // Para onde a seta do pino mira: o topo da casa com o pino em cima dela; o meio da casa na borda e com o pino
+    // empurrado para baixo do topo (casa à vista logo abaixo da margem de cima, pino em cima do telhado). Mirando o
+    // topo nesse caso, a seta virava para cima, para longe da casa (v6A).
+    public static Vector2 ArrowAim(Vector2 pin, Vector2 top, Vector2 middle, bool edge) => edge || pin.y < top.y ? middle : top;
 
     private void Paint(Pin p)
     {

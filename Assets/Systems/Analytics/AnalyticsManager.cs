@@ -16,17 +16,10 @@ public class AnalyticsManager : MonoBehaviour
     [SerializeField] private Material houseMat;
     public ViewMode currentViewMode;
 
+    // O Tab agora abre e fecha a aba de melhorias (UpgradePanelShortcuts, v6A). Esta visao do prototipo (casas em
+    // holograma e area dos postes enquanto o Tab fica apertado) saiu do Tab; o PlayerInput da cena ainda chama aqui.
     public void SwitchViewMode(CallbackContext context)
     {
-        if (context.started)
-        {
-            EnterViewMode();
-        }
-        else if (context.canceled)
-        {
-            ExitViewMode();
-        }
-
     }
 
     public void EnterViewMode()

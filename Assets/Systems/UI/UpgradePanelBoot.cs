@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 //Liga o UpgradePanel na UpgradeTab do HUD em toda cena (o Reiniciar recarrega a cena), sem editar o Gameplay.unity.
 //O botão de abrir e o X da cena ligam a aba por SetActive: passam a abrir e fechar com animação, e o de abrir
-//vira liga e desliga.
+//vira liga e desliga. O Tab e a volta da aba depois de posicionar uma obra ficam no UpgradePanelShortcuts (v6A).
 public static class UpgradePanelBoot
 {
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -34,8 +34,13 @@ public static class UpgradePanelBoot
         //A aba começa fechada: o Awake (e a montagem) só roda na primeira vez que ela abre
         panel = tab.gameObject.AddComponent<UpgradePanel>();
         UpgradePanel.Instance = panel;
-        Reroute(FindButton(hud.transform, "OpenUpgrades"), tab.gameObject, panel.Toggle);
+        Button open = FindButton(hud.transform, "OpenUpgrades");
+        Reroute(open, tab.gameObject, panel.Toggle);
         Reroute(FindButton(tab, "CloseBtn"), tab.gameObject, panel.Close);
+
+        UpgradePanelShortcuts shortcuts = hud.GetComponent<UpgradePanelShortcuts>();
+        if (shortcuts == null) shortcuts = hud.gameObject.AddComponent<UpgradePanelShortcuts>();
+        shortcuts.Init(panel, open);
         return panel;
     }
 
