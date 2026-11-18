@@ -71,7 +71,7 @@ public partial class SettingsPanel
             gold + "DEFESA CIVIL</color>\n" +
             "jogo de game jam, tema Citizen Tech\n\n" +
             gold + "CRIAÇÃO</color>\n" +
-            "Pietro Piccoli, com apoio de IA (Claude e PixelLab)\n\n" +
+            "Pietro Piccoli e Felipe Brito\n\n" +
             gold + "FERRAMENTAS</color>\n" +
             "Unity 6, DOTween (Demigiant), Feel e Nice Vibrations (More Mountains),\n" +
             "Text Animator (Febucci), Odin Inspector (Sirenix)\n\n" +
