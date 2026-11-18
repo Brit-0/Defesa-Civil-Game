@@ -57,7 +57,14 @@ public class DisasterManager : MonoBehaviour
 
     private readonly List<Occurrence> occurrences = new();
 
+    // Dificuldade adaptativa (ADAPTATIVA_V6B): médias do caos e da fila de chamados e o ritmo de 0 a 1 (DisasterPace).
+    private float paceChaos;
+    private float paceQueue;
+    private float pace;
+
     public bool IsRunning => isRunning;
+    // Ritmo a mais pela eficiência do jogador: 0 = a curva de sempre, 1 = o teto (intervalo e casas).
+    public float Pace => pace;
     public bool IsHeld => holds > 0;
     // Segundos até o próximo aviso (para a apresentação mostrar a contagem).
     public float Countdown => countdown;
@@ -90,13 +97,17 @@ public class DisasterManager : MonoBehaviour
 
     private void Update()
     {
-        if (disasters.Length == 0 || isRunning || !IsPlaying()) return;
+        if (disasters.Length == 0 || !IsPlaying()) return;
 
         if (holds > 0)
         {
-            heldTime += Time.deltaTime;
+            if (!isRunning) heldTime += Time.deltaTime;
             return;
         }
+
+        // A eficiência é medida também durante o desastre; o tutorial (Hold) e a pausa não contam.
+        TickPace(GameClock.DeltaTime);
+        if (isRunning) return;
 
         countdown -= Time.deltaTime;
         if (countdown > 0f) return;
@@ -111,7 +122,7 @@ public class DisasterManager : MonoBehaviour
         bool strong = !isFirstDisaster && IsStrongTurn();
         if (strong) disaster = FindDisaster(DisasterType.Earthquake) ?? disaster;
 
-        int houseCount = isFirstDisaster ? Stats.Balance.firstDisasterHouses : GetRampedHouseCount();
+        int houseCount = isFirstDisaster ? Stats.Balance.firstDisasterHouses : GetRampedHouseCount(strong);
         if (strong) houseCount = Mathf.RoundToInt(houseCount * Stats.Balance.strongDisasterHouseMultiplier);
 
         debuted.Add(disaster.type);
@@ -154,12 +165,52 @@ public class DisasterManager : MonoBehaviour
 
     private float GetRampedInterval()
     {
-        return GetInterval(Stats.Balance, CurrentRampTime);
+        return GetInterval(Stats.Balance, CurrentRampTime, pace);
     }
 
-    private int GetRampedHouseCount()
+    // O terremoto forte sai das casas da rampa sem o ritmo: o pico não cresce com a eficiência (ADAPTATIVA_V6B).
+    private int GetRampedHouseCount(bool strong)
     {
-        return GetHouseCount(Stats.Balance, CurrentRampTime);
+        return GetHouseCount(Stats.Balance, CurrentRampTime, strong ? 0f : pace);
+    }
+
+    // Mede a eficiência do quadro (DisasterPace): caos da barra, chamados esperando equipe, dinheiro e níveis comprados.
+    private void TickPace(float deltaTime)
+    {
+        BalanceData balance = Stats.Balance;
+        float chaos = ChaosManager.Instance != null ? ChaosManager.Instance.Chaos : 0f;
+        paceChaos = DisasterPace.Smooth(paceChaos, chaos, deltaTime, balance.paceAverageTime);
+        paceQueue = DisasterPace.Smooth(paceQueue, CountWaitingCalls(), deltaTime, balance.paceAverageTime);
+
+        int money = ResourcesManager.Instance != null ? ResourcesManager.Money : 0;
+        float target = DisasterPace.GetTarget(balance, paceChaos, paceQueue, money, CountUpgradeLevels());
+        pace = DisasterPace.Step(balance, pace, target, deltaTime);
+    }
+
+    // Enchente e meteoro abrem um chamado só, no líder do quarteirão (WaitsForTeam já conta assim).
+    private static int CountWaitingCalls()
+    {
+        if (LocationsManager.Instance == null) return 0;
+
+        int count = 0;
+        foreach (House house in LocationsManager.Instance.Houses)
+        {
+            if (GuardManager.WaitsForTeam(house)) count++;
+        }
+        return count;
+    }
+
+    private static int CountUpgradeLevels()
+    {
+        UpgradesManager upgrades = UpgradesManager.Instance;
+        if (upgrades == null) return 0;
+
+        int levels = 0;
+        foreach (UpgradeData upgrade in upgrades.Upgrades)
+        {
+            if (upgrade != null && upgrade.id != UpgradeIds.Goal) levels += upgrades.GetLevel(upgrade);
+        }
+        return levels;
     }
 
     // Segundos de rampa: 0 durante a calma do começo (disasterRampDelay, BALANCEAMENTO_V5).
@@ -198,16 +249,28 @@ public class DisasterManager : MonoBehaviour
         return Mathf.Max(Mathf.Min(interval, balance.disasterIntervalFloor), interval - balance.disasterLateIntervalPerMinute * late);
     }
 
+    // A mesma curva com o ritmo adaptativo (DisasterPace.ApplyInterval, ADAPTATIVA_V6B). Ritmo 0 = a curva de sempre.
+    public static float GetInterval(BalanceData balance, float rampTime, float pace)
+    {
+        return DisasterPace.ApplyInterval(balance, GetInterval(balance, rampTime), pace);
+    }
+
     // Casas por desastre: rampa de Start a End; depois do teto sobem disasterLateHousesPerMinute por minuto, até
     // disasterHousesMax.
     public static int GetHouseCount(BalanceData balance, float rampTime)
+    {
+        return GetHouseCount(balance, rampTime, 0f);
+    }
+
+    // Com o ritmo adaptativo as casas crescem antes de arredondar (DisasterPace.ApplyHouses, ADAPTATIVA_V6B).
+    public static int GetHouseCount(BalanceData balance, float rampTime, float pace)
     {
         float houses = Mathf.Lerp(balance.disasterHousesStart, balance.disasterHousesEnd, GetRamp(balance, rampTime));
         float late = GetLateMinutes(balance, rampTime);
         if (late > 0f)
             houses = Mathf.Min(Mathf.Max(houses, balance.disasterHousesMax), houses + balance.disasterLateHousesPerMinute * late);
 
-        return Mathf.RoundToInt(houses);
+        return Mathf.RoundToInt(DisasterPace.ApplyHouses(balance, houses, pace));
     }
 
     // Depois do terremoto forte vem uma calma maior: o pico e o respiro fazem o ritmo (GAMELOOP_REVISAO).

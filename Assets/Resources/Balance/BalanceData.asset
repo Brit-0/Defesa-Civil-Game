@@ -47,6 +47,20 @@ MonoBehaviour:
   disasterLateHousesPerMinute: 0.15
   disasterHousesMax: 9
   warningTime: 4
+  paceAverageTime: 45
+  paceChaosLow: 0.08
+  paceChaosHigh: 0.25
+  paceQueueLow: 0.5
+  paceQueueHigh: 3
+  paceLevelsStart: 16
+  paceLevelsFull: 30
+  paceMoneyFull: 4000
+  paceRisePerMinute: 0.35
+  paceFallPerMinute: 1
+  paceIntervalCut: 0.45
+  paceIntervalFloor: 12
+  paceHouseBoost: 0.6
+  paceHousesMax: 9
   earthquakeWeight: 40
   stormWeight: 50
   fireWeight: 30

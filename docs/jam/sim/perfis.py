@@ -253,6 +253,10 @@ def perfis(plano_bom="renda", expansao=True, plano_medio="carrinho", curto=False
         "médio": Jogador("médio", reacao=2.0, clique=0.5, mira=1.6, plano=medio, equipe="sugerida", acerto=0.55),
         # RITMO_V3: demora para ver o chamado e para mirar, acerta pouco os mini games e compra sem plano.
         "ruim": Jogador("ruim", reacao=2.5, clique=0.6, mira=2.0, plano=ingenuo, equipe="sugerida", acerto=0.4),
+        # ADAPTATIVA_V6B: mais rápido que o bom em tudo, quase sem errar o ponto certo (é quem a dificuldade adaptativa
+        # aperta: caos médio baixo, fila curta, níveis e dinheiro). Vence pela economia, no mesmo tempo do bom.
+        "muito eficiente": Jogador("craque", reacao=0.6, clique=0.25, mira=0.7, plano=plano, equipe="espalha",
+                                   estoque_alvo=8, acerto=0.95),
         "bom, sem mini games": Jogador("bom-inc", reacao=1.0, clique=0.35, mira=1.0, plano=plano, equipe="espalha",
                                        estoque_alvo=6, mini=False),
         "médio, sem mini games": Jogador("médio-inc", reacao=2.0, clique=0.5, mira=1.6, plano=medio,

@@ -10,8 +10,9 @@
   python docs/jam/sim/tabela.py --sem-expansao        # os robôs não compram a base nova (por padrão compram uma)
   python docs/jam/sim/tabela.py --sem-estreia         # sem a estreia garantida do RITMO_V3 (o C# a faz desde a #534)
   python docs/jam/sim/tabela.py --curto               # planos curtos do RITMO_V3 (sem continuação, para-raio e guaritas)
-Perfis principais: bom, médio e ruim (RITMO_V3, com os planos longos do BALANCEAMENTO_V5); a tabela também mostra a
-estreia de cada sistema, os chamados por minuto e o pico do caos em cada fase de 4 minutos.
+Perfis principais: bom, médio e ruim (RITMO_V3, com os planos longos do BALANCEAMENTO_V5) e o muito eficiente
+(ADAPTATIVA_V6B); a tabela também mostra a estreia de cada sistema, os chamados por minuto, o pico do caos e o ritmo
+adaptativo em cada fase de 4 minutos. Sem a dificuldade adaptativa: --set paceIntervalCut=0 --set paceHouseBoost=0.
 """
 import argparse
 import random
@@ -156,6 +157,9 @@ def linha_fases(nome, jogos, medida):
         if medida == "chamados":
             valor = statistics.median(sum(j.chamados_min.get(m, 0) for m in range(a, b)) / (b - a) for j in vivas)
             celulas.append(f"{valor:.1f}")
+        elif medida == "ritmo":  # ADAPTATIVA_V6B: ritmo adaptativo médio da fase (0 = a curva de sempre, 1 = o teto)
+            valor = statistics.median(sum(j.ritmo_min.get(m, 0.0) for m in range(a, b)) / (b - a) for j in vivas)
+            celulas.append(f"{valor:.2f}")
         else:
             valor = statistics.median(max(j.caos_min.get(m, 0.0) for m in range(a, b)) for j in vivas)
             celulas.append(f"{valor:.2f}")
@@ -247,7 +251,7 @@ def main():
                   for nome, jogador in perfis(a.plano, not a.sem_expansao, a.plano_medio, a.curto).items()}
     for nome, jogos in resultados.items():
         print(linha_tabela(nome, jogos))
-    principais = [n for n in ("bom", "médio", "ruim") if n in resultados]
+    principais = [n for n in ("bom", "médio", "ruim", "muito eficiente") if n in resultados]
     print("\nEstreia de cada sistema, em minutos de partida (mediana e p10–p90)\n\n" + CABECALHO_ESTREIA)
     for nome in principais:
         print(linha_estreia(nome, resultados[nome]))
@@ -257,6 +261,14 @@ def main():
     print("\nPico do caos em cada fase\n\n" + CABECALHO_FASES)
     for nome in principais:
         print(linha_fases(nome, resultados[nome], "caos"))
+    print("\nRitmo adaptativo médio em cada fase (ADAPTATIVA_V6B; 0 = a curva de sempre)\n\n" + CABECALHO_FASES)
+    for nome in principais:
+        print(linha_fases(nome, resultados[nome], "ritmo"))
+    print("\n| Jogador | Desastres na partida | Casas atingidas por minuto |\n|---|---|---|")
+    for nome in principais:
+        js = resultados[nome]
+        print(f"| {nome} | {statistics.median(len(j.desastres) for j in js):.0f} | "
+              f"{statistics.median(sum(j.chamados_min.values()) / (j.t / 60) for j in js):.1f} |")
     print("\n" + CABECALHO_MINI)
     for nome, jogos in resultados.items():
         if jogos[0].jogador is not None:

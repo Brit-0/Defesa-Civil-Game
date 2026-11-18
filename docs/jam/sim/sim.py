@@ -37,6 +37,47 @@ def vazar(dano, espera, dt, intervalo, maximo):
         dano += 1
     return dano, (0.0 if dano >= maximo else espera)
 
+
+# ---------------------------------------------------------------- dificuldade adaptativa (DisasterPace.cs, ADAPTATIVA_V6B)
+
+def inverso(a, b, x):
+    """Mathf.InverseLerp: 0 em a, 1 em b, preso entre os dois (a > b vale também)."""
+    return 0.0 if a == b else min(1.0, max(0.0, (x - a) / (b - a)))
+
+
+def media_movel(media, amostra, dt, constante):
+    """DisasterPace.Smooth: média que esquece devagar (constante de tempo em s; 0 = só a amostra)."""
+    return amostra if constante <= 0 else media + (amostra - media) * (1 - math.exp(-max(0.0, dt) / constante))
+
+
+def eficiencia_alvo(b, caos, fila, dinheiro, niveis):
+    """DisasterPace.GetTarget: (calma x fila curta) x poder. Calma e fila vêm das médias; poder é o maior entre os
+    níveis comprados e o dinheiro guardado. Quem apanha (caos alto ou fila longa) ou ainda não cresceu fica em 0."""
+    calma = inverso(b.get("paceChaosHigh", 0.0), b.get("paceChaosLow", 0.0), caos)
+    curta = inverso(b.get("paceQueueHigh", 0.0), b.get("paceQueueLow", 0.0), fila)
+    poder = max(inverso(b.get("paceLevelsStart", 0), b.get("paceLevelsFull", 0), niveis),
+                inverso(0.0, b.get("paceMoneyFull", 0), dinheiro))
+    return calma * curta * poder
+
+
+def passo_eficiencia(b, atual, alvo, dt):
+    """DisasterPace.Step: sobe no máximo paceRisePerMinute por minuto (subida suave) e desce paceFallPerMinute."""
+    if alvo > atual:
+        return min(alvo, atual + b.get("paceRisePerMinute", 0.0) * dt / 60)
+    return max(alvo, atual - b.get("paceFallPerMinute", 0.0) * dt / 60)
+
+
+def intervalo_adaptado(b, intervalo, ritmo):
+    """DisasterPace.ApplyInterval: o intervalo encolhe até paceIntervalCut (ritmo 1), sem passar de paceIntervalFloor."""
+    piso = min(intervalo, b.get("paceIntervalFloor", 0.0))
+    return max(piso, intervalo * (1 - b.get("paceIntervalCut", 0.0) * min(1.0, max(0.0, ritmo))))
+
+
+def casas_adaptadas(b, casas, ritmo):
+    """DisasterPace.ApplyHouses: as casas crescem até paceHouseBoost (ritmo 1), sem passar de paceHousesMax."""
+    teto = max(casas, b.get("paceHousesMax", 0))
+    return min(teto, casas * (1 + b.get("paceHouseBoost", 0.0) * min(1.0, max(0.0, ritmo))))
+
 # ---------------------------------------------------------------- jogo
 
 class Local:
@@ -94,6 +135,9 @@ class Jogo:
         self.guaritas, self.auto_despachos = {}, 0
         self.quarteiroes = len({c.quarteirao for c in self.casas if c.quarteirao})
         self.blocos = quarteirao.Quarteiroes(self, mapa)  # enchente e meteoro (ENCHENTE_METEORO.md)
+        # Dificuldade adaptativa (ADAPTATIVA_V6B.md): médias do caos e da fila de chamados e o ritmo de 0 a 1
+        self.caos_medio = self.fila_media = self.ritmo = 0.0
+        self.ritmo_min = {}  # minuto -> ritmo médio naquele minuto
 
     # --- valores (Stats)
     def efeito(self, uid):
@@ -345,25 +389,26 @@ class Jogo:
 
     def intervalo_desastre(self):
         """DisasterManager.GetInterval: rampa de Start a End; depois do teto, cai disasterLateIntervalPerMinute por
-        minuto, sem passar de disasterIntervalFloor."""
+        minuto, sem passar de disasterIntervalFloor; por fim o ritmo adaptativo encolhe (ADAPTATIVA_V6B)."""
         b = self.b
         intervalo = b["disasterIntervalStart"] + (b["disasterIntervalEnd"] - b["disasterIntervalStart"]) * self.rampa()
         tarde = self.minutos_depois_do_teto()
-        if tarde <= 0:
-            return intervalo
-        piso = b.get("disasterIntervalFloor", intervalo)
-        return max(min(intervalo, piso), intervalo - b.get("disasterLateIntervalPerMinute", 0.0) * tarde)
+        if tarde > 0:
+            piso = b.get("disasterIntervalFloor", intervalo)
+            intervalo = max(min(intervalo, piso), intervalo - b.get("disasterLateIntervalPerMinute", 0.0) * tarde)
+        return intervalo_adaptado(b, intervalo, self.ritmo)
 
-    def casas_por_desastre(self):
+    def casas_por_desastre(self, ritmo=None):
         """DisasterManager.GetHouseCount: rampa de Start a End; depois do teto, sobe disasterLateHousesPerMinute por
-        minuto, até disasterHousesMax (arredonda como o Mathf.RoundToInt: metade para o par)."""
+        minuto, até disasterHousesMax; o ritmo adaptativo cresce antes de arredondar (ADAPTATIVA_V6B), como o
+        Mathf.RoundToInt: metade para o par. ritmo=0.0 é o terremoto forte (fica de fora)."""
         b = self.b
         casas = b["disasterHousesStart"] + (b["disasterHousesEnd"] - b["disasterHousesStart"]) * self.rampa()
         tarde = self.minutos_depois_do_teto()
         if tarde > 0:
             teto = b.get("disasterHousesMax", casas)
             casas = min(max(casas, teto), casas + b.get("disasterLateHousesPerMinute", 0.0) * tarde)
-        return round(casas)
+        return round(casas_adaptadas(b, casas, self.ritmo if ritmo is None else ritmo))
 
     # RITMO_V3, igual ao DisasterManager.TryGetDebut (#534): o primeiro sorteio depois de liberar um tipo é esse tipo.
     estreia_garantida = True
@@ -403,7 +448,8 @@ class Jogo:
         if not self.primeiro:  # IsStrongTurn: a cada N desastres, um terremoto forte com aviso longo
             self.n_desastres += 1
             forte = b["strongDisasterEvery"] > 0 and self.n_desastres % b["strongDisasterEvery"] == 0
-        n = b["firstDisasterHouses"] if self.primeiro else self.casas_por_desastre()
+        # ADAPTATIVA_V6B: o terremoto forte sai das casas da rampa sem o ritmo (o pico não cresce com ele)
+        n = b["firstDisasterHouses"] if self.primeiro else self.casas_por_desastre(0.0 if forte else None)
         if forte:
             tipo, n = "terremoto", round(n * b["strongDisasterHouseMultiplier"])
         aviso = self.blocos.aviso(tipo, b["strongDisasterWarningTime"] if forte else b["warningTime"])
@@ -597,6 +643,23 @@ class Jogo:
                     self.auto_despachos += 1
                     break
 
+    # --- dificuldade adaptativa (DisasterManager.TickPace)
+    def fila(self):
+        """Chamados esperando equipe (GuardManager.WaitsForTeam): casa com problema, sem equipe, com chamado."""
+        return sum(1 for c in self.casas if c.estado != INTACTA and not c.equipe and self.blocos.chamado(c))
+
+    def niveis_comprados(self):
+        return sum(n for uid, n in self.niveis.items() if uid != "goal")
+
+    def tick_ritmo(self):
+        b, dt = self.b, self.passo
+        self.caos_medio = media_movel(self.caos_medio, self.caos, dt, b.get("paceAverageTime", 0.0))
+        self.fila_media = media_movel(self.fila_media, self.fila(), dt, b.get("paceAverageTime", 0.0))
+        alvo = eficiencia_alvo(b, self.caos_medio, self.fila_media, self.money, self.niveis_comprados())
+        self.ritmo = passo_eficiencia(b, self.ritmo, alvo, dt)
+        minuto = int(self.t // 60)
+        self.ritmo_min[minuto] = self.ritmo_min.get(minuto, 0.0) + self.ritmo * dt / 60
+
     # --- partida
     def rodar(self):
         while self.fim is None and self.t < self.limite:
@@ -606,6 +669,7 @@ class Jogo:
                 funcao(*args)
             if self.fim:
                 break
+            self.tick_ritmo()
             self.tick_desastres()
             self.rede.tick(self)
             self.tick_renda()

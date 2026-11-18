@@ -84,6 +84,30 @@ public class BalanceData : ScriptableObject
     [Tooltip("Segundos a mais de calma depois do terremoto forte.")]
     public float strongDisasterCalm = 20f;
 
+    [Header("ADAPTIVE PACE (ADAPTATIVA_V6B)")]
+    [Tooltip("Segundos da média do caos e da fila de chamados que medem a eficiência do jogador (esquece devagar).")]
+    public float paceAverageTime = 45f;
+    [Tooltip("Caos médio: até paceChaosLow é calma total; de paceChaosHigh para cima, nenhuma.")]
+    public float paceChaosLow = 0.08f;
+    public float paceChaosHigh = 0.25f;
+    [Tooltip("Chamados esperando equipe, em média: até paceQueueLow a fila é curta; de paceQueueHigh para cima, longa.")]
+    public float paceQueueLow = 0.5f;
+    public float paceQueueHigh = 3f;
+    [Tooltip("Poder do jogador, o maior dos dois: níveis de upgrade comprados (sem a meta) de paceLevelsStart a " +
+             "paceLevelsFull, ou dinheiro guardado até paceMoneyFull. Quem ainda não cresceu fica sem ritmo a mais.")]
+    public int paceLevelsStart = 16;
+    public int paceLevelsFull = 30;
+    public int paceMoneyFull = 4000;
+    [Tooltip("O ritmo (0 a 1) sobe no máximo isto por minuto e desce isto por minuto quando o jogador começa a apanhar.")]
+    public float paceRisePerMinute = 0.35f;
+    public float paceFallPerMinute = 1f;
+    [Tooltip("Com ritmo 1, o intervalo entre desastres encolhe esta fração, sem passar de paceIntervalFloor. 0 desliga.")]
+    public float paceIntervalCut = 0.45f;
+    public float paceIntervalFloor = 12f;
+    [Tooltip("Com ritmo 1, as casas por desastre crescem esta fração, até paceHousesMax (o terremoto forte fica de fora). 0 desliga.")]
+    public float paceHouseBoost = 0.6f;
+    public int paceHousesMax = 9;
+
     [Header("OCCURRENCE CLEARED (GAMELOOP_REVISAO)")]
     [Tooltip("Bônus por casa quando todas as casas de um desastre voltam a ficar intactas.")]
     public int clearBonusPerHouse = 8;
