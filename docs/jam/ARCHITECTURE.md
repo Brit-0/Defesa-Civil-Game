@@ -63,7 +63,7 @@ Pontos que afetam qualquer implementação:
 | `Feedbacks/FeedbacksManager.cs` | `ShowText`/`HideText` do texto de instrução com fade. |
 | `UI/Tweener.cs` | Hover/press com DOTween (escala). |
 | `UI/CursorController.cs` | Troca de cursor (fora da cena, sem texturas). |
-| `Camera/CameraController.cs` | Pan (botão direito/meio), zoom (scroll, 2 a 8), `Focus(pos)`, limites pelo `Limiter`. |
+| `Camera/CameraController.cs` | Só zoom (scroll, sem pan: câmera fixa no enquadramento da cidade), `Focus(pos)`, limites pelo `Limiter`. |
 | `Analytics/AnalyticsManager.cs` | Modo de visualização com holograma no material das casas. Fora do Tab desde a v6A: o Tab abre e fecha a aba de melhorias (`UI/UpgradePanelShortcuts.cs`). |
 | `Eletricity/*` | Protótipo de postes com raio de alcance. Poste desativado na cena. |
 | `Masters/GameManager.cs` | `BlockInput`/`UnblockInput` vazios (fora da cena). |

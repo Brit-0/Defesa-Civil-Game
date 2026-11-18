@@ -42,3 +42,7 @@ pelo mapa não abre a aba.
     seta para fora.
 - Prints em `analises-lilith/jogo-defesa-civil/v6a/`: antes (`_c_pino.png`, `_c_exp.png`) e depois
   (`_c_depois_pino.png`, `_c_depois_placa2.png`).
+
+## 4. Câmera sem pan
+
+A câmera não arrasta mais (botão direito e do meio): `CameraController` ficou só com o zoom (roda do mouse), que não desloca a vista; o clique no pino de borda continua deslizando a câmera até a casa (`MapMarkers.FocusOn`), e o hash do `CameraController.cs` no `scene_baseline.json` (R28) foi atualizado.
