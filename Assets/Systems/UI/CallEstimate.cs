@@ -10,6 +10,9 @@ using UnityEngine.UI;
 //mais o intervalo entre as saídas (Stats.GetTravelTime) e Stats.GetWorkTime com a equipe escolhida.
 //No Armazém, uma terceira linha diz quanto material a equipe traz (Stats.GetRestockAmount, #535).
 //A aba cresce para cima para caber a faixa; montada em runtime em toda cena, sem editar o Gameplay.unity.
+//Chamado com mínimo de trabalhadores (enchente, meteoro, v6G): a primeira linha diz "Exige N trabalhadores", o número
+//da equipe ao lado do + vira "escolhidos/N" (vermelho até completar), a dica conta quantos faltam, e ENVIAR com menos
+//sobe um texto curto (CallCrew).
 public class CallEstimate : MonoBehaviour
 {
     public const string TabObjectName = "GuardTab";
@@ -45,6 +48,15 @@ public class CallEstimate : MonoBehaviour
     [SerializeField] private float hintPunch = .2f;
     [SerializeField] private float punchTime = .25f;
 
+    [Header("CREW (v6G: mínimo de trabalhadores)")]
+    [SerializeField] private Color crewShortColor = new Color(1f, .42f, .36f);
+    [Tooltip("Texto que sobe ao enviar com menos que o mínimo (unidades do HUD de 1080p)")]
+    [SerializeField] private float warningSize = 34f;
+    [SerializeField] private float warningRise = 60f;
+    [SerializeField] private float warningTime = 1.1f;
+    [Tooltip("x: folga da borda da tela; y: altura acima do alto da aba")]
+    [SerializeField] private Vector2 warningOffset = new Vector2(24f, 34f);
+
     private RectTransform tab;
     private RectTransform rows;
     private TMP_Text arriveLbl;
@@ -54,10 +66,16 @@ public class CallEstimate : MonoBehaviour
     private TMP_Text materialLbl;
     private TMP_Text materialValue;
     private TMP_Text hintLbl;
+    private TMP_Text crewLbl;
+    private TMP_Text warningLbl;
+    private bool counterReady;
+    private Color counterColor;
     private Transform plusButton;
-    //Altura que a aba ganhou em cima, linhas da faixa agora (2, ou 3 no Armazém) e o x de antes do desvio do CAOS
+    //Altura que a aba ganhou em cima, linhas da faixa agora (2, ou 3 no Armazém, mais 1 com mínimo de equipe), quantas
+    //linhas do mínimo vão antes das outras (0 ou 1) e o x de antes do desvio do CAOS
     private float grown;
     private int lines;
+    private int crewLines = -1;
     private float baseX;
 
     private Call pathCall;
@@ -97,7 +115,7 @@ public class CallEstimate : MonoBehaviour
         tab = (RectTransform)transform;
         baseX = tab.anchoredPosition.x;
         Build();
-        SetLines(2);
+        SetLines(2, 0);
 
         plusButton = FeelUI.FindChild(transform, "PlusButton");
         Transform send = FeelUI.FindChild(transform, "SendButton");
@@ -160,6 +178,10 @@ public class CallEstimate : MonoBehaviour
         workValue = Line("WorkValue", noValue, FeelUI.PixelGold, TextAlignmentOptions.MidlineRight);
         materialLbl = Line("MaterialLbl", materialLabel, FeelUI.PixelCream, TextAlignmentOptions.MidlineLeft);
         materialValue = Line("MaterialValue", noValue, FeelUI.PixelGold, TextAlignmentOptions.MidlineRight);
+        crewLbl = Line("CrewLbl", "", FeelUI.PixelCream, TextAlignmentOptions.Center);
+        crewLbl.enableAutoSizing = true;
+        crewLbl.fontSizeMin = textSize * .6f;
+        crewLbl.fontSizeMax = textSize;
 
         hintLbl = FeelUI.CreateText("Hint", rows, emptyHint, textSize, FeelUI.PixelGold);
         FeelUI.Stretch(hintLbl.rectTransform, padX * .5f);
@@ -187,11 +209,13 @@ public class CallEstimate : MonoBehaviour
 
     public float BlockHeight(int count) => padY * 2f + lineHeight * count + lineGap * (count - 1);
 
-    //A aba cresce (ou volta) em cima para a faixa de 2 ou 3 linhas e sai de baixo do rótulo CAOS de novo
-    private void SetLines(int count)
+    //A aba cresce (ou volta) em cima para a faixa de 2 a 4 linhas e sai de baixo do rótulo CAOS de novo.
+    //crew = 1 põe a linha do mínimo em cima; a dica fica embaixo dela, no lugar das outras.
+    private void SetLines(int count, int crew)
     {
-        if (count == lines) return;
+        if (count == lines && crew == crewLines) return;
         lines = count;
+        crewLines = crew;
 
         float block = BlockHeight(count);
         float extra = topMargin + block - overlap;
@@ -200,12 +224,20 @@ public class CallEstimate : MonoBehaviour
 
         rows.offsetMin = new Vector2(sideMargin, -(topMargin + block));
         rows.offsetMax = new Vector2(-sideMargin, -topMargin);
-        PlaceLine(arriveLbl, 0);
-        PlaceLine(arriveValue, 0);
-        PlaceLine(workLbl, 1);
-        PlaceLine(workValue, 1);
-        PlaceLine(materialLbl, 2);
-        PlaceLine(materialValue, 2);
+        PlaceLine(crewLbl, 0);
+        PlaceLine(arriveLbl, crew);
+        PlaceLine(arriveValue, crew);
+        PlaceLine(workLbl, crew + 1);
+        PlaceLine(workValue, crew + 1);
+        PlaceLine(materialLbl, crew + 2);
+        PlaceLine(materialValue, crew + 2);
+
+        //"Exige N trabalhadores" usa a largura toda da faixa, como a dica (com a margem de linha, encolhia para 18)
+        float hintMargin = padX * .5f;
+        crewLbl.rectTransform.offsetMin = new Vector2(hintMargin, crewLbl.rectTransform.offsetMin.y);
+        crewLbl.rectTransform.offsetMax = new Vector2(-hintMargin, crewLbl.rectTransform.offsetMax.y);
+        hintLbl.rectTransform.offsetMin = new Vector2(hintMargin, hintMargin);
+        hintLbl.rectTransform.offsetMax = new Vector2(-hintMargin, crew > 0 ? -(padY + (lineHeight + lineGap) * crew) : -hintMargin);
 
         tab.anchoredPosition = new Vector2(baseX, tab.anchoredPosition.y);
         ClearChaosLabel(tab);
@@ -233,9 +265,15 @@ public class CallEstimate : MonoBehaviour
 
         int team = guards.TeamSize;
         bool restock = call.type == CallType.Restock;
-        SetLines(restock ? 3 : 2);
+        int minimum = CallCrew.Minimum(call);
+        int crew = CallCrew.Shows(call) ? 1 : 0;
+        SetLines((restock ? 3 : 2) + crew, crew);
 
-        bool empty = team < Mathf.Max(1, call.workersNeeded);
+        bool empty = !CallCrew.Enough(team, minimum);
+        SetVisible(crewLbl, crew > 0);
+        if (crew > 0) crewLbl.text = CallCrew.Requirement(minimum);
+        PaintCounter(guards.TeamSizeLabel, crew > 0 && empty);
+
         SetVisible(arriveLbl, !empty);
         SetVisible(arriveValue, !empty);
         SetVisible(workLbl, !empty);
@@ -245,6 +283,8 @@ public class CallEstimate : MonoBehaviour
         SetVisible(hintLbl, empty);
         if (empty)
         {
+            //Com mínimo, a dica conta quantos faltam; chamado comum vazio continua apontando o +
+            hintLbl.text = crew > 0 ? CallCrew.Shortfall(team, minimum) : emptyHint;
             shown = false;
             return;
         }
@@ -293,6 +333,27 @@ public class CallEstimate : MonoBehaviour
         return total < 60 ? total + " s" : $"{total / 60}:{total % 60:00}";
     }
 
+    //Número da equipe ("1/2", texto do GuardManager): vermelho enquanto falta gente para o mínimo, na cor de antes quando
+    //completa. "8/8" cabe no lugar do "8": a fonte encolhe até 60% em vez de vazar por cima do +.
+    private void PaintCounter(TMP_Text label, bool shortCrew)
+    {
+        if (label == null) return;
+        if (!counterReady)
+        {
+            counterReady = true;
+            counterColor = label.color;
+            float size = label.enableAutoSizing ? label.fontSizeMax : label.fontSize;
+            //Com quebra de linha ligada, o "1/2" virava "1/" em cima do "2"
+            label.textWrappingMode = TextWrappingModes.NoWrap;
+            label.enableAutoSizing = true;
+            label.fontSizeMax = size;
+            label.fontSizeMin = size * .6f;
+        }
+
+        Color color = shortCrew ? crewShortColor : counterColor;
+        if (label.color != color) label.color = color;
+    }
+
     private static bool SetValue(TMP_Text label, string text)
     {
         if (label.text == text) return false;
@@ -316,6 +377,45 @@ public class CallEstimate : MonoBehaviour
         AudioManager.PlaySfx(AudioManager.Sfx?.error);
         Punch(hintLbl.transform, hintPunch);
         if (plusButton != null) Punch(plusButton, hintPunch);
+        if (CallCrew.Shows(call)) ShowWarning(CallCrew.Warning(guards.TeamSize, CallCrew.Minimum(call)));
+    }
+
+    //"Exige 8: faltam 3!" nasce logo acima da aba, centrado nela e dentro da tela (do ENVIAR ele cobria o + e saía pela
+    //borda direita), treme, sobe e some, do mesmo jeito do "Sem trabalhadores!" do ActionFeedback
+    private void ShowWarning(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return;
+
+        RectTransform layer = FeelUI.HudLayer("FeelPopups");
+        if (layer == null) return;
+        if (warningLbl == null)
+        {
+            warningLbl = FeelUI.CreateText("CrewWarning", layer, "", warningSize, crewShortColor);
+            FeelUI.Outline(warningLbl, .3f);
+        }
+
+        RectTransform rect = warningLbl.rectTransform;
+        rect.DOKill();
+        warningLbl.DOKill();
+        warningLbl.text = text;
+        warningLbl.color = crewShortColor;
+        warningLbl.gameObject.SetActive(true);
+        rect.SetAsLastSibling();
+        float width = warningLbl.GetPreferredValues(text).x + 8f;
+        rect.sizeDelta = new Vector2(width, warningSize * 1.4f);
+
+        Bounds tabBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(layer, tab);
+        float halfRoom = Mathf.Max(0f, layer.rect.width * .5f - width * .5f - warningOffset.x);
+        Vector2 start = new Vector2(Mathf.Clamp(tabBounds.center.x, -halfRoom, halfRoom), tabBounds.max.y + warningOffset.y);
+        rect.anchoredPosition = start;
+        rect.localScale = Vector3.zero;
+
+        Sequence sequence = DOTween.Sequence().SetUpdate(true).SetLink(warningLbl.gameObject).SetTarget(rect);
+        sequence.Append(rect.DOScale(1f, .12f).SetEase(Ease.OutBack));
+        sequence.Append(rect.DOShakeAnchorPos(.25f, new Vector2(12f, 0f), 20, 0f));
+        sequence.Append(rect.DOAnchorPosY(start.y + warningRise, warningTime).SetEase(Ease.OutQuad));
+        sequence.Join(warningLbl.DOFade(0f, warningTime).SetEase(Ease.InQuad));
+        sequence.OnComplete(() => warningLbl.gameObject.SetActive(false));
     }
 
     private void Punch(Transform target, float amount)

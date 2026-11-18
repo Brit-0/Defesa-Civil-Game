@@ -39,6 +39,20 @@ public class InfoPanel : MonoBehaviour
         if (specificLbl != null) specificLbl.text = text;
     }
 
+    //Painel montado por código (chamado do quarteirão com mínimo de trabalhadores, v6G: CallCrewInfo)
+    public void SetTexts(string title, string description, string specific)
+    {
+        if (nameLbl != null) nameLbl.text = title;
+        if (descriptionLbl != null) descriptionLbl.text = description;
+        SetSpecific(specific);
+    }
+
+    //Linha de baixo em destaque (o lilás do kit some na água azul); chamar depois do Show, que veste a janela
+    public void HighlightSpecific(Color color)
+    {
+        if (specificLbl != null) specificLbl.color = color;
+    }
+
     public void Show()
     {
         Skin();

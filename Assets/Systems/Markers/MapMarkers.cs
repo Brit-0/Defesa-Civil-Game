@@ -13,7 +13,7 @@ using UnityEngine.UI;
 //- Base da Guarda e Armazéns: placa com ícone e nome em cima do prédio, sem seta nem pino de borda; a Base só ganha
 //  a seta e o pino de borda quando faz parte de um chamado (escolher a base). Setas e anéis só nos chamados (#532).
 //Só apresentação: lê o estado das casas e escuta GameEvents; não muda regra nenhuma. Um na cena ("[Markers]").
-public class MapMarkers : MonoBehaviour
+public partial class MapMarkers : MonoBehaviour
 {
     public static MapMarkers Instance;
 
@@ -235,6 +235,7 @@ public class MapMarkers : MonoBehaviour
             p.badge = badge.gameObject;
             p.amount = NewText("Amount", badge.rectTransform, 8f * s);
             p.amount.rectTransform.anchoredPosition = new Vector2(.5f, 0f) * s;
+            MakeCrew(p, s);
         }
         else
         {
@@ -625,6 +626,7 @@ public class MapMarkers : MonoBehaviour
                 if (amount > 0) p.amount.SetText("{0}", amount);
             }
         }
+        PaintCrew(p);
     }
 
     // Para onde a seta do pino mira: o topo da casa com o pino em cima dela; o meio da casa na borda e com o pino

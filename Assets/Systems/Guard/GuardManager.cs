@@ -50,8 +50,16 @@ public class GuardManager : MonoBehaviour
         set
         {
             teamSize = value;
-            teamSizeLbl.text = teamSize.ToString();
+            teamSizeLbl.text = TeamSizeText();
         }
+    }
+    // Número entre o bonequinho e o +; a aba (CallEstimate) pinta de vermelho enquanto falta gente.
+    public TMP_Text TeamSizeLabel => teamSizeLbl;
+
+    // Chamado com mínimo de trabalhadores (enchente, meteoro, v6G): "escolhidos/mínimo", ex. "1/2".
+    private string TeamSizeText()
+    {
+        return CallCrew.Shows(currentCall) ? CallCrew.Counter(teamSize, CallCrew.Minimum(currentCall)) : teamSize.ToString();
     }
 
     [Header("CALL")]

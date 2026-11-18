@@ -110,7 +110,9 @@ public class ActionFeedback : MonoBehaviour
     {
         switch (reason)
         {
-            case DeniedReason.NoWorkers: return noWorkersText;
+            //Chamado aberto com mínimo maior que o estoque inteiro: "Exige 8 trabalhadores!" (v6G)
+            case DeniedReason.NoWorkers:
+                return CallCrew.DeniedText(noWorkersText, GuardManager.Instance != null ? GuardManager.Instance.CurrentCall : null, ResourcesManager.Workers);
             case DeniedReason.NoMaterial: return noMaterialText;
             case DeniedReason.NoMoney: return noMoneyText;
             case DeniedReason.MaxLevel: return maxLevelText;
