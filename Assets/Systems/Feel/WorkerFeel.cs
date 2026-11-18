@@ -6,6 +6,10 @@ using UnityEngine;
 //sem componente no Worker.prefab. Não mexe na posição, que é do GPS: balanço por rotação, escala e pivô.
 public class WorkerFeel : MonoBehaviour
 {
+    //Tamanho do trabalhador na rua em relação ao do prefab (1 = como era; v6H: 1,25). Único ajuste: cresce o retângulo,
+    //não a escala, então sombra, pegadas, fita, poeira e pulinho (todos em alturas dele) acompanham. Pixel Point, sem borrar.
+    public const float SizeFactor = 1.25f;
+
     [Header("WALK")]
     [SerializeField] private float stepsPerSecond = 4.5f;
     [SerializeField] private float tiltAngle = 7f;
@@ -85,6 +89,7 @@ public class WorkerFeel : MonoBehaviour
     {
         if (worker == null || Find(worker) != null) return;
 
+        Grow(worker as RectTransform);
         Walker walker = new Walker
         {
             transform = worker,
@@ -105,6 +110,15 @@ public class WorkerFeel : MonoBehaviour
             float height = walker.rect.rect.height;
             trails.Track(worker, height * trailWidth, height * trailSpacing);
         }
+    }
+
+    //Os pés ficam onde estavam (pivô sobe na mesma proporção): a ordem de desenho por Y e o caminho não mudam
+    private static void Grow(RectTransform rect)
+    {
+        if (rect == null || Mathf.Approximately(SizeFactor, 1f)) return;
+
+        rect.sizeDelta *= SizeFactor;
+        rect.pivot = new Vector2(rect.pivot.x, rect.pivot.y / SizeFactor);
     }
 
     //Uma fita por trabalhador, todas num Graphic só no chão (criado no primeiro que nasce)
