@@ -158,14 +158,25 @@ public static class Stats
 
     #region PASSIVE INCOME
 
-    // Repasse = valor por casa × nível do income × casas intactas × (1 − caos), arredondado.
+    // Repasse (BALANCEAMENTO_V6F) = nível × (piso por casa intacta + fração do caixa), até o teto por casa intacta,
+    // × (1 − caos) ^ incomeChaosPower, arredondado. Caixa vazio paga só o piso: o começo não enche mais o bolso.
     public static int GetPassiveIncome()
     {
         if (LocationsManager.Instance == null) return 0;
 
         int intactHouses = LocationsManager.Instance.GetIntactHouses().Count;
         float chaos = ChaosManager.Instance != null ? ChaosManager.Instance.Chaos : 0f;
-        return Mathf.RoundToInt(Balance.incomePerHouse * GetUpgradeEffect(UpgradeIds.Income) * intactHouses * (1f - chaos));
+        int money = ResourcesManager.Instance != null ? ResourcesManager.Money : 0;
+        return PassiveIncome(Balance, GetUpgradeEffect(UpgradeIds.Income), intactHouses, money, chaos);
+    }
+
+    // A conta pura do repasse (o sim.py espelha em repasse()).
+    public static int PassiveIncome(BalanceData balance, float level, int intactHouses, int money, float chaos)
+    {
+        float share = level * (balance.incomeFloorPerHouse * intactHouses + balance.incomeMoneyShare * Mathf.Max(0, money));
+        float cap = balance.incomePerHouse * intactHouses;
+        float calm = Mathf.Pow(Mathf.Clamp01(1f - chaos), balance.incomeChaosPower);
+        return Mathf.RoundToInt(Mathf.Min(share, cap) * calm);
     }
 
     #endregion

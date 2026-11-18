@@ -30,7 +30,7 @@ public class BalanceData : ScriptableObject
     public float restockTime = 5f; // BALANCEAMENTO_V5: 3 (o Pietro: estocar estava fácil demais; volta ao GDD)
 
     [Header("REWARD")]
-    public int moneyPerDamage = 18; // BALANCEAMENTO_V5: 15 (quem conserta muito aguenta a escalada nova; GDD: 10)
+    public int moneyPerDamage = 52; // BALANCEAMENTO_V6F: 18 (o começo vem do conserto, não do repasse; V5: 15; GDD: 10)
     public int fireReward = 20; // GDD: 15
 
     [Header("DAMAGE")]
@@ -145,8 +145,14 @@ public class BalanceData : ScriptableObject
 
     [Header("PASSIVE INCOME")]
     public float incomeInterval = 10f;
-    [Tooltip("Repasse = incomePerHouse x nível x casas intactas x (1 - caos), arredondado.")]
-    public float incomePerHouse = 1.2f; // BALANCEAMENTO_V5: 0,5 (paga a meta de 33000; quem compra o Repasse cedo e segura o caos vence antes)
+    [Tooltip("Repasse = nível x (incomeFloorPerHouse x casas intactas + incomeMoneyShare x dinheiro no caixa), até o teto incomePerHouse x casas intactas, vezes (1 - caos) elevado a incomeChaosPower, arredondado.")]
+    public float incomeFloorPerHouse = 0.3f; // BALANCEAMENTO_V6F: novo (o repasse não olhava o caixa: 1,2 por casa no nível 1 já pagava o upgrade em 10 s)
+    [Tooltip("Fração do dinheiro no caixa que o repasse soma, por nível.")]
+    public float incomeMoneyShare = 0.15f; // BALANCEAMENTO_V6F: novo
+    [Tooltip("O repasse é multiplicado por (1 - caos) elevado a este expoente: acima de 1, o caos alto corta mais.")]
+    public float incomeChaosPower = 3f; // BALANCEAMENTO_V6F: novo (antes 1)
+    [Tooltip("Teto do repasse por casa intacta, o mesmo em todo nível.")]
+    public float incomePerHouse = 14f; // BALANCEAMENTO_V6F: 1,2 por nível (virou o teto; 14 x (1 - caos)^3 paga a meta de 33000 no mesmo tempo)
 
     [Header("MILESTONES (GAMELOOP_REVISAO)")]
     [Tooltip("Casas consertadas que viram marco. Cada marco traz voluntários (trabalhadores grátis).")]

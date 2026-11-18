@@ -115,12 +115,13 @@ public static class BlockDisasterArt
                 if (r >= 15.5f && r <= 18f && (angle < 60f || angle > 120f)) p[y * w + x] = white;
             }
         }
-        // ponta da seta no fim do arco (em cima, à direita do vão)
+        // Ponta da seta na frente do giro (v6F): a seta gira no sentido horário, então a ponta sai da ponta esquerda do
+        // arco e aponta para o vão, à direita. Antes ficava do outro lado do vão, no rabo do giro, e parecia ao contrário.
         for (int i = 0; i < 6; i++)
         {
             for (int j = -i; j <= i; j++)
             {
-                int x = 27 - i, y = 33 + j;
+                int x = 17 - i, y = 33 + j;
                 if (x >= 0 && x < w && y >= 0 && y < h) p[y * w + x] = white;
             }
         }

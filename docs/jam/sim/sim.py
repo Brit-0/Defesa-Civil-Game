@@ -78,6 +78,16 @@ def casas_adaptadas(b, casas, ritmo):
     teto = max(casas, b.get("paceHousesMax", 0))
     return min(teto, casas * (1 + b.get("paceHouseBoost", 0.0) * min(1.0, max(0.0, ritmo))))
 
+
+def repasse(b, nivel, intactas, dinheiro, caos):
+    """Stats.PassiveIncome (BALANCEAMENTO_V6F): nível x (piso por casa intacta + fração do caixa), até o teto por casa
+    intacta (o mesmo em todo nível), vezes (1 - caos) elevado a incomeChaosPower. Com o caixa vazio paga só o piso: o
+    começo não enche mais o bolso; quem junta para a meta chega ao teto, e quem segura o caos chega antes."""
+    parte = nivel * (b["incomeFloorPerHouse"] * intactas + b["incomeMoneyShare"] * max(0, dinheiro))
+    teto = b["incomePerHouse"] * intactas
+    return round(min(parte, teto) * max(0.0, 1 - caos) ** b["incomeChaosPower"])
+
+
 # ---------------------------------------------------------------- jogo
 
 class Local:
@@ -125,7 +135,7 @@ class Jogo:
         self.fogos_cresceram = 0
         # Ritmo (RITMO_V3.md): segundo em que cada sistema aparece pela primeira vez, chamados e caos por minuto.
         self.estreias = {}
-        self.chamados_min, self.caos_min = {}, {}
+        self.chamados_min, self.caos_min, self.renda_min = {}, {}, {}
         self.rede = Rede(self)
         # Para-raio (PARARAIO.md): quarteirões protegidos, raios absorvidos e os que caíram em casa
         self.pararaio = dict(PARARAIO)
@@ -618,11 +628,12 @@ class Jogo:
             return
         self.renda_timer = 0.0
         intactas = sum(1 for c in self.casas if c.estado == INTACTA)
-        valor = round(self.b["incomePerHouse"] * self.efeito("income") * intactas * (1 - self.caos))
+        valor = repasse(self.b, self.efeito("income"), intactas, self.money, self.caos)
         if valor > 0:
             self.money += valor
             self.ganho_total += valor
             self.renda_total += valor
+            self.renda_min[int(self.t // 60)] = self.renda_min.get(int(self.t // 60), 0) + valor
 
     def tick_guaritas(self):
         """OutpostManager.Update/Dispatch (v5A, no lugar do antigo nível 4 da Automação): cada guarita olha só o

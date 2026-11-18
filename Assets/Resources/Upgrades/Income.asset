@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
   id: income
   displayName: Repasse da Prefeitura
-  description: "A Prefeitura paga por casa intacta de tempos em tempos. Paga menos quando o caos est\xE1 alto."
+  description: "A Prefeitura repassa parte do seu caixa de tempos em tempos, at\xE9 um teto por casa intacta. Caos alto corta o repasse."
   icon: {fileID: 2136852644, guid: 1d6c0329376253c69e069c1b9fb1a9fb, type: 3}
   order: 6
   category: 1

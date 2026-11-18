@@ -23,7 +23,7 @@ MonoBehaviour:
   minWorkTime: 2
   fireWorkTime: 4
   restockTime: 5
-  moneyPerDamage: 18
+  moneyPerDamage: 52
   fireReward: 20
   minDamage: 1
   maxDamage: 3
@@ -76,4 +76,7 @@ MonoBehaviour:
   fireMinHouses: 1
   fireMaxHouses: 2
   incomeInterval: 10
-  incomePerHouse: 1.2
+  incomeFloorPerHouse: 0.3
+  incomeMoneyShare: 0.15
+  incomeChaosPower: 3
+  incomePerHouse: 14
