@@ -6,13 +6,15 @@ using UnityEngine.UI;
 
 //Pausa: botão no canto do HUD e as teclas Esc e P chamam GameManager.Pause/Resume; a tela aparece em GameState.Paused.
 //Com um chamado aberto, o Esc primeiro fecha o chamado (CancelCall); o próximo pausa (#535). Monta a própria UI, num
-//Canvas por cima de todo o HUD, e anima fora do timeScale.
+//Canvas por cima de todo o HUD, e anima fora do timeScale. CONFIGURAÇÕES abre o SettingsPanel (v6D) por cima; com ele
+//aberto a pausa some e as teclas são dele.
 public class PauseMenu : MonoBehaviour
 {
     [Header("TEXTS")]
     [SerializeField] private string title = "PAUSADO";
     [SerializeField] private string resumeText = "CONTINUAR";
     [SerializeField] private string restartText = "REINICIAR";
+    [SerializeField] private string settingsText = "CONFIGURAÇÕES";
     [SerializeField] private string hintText = "Esc ou P pausa e continua";
 
     [Header("LAYER")]
@@ -86,15 +88,18 @@ public class PauseMenu : MonoBehaviour
         dim.raycastTarget = true;
         FeelUI.Stretch(dim.rectTransform);
 
+        //Três opções: o painel cresce uma linha (o tamanho do prefab é o de duas)
+        float step = optionSize.y + 14f;
+        Vector2 size = panelSize + new Vector2(0f, step);
         if (px != null)
         {
             panel = FeelUI.CreateWindow("Panel", screen).rectTransform;
-            FeelUI.Place(panel, center, center, Vector2.zero, panelSize);
+            FeelUI.Place(panel, center, center, Vector2.zero, size);
         }
         else
         {
             panel = FeelUI.CreatePanel("Panel", screen, frameColor).rectTransform;
-            FeelUI.Place(panel, center, center, Vector2.zero, panelSize);
+            FeelUI.Place(panel, center, center, Vector2.zero, size);
             FeelUI.Stretch(FeelUI.CreatePanel("Back", panel, panelColor).rectTransform, border);
         }
 
@@ -103,11 +108,15 @@ public class PauseMenu : MonoBehaviour
 
         //Continuar é a ação principal: o botão dourado
         Button resume = FeelUI.CreateButton("ResumeBtn", panel, resumeText, optionSize, resumeColor, 40f, true);
-        FeelUI.Place((RectTransform)resume.transform, center, center, new Vector2(0f, 10f), optionSize);
+        FeelUI.Place((RectTransform)resume.transform, center, center, new Vector2(0f, 10f + step * .5f), optionSize);
         resume.onClick.AddListener(Resume);
 
+        Button settings = FeelUI.CreateButton("SettingsBtn", panel, settingsText, optionSize, restartColor);
+        FeelUI.Place((RectTransform)settings.transform, center, center, new Vector2(0f, 10f - step * .5f), optionSize);
+        settings.onClick.AddListener(OpenSettings);
+
         Button restart = FeelUI.CreateButton("RestartBtn", panel, restartText, optionSize, restartColor);
-        FeelUI.Place((RectTransform)restart.transform, center, center, new Vector2(0f, -10f - optionSize.y - 14f), optionSize);
+        FeelUI.Place((RectTransform)restart.transform, center, center, new Vector2(0f, 10f - step * 1.5f), optionSize);
         restart.onClick.AddListener(Restart);
 
         TMP_Text hintLbl = FeelUI.CreateText("Hint", panel, hintText, hintSize, hintColor);
@@ -125,17 +134,20 @@ public class PauseMenu : MonoBehaviour
     private void OnEnable()
     {
         GameEvents.GameStateChanged += OnGameStateChanged;
+        SettingsPanel.OpenChanged += OnSettingsOpenChanged;
     }
 
     private void OnDisable()
     {
         GameEvents.GameStateChanged -= OnGameStateChanged;
+        SettingsPanel.OpenChanged -= OnSettingsOpenChanged;
     }
 
     private void Update()
     {
         Keyboard keyboard = Keyboard.current;
-        if (keyboard == null) return;
+        //Configurações abertas (ou fechadas pelo Esc deste quadro): as teclas são delas
+        if (keyboard == null || SettingsPanel.BlocksEscape) return;
 
         bool paused = GameManager.Instance != null && GameManager.Instance.State == GameState.Paused;
         if (keyboard.pKey.wasPressedThisFrame || (keyboard.escapeKey.wasPressedThisFrame && (paused || !callWasOpen))) Toggle();
@@ -159,7 +171,7 @@ public class PauseMenu : MonoBehaviour
 
     private void Show()
     {
-        if (screen.gameObject.activeSelf) return;
+        if (screen.gameObject.activeSelf || SettingsPanel.IsOpen) return;
 
         screen.gameObject.SetActive(true);
         screen.parent.SetAsLastSibling();
@@ -205,6 +217,20 @@ public class PauseMenu : MonoBehaviour
     private void Resume()
     {
         if (GameManager.Instance != null) GameManager.Instance.Resume();
+    }
+
+    //Configurações por cima: a pausa some enquanto elas estão abertas e volta ao fechar (o jogo segue pausado)
+    private void OpenSettings()
+    {
+        if (SettingsPanel.Instance != null) SettingsPanel.Instance.Open();
+    }
+
+    private void OnSettingsOpenChanged(bool settingsOpen)
+    {
+        if (screen == null) return;
+
+        if (settingsOpen) Hide();
+        else if (GameManager.Instance != null && GameManager.Instance.State == GameState.Paused) Show();
     }
 
     private void Restart()

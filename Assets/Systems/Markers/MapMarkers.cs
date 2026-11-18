@@ -94,6 +94,7 @@ public class MapMarkers : MonoBehaviour
         public TMP_Text amount;
         public float plateWidth;
         public Kind kind, shownKind;
+        public bool shownColorblind;
         public float shown;                 // 0 escondido, 1 inteiro (entrada com estalo)
         public float phase;
         public Vector2 pos, target;
@@ -360,7 +361,10 @@ public class MapMarkers : MonoBehaviour
 
     private static bool IsLandmarkKind(Kind kind) => kind == Kind.Guard || kind == Kind.Depot;
 
-    private Color ColorOf(Kind kind)
+    // Cor do tipo; no modo daltônico, a da paleta segura (CallPalette, v6D)
+    private Color ColorOf(Kind kind) => CallPalette.Pin(kind.ToString(), NormalColorOf(kind));
+
+    private Color NormalColorOf(Kind kind)
     {
         switch (kind)
         {
@@ -376,7 +380,9 @@ public class MapMarkers : MonoBehaviour
     }
 
     // Ícone v2 do tema (docs/jam/ICONES_V2.md, 64 px a 1:1) ou, sem ele, o Mk_* de 14 px da cena
-    private Sprite IconOf(Kind kind)
+    private Sprite IconOf(Kind kind) => CallPalette.Icon(NormalIconOf(kind));
+
+    private Sprite NormalIconOf(Kind kind)
     {
         FeelUITheme t = FeelUI.Theme;
         switch (kind)
@@ -628,8 +634,10 @@ public class MapMarkers : MonoBehaviour
 
     private void Paint(Pin p)
     {
-        if (p.shownKind == p.kind) return;
+        //Modo daltônico ligado ou desligado nas configurações (v6D) repinta os pinos que já estão na tela
+        if (p.shownKind == p.kind && p.shownColorblind == CallPalette.Active) return;
         p.shownKind = p.kind;
+        p.shownColorblind = CallPalette.Active;
         p.fill.color = ColorOf(p.kind);
         p.iconImg.sprite = IconOf(p.kind);
         p.icon.sizeDelta = IconSize(p.iconImg.sprite, p.landmark);

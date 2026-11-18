@@ -471,7 +471,7 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
             if (callIcon == null) return;
         }
 
-        Sprite sprite = GetIconByCallType(currentCall);
+        Sprite sprite = CallPalette.Icon(GetIconByCallType(currentCall));
         if (sprite == null) return;
 
         callIcon.sprite = sprite;
@@ -487,13 +487,16 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     private void StyleComplete()
     {
         FeelUITheme theme = FeelUI.Theme;
-        if (completeStyled || complete == null || theme == null || theme.callDone == null) return;
+        if (complete == null || theme == null || theme.callDone == null) return;
 
         Image disc = complete.GetComponent<Image>();
         if (disc == null) return;
 
+        //A cada obra pronta: o selo segue o modo daltônico das configurações (v6D)
+        disc.sprite = CallPalette.Icon(theme.callDone);
+        if (completeStyled) return;
+
         completeStyled = true;
-        disc.sprite = theme.callDone;
         disc.color = Color.white;
         disc.preserveAspect = true;
         Transform icon = complete.transform.Find("Icon");

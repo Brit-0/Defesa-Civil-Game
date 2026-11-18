@@ -57,6 +57,9 @@ public class TutorialView : MonoBehaviour
 
     public event Action SkipPressed;
 
+    // Igual ao botão PULAR (dicas desligadas nas configurações, v6D): quem roda o tutorial acaba e solta os bloqueios
+    public void Skip() => SkipPressed?.Invoke();
+
     public void Build()
     {
         root = FeelUI.HudLayer("Tutorial");

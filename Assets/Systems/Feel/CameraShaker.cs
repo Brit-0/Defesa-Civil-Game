@@ -76,6 +76,11 @@ public class CameraShaker : MonoBehaviour
 
     public void Shake(float shakeStrength, float time)
     {
+        //Configurações (v6D): o controle vibra mesmo com o tremor de tela desligado; a intensidade escala o tremor
+        GameHaptics.Shake(shakeStrength, time);
+        shakeStrength *= SettingsStore.Current.ShakeMultiplier;
+        if (shakeStrength <= 0f) return;
+
         float current = timeLeft > 0f ? strength * (timeLeft / duration) : 0f;
 
         strength = Mathf.Min(maxStrength, Mathf.Max(current, shakeStrength));
