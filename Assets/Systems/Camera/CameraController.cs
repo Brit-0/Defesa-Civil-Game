@@ -7,7 +7,10 @@ public class CameraController : MonoBehaviour
     public static CameraController Instance;
     
     [SerializeField] private SpriteRenderer limiter;
+    private float minX, maxX, minY, maxY;
+    private Vector3 dragOrigin;
     private Camera cam;
+    private Vector3 difference;
 
     private static bool isAnimating;
 
@@ -21,12 +24,26 @@ public class CameraController : MonoBehaviour
     private void Start()
     {
         cam = Camera.main;
+        GetBounds();
         cam.orthographicSize = 10;
     }
 
     private void Update()
     {
         Zoom();
+        PanCamera();
+    }
+
+    private void PanCamera()
+    {
+        if (Mouse.current.rightButton.wasPressedThisFrame || Mouse.current.middleButton.wasPressedThisFrame) 
+            dragOrigin = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+         
+        if (Mouse.current.rightButton.isPressed || Mouse.current.middleButton.isPressed)
+        {
+            difference = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue()) - transform.position; 
+            cam.transform.position = ClampCamera(dragOrigin - difference); 
+        }
     }
 
     public static void Focus(Vector3 targetPos)
@@ -39,6 +56,22 @@ public class CameraController : MonoBehaviour
         {
             isAnimating = false;
         });
+    }
+
+    private Vector3 ClampCamera(Vector3 targetPos)
+    {
+        float camHeight = cam.orthographicSize;
+        float camWidth = cam.orthographicSize * cam.aspect;
+
+        float minX = this.minX + camWidth;
+        float maxX = this.maxX - camWidth;
+        float minY = this.minY + camHeight;
+        float maxY = this.maxY - camHeight;
+
+        float newX = Mathf.Clamp(targetPos.x, minX, maxX);
+        float newY = Mathf.Clamp(targetPos.y, minY, maxY);
+
+        return new Vector3(newX, newY, targetPos.z);
     }
 
     public void Zoom()
@@ -68,4 +101,13 @@ public class CameraController : MonoBehaviour
 
         GetBounds();
     }*/
+
+    private void GetBounds()
+    {
+        minX = limiter.transform.position.x - limiter.bounds.size.x / 2f;
+        maxX = limiter.transform.position.x + limiter.bounds.size.x / 2f;
+
+        minY = limiter.transform.position.y - limiter.bounds.size.y / 2f;
+        maxY = limiter.transform.position.y + limiter.bounds.size.y / 2f;
+    }
 }
