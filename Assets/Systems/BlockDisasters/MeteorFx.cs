@@ -5,12 +5,15 @@ using UnityEngine.UI;
 
 // Meteoro (docs/jam/ENCHENTE_METEORO.md). Só escuta eventos:
 // - aviso (MeteorIncoming): a sombra escura cresce no quarteirão e o chão treme cada vez mais forte (o trem de tremor);
-//   no fim do aviso a rocha em brasa cai do alto com rastro de fagulhas;
-// - impacto (BlockIncidentStarted): clarão, estouro de entulho, tremor forte e a cratera do tamanho do quarteirão no
-//   chão; as casas de lá somem (o desenho fica transparente) e o para-raio do quarteirão também;
-// - obra: fagulhas de solda na cratera, mais rápidas com a aceleração; coletada, as casas voltam uma a uma.
+//   no fim do aviso a rocha em brasa cai do alto com halo, cauda de fogo, brasas e fumaça que fica no céu, e o
+//   quarteirão acende laranja com ela chegando (v5C);
+// - impacto (BlockIncidentStarted, MeteorFx.Impact.cs): clarão branco que vira laranja, bola de fogo, estouro de
+//   entulho, onda de choque no chão e no ar que sacode as casas vizinhas ao passar, tremor forte e a cratera do tamanho
+//   do quarteirão; as casas de lá somem (o desenho fica transparente) e o para-raio do quarteirão também;
+// - cratera: fundo em brasa que esfria, brasas subindo e colunas de fumaça; na obra, fagulhas de solda mais rápidas
+//   com a aceleração; coletada, as casas voltam uma a uma (a festa da obra pronta é da BuildDoneFx).
 // Tudo no GameClock: o Esc segura a sombra, o tremor e a queda.
-public class MeteorFx : MonoBehaviour
+public partial class MeteorFx : MonoBehaviour
 {
     [Header("SOMBRA")]
     [SerializeField] private Color shadowColor = new(.05f, .03f, .08f, 1f);
@@ -30,18 +33,31 @@ public class MeteorFx : MonoBehaviour
 
     [Header("QUEDA")]
     [Tooltip("Segundos finais do aviso em que a rocha aparece caindo.")]
-    [SerializeField] private float fallTime = 1.1f;
-    [Tooltip("De onde a rocha vem, em alturas de casa a partir do alvo.")]
-    [SerializeField] private Vector2 fallFrom = new(5f, 9f);
+    [SerializeField] private float fallTime = 1.3f;
+    [Tooltip("De onde a rocha vem, em alturas de casa a partir do alvo (perto o bastante para a queda e o rastro ficarem uns 0,5 s na tela).")]
+    [SerializeField] private Vector2 fallFrom = new(3.5f, 6.5f);
     [SerializeField] private Vector2 rockPixels = new(1.5f, 3.2f);
     [SerializeField] private float trailInterval = .04f;
+    [Tooltip("Bolhas da cauda de fogo atrás da rocha.")]
+    [SerializeField] private int trailLength = 9;
+    [Tooltip("Comprimento da cauda, em tamanhos da rocha.")]
+    [SerializeField] private float trailStretch = 3.2f;
+    [Tooltip("Luz laranja no quarteirão com a rocha chegando (alfa no impacto).")]
+    [SerializeField, Range(0f, 1f)] private float heatAlpha = .4f;
 
     [Header("IMPACTO")]
-    [SerializeField] private Color flashColor = new(1f, .95f, .8f, .85f);
-    [SerializeField] private float flashTime = .45f;
-    [SerializeField] private float smokeInterval = .9f;
+    [SerializeField] private Color flashColor = new(1f, .97f, .88f, .95f);
+    [SerializeField] private float flashTime = .55f;
+    [Tooltip("Segundos entre as baforadas de fumaça da cratera (uma saída por vez).")]
+    [SerializeField] private float smokeInterval = .35f;
     [SerializeField] private float weldInterval = .5f;
     [SerializeField] private float rebuildStagger = .06f;
+
+    [Header("CRATERA")]
+    [Tooltip("Segundos até o fundo em brasa da cratera esfriar.")]
+    [SerializeField] private float coolTime = 25f;
+    [SerializeField] private int smokeVents = 3;
+    [SerializeField] private float emberInterval = .25f;
 
     private const string FlashLayer = "Meteoro";
 
@@ -54,6 +70,9 @@ public class MeteorFx : MonoBehaviour
         public Image zone;
         public Image shadow;
         public Image rock;
+        public Image glow;
+        public Image heat;
+        public readonly List<Image> trail = new();
         public Vector3 rockFrom;
         public float trailTimer;
     }
@@ -62,9 +81,14 @@ public class MeteorFx : MonoBehaviour
     {
         public BlockIncident incident;
         public Image image;
+        public Image core;
+        public float born;
+        public readonly List<Vector3> vents = new();
+        public int nextVent;
         public readonly List<CanvasGroup> hidden = new();
         public readonly List<Image> rods = new();
         public float smokeTimer;
+        public float emberTimer;
         public float weldTimer;
     }
 
@@ -152,7 +176,7 @@ public class MeteorFx : MonoBehaviour
                 pending.tremorsDone++;
                 float k = tremors > 1 ? (pending.tremorsDone - 1f) / (tremors - 1f) : 1f;
                 if (CameraShaker.Instance != null) CameraShaker.Instance.Shake(Mathf.Lerp(tremorStrength.x, tremorStrength.y, k), tremorTime);
-                if (PixelFx.Ground != null) FeelParticles.EmitAt(FxKind.Dust, PixelFx.Ground, Center(pending.incident), .6f + k, 4 + pending.tremorsDone * 2);
+                if (PixelFx.Sky != null) FeelParticles.EmitAt(FxKind.Dust, PixelFx.Sky, Center(pending.incident), VfxKit.House(PixelFx.Sky) * (.6f + k), 4 + pending.tremorsDone * 2);
             }
 
             float left = (1f - t) * pending.seconds;
@@ -160,33 +184,99 @@ public class MeteorFx : MonoBehaviour
         }
     }
 
-    // A rocha desce do alto em linha reta, crescendo, com rastro de brasa e fumaça.
+    // A rocha desce do alto em linha reta, crescendo, com halo, cauda de fogo, brasas e fumaça; o quarteirão acende.
     private void Fall(Pending pending, float k)
     {
         RectTransform sky = PixelFx.Sky;
         if (sky == null) return;
 
         Vector3 target = Center(pending.incident);
-        if (pending.rock == null)
-        {
-            float unit = PixelFx.HouseUnit * (PixelFx.Container != null ? PixelFx.Container.lossyScale.y : 1f);
-            pending.rockFrom = target + new Vector3(fallFrom.x * unit, fallFrom.y * unit, 0f);
-            pending.rock = PixelFx.CreateSprite("Meteoro", sky, BlockDisasterArt.Rock, Color.white, rockPixels.x);
-            pending.rock.raycastTarget = false;
-        }
+        if (pending.rock == null) CreateRock(pending, sky, target);
 
-        float eased = k * k;
+        // velocidade quase constante: a rocha entra na tela cedo e o rastro dá tempo de ver
+        float eased = Mathf.Lerp(k, k * k, .25f);
         Vector3 at = Vector3.Lerp(pending.rockFrom, target, eased);
+        float grow = Mathf.Lerp(1f, rockPixels.y / rockPixels.x, eased);
         RectTransform rock = pending.rock.rectTransform;
         rock.anchoredPosition = PixelFx.ToLocal(sky, at);
-        rock.localScale = Vector3.one * Mathf.Lerp(1f, rockPixels.y / rockPixels.x, eased);
+        rock.localScale = Vector3.one * grow;
         rock.localEulerAngles = new Vector3(0f, 0f, GameClock.Time * 360f);
+        float size = BlockDisasterArt.Rock.rect.width * PixelFx.ArtPixel * rockPixels.x * grow;
+
+        // halo atrás da rocha, tremendo como fogo
+        RectTransform glow = pending.glow.rectTransform;
+        glow.anchoredPosition = rock.anchoredPosition;
+        glow.sizeDelta = Vector2.one * size * 2.6f * (1f + Mathf.Sin(GameClock.Time * 40f) * .08f);
+
+        // cauda: bolhas para trás na linha da queda, da brasa clara até a fumaça
+        Vector2 back = PixelFx.ToLocal(sky, pending.rockFrom) - rock.anchoredPosition;
+        Vector2 direction = back.sqrMagnitude > 1e-4f ? back.normalized : Vector2.up;
+        Vector2 side = Vector2.Perpendicular(direction);
+        for (int i = 0; i < pending.trail.Count; i++)
+        {
+            float t = (i + 1f) / pending.trail.Count;
+            RectTransform puff = pending.trail[i].rectTransform;
+            float wiggle = Mathf.Sin(GameClock.Time * 30f + i * 1.3f) * size * .08f;
+            puff.anchoredPosition = rock.anchoredPosition + direction * size * trailStretch * t + side * wiggle;
+            puff.sizeDelta = Vector2.one * size * Mathf.Lerp(.95f, .3f, t) * (1f + Mathf.Sin(GameClock.Time * 25f + i) * .1f);
+        }
+        pending.heat.color = PixelFx.WithAlpha(PixelFx.Orange, heatAlpha * eased);
 
         pending.trailTimer -= GameClock.DeltaTime;
         if (pending.trailTimer > 0f) return;
         pending.trailTimer = trailInterval;
-        FeelParticles.EmitAt(FxKind.Embers, sky, at, 1.2f, 3);
-        FeelParticles.EmitAt(FxKind.Smoke, sky, at, .8f, 1);
+        float house = VfxKit.House(sky);
+        FeelParticles.EmitPreset(VfxKit.FireTrail, sky, rock.anchoredPosition, house * .9f * grow, 3);
+        FeelParticles.EmitAt(FxKind.Embers, sky, at, house * 1.2f, 3);
+        FeelParticles.EmitPreset(VfxKit.SmokeColumn, sky, rock.anchoredPosition + direction * size * trailStretch * .8f, house * .5f, 1);
+    }
+
+    // Por ordem de desenho: luz no quarteirão, halo, cauda (a bolha mais clara por cima) e a rocha.
+    private void CreateRock(Pending pending, RectTransform sky, Vector3 target)
+    {
+        float unit = PixelFx.HouseUnit * (PixelFx.Container != null ? PixelFx.Container.lossyScale.y : 1f);
+        pending.rockFrom = target + new Vector3(fallFrom.x * unit, fallFrom.y * unit, 0f);
+
+        pending.heat = PixelFx.CreateSprite("Luz do meteoro", sky, PixelFx.Glow(24, 24, 4), PixelFx.WithAlpha(PixelFx.Orange, 0f));
+        pending.heat.raycastTarget = false;
+        pending.heat.rectTransform.anchoredPosition = PixelFx.ToLocal(sky, target);
+        pending.heat.rectTransform.sizeDelta = pending.incident.area.size / Mathf.Max(1e-6f, sky.lossyScale.x) * 1.3f;
+        pending.glow = PixelFx.CreateSprite("Brasa do meteoro", sky, PixelFx.Glow(24, 24, 4), PixelFx.WithAlpha(PixelFx.Orange, .85f));
+        pending.glow.raycastTarget = false;
+
+        int length = Mathf.Max(2, trailLength);
+        for (int i = 0; i < length; i++) pending.trail.Add(null);
+        for (int i = length - 1; i >= 0; i--)
+        {
+            pending.trail[i] = PixelFx.CreateSprite("Cauda", sky, PixelFx.Puff, TrailColor(i / (length - 1f)));
+            pending.trail[i].raycastTarget = false;
+        }
+
+        pending.rock = PixelFx.CreateSprite("Meteoro", sky, BlockDisasterArt.Rock, Color.white, rockPixels.x);
+        pending.rock.raycastTarget = false;
+    }
+
+    private static Color TrailColor(float t)
+    {
+        if (t < .15f) return PixelFx.Cream;
+        if (t < .35f) return PixelFx.Gold;
+        if (t < .6f) return PixelFx.Orange;
+        if (t < .8f) return PixelFx.WithAlpha(PixelFx.Red, .9f);
+        return new Color(.3f, .25f, .25f, .7f);
+    }
+
+    private static void Discard(Pending pending)
+    {
+        if (pending.rock != null) Destroy(pending.rock.gameObject);
+        if (pending.glow != null) Destroy(pending.glow.gameObject);
+        if (pending.heat != null) Destroy(pending.heat.gameObject);
+        foreach (Image puff in pending.trail)
+        {
+            if (puff != null) Destroy(puff.gameObject);
+        }
+        pending.trail.Clear();
+        if (pending.shadow != null) Destroy(pending.shadow.gameObject);
+        if (pending.zone != null) Destroy(pending.zone.gameObject);
     }
 
     #endregion
@@ -201,13 +291,11 @@ public class MeteorFx : MonoBehaviour
         if (pending != null)
         {
             pendings.Remove(pending);
-            if (pending.rock != null) Destroy(pending.rock.gameObject);
-            if (pending.shadow != null) Destroy(pending.shadow.gameObject);
-            if (pending.zone != null) Destroy(pending.zone.gameObject);
+            Discard(pending);
         }
 
         Vector3 center = Center(incident);
-        Crater crater = new() { incident = incident };
+        Crater crater = new() { incident = incident, born = GameClock.Time };
         RectTransform ground = PixelFx.Ground;
         if (ground != null)
         {
@@ -219,6 +307,19 @@ public class MeteorFx : MonoBehaviour
             crater.image.rectTransform.anchoredPosition = PixelFx.ToLocal(ground, center);
             crater.image.rectTransform.localScale = Vector3.one * .3f;
             crater.image.rectTransform.DOScale(1f, .25f).SetEase(Ease.OutBack).SetLink(crater.image.gameObject);
+
+            // fundo em brasa por cima da cratera (esfria com o tempo) e as saídas de fumaça espalhadas por ela
+            crater.core = PixelFx.CreateSprite("Brasa da cratera", ground, PixelFx.Glow(24, 24, 4), PixelFx.WithAlpha(PixelFx.Orange, .8f));
+            crater.core.raycastTarget = false;
+            crater.core.rectTransform.anchoredPosition = crater.image.rectTransform.anchoredPosition;
+            crater.core.rectTransform.sizeDelta = size * .55f;
+        }
+        Rect area = incident.area;
+        for (int i = 0; i < Mathf.Max(1, smokeVents); i++)
+        {
+            float angle = (i / (float)Mathf.Max(1, smokeVents) + Random.Range(-.08f, .08f)) * Mathf.PI * 2f;
+            float reach = i == 0 ? 0f : Random.Range(.2f, .32f);
+            crater.vents.Add(new Vector3(area.center.x + Mathf.Cos(angle) * area.width * reach, area.center.y + Mathf.Sin(angle) * area.height * reach, center.z));
         }
 
         // As casas somem na cratera (o chamado do líder continua visível: balão e círculo ficam fora do Visual).
@@ -241,63 +342,58 @@ public class MeteorFx : MonoBehaviour
         }
         craters.Add(crater);
 
-        Explode(center);
-    }
-
-    private void Explode(Vector3 center)
-    {
-        if (CameraShaker.Instance != null) CameraShaker.Instance.Shake(impactStrength, impactTime);
-
-        RectTransform sky = PixelFx.Sky;
-        if (sky != null)
-        {
-            FeelParticles.EmitAt(FxKind.Burst, sky, center, 3f);
-            FeelParticles.EmitAt(FxKind.Debris, sky, center, 2.4f, 30);
-            FeelParticles.EmitAt(FxKind.Sparks, sky, center, 2f, 24);
-            FeelParticles.EmitAt(FxKind.Embers, sky, center, 2f, 20);
-            FeelParticles.EmitAt(FxKind.Smoke, sky, center, 2.6f, 14);
-        }
-        if (PixelFx.Ground != null) FeelParticles.EmitAt(FxKind.Dust, PixelFx.Ground, center, 3f, 24);
-
-        // Clarão na tela toda, por cima do HUD do mundo e embaixo dos menus.
-        RectTransform layer = FeelUI.HudLayer(FlashLayer);
-        if (layer == null) return;
-        Image flash = FeelUI.CreateImage("Clarão", layer, flashColor);
-        flash.raycastTarget = false;
-        FeelUI.Stretch(flash.rectTransform, -50f);
-        flash.DOFade(0f, flashTime).SetEase(Ease.OutQuad).SetUpdate(true).SetLink(flash.gameObject).OnComplete(() => Destroy(flash.gameObject));
+        Explode(center, incident);
     }
 
     private void UpdateCraters()
     {
         RectTransform sky = PixelFx.Sky;
-        RectTransform ground = PixelFx.Ground;
+        float dt = GameClock.DeltaTime;
+        if (sky == null || dt <= 0f) return;
+        float house = VfxKit.House(sky);
+
         foreach (Crater crater in craters)
         {
             if (crater.image == null) continue;
             BlockIncident incident = crater.incident;
             House leader = incident.leader;
+            bool working = leader != null && leader.IsWorking;
             Rect area = incident.area;
             Vector3 at = new(Random.Range(area.xMin, area.xMax) * .8f + area.center.x * .2f, Random.Range(area.yMin, area.yMax) * .8f + area.center.y * .2f, Center(incident).z);
 
-            // Fumaça que sobe da cratera enquanto ninguém conserta.
-            crater.smokeTimer -= GameClock.DeltaTime;
-            if (crater.smokeTimer <= 0f && sky != null && leader != null && !leader.IsWorking)
+            // Fundo em brasa: pulsa e esfria; enquanto quente, solta brasas.
+            float heat = Mathf.Clamp01(1f - (GameClock.Time - crater.born) / Mathf.Max(1f, coolTime));
+            if (crater.core != null)
             {
-                crater.smokeTimer = smokeInterval;
-                FeelParticles.EmitAt(FxKind.Smoke, sky, at, 1f, 1);
+                float pulse = .75f + .25f * Mathf.Sin(GameClock.Time * 5f);
+                crater.core.color = PixelFx.WithAlpha(PixelFx.Orange, Mathf.Lerp(.12f, .8f, heat) * pulse * (working ? 1f - leader.WorkProgress01 : 1f));
+            }
+            crater.emberTimer -= dt;
+            if (crater.emberTimer <= 0f && heat > 0f)
+            {
+                crater.emberTimer = emberInterval / Mathf.Max(.2f, heat);
+                FeelParticles.EmitPreset(VfxKit.HotEmbers, sky, PixelFx.ToLocal(sky, at), house, 2);
+            }
+
+            // Colunas de fumaça, uma saída por vez (mais fracas com a obra andando).
+            crater.smokeTimer -= dt;
+            if (crater.smokeTimer <= 0f && crater.vents.Count > 0)
+            {
+                crater.smokeTimer = smokeInterval * (working ? 1.8f : 1f);
+                Vector3 vent = crater.vents[crater.nextVent++ % crater.vents.Count];
+                FeelParticles.EmitPreset(VfxKit.SmokeColumn, sky, PixelFx.ToLocal(sky, vent), house * Mathf.Lerp(.7f, 1.1f, heat), 1);
             }
 
             // Obra: solda e poeira; com a aceleração dos acertos as fagulhas saem mais rápido.
-            if (leader != null && leader.IsWorking)
+            if (working)
             {
-                crater.weldTimer -= GameClock.DeltaTime * BlockDisasterRules.RebuildSpeed(incident.Boost);
+                crater.weldTimer -= dt * BlockDisasterRules.RebuildSpeed(incident.Boost);
                 crater.image.color = new Color(1f, 1f, 1f, 1f - .55f * leader.WorkProgress01);
-                if (crater.weldTimer <= 0f && sky != null)
+                if (crater.weldTimer <= 0f)
                 {
                     crater.weldTimer = weldInterval;
-                    FeelParticles.EmitAt(FxKind.Weld, sky, at, 1f, 4);
-                    if (ground != null) FeelParticles.EmitAt(FxKind.Dust, ground, at, .6f, 2);
+                    FeelParticles.EmitAt(FxKind.Weld, sky, at, house * .6f, 5);
+                    FeelParticles.EmitAt(FxKind.Dust, sky, at, house * .4f, 2);
                 }
             }
         }
@@ -318,12 +414,14 @@ public class MeteorFx : MonoBehaviour
             GameObject image = crater.image.gameObject;
             crater.image.DOFade(0f, .5f).SetLink(image).OnComplete(() => Destroy(image));
         }
+        if (crater.core != null) Destroy(crater.core.gameObject);
         foreach (Image rod in crater.rods)
         {
             if (rod != null) rod.enabled = true;
         }
 
-        // As casas voltam uma a uma, quicando, com poeira e confete.
+        // As casas voltam uma a uma, quicando, com poeira (o confete e a coluna de luz são da BuildDoneFx).
+        float house = VfxKit.House(PixelFx.Sky);
         for (int i = 0; i < crater.hidden.Count; i++)
         {
             CanvasGroup group = crater.hidden[i];
@@ -333,9 +431,8 @@ public class MeteorFx : MonoBehaviour
             group.DOFade(1f, .15f).SetDelay(delay).SetLink(group.gameObject);
             visual.localScale = new Vector3(1f, .2f, 1f);
             visual.DOScale(1f, .35f).SetDelay(delay).SetEase(Ease.OutBack).SetLink(group.gameObject);
-            if (PixelFx.Sky != null) FeelParticles.EmitAt(FxKind.Dust, PixelFx.Sky, visual.position, .8f, 4);
+            if (PixelFx.Sky != null) FeelParticles.EmitAt(FxKind.Dust, PixelFx.Sky, visual.position, house * .7f, 6);
         }
-        if (PixelFx.Sky != null) FeelParticles.EmitAt(FxKind.Confetti, PixelFx.Sky, Center(incident), 2f, 30);
     }
 
     // Fim de partida no meio do aviso: a sombra e a rocha somem.
@@ -343,12 +440,7 @@ public class MeteorFx : MonoBehaviour
     {
         if (state != GameState.Won && state != GameState.Lost) return;
 
-        foreach (Pending pending in pendings)
-        {
-            if (pending.shadow != null) Destroy(pending.shadow.gameObject);
-            if (pending.zone != null) Destroy(pending.zone.gameObject);
-            if (pending.rock != null) Destroy(pending.rock.gameObject);
-        }
+        foreach (Pending pending in pendings) Discard(pending);
         pendings.Clear();
     }
 

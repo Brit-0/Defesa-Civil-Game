@@ -35,6 +35,22 @@ public class LightningRodFeel : MonoBehaviour
     [SerializeField] private float textRise = 70f;
     [SerializeField] private float textTime = 1.2f;
 
+    [Header("BOLT V5C")]
+    [Tooltip("Raio grosso do céu até a ponta, no HUD (pixels da tela de referência), por cima do raio comum da WeatherFx.")]
+    [SerializeField] private float boltThickness = 10f;
+    [SerializeField] private float boltJitter = 70f;
+    [SerializeField] private int boltSegments = 9;
+    [SerializeField] private int boltBranches = 3;
+    [Tooltip("Quantas vezes o raio pisca (os retornos) antes de sumir.")]
+    [SerializeField] private int boltFlickers = 3;
+    [SerializeField] private float boltTime = 0.35f;
+    [SerializeField] private Color boltOuterColor = new Color(0.45f, 0.6f, 1f, 0.55f);
+    [SerializeField] private Color strikeFlashColor = new Color(1f, 0.9f, 0.5f, 0.3f);
+    [SerializeField] private float strikeShake = 0.025f;
+    [SerializeField] private float strikeShakeTime = 0.35f;
+    [Tooltip("Raios da estrela de luz na ponta do para-raio.")]
+    [SerializeField] private int starRays = 8;
+
     [Header("BUILD")]
     [SerializeField] private float popDuration = 0.45f;
 
@@ -124,12 +140,60 @@ public class LightningRodFeel : MonoBehaviour
 
         AudioManager.PlaySfx(Zap, zapVolume, zapPitchVariation);
         block.Flash();
+        SuperBolt(block);
         Arc(block, RoofOf(block, target), block.RodTip);
         Glow(block);
         Sparks(block, block.RodTip, sparkCount);
         StartCoroutine(Discharge(block));
         Ring(block);
         FloatText(block.RodTip);
+    }
+
+    // v5C: o raio que o para-raio puxa é mais forte que o comum: clarão dourado, raio grosso em três camadas (azul, dourado,
+    // branco) com galhos e retornos, estrela de luz na ponta e um tranco de câmera. No HUD, na camada dos textos que sobem
+    // (por cima do clarão da WeatherFx); o "PROTEGIDO!" nasce depois e fica por cima.
+    private void SuperBolt(RodBlock block)
+    {
+        RectTransform hud = FeelUI.HudLayer("FeelPopups");
+        if (hud == null) return;
+        float pixel = FeelUI.Pixel != null ? FeelUI.PixelSize : 1f;
+        Vector2 tip = FeelUI.WorldToHud(block.RodTip);
+        Vector2 top = new Vector2(tip.x + Random.Range(-1f, 1f) * boltJitter * 1.5f, hud.rect.height * 0.5f + 40f);
+
+        Image flash = FeelUI.CreateImage("Clarão do para-raio", hud, strikeFlashColor);
+        flash.raycastTarget = false;
+        FeelUI.Stretch(flash.rectTransform, -50f);
+        flash.DOFade(0f, boltTime).SetEase(Ease.InQuad).SetLink(flash.gameObject).OnComplete(() => Destroy(flash.gameObject));
+
+        float thickness = Mathf.Max(1f, Mathf.Round(boltThickness / pixel)) * pixel;
+        VfxKit.Bolt(hud, top, tip, thickness, Color.white, glowColor, boltOuterColor, boltSegments, boltJitter, boltBranches, boltTime, boltFlickers);
+        VfxKit.Halo(hud, tip, PixelFx.WithAlpha(PixelFx.Cream, 0.9f), Vector2.one * 230f, 0.5f, 0.3f, 1f);
+        Star(hud, tip, pixel);
+        if (CameraShaker.Instance != null) CameraShaker.Instance.Shake(strikeShake, strikeShakeTime);
+    }
+
+    // Estrela de luz na ponta: raios curtos e longos alternados que abrem e somem.
+    private void Star(RectTransform hud, Vector2 at, float pixel)
+    {
+        RectTransform holder = FeelUI.CreateRect("Estrela", hud);
+        holder.anchorMin = holder.anchorMax = new Vector2(0.5f, 0.5f);
+        holder.anchoredPosition = at;
+        holder.sizeDelta = Vector2.zero;
+        CanvasGroup group = holder.gameObject.AddComponent<CanvasGroup>();
+        group.blocksRaycasts = false;
+
+        for (int i = 0; i < starRays; i++)
+        {
+            float angle = (i * 360f / Mathf.Max(1, starRays) + Random.Range(-8f, 8f)) * Mathf.Deg2Rad;
+            Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+            bool longRay = i % 2 == 0;
+            VfxKit.Segment(holder, direction * 18f, direction * (longRay ? 95f : 55f), pixel * (longRay ? 3f : 2f), longRay ? Color.white : glowColor);
+        }
+        holder.localScale = Vector3.one * 0.4f;
+        DOTween.Sequence().SetLink(holder.gameObject)
+            .Append(holder.DOScale(1.2f, 0.25f).SetEase(Ease.OutQuad))
+            .Join(group.DOFade(0f, 0.35f).SetEase(Ease.InQuad))
+            .OnComplete(() => Destroy(holder.gameObject));
     }
 
     // Onde o raio ia cair: o telhado da casa sorteada (na própria casa do para-raio, um ponto ao lado dele).

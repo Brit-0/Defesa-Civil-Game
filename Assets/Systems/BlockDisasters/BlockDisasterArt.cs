@@ -54,6 +54,24 @@ public static class BlockDisasterArt
         }
     });
 
+    // Grade do bueiro, 14x8 com 1 pixel de contorno: moldura de ferro e barras sobre a água escura (v5C, a água sai e
+    // entra por aqui).
+    public static Sprite Grate => Cached("Grate", 16, 10, (p, w, h) =>
+    {
+        Color32 iron = new(0x4A, 0x4A, 0x52, 255);
+        Color32 ironLight = new(0x8A, 0x8A, 0x94, 255);
+        for (int y = 1; y < h - 1; y++)
+        {
+            for (int x = 1; x < w - 1; x++)
+            {
+                bool frame = x == 1 || x == w - 2 || y == 1 || y == h - 2;
+                bool bar = x % 3 == 1;
+                p[y * w + x] = frame ? (y == h - 2 ? ironLight : iron) : bar ? ironLight : WaterDeep;
+            }
+        }
+        AddOutline(p, w, h);
+    });
+
     #endregion
 
     #region VÁLVULA
