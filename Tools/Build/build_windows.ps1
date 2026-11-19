@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Build Windows de entrega do Defesa Civil: Builds\Windows\DefesaCivil.exe e Builds\zip\DefesaCivil_Windows.zip.
+    Build Windows de entrega do Please Fix the City: Builds\Windows\PleaseFixTheCity.exe e Builds\zip\PleaseFixTheCity_Windows.zip.
 
 .DESCRIPTION
     Chama o Unity 6000.6.7f1 em batchmode com -executeMethod BuildScript.BuildWindows (Assets\Editor\BuildScript.cs).
@@ -34,7 +34,7 @@ if (Test-EditorAberto $projeto) {
 }
 
 $saida = Join-Path $projeto 'Builds\Windows'
-$exe = Join-Path $saida 'DefesaCivil.exe'
+$exe = Join-Path $saida 'PleaseFixTheCity.exe'
 $carimbo = Get-Date -Format 'yyyyMMdd-HHmm'
 $log = Join-Path $projeto "Builds\logs\windows_$carimbo.log"
 $hashPS = Get-HashArquivo (Join-Path $projeto 'ProjectSettings\ProjectSettings.asset')
@@ -59,7 +59,7 @@ $tamanho = (Get-ChildItem -LiteralPath $saida -Recurse -File | Measure-Object Le
 Write-Host "Build Windows OK: $exe ($(Format-MB $tamanho) na pasta)." -ForegroundColor Green
 
 if (-not $SemZip) {
-    $nome = 'DefesaCivil_Windows'
+    $nome = 'PleaseFixTheCity_Windows'
     if ($Development) { $nome += '_dev' }
     $zip = Join-Path $projeto "Builds\zip\$nome.zip"
     $fora = @('*_BurstDebugInformation_DoNotShip/*', '*_BackUpThisFolder_ButDontShipItWithYourGame/*')

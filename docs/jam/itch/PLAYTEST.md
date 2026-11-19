@@ -1,4 +1,4 @@
-# Roteiro de playtest de 15 minutos — Defesa Civil
+# Roteiro de playtest de 15 minutos — Please Fix the City
 
 Para o Pietro jogar (ou alguém que nunca viu o jogo, com o Pietro olhando). Serve para o T15, os 3 playtests do T40 e a conferência antes do envio. Escrito pelo Agente D em 16/11, com os tempos do `GDD.md` (seção 13); se o balanceamento mudar, os minutos abaixo mudam junto.
 
@@ -88,7 +88,7 @@ Responder curto, de 1 a 5 onde houver número. As respostas vão para o MEGABRAI
 
 Perguntas da página do itch.io (respostas vão para o `PAGINA.md`):
 
-12. Título: **Defesa Civil** (como no menu) ou outro?
+12. Título: **Please Fix the City** (como no menu, decidido em 19/11).
 13. Nomes e funções da equipe nos créditos (o git mostra Pietro Piccoli e Brit-0, Felipe C. Brito).
 14. A arte da cidade veio do lote GS4 feito a partir dos kits da Kenney (CC0)? Quem deve ser creditado?
 15. A jam pede para declarar uso de IA? Fica a linha nos créditos?

@@ -1,4 +1,4 @@
-# Página do itch.io — Defesa Civil
+# Página do itch.io — Please Fix the City
 
 Textos prontos para colar na página do jogo no itch.io. Escritos pelo Agente D em 16/11, a partir do `GDD.md`, do código das branches `jam`, `jam-feel` e `jam-sistemas` e dos `STATUS_*.md`. **Nada foi enviado ao itch.io.**
 
@@ -8,13 +8,13 @@ Antes de publicar, confira a seção "Conferir na build final" no fim deste arqu
 
 ## Título
 
-**Defesa Civil**
+**Please Fix the City**
 
 Subtítulo (é o mesmo do menu do jogo, `MainMenu.cs`): **Mantenha a cidade de pé.**
 
-Alternativas, se o título sozinho ficar genérico na lista da jam: "Defesa Civil: Cidade em Alerta" ou "Defesa Civil: Plantão". A recomendação é ficar com **Defesa Civil**, igual à tela do jogo.
+Nome decidido em 19/11: **Please Fix the City**, igual à tela do jogo (o repositório e as pastas seguem `Defesa-Civil-Game`).
 
-URL sugerida: `<usuario>.itch.io/defesa-civil`
+URL sugerida: `<usuario>.itch.io/please-fix-the-city`
 
 ## Descrição curta (campo "Short description or tagline")
 
@@ -112,7 +112,7 @@ Notas para quem publica:
 | Classification | Games |
 | Release status | Released |
 | Pricing | No payments (ou "$0 or donate", a critério da equipe) |
-| Uploads | `DefesaCivil_WebGL.zip` marcado "This file will be played in the browser"; `DefesaCivil_Windows.zip` marcado "Windows" |
+| Uploads | `PleaseFixTheCity_WebGL.zip` marcado "This file will be played in the browser"; `PleaseFixTheCity_Windows.zip` marcado "Windows" |
 | Embed options | Embed in page; manually set size **960 x 600** (o tamanho do canvas no Player Settings) |
 | Frame options | Fullscreen button ligado; "Mobile friendly" desligado; "Automatically start on page load" desligado (o clique libera o áudio) |
 | SharedArrayBuffer | Desligado (o jogo não usa threads) |
@@ -133,7 +133,7 @@ Composição: a cidade em pixel art vista de cima, com uma casa rachada e poeira
 
 Texto da capa, em ModernDOS, contorno preto, como no jogo:
 
-- Linha grande: **DEFESA CIVIL**
+- Linha grande: **PLEASE FIX THE CITY**
 - Linha menor: **Mantenha a cidade de pé.**
 
 Alternativas de linha menor: "A cidade treme. Você despacha." · "Do braço à automação."
@@ -173,7 +173,7 @@ Se passar de 5 MB: diminuir `-t`, usar `fps=15` ou `scale=480:-1`.
 
 ## Texto do envio na página da jam
 
-> Defesa Civil é um incremental de gestão de desastres: despache equipes, conserte a cidade e automatize a operação antes que o caos vença. Jogável no navegador e para Windows, em português. Tema: Citizen Tech.
+> Please Fix the City é um incremental de gestão de desastres: despache equipes, conserte a cidade e automatize a operação antes que o caos vença. Jogável no navegador e para Windows, em português. Tema: Citizen Tech.
 
 ## Conferir na build final
 

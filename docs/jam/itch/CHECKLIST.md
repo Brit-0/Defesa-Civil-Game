@@ -1,4 +1,4 @@
-# Checklist de entrega — Defesa Civil
+# Checklist de entrega — Please Fix the City
 
 Marque na ordem. Item com **[TRAVA]** impede o envio até ser resolvido. Escrito pelo Agente D em 16/11; os builds de verdade são do MEGABRAIN (T46), na pasta principal, com o Unity fechado.
 
@@ -7,8 +7,8 @@ Marque na ordem. Item com **[TRAVA]** impede o envio até ser resolvido. Escrito
 - [ ] **[TRAVA]** Branch `jam-itch` integrada na `jam` (traz `Assets/Editor/BuildScript.cs`, `Tools/Build/` e esta pasta).
 - [ ] **[TRAVA]** `jam` atualizada com as últimas entregas de B e C; console do Editor com 0 erro; uma partida jogada no Play do começo ao fim.
 - [ ] Player Settings conferidos (decisão do MEGABRAIN; o build não muda nenhum deles de vez):
-  - `Company Name` hoje é `DefaultCompany`. Aparece na pasta de log e de PlayerPrefs (`%USERPROFILE%\AppData\LocalLow\DefaultCompany\Defesa Civil Game\`). Sugestão: o nome da equipe.
-  - `Product Name` `Defesa Civil Game`: é o título da janela no Windows e da aba no navegador. Sugestão: `Defesa Civil`, igual ao menu.
+  - `Company Name` hoje é `DefaultCompany`. Aparece na pasta de log e de PlayerPrefs (`%USERPROFILE%\AppData\LocalLow\DefaultCompany\Please Fix the City\`). Sugestão: o nome da equipe.
+  - `Product Name` `Please Fix the City` (desde 19/11, igual ao menu): é o título da janela no Windows e da aba no navegador.
   - `Version` `1.0`.
   - Ícone do executável e cursor (`ART_REQUESTS.md`).
   - Resolução padrão Windows: 1920 x 1080, tela cheia (`fullscreenMode: 1`). WebGL: 960 x 600.
@@ -33,10 +33,10 @@ O que sai:
 
 | Arquivo | O que é |
 |---|---|
-| `Builds\Windows\DefesaCivil.exe` + pastas | Build Windows 64 bits (a pasta é apagada e refeita a cada build) |
+| `Builds\Windows\PleaseFixTheCity.exe` + pastas | Build Windows 64 bits (a pasta é apagada e refeita a cada build) |
 | `Builds\WebGL\index.html` + `Build\` + `TemplateData\` | Build WebGL |
-| `Builds\zip\DefesaCivil_Windows.zip` | Conteúdo de `Builds\Windows`, sem `*_BurstDebugInformation_DoNotShip` e `*_BackUpThisFolder_ButDontShipItWithYourGame` |
-| `Builds\zip\DefesaCivil_WebGL.zip` | Conteúdo de `Builds\WebGL`, com `index.html` na raiz do zip (exigência do itch.io) |
+| `Builds\zip\PleaseFixTheCity_Windows.zip` | Conteúdo de `Builds\Windows`, sem `*_BurstDebugInformation_DoNotShip` e `*_BackUpThisFolder_ButDontShipItWithYourGame` |
+| `Builds\zip\PleaseFixTheCity_WebGL.zip` | Conteúdo de `Builds\WebGL`, com `index.html` na raiz do zip (exigência do itch.io) |
 | `Builds\logs\<alvo>_<data>.log` | Log completo do Unity; o script mostra as linhas `[BuildScript]`, erros de compilação e, se falhar, as últimas 20 linhas |
 
 `Builds\` está no `.gitignore`: nada disso vai para o git.
@@ -53,8 +53,8 @@ Os zips são feitos com barra normal (`/`) nos caminhos internos. O `Compress-Ar
 
 "Limpa" = sem Unity e sem o projeto. Opções, da melhor para a mais simples: o PC 2 (do Agente C) ou o de outra pessoa; a **Área Restrita do Windows** (Windows Sandbox, existe no Windows 11 Pro: "Ativar ou desativar recursos do Windows" → "Área Restrita do Windows"); no mínimo, outra conta de usuário no mesmo PC.
 
-- [ ] Copiar só o `DefesaCivil_Windows.zip` para lá e extrair numa pasta com espaço e acento no caminho (ex.: `Área de Trabalho\Defesa Civil`).
-- [ ] Abrir o `DefesaCivil.exe`. Se o SmartScreen avisar ("O Windows protegeu o computador"), anotar: a página precisa da frase "Clique em Mais informações → Executar assim mesmo".
+- [ ] Copiar só o `PleaseFixTheCity_Windows.zip` para lá e extrair numa pasta com espaço e acento no caminho (ex.: `Área de Trabalho\Please Fix the City`).
+- [ ] Abrir o `PleaseFixTheCity.exe`. Se o SmartScreen avisar ("O Windows protegeu o computador"), anotar: a página precisa da frase "Clique em Mais informações → Executar assim mesmo".
 - [ ] Abre em tela cheia em até 10 s, com o menu e a cidade.
 - [ ] Som toca no menu ou no primeiro clique; música e efeitos em volume certo.
 - [ ] Jogar uma partida até vencer ou perder; **Reiniciar** funciona e a música não corta.
@@ -92,8 +92,8 @@ Anotar aqui depois do build:
 
 | Zip | Tamanho | Arquivos |
 |---|---|---|
-| `DefesaCivil_Windows.zip` | | |
-| `DefesaCivil_WebGL.zip` | | |
+| `PleaseFixTheCity_Windows.zip` | | |
+| `PleaseFixTheCity_WebGL.zip` | | |
 
 Referências: build WebGL de fumaça de 16/11 = 18 MB (Brotli); build Windows de **desenvolvimento** de 16/11 = 235 MB na pasta (o de entrega é menor).
 

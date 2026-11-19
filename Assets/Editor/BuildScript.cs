@@ -12,7 +12,7 @@ using UnityEngine;
 public static class BuildScript
 {
     private const string GameplayScene = "Assets/Scenes/Gameplay.unity";
-    private const string WindowsOutput = "Builds/Windows/DefesaCivil.exe";
+    private const string WindowsOutput = "Builds/Windows/PleaseFixTheCity.exe";
     private const string WebGLOutput = "Builds/WebGL";
     private const string OutputArg = "-buildOutput";
     private const string DevelopmentArg = "-development";
