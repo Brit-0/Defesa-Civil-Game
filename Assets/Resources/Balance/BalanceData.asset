@@ -75,6 +75,9 @@ MonoBehaviour:
   stormLeakMaxDamage: 3
   fireMinHouses: 1
   fireMaxHouses: 2
+  fireSpreadChance: 0.35
+  fireSpreadRadius: 5
+  fireSpreadDelay: 0.8
   incomeInterval: 10
   incomeFloorPerHouse: 0.3
   incomeMoneyShare: 0.15

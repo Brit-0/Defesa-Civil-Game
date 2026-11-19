@@ -142,6 +142,12 @@ public class BalanceData : ScriptableObject
     [Header("ISOLATED FIRE")]
     public int fireMinHouses = 1;
     public int fireMaxHouses = 2;
+    [Tooltip("Jato que falhou (sobrou chama): chance de o fogo pular para a casa intacta mais perto (FireSpread, CONSERTOS_V7B3).")]
+    [Range(0f, 1f)] public float fireSpreadChance = 0.35f;
+    [Tooltip("Alcance do fogo que pula, em unidades de mundo. No mapa de 153 casas a vizinha mais perto fica entre 2,2 e 4,2.")]
+    public float fireSpreadRadius = 5f;
+    [Tooltip("Segundos entre o \"O FOGO CRESCEU!\" e o fogo pular, para os dois avisos não se cobrirem.")]
+    public float fireSpreadDelay = 0.8f;
 
     [Header("PASSIVE INCOME")]
     public float incomeInterval = 10f;

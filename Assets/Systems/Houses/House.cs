@@ -564,6 +564,29 @@ public class House : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         progressCircle.fillAmount = workProgress;
         if (FireLevel < FireEnergyData.Instance.fireMaxLevel) SetFireLevel(FireLevel + 1);
         GameEvents.RaiseSkillCheck(this, SkillResult.FireGrew);
+        if (FireSpread.Rolls(Random.value, Stats.Balance.fireSpreadChance)) StartCoroutine(SpreadFireLater());
+    }
+
+    // Jato que falhou: o fogo pula para a casa intacta mais perto (FireSpread, CONSERTOS_V7B3), um pouco depois
+    // do "O FOGO CRESCEU!" para os dois avisos não nascerem um em cima do outro.
+    private System.Collections.IEnumerator SpreadFireLater()
+    {
+        BalanceData balance = Stats.Balance;
+        yield return new WaitForSeconds(balance.fireSpreadDelay);
+        if (LocationsManager.Instance == null || GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) yield break;
+
+        System.Collections.Generic.List<House> houses = LocationsManager.Instance.Houses;
+        float[] distances = new float[houses.Count];
+        bool[] canCatch = new bool[houses.Count];
+        for (int i = 0; i < houses.Count; i++)
+        {
+            House other = houses[i];
+            canCatch[i] = other != null && other != this && other.currentState == State.Intact;
+            distances[i] = canCatch[i] ? LocationsManager.Distance(transform.position, other.transform.position) : float.MaxValue;
+        }
+
+        int pick = FireSpread.PickNearest(distances, canCatch, balance.fireSpreadRadius);
+        if (pick >= 0 && houses[pick].ApplyProblem(State.OnFire, 0)) GameEvents.RaiseSkillCheck(houses[pick], SkillResult.FireSpread);
     }
 
     // Uma chama apagada pelo jato (FireMinigame). Todas apagadas: o fogo acaba na hora e paga o bônus.

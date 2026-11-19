@@ -20,6 +20,8 @@ public class Tutorial : MonoBehaviour
     [SerializeField] private string fireTip = "JATO: quando a equipe chegar no incêndio, <bounce>arraste o mouse apertado</bounce> por cima das chamas antes do tempo acabar. Sobrou chama? O fogo cresce!";
     [SerializeField] private string strongTip = "<shake>TERREMOTO FORTE!</shake> O aviso é mais longo: escore as casas marcadas e prepare equipes.";
     [SerializeField] private float tipTime = 6f;
+    [Tooltip("Botão da dica do jato: ela só sai quando o jogador apaga o fogo no jato ou clica nele (CONSERTOS_V7B3)")]
+    [SerializeField] private string tipOkLabel = "ENTENDI";
 
     [Header("SOUND")]
     [SerializeField, Range(0f, 1f)] private float stepVolume = .6f;
@@ -51,6 +53,7 @@ public class Tutorial : MonoBehaviour
     private bool okPressed;
     private bool slowed;
     private float tipHideTime = -1f;
+    private bool fireTipShown; // dica do jato na tela: espera o APAGOU ou o ENTENDI
     private Counts now, atStart;
     private House focus;
     private AudioSource stepSource;
@@ -84,6 +87,7 @@ public class Tutorial : MonoBehaviour
         GameEvents.CallResolved += OnCallResolved;
         GameEvents.UpgradePurchased += OnUpgradePurchased;
         GameEvents.DisasterForecasted += OnDisasterForecasted;
+        GameEvents.SkillCheck += OnSkillCheck;
     }
 
     private void OnDisable()
@@ -97,6 +101,7 @@ public class Tutorial : MonoBehaviour
         GameEvents.CallResolved -= OnCallResolved;
         GameEvents.UpgradePurchased -= OnUpgradePurchased;
         GameEvents.DisasterForecasted -= OnDisasterForecasted;
+        GameEvents.SkillCheck -= OnSkillCheck;
         SetHold(false);
         SetBlock(false);
     }
@@ -442,7 +447,25 @@ public class Tutorial : MonoBehaviour
     {
         now.started++;
         if (!running && call != null && call.house != null && call.house.currentState == State.OnFire)
-            ShowTip(FireTipKey, string.Format(fireTip, Stats.Balance.fireHeroClicks));
+            ShowTip(FireTipKey, string.Format(fireTip, Stats.Balance.fireHeroClicks), true);
+    }
+
+    // Dica do jato: só sai quando o jogador apaga o fogo no jato (ou clica ENTENDI). Chama apagada, fogo que
+    // cresce ou que pula não tiram a dica.
+    public static bool FireTipEnds(SkillResult result) => result == SkillResult.FireOut;
+
+    private void OnSkillCheck(House house, SkillResult result)
+    {
+        if (fireTipShown && FireTipEnds(result)) HideFireTip();
+    }
+
+    private void HideFireTip()
+    {
+        if (!fireTipShown) return;
+
+        fireTipShown = false;
+        // o tutorial de energia pode ter tomado o balão no meio da dica: escondê-lo travava o passo dele
+        if (!EnergyTutorialRunning()) view.HideBubble();
     }
 
     private void OnWorkCompleted(Call call) => now.completed++;
@@ -454,8 +477,9 @@ public class Tutorial : MonoBehaviour
         if (!running && forecast.isStrong) ShowTip(StrongTipKey, strongTip);
     }
 
-    // Dica de contexto: uma vez por jogador, só fora do tutorial, some sozinha.
-    private void ShowTip(string key, string text)
+    // Dica de contexto: uma vez por jogador, só fora do tutorial. Some sozinha, ou, com untilDone (a do jato),
+    // fica com o botão ENTENDI até o jogador conseguir (HideFireTip).
+    private void ShowTip(string key, string text, bool untilDone = false)
     {
         // o tutorial de energia usa o mesmo balão; a dica fica para a próxima vez
         if (PlayerPrefs.GetInt(key, 0) == 1 || EnergyTutorialRunning()) return;
@@ -463,9 +487,11 @@ public class Tutorial : MonoBehaviour
         PlayerPrefs.SetInt(key, 1);
         PlayerPrefs.Save();
         view.SetTarget(null, null);
-        view.ShowStep("DICA", text, null, null, false);
+        fireTipShown = untilDone;
+        if (untilDone) view.ShowStep("DICA", text, tipOkLabel, HideFireTip, false);
+        else view.ShowStep("DICA", text, null, null, false);
         PlayStep(0);
-        tipHideTime = Time.unscaledTime + tipTime;
+        tipHideTime = untilDone ? -1f : Time.unscaledTime + tipTime;
     }
 
     private static bool EnergyTutorialRunning()

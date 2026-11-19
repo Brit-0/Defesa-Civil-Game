@@ -33,6 +33,7 @@ public class MiniGameFeel : MonoBehaviour
     [SerializeField] private string missText = "FORA DO PONTO";
     [SerializeField] private string fireOutFormat = "APAGOU! +{0}%";
     [SerializeField] private string fireGrewText = "O FOGO CRESCEU!";
+    [SerializeField] private string fireSpreadText = "O FOGO PULOU PARA A VIZINHA!";
     [SerializeField] private string shoredText = "ESCORADA!";
     [SerializeField] private string shoreHeldFormat = "FICOU DE PÉ! +{0}";
     [SerializeField] private string shoreHint = "TERREMOTO VINDO: CLIQUE NAS CASAS MARCADAS PARA ESCORAR ({0} MATERIAL)";
@@ -214,6 +215,11 @@ public class MiniGameFeel : MonoBehaviour
                 Popup(fireGrewText, at, heroColor, popupSize, false);
                 Play(missClip, .8f);
                 combo = 0;
+                break;
+            // Jato que falhou e o fogo pulou (CONSERTOS_V7B3): o aviso sai em cima da casa nova, em chamas.
+            case SkillResult.FireSpread:
+                Popup(fireSpreadText, at, heroColor, bigPopupSize, false);
+                Play(missClip, .65f);
                 break;
             case SkillResult.Shored:
                 Popup(shoredText, at, shoreColor, popupSize, false);
