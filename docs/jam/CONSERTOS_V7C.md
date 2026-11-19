@@ -21,7 +21,7 @@ Na branch `jam-itch` (commit 0952478), onde estão a página do itch.io e os scr
 O template WebGL é o Default, que já usa o `productName`: o próximo build sai com "Please Fix the City" no título da página. No build local de 17/11 (`Builds/WebGL/index.html`, fora do git), o título da página foi trocado à mão. O menu dentro dele ainda é o antigo, até o próximo build.
 
 Ficou como estava:
-- `companyName` (`DefaultCompany`): a equipe não tem nome decidido.
+- `companyName` (`DefaultCompany`): a equipe não tinha nome decidido. Desde a v7D é `CryptCandle` (`CONSERTOS_V7D.md`).
 - `metroPackageName` e `metroApplicationDescription`: são da UWP, que não é alvo do jogo.
 - O menu do Editor "Defesa Civil/Sound Bank": o jogador não vê.
 - Shaders `DefesaCivil/...`, namespace `DefesaCivil.CityGen` e chaves `DefesaCivil.*` dos PlayerPrefs: são identificadores do código.

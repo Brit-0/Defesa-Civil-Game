@@ -10,6 +10,9 @@ using UnityEngine.UI;
 //Monta a própria UI.
 public class MainMenu : MonoBehaviour
 {
+    //Nome da equipe (CONSERTOS_V7D): discreto no canto do menu e nos créditos; é também o companyName do Player Settings
+    public const string TeamName = "CryptCandle";
+
     [Header("TEXTS (o título aceita tags do Text Animator)")]
     [SerializeField] private string title = "<wave a=0.45>PLEASE FIX THE CITY</wave>";
     [SerializeField] private string subtitle = "Mantenha a cidade de pé.";
@@ -49,6 +52,9 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private float emblemOffset = 660f;
     [SerializeField] private float buttonY = -150f;
     [SerializeField] private float howToPlayY = -340f;
+    //Nome da equipe no canto de baixo, à direita, abaixo da faixa dos passos
+    [SerializeField] private float teamSize = 24f;
+    [SerializeField] private Vector2 teamMargin = new Vector2(28f, 20f);
 
     [Header("COLORS")]
     [SerializeField] private Color dimColor = new Color(0f, 0f, 0f, .4f);
@@ -56,6 +62,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Color titleColor = new Color(1f, .82f, .3f);
     [SerializeField] private Color subtitleColor = Color.white;
     [SerializeField] private Color howToPlayColor = new Color(.86f, .88f, .93f);
+    [SerializeField] private Color teamColor = new Color(1f, 1f, 1f, .6f);
     [SerializeField] private Color buttonColor = FeelUI.ButtonColor;
 
     [Header("TIMING")]
@@ -144,6 +151,10 @@ public class MainMenu : MonoBehaviour
         TMP_Text howLbl = FeelUI.CreateText("HowToPlay", screen, howToPlay, howToPlaySize, howToPlayColor);
         howLbl.lineSpacing = 20f;
         FeelUI.Place(howLbl.rectTransform, center, center, new Vector2(0f, howToPlayY), new Vector2(1700f, howToPlaySize * 5f));
+
+        TMP_Text teamLbl = FeelUI.CreateText("Team", screen, TeamName, teamSize, teamColor, TextAlignmentOptions.BottomRight);
+        FeelUI.Outline(teamLbl);
+        FeelUI.Place(teamLbl.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-teamMargin.x, teamMargin.y), new Vector2(600f, teamSize * 1.4f));
 
         screen.gameObject.SetActive(false);
     }

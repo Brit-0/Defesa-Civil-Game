@@ -1,3 +1,4 @@
+using System.Reflection;
 using NUnit.Framework;
 using TMPro;
 using UnityEditor;
@@ -61,6 +62,39 @@ public class GameNameTests
             Assert.LessOrEqual(titleHalf + 40f, offset - emblemHalf, "título encosta no emblema");
             float bandHalf16x10 = 1080f * 1.6f * .5f - bandMargin;
             Assert.LessOrEqual(offset + emblemHalf, bandHalf16x10, "emblema sai da faixa na tela 16:10");
+        }
+        finally
+        {
+            Object.DestroyImmediate(go);
+        }
+    }
+
+    //Equipe (CONSERTOS_V7D): CryptCandle é o companyName e vem nos créditos logo acima dos dois nomes, sem mais ninguém
+    [Test]
+    public void CompanyNameIsTheTeam()
+    {
+        Assert.AreEqual("CryptCandle", MainMenu.TeamName);
+        Assert.AreEqual(MainMenu.TeamName, PlayerSettings.companyName);
+    }
+
+    [Test]
+    public void CreditsShowTheTeamAboveTheNames()
+    {
+        GameObject go = new GameObject("GameNameTests", typeof(RectTransform));
+        try
+        {
+            SettingsPanel panel = go.AddComponent<SettingsPanel>();
+            MethodInfo build = typeof(SettingsPanel).GetMethod("BuildCreditsPage", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.IsNotNull(build, "SettingsPanel.BuildCreditsPage");
+            build.Invoke(panel, new object[] { (RectTransform)go.transform });
+
+            TMP_Text credits = go.transform.Find("Credits").GetComponent<TMP_Text>();
+            string text = credits.text;
+            int at = text.IndexOf("CRIAÇÃO</color>\n", System.StringComparison.Ordinal);
+            Assert.GreaterOrEqual(at, 0, "sem a seção CRIAÇÃO");
+            string section = text.Substring(at + "CRIAÇÃO</color>\n".Length);
+            section = section.Substring(0, section.IndexOf("\n\n", System.StringComparison.Ordinal));
+            Assert.AreEqual(MainMenu.TeamName + "\nPietro Piccoli e Felipe Brito", section);
         }
         finally
         {

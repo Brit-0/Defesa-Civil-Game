@@ -71,6 +71,7 @@ public partial class SettingsPanel
             gold + "PLEASE FIX THE CITY</color>\n" +
             "jogo de game jam, tema Citizen Tech\n\n" +
             gold + "CRIAÇÃO</color>\n" +
+            MainMenu.TeamName + "\n" +
             "Pietro Piccoli e Felipe Brito\n\n" +
             gold + "FERRAMENTAS</color>\n" +
             "Unity 6, DOTween (Demigiant), Feel e Nice Vibrations (More Mountains),\n" +
