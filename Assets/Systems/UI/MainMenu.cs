@@ -6,7 +6,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 //Menu inicial por cima da cidade, na mesma cena. Aparece enquanto o GameManager está em Menu
-//(precisa do autoStart desligado) e o botão Jogar chama StartGame. Monta a própria UI.
+//(precisa do autoStart desligado) e cada botão de dificuldade guarda a escolha (Difficulty) e chama StartGame.
+//Monta a própria UI.
 public class MainMenu : MonoBehaviour
 {
     [Header("TEXTS (o título aceita tags do Text Animator)")]
@@ -16,7 +17,18 @@ public class MainMenu : MonoBehaviour
         "1. Clique numa casa com problema para abrir um chamado\n" +
         "2. Escolha a base, monte a equipe e envie\n" +
         "3. Receba o pagamento e compre melhorias antes que o caos tome a cidade";
-    [SerializeField] private string playText = "JOGAR";
+    [SerializeField] private string chooseText = "Escolha a dificuldade";
+
+    [Header("DIFICULDADES (nome no botão e subtítulo curto embaixo)")]
+    [SerializeField] private string easyName = "GAROA";
+    [SerializeField] private string easyHint = "Fácil · desastres mais calmos";
+    [SerializeField] private string normalName = "TEMPORAL";
+    [SerializeField] private string normalHint = "Normal · o jogo como ele é";
+    [SerializeField] private string hardName = "APOCALIPSE";
+    [SerializeField] private string hardHint = "Difícil · caos sem trégua";
+    //Tinta por cima do botão dourado: verde no fácil, vermelho no difícil
+    [SerializeField] private Color easyTint = new Color(.62f, 1f, .62f);
+    [SerializeField] private Color hardTint = new Color(1f, .5f, .45f);
 
     [Header("LAYOUT (tela de referência 1920x1080)")]
     [SerializeField] private float bandHeight = 300f;
@@ -25,7 +37,12 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private float titleSize = 150f;
     [SerializeField] private float subtitleSize = 40f;
     [SerializeField] private float howToPlaySize = 30f;
-    [SerializeField] private Vector2 buttonSize = new Vector2(380f, 104f);
+    [SerializeField] private Vector2 difficultyButtonSize = new Vector2(460f, 150f);
+    [SerializeField] private float buttonSpacing = 50f;
+    [SerializeField] private float buttonFontSize = 56f;
+    [Tooltip("Tamanho do subtítulo do botão, em fração da fonte do nome")]
+    [SerializeField] private float hintScale = .46f;
+    [SerializeField] private float chooseSize = 34f;
     //Emblema pixel (32x32) dos dois lados do título: escala sobre os 3 px por pixel e distância do centro
     [SerializeField] private float emblemScale = 1.25f;
     [SerializeField] private float emblemOffset = 600f;
@@ -50,6 +67,8 @@ public class MainMenu : MonoBehaviour
 
     private RectTransform screen;
     private RectTransform band;
+    private readonly RectTransform[] buttonHolders = new RectTransform[3];
+    //O Normal pulsa: é a sugestão para quem chega
     private RectTransform buttonHolder;
     private CanvasGroup group;
     private TextAnimator_TMP titleAnimator;
@@ -102,11 +121,16 @@ public class MainMenu : MonoBehaviour
         TMP_Text subtitleLbl = FeelUI.CreateText("Subtitle", band, subtitle, subtitleSize, subtitleColor);
         FeelUI.Place(subtitleLbl.rectTransform, center, center, new Vector2(0f, -bandHeight * .5f + subtitleSize), new Vector2(1600f, subtitleSize * 1.4f));
 
-        //O botão fica num suporte: a escala do botão é do Tweener (hover), a do suporte é do pulso
-        buttonHolder = FeelUI.CreateRect("ButtonHolder", screen);
-        FeelUI.Place(buttonHolder, center, center, new Vector2(0f, buttonY), buttonSize);
-        Button play = FeelUI.CreateButton("PlayBtn", buttonHolder, playText, buttonSize, buttonColor, 56f, true);
-        play.onClick.AddListener(Play);
+        TMP_Text chooseLbl = FeelUI.CreateText("Choose", screen, chooseText, chooseSize, subtitleColor);
+        FeelUI.Outline(chooseLbl);
+        FeelUI.Place(chooseLbl.rectTransform, center, center, new Vector2(0f, buttonY + difficultyButtonSize.y * .5f + chooseSize), new Vector2(1200f, chooseSize * 1.4f));
+
+        //Três botões lado a lado, do mais calmo ao pior. Cada um fica num suporte: a escala do botão é do Tweener
+        //(hover), a do suporte é do pulso
+        AddDifficultyButton(0, DifficultyLevel.Easy, easyName, easyHint, easyTint);
+        AddDifficultyButton(1, DifficultyLevel.Normal, normalName, normalHint, Color.white);
+        AddDifficultyButton(2, DifficultyLevel.Hard, hardName, hardHint, hardTint);
+        buttonHolder = buttonHolders[1];
 
         //Faixa escura também atrás dos passos: direto por cima da cidade o texto pequeno some
         RectTransform howBand = (px != null ? FeelUI.CreateWindow("HowBand", screen) : FeelUI.CreatePanel("HowBand", screen, bandColor)).rectTransform;
@@ -121,6 +145,22 @@ public class MainMenu : MonoBehaviour
         FeelUI.Place(howLbl.rectTransform, center, center, new Vector2(0f, howToPlayY), new Vector2(1700f, howToPlaySize * 5f));
 
         screen.gameObject.SetActive(false);
+    }
+
+    private void AddDifficultyButton(int index, DifficultyLevel level, string levelName, string hint, Color tint)
+    {
+        Vector2 center = new Vector2(.5f, .5f);
+        float x = (index - 1) * (difficultyButtonSize.x + buttonSpacing);
+
+        RectTransform holder = FeelUI.CreateRect("ButtonHolder" + level, screen);
+        FeelUI.Place(holder, center, center, new Vector2(x, buttonY), difficultyButtonSize);
+        buttonHolders[index] = holder;
+
+        string text = $"{levelName}\n<size={Mathf.RoundToInt(hintScale * 100f)}%>{hint}</size>";
+        Button button = FeelUI.CreateButton("PlayBtn" + level, holder, text, difficultyButtonSize, buttonColor, buttonFontSize, true);
+        //A tinta multiplica o sprite dourado e fica no hover e no clique (o botão troca só o sprite)
+        if (button.targetGraphic != null) button.targetGraphic.color = tint;
+        button.onClick.AddListener(() => Play(level));
     }
 
     //Espera o Start do GameManager: com autoStart ligado a partida já começou e o menu nem pisca
@@ -183,13 +223,15 @@ public class MainMenu : MonoBehaviour
 
         group.DOKill();
         band.DOKill();
-        buttonHolder.DOKill();
+        foreach (RectTransform holder in buttonHolders) holder.DOKill();
         group.DOFade(0f, fadeTime).SetUpdate(true).SetLink(screen.gameObject).OnComplete(() => screen.gameObject.SetActive(false));
     }
 
-    private void Play()
+    private void Play(DifficultyLevel level)
     {
         if (GameManager.Instance == null || ScreenTransition.Busy) return;
+
+        Difficulty.Set(level);
 
         //Some o botão para não aceitar o segundo clique durante a onda
         group.interactable = false;

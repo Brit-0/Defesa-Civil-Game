@@ -146,10 +146,12 @@ public class UpgradesManager : MonoBehaviour
         if (!string.IsNullOrEmpty(id)) levelCaps[id] = Mathf.Max(0, cap);
     }
 
-    // Custo do próximo nível: custo base × crescimento^nível, arredondado.
+    // Custo do próximo nível: custo base × crescimento^nível, arredondado. O Centro de Operações (a meta) muda com a
+    // dificuldade do menu (Difficulty.GoalCost, CONSERTOS_V7B1).
     public int GetCost(UpgradeData upgrade)
     {
-        return Mathf.RoundToInt(upgrade.baseCost * Mathf.Pow(upgrade.costGrowth, GetLevel(upgrade)));
+        int cost = Mathf.RoundToInt(upgrade.baseCost * Mathf.Pow(upgrade.costGrowth, GetLevel(upgrade)));
+        return upgrade.id == UpgradeIds.Goal ? Difficulty.GoalCost(cost) : cost;
     }
 
     public bool CanBuy(UpgradeData upgrade)

@@ -163,15 +163,16 @@ public class DisasterManager : MonoBehaviour
     // Sem GameManager vale o fim da rampa (o teto), como antes.
     private float CurrentRampTime => GameManager.Instance != null ? RampTime : GetCeilingTime(Stats.Balance);
 
+    // A dificuldade do menu (Difficulty, CONSERTOS_V7B1) age por cima: rampa mais rápida e intervalo multiplicado.
     private float GetRampedInterval()
     {
-        return GetInterval(Stats.Balance, CurrentRampTime, pace);
+        return Difficulty.Interval(GetInterval(Stats.Balance, Difficulty.RampTime(CurrentRampTime), pace));
     }
 
     // O terremoto forte sai das casas da rampa sem o ritmo: o pico não cresce com a eficiência (ADAPTATIVA_V6B).
     private int GetRampedHouseCount(bool strong)
     {
-        return GetHouseCount(Stats.Balance, CurrentRampTime, strong ? 0f : pace);
+        return GetHouseCount(Stats.Balance, Difficulty.RampTime(CurrentRampTime), strong ? 0f : pace);
     }
 
     // Mede a eficiência do quadro (DisasterPace): caos da barra, chamados esperando equipe, dinheiro e níveis comprados.
