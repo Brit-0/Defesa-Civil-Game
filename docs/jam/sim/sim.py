@@ -67,16 +67,30 @@ def passo_eficiencia(b, atual, alvo, dt):
     return max(alvo, atual - b.get("paceFallPerMinute", 0.0) * dt / 60)
 
 
+def piso_macio(valor, piso, parte):
+    """DisasterPace.SoftFloor (CONSERTOS_V7A): o que passaria do piso continua, só 'parte' dele (0 = piso duro)."""
+    return valor if valor >= piso else piso - (piso - valor) * min(1.0, max(0.0, parte))
+
+
+def teto_macio(valor, teto, parte):
+    """DisasterPace.SoftCeiling (CONSERTOS_V7A): o que passaria do teto continua, só 'parte' dele (0 = teto duro)."""
+    return valor if valor <= teto else teto + (valor - teto) * min(1.0, max(0.0, parte))
+
+
 def intervalo_adaptado(b, intervalo, ritmo):
-    """DisasterPace.ApplyInterval: o intervalo encolhe até paceIntervalCut (ritmo 1), sem passar de paceIntervalFloor."""
+    """DisasterPace.ApplyInterval: o intervalo encolhe até paceIntervalCut (ritmo 1); abaixo de paceIntervalFloor, só
+    paceSoftShare do resto (V7A: nunca para de apertar, nem sobe o intervalo)."""
     piso = min(intervalo, b.get("paceIntervalFloor", 0.0))
-    return max(piso, intervalo * (1 - b.get("paceIntervalCut", 0.0) * min(1.0, max(0.0, ritmo))))
+    cru = intervalo * (1 - b.get("paceIntervalCut", 0.0) * min(1.0, max(0.0, ritmo)))
+    return piso_macio(cru, piso, b.get("paceSoftShare", 0.0))
 
 
 def casas_adaptadas(b, casas, ritmo):
-    """DisasterPace.ApplyHouses: as casas crescem até paceHouseBoost (ritmo 1), sem passar de paceHousesMax."""
+    """DisasterPace.ApplyHouses: as casas crescem até paceHouseBoost (ritmo 1); acima de paceHousesMax, só
+    paceSoftShare do resto (V7A)."""
     teto = max(casas, b.get("paceHousesMax", 0))
-    return min(teto, casas * (1 + b.get("paceHouseBoost", 0.0) * min(1.0, max(0.0, ritmo))))
+    cru = casas * (1 + b.get("paceHouseBoost", 0.0) * min(1.0, max(0.0, ritmo)))
+    return teto_macio(cru, teto, b.get("paceSoftShare", 0.0))
 
 
 def repasse(b, nivel, intactas, dinheiro, caos):
@@ -399,13 +413,21 @@ class Jogo:
 
     def intervalo_desastre(self):
         """DisasterManager.GetInterval: rampa de Start a End; depois do teto, cai disasterLateIntervalPerMinute por
-        minuto, sem passar de disasterIntervalFloor; por fim o ritmo adaptativo encolhe (ADAPTATIVA_V6B)."""
+        minuto até disasterIntervalFloor e dali encolhe disasterIntervalSoftPerMinute por minuto (V7A, sem chegar a 0);
+        por fim o ritmo adaptativo encolhe (ADAPTATIVA_V6B)."""
         b = self.b
         intervalo = b["disasterIntervalStart"] + (b["disasterIntervalEnd"] - b["disasterIntervalStart"]) * self.rampa()
         tarde = self.minutos_depois_do_teto()
         if tarde > 0:
-            piso = b.get("disasterIntervalFloor", intervalo)
-            intervalo = max(min(intervalo, piso), intervalo - b.get("disasterLateIntervalPerMinute", 0.0) * tarde)
+            piso = min(intervalo, b.get("disasterIntervalFloor", intervalo))
+            queda = b.get("disasterLateIntervalPerMinute", 0.0)
+            linear = intervalo - queda * tarde
+            if linear >= piso or queda <= 0:
+                intervalo = max(piso, linear)
+            else:
+                depois = (piso - linear) / queda  # minutos desde que chegou ao piso
+                encolhe = min(0.5, max(0.0, b.get("disasterIntervalSoftPerMinute", 0.0)))
+                intervalo = piso * (1 - encolhe) ** depois
         return intervalo_adaptado(b, intervalo, self.ritmo)
 
     def casas_por_desastre(self, ritmo=None):
@@ -416,8 +438,13 @@ class Jogo:
         casas = b["disasterHousesStart"] + (b["disasterHousesEnd"] - b["disasterHousesStart"]) * self.rampa()
         tarde = self.minutos_depois_do_teto()
         if tarde > 0:
-            teto = b.get("disasterHousesMax", casas)
-            casas = min(max(casas, teto), casas + b.get("disasterLateHousesPerMinute", 0.0) * tarde)
+            teto = max(casas, b.get("disasterHousesMax", casas))
+            sobe = b.get("disasterLateHousesPerMinute", 0.0)
+            linear = casas + sobe * tarde
+            if linear <= teto or sobe <= 0:
+                casas = min(teto, linear)
+            else:  # V7A: passou do teto, sobe disasterHousesSoftPerMinute por minuto (bem mais devagar, sem parar)
+                casas = teto + (linear - teto) / sobe * max(0.0, b.get("disasterHousesSoftPerMinute", 0.0))
         return round(casas_adaptadas(b, casas, self.ritmo if ritmo is None else ritmo))
 
     # RITMO_V3, igual ao DisasterManager.TryGetDebut (#534): o primeiro sorteio depois de liberar um tipo é esse tipo.

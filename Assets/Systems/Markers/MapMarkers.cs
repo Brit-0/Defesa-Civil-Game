@@ -71,7 +71,9 @@ public partial class MapMarkers : MonoBehaviour
     [SerializeField] private float wobbleDegrees = 9f;
     [SerializeField] private float waveInterval = 1.1f;
     [SerializeField] private float fireWaveInterval = .65f;
-    [SerializeField] private float waveScale = 2f;
+    [Tooltip("Até onde a onda fina do pino abre e com que opacidade nasce (CONSERTOS_V7A: era 2x, traço de 3 pixels e 0,9)")]
+    [SerializeField] private float waveMaxScale = 1.45f;
+    [SerializeField, Range(0f, 1f)] private float waveAlpha = .85f;
     [SerializeField] private float bouncePixels = 10f;
     [SerializeField] private float popTime = .22f;
     [Tooltip("Segundos de cada passo do quique da seta da Base ao escolher a base (4 passos por ciclo, na metade deste tempo)")]
@@ -218,7 +220,8 @@ public partial class MapMarkers : MonoBehaviour
 
         float s = p.landmark ? landmarkDiscScale : pixelScale;
         p.root.sizeDelta = Size(discSpr, s);
-        p.ringImg = NewImage("Ring", p.root, ringSpr, s);
+        // aro de 1 pixel do kit (PixelFx.ThinRing), do tamanho do Mk_Ring: o traço de 3 pixels poluía a tela (CONSERTOS_V7A)
+        p.ringImg = NewImage("Ring", p.root, PixelFx.ThinRing(ringSpr != null ? (int)ringSpr.rect.width : 32, 255), s);
         p.ring = p.ringImg.rectTransform;
         p.arrowImg = NewImage("Arrow", p.root, arrowSpr, s);
         p.arrow = p.arrowImg.rectTransform;
@@ -609,9 +612,9 @@ public partial class MapMarkers : MonoBehaviour
         {
             float interval = p.kind == Kind.Fire ? fireWaveInterval : waveInterval;
             float wave = Mathf.Repeat(t, interval) / interval;
-            p.ring.localScale = Vector3.one * Mathf.Lerp(.75f, waveScale, wave);
+            p.ring.localScale = Vector3.one * Mathf.Lerp(.75f, waveMaxScale, wave);
             Color c = ColorOf(p.kind);
-            c.a = (1f - wave) * .9f;
+            c.a = (1f - wave) * waveAlpha;
             p.ringImg.color = c;
         }
         if (p.ringImg.enabled != urgent) p.ringImg.enabled = urgent;

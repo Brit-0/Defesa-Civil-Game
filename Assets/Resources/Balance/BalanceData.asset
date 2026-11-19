@@ -23,7 +23,7 @@ MonoBehaviour:
   minWorkTime: 2
   fireWorkTime: 4
   restockTime: 5
-  moneyPerDamage: 52
+  moneyPerDamage: 49
   fireReward: 20
   minDamage: 1
   maxDamage: 3
@@ -37,30 +37,33 @@ MonoBehaviour:
   firstDisasterDelay: 6
   firstDisasterHouses: 2
   disasterIntervalStart: 50
-  disasterIntervalEnd: 21
+  disasterIntervalEnd: 20
   disasterRampDelay: 60
   disasterRampDuration: 480
   disasterHousesStart: 2
   disasterHousesEnd: 6
   disasterLateIntervalPerMinute: 0.4
   disasterIntervalFloor: 15
+  disasterIntervalSoftPerMinute: 0.02
   disasterLateHousesPerMinute: 0.15
   disasterHousesMax: 9
+  disasterHousesSoftPerMinute: 0.05
   warningTime: 4
   paceAverageTime: 45
-  paceChaosLow: 0.08
-  paceChaosHigh: 0.25
+  paceChaosLow: 0.12
+  paceChaosHigh: 0.35
   paceQueueLow: 0.5
   paceQueueHigh: 3
   paceLevelsStart: 16
   paceLevelsFull: 30
   paceMoneyFull: 4000
-  paceRisePerMinute: 0.35
+  paceRisePerMinute: 0.45
   paceFallPerMinute: 1
-  paceIntervalCut: 0.45
-  paceIntervalFloor: 12
-  paceHouseBoost: 0.6
-  paceHousesMax: 9
+  paceIntervalCut: 0.55
+  paceIntervalFloor: 11
+  paceHouseBoost: 0.8
+  paceHousesMax: 10
+  paceSoftShare: 0.3
   earthquakeWeight: 40
   stormWeight: 50
   fireWeight: 30
@@ -80,6 +83,6 @@ MonoBehaviour:
   fireSpreadDelay: 0.8
   incomeInterval: 10
   incomeFloorPerHouse: 0.3
-  incomeMoneyShare: 0.15
+  incomeMoneyShare: 0.21
   incomeChaosPower: 3
   incomePerHouse: 14

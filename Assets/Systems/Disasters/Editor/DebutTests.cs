@@ -96,5 +96,8 @@ public class DebutTests
         balance.disasterIntervalFloor = 15f;
         balance.disasterLateHousesPerMinute = lateHouses;
         balance.disasterHousesMax = 9;
+        // Piso e teto duros do BALANCEAMENTO_V5; o teto macio da CONSERTOS_V7A tem os testes no DisasterPaceTests
+        balance.disasterIntervalSoftPerMinute = 0f;
+        balance.disasterHousesSoftPerMinute = 0f;
     }
 }

@@ -30,7 +30,7 @@ public class BalanceData : ScriptableObject
     public float restockTime = 5f; // BALANCEAMENTO_V5: 3 (o Pietro: estocar estava fácil demais; volta ao GDD)
 
     [Header("REWARD")]
-    public int moneyPerDamage = 52; // BALANCEAMENTO_V6F: 18 (o começo vem do conserto, não do repasse; V5: 15; GDD: 10)
+    public int moneyPerDamage = 49; // CONSERTOS_V7A: 52 (BALANCEAMENTO_V6F: 18, o começo vem do conserto, não do repasse; V5: 15; GDD: 10)
     public int fireReward = 20; // GDD: 15
 
     [Header("DAMAGE")]
@@ -57,7 +57,7 @@ public class BalanceData : ScriptableObject
     public int firstDisasterHouses = 2;
     [Tooltip("Intervalo entre desastres: fica em Start na calma do começo (disasterRampDelay) e cai em linha reta até End ao longo de disasterRampDuration.")]
     public float disasterIntervalStart = 50f; // RITMO_V3: 45 (GDD: 35)
-    public float disasterIntervalEnd = 21f; // BALANCEAMENTO_V5: 22 (RITMO_V3: 20; GDD: 12)
+    public float disasterIntervalEnd = 20f; // CONSERTOS_V7A: 21 (BALANCEAMENTO_V5: 22; RITMO_V3: 20; GDD: 12)
     [Tooltip("Segundos de calma no começo, antes de a rampa começar.")]
     public float disasterRampDelay = 60f; // BALANCEAMENTO_V5 (só o início é calmo; antes a rampa começava no 0:00)
     public float disasterRampDuration = 480f; // BALANCEAMENTO_V5: 720 (depois da calma o intervalo cai logo; teto aos 9:00, antes aos 12:00; GDD: 600)
@@ -66,12 +66,16 @@ public class BalanceData : ScriptableObject
     public int disasterHousesEnd = 6; // GDD: 9
     [Tooltip("Depois da rampa (o teto), o intervalo continua caindo estes segundos por minuto, bem mais devagar que na rampa.")]
     public float disasterLateIntervalPerMinute = 0.4f; // BALANCEAMENTO_V5 (na rampa: 3,6 s por minuto)
-    [Tooltip("Piso do intervalo depois do teto.")]
-    public float disasterIntervalFloor = 15f; // BALANCEAMENTO_V5: chega aos 24:00
+    [Tooltip("Piso do intervalo depois do teto (o teto difícil): dali ele só encolhe disasterIntervalSoftPerMinute.")]
+    public float disasterIntervalFloor = 15f; // BALANCEAMENTO_V5: chega aos 21:30 desde a V7A (antes aos 24:00)
+    [Tooltip("Depois do piso, o intervalo encolhe esta fração por minuto (bem mais devagar, nunca para nem chega a 0). 0 = piso duro.")]
+    public float disasterIntervalSoftPerMinute = 0.02f; // CONSERTOS_V7A: novo (15 s aos 21:30, 12,3 s aos 31:30)
     [Tooltip("Depois da rampa, casas a mais por desastre a cada minuto (arredondado).")]
     public float disasterLateHousesPerMinute = 0.15f; // BALANCEAMENTO_V5 (na rampa: 0,5 por minuto)
-    [Tooltip("Teto das casas por desastre depois da rampa (o terremoto forte multiplica este número).")]
+    [Tooltip("Teto das casas por desastre depois da rampa (o teto difícil; o terremoto forte multiplica este número).")]
     public int disasterHousesMax = 9; // BALANCEAMENTO_V5: chega aos 29:00
+    [Tooltip("Depois do teto, casas a mais por desastre a cada minuto (bem mais devagar, nunca para). 0 = teto duro.")]
+    public float disasterHousesSoftPerMinute = 0.05f; // CONSERTOS_V7A: novo (uma casa a mais a cada 20 min)
     public float warningTime = 4f; // T25: 3 (GAMELOOP_REVISAO: 1 s a mais para ler o alvo e escorar)
 
     [Header("STRONG EARTHQUAKE (GAMELOOP_REVISAO)")]
@@ -88,8 +92,8 @@ public class BalanceData : ScriptableObject
     [Tooltip("Segundos da média do caos e da fila de chamados que medem a eficiência do jogador (esquece devagar).")]
     public float paceAverageTime = 45f;
     [Tooltip("Caos médio: até paceChaosLow é calma total; de paceChaosHigh para cima, nenhuma.")]
-    public float paceChaosLow = 0.08f;
-    public float paceChaosHigh = 0.25f;
+    public float paceChaosLow = 0.12f; // CONSERTOS_V7A: 0,08
+    public float paceChaosHigh = 0.35f; // CONSERTOS_V7A: 0,25 (o eficiente aguenta mais aperto antes de o ritmo parar)
     [Tooltip("Chamados esperando equipe, em média: até paceQueueLow a fila é curta; de paceQueueHigh para cima, longa.")]
     public float paceQueueLow = 0.5f;
     public float paceQueueHigh = 3f;
@@ -99,14 +103,16 @@ public class BalanceData : ScriptableObject
     public int paceLevelsFull = 30;
     public int paceMoneyFull = 4000;
     [Tooltip("O ritmo (0 a 1) sobe no máximo isto por minuto e desce isto por minuto quando o jogador começa a apanhar.")]
-    public float paceRisePerMinute = 0.35f;
+    public float paceRisePerMinute = 0.45f; // CONSERTOS_V7A: 0,35
     public float paceFallPerMinute = 1f;
-    [Tooltip("Com ritmo 1, o intervalo entre desastres encolhe esta fração, sem passar de paceIntervalFloor. 0 desliga.")]
-    public float paceIntervalCut = 0.45f;
-    public float paceIntervalFloor = 12f;
-    [Tooltip("Com ritmo 1, as casas por desastre crescem esta fração, até paceHousesMax (o terremoto forte fica de fora). 0 desliga.")]
-    public float paceHouseBoost = 0.6f;
-    public int paceHousesMax = 9;
+    [Tooltip("Com ritmo 1, o intervalo entre desastres encolhe esta fração; abaixo de paceIntervalFloor, só paceSoftShare do resto. 0 desliga.")]
+    public float paceIntervalCut = 0.55f; // CONSERTOS_V7A: 0,45
+    public float paceIntervalFloor = 11f; // CONSERTOS_V7A: 12
+    [Tooltip("Com ritmo 1, as casas por desastre crescem esta fração; acima de paceHousesMax, só paceSoftShare do resto (o terremoto forte fica de fora). 0 desliga.")]
+    public float paceHouseBoost = 0.8f; // CONSERTOS_V7A: 0,6
+    public int paceHousesMax = 10; // CONSERTOS_V7A: 9
+    [Tooltip("Teto macio do ritmo: o que passaria do piso do intervalo ou do teto das casas ainda vale esta fração (nunca para de apertar). 0 = duro.")]
+    [Range(0f, 1f)] public float paceSoftShare = 0.3f; // CONSERTOS_V7A: novo
 
     [Header("OCCURRENCE CLEARED (GAMELOOP_REVISAO)")]
     [Tooltip("Bônus por casa quando todas as casas de um desastre voltam a ficar intactas.")]
@@ -154,7 +160,7 @@ public class BalanceData : ScriptableObject
     [Tooltip("Repasse = nível x (incomeFloorPerHouse x casas intactas + incomeMoneyShare x dinheiro no caixa), até o teto incomePerHouse x casas intactas, vezes (1 - caos) elevado a incomeChaosPower, arredondado.")]
     public float incomeFloorPerHouse = 0.3f; // BALANCEAMENTO_V6F: novo (o repasse não olhava o caixa: 1,2 por casa no nível 1 já pagava o upgrade em 10 s)
     [Tooltip("Fração do dinheiro no caixa que o repasse soma, por nível.")]
-    public float incomeMoneyShare = 0.15f; // BALANCEAMENTO_V6F: novo
+    public float incomeMoneyShare = 0.21f; // CONSERTOS_V7A: 0,15 (BALANCEAMENTO_V6F: novo)
     [Tooltip("O repasse é multiplicado por (1 - caos) elevado a este expoente: acima de 1, o caos alto corta mais.")]
     public float incomeChaosPower = 3f; // BALANCEAMENTO_V6F: novo (antes 1)
     [Tooltip("Teto do repasse por casa intacta, o mesmo em todo nível.")]

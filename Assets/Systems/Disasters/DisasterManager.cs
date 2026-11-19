@@ -239,15 +239,15 @@ public class DisasterManager : MonoBehaviour
         return Mathf.Max(0f, rampTime - GetCeilingTime(balance)) / 60f;
     }
 
-    // Intervalo entre desastres: rampa de Start a End; depois do teto cai disasterLateIntervalPerMinute por minuto,
-    // sem passar de disasterIntervalFloor.
+    // Intervalo entre desastres: rampa de Start a End; depois do teto cai disasterLateIntervalPerMinute por minuto até
+    // disasterIntervalFloor e dali encolhe bem mais devagar, sem parar (DisasterPace.LateInterval, CONSERTOS_V7A).
     public static float GetInterval(BalanceData balance, float rampTime)
     {
         float interval = Mathf.Lerp(balance.disasterIntervalStart, balance.disasterIntervalEnd, GetRamp(balance, rampTime));
         float late = GetLateMinutes(balance, rampTime);
         if (late <= 0f) return interval;
 
-        return Mathf.Max(Mathf.Min(interval, balance.disasterIntervalFloor), interval - balance.disasterLateIntervalPerMinute * late);
+        return DisasterPace.LateInterval(balance, interval, late);
     }
 
     // A mesma curva com o ritmo adaptativo (DisasterPace.ApplyInterval, ADAPTATIVA_V6B). Ritmo 0 = a curva de sempre.
@@ -256,8 +256,8 @@ public class DisasterManager : MonoBehaviour
         return DisasterPace.ApplyInterval(balance, GetInterval(balance, rampTime), pace);
     }
 
-    // Casas por desastre: rampa de Start a End; depois do teto sobem disasterLateHousesPerMinute por minuto, até
-    // disasterHousesMax.
+    // Casas por desastre: rampa de Start a End; depois do teto sobem disasterLateHousesPerMinute por minuto até
+    // disasterHousesMax e dali bem mais devagar, sem parar (DisasterPace.LateHouses, CONSERTOS_V7A).
     public static int GetHouseCount(BalanceData balance, float rampTime)
     {
         return GetHouseCount(balance, rampTime, 0f);
@@ -268,8 +268,7 @@ public class DisasterManager : MonoBehaviour
     {
         float houses = Mathf.Lerp(balance.disasterHousesStart, balance.disasterHousesEnd, GetRamp(balance, rampTime));
         float late = GetLateMinutes(balance, rampTime);
-        if (late > 0f)
-            houses = Mathf.Min(Mathf.Max(houses, balance.disasterHousesMax), houses + balance.disasterLateHousesPerMinute * late);
+        if (late > 0f) houses = DisasterPace.LateHouses(balance, houses, late);
 
         return Mathf.RoundToInt(DisasterPace.ApplyHouses(balance, houses, pace));
     }

@@ -2,7 +2,8 @@ using NUnit.Framework;
 using UnityEngine;
 
 // Dificuldade adaptativa (docs/jam/ADAPTATIVA_V6B.md): a regra pura do DisasterPace, as mesmas contas do docs/jam/sim/sim.py
-// (inverso, media_movel, eficiencia_alvo, passo_eficiencia, intervalo_adaptado, casas_adaptadas). EditMode, sem cena.
+// (inverso, media_movel, eficiencia_alvo, passo_eficiencia, intervalo_adaptado, casas_adaptadas) e o teto macio da
+// CONSERTOS_V7A (piso_macio, teto_macio, intervalo_desastre, casas_por_desastre). EditMode, sem cena.
 public class DisasterPaceTests
 {
     private BalanceData balance;
@@ -37,6 +38,11 @@ public class DisasterPaceTests
         balance.disasterIntervalFloor = 15f;
         balance.disasterLateHousesPerMinute = 0.15f;
         balance.disasterHousesMax = 9;
+
+        // Os tetos duros da v6B; o teto macio da V7A tem os testes dele no fim
+        balance.paceSoftShare = 0f;
+        balance.disasterIntervalSoftPerMinute = 0f;
+        balance.disasterHousesSoftPerMinute = 0f;
     }
 
     [TearDown]
@@ -124,5 +130,83 @@ public class DisasterPaceTests
         Assert.AreEqual(5, DisasterManager.GetHouseCount(balance, 300f, 0.5f), "4 x 1,3 = 5,2");
         Assert.AreEqual(12f, DisasterManager.GetInterval(balance, 540f + 60 * 60f, 1f), 1e-4f, "piso 15 da curva x 0,55: fica no piso 12");
         Assert.AreEqual(9, DisasterManager.GetHouseCount(balance, 540f, 1f), "6 x 1,6 = 9,6: o teto 9");
+    }
+
+    // CONSERTOS_V7A: passado o piso do ritmo, o aperto continua com paceSoftShare do que sobraria, sem alongar nada.
+    [Test]
+    public void SoftPaceKeepsTighteningPastTheCeilings()
+    {
+        balance.paceSoftShare = 0.3f;
+        Assert.AreEqual(27.5f, DisasterPace.ApplyInterval(balance, 50f, 1f), 1e-4f, "acima do piso: igual à v6B");
+        Assert.AreEqual(12f - 3.75f * 0.3f, DisasterPace.ApplyInterval(balance, 15f, 1f), 1e-4f, "15 x 0,55 = 8,25: 30% do que passa do piso 12");
+        Assert.AreEqual(10f - 4.5f * 0.3f, DisasterPace.ApplyInterval(balance, 10f, 1f), 1e-4f, "já abaixo do piso: continua encolhendo");
+        Assert.Less(DisasterPace.ApplyInterval(balance, 15f, 1f), DisasterPace.ApplyInterval(balance, 15f, 0.5f), "mais ritmo, mais curto");
+        Assert.AreEqual(15f, DisasterPace.ApplyInterval(balance, 15f, 0f), 1e-4f, "ritmo 0 não mexe");
+
+        Assert.AreEqual(9f + 0.6f * 0.3f, DisasterPace.ApplyHouses(balance, 6f, 1f), 1e-4f, "6 x 1,6 = 9,6: 30% do que passa do teto 9");
+        Assert.AreEqual(10f + 6f * 0.3f, DisasterPace.ApplyHouses(balance, 10f, 1f), 1e-4f, "já acima do teto: continua crescendo");
+        Assert.AreEqual(10f, DisasterPace.ApplyHouses(balance, 10f, 0f), 1e-4f, "ritmo 0 não mexe");
+
+        Assert.AreEqual(5f, DisasterPace.SoftFloor(5f, 4f, 0.3f), 1e-5f);
+        Assert.AreEqual(4f, DisasterPace.SoftFloor(1f, 4f, 0f), 1e-5f, "0 = piso duro");
+        Assert.AreEqual(1f, DisasterPace.SoftFloor(1f, 4f, 1f), 1e-5f, "1 = sem piso");
+        Assert.AreEqual(4f, DisasterPace.SoftCeiling(8f, 4f, 0f), 1e-5f, "0 = teto duro");
+    }
+
+    // CONSERTOS_V7A: a curva do SetUp chega ao teto difícil (15 s aos 24:00, 9 casas aos 29:00) e continua, bem mais devagar.
+    [Test]
+    public void LateCurveSlowsDownPastTheCeilingButNeverStops()
+    {
+        balance.disasterIntervalSoftPerMinute = 0.02f;
+        balance.disasterHousesSoftPerMinute = 0.05f;
+        const float ceiling = 540f;
+
+        Assert.AreEqual(19f, DisasterManager.GetInterval(balance, ceiling + 5 * 60f), 1e-4f, "antes do piso: -0,4 s por minuto, como antes");
+        Assert.AreEqual(15f, DisasterManager.GetInterval(balance, ceiling + 15 * 60f), 1e-4f, "chegou ao piso aos 15 min do teto");
+        Assert.AreEqual(15f * Mathf.Pow(0.98f, 10f), DisasterManager.GetInterval(balance, ceiling + 25 * 60f), 1e-3f, "10 min depois: 2% por minuto");
+        float previous = 99f;
+        for (int minute = 0; minute <= 120; minute += 5)
+        {
+            float interval = DisasterManager.GetInterval(balance, ceiling + minute * 60f);
+            Assert.Less(interval, previous, $"o intervalo sempre encolhe (min {minute})");
+            Assert.Greater(interval, 0f);
+            previous = interval;
+        }
+
+        Assert.AreEqual(9, DisasterManager.GetHouseCount(balance, ceiling + 20 * 60f), "6 + 0,15 x 20: chega ao teto 9");
+        Assert.AreEqual(10, DisasterManager.GetHouseCount(balance, ceiling + 40 * 60f), "20 min depois: 1 casa a mais");
+        Assert.AreEqual(11, DisasterManager.GetHouseCount(balance, ceiling + 60 * 60f));
+
+        balance.disasterIntervalSoftPerMinute = 0f;
+        balance.disasterHousesSoftPerMinute = 0f;
+        Assert.AreEqual(15f, DisasterManager.GetInterval(balance, ceiling + 60 * 60f), 1e-4f, "0 = piso duro, como na v6B");
+        Assert.AreEqual(9, DisasterManager.GetHouseCount(balance, ceiling + 60 * 60f), "0 = teto duro");
+    }
+
+    // Os números do jogo (Resources/Balance/BalanceData): com qualquer ritmo, a dificuldade nunca para de subir.
+    [Test]
+    public void GameBalanceNeverStopsGettingHarder()
+    {
+        BalanceData game = Resources.Load<BalanceData>("Balance/BalanceData");
+        Assert.IsNotNull(game);
+        Assert.Greater(game.disasterIntervalSoftPerMinute, 0f);
+        Assert.Greater(game.disasterHousesSoftPerMinute, 0f);
+        Assert.Greater(game.paceSoftShare, 0f);
+
+        float ceiling = DisasterManager.GetCeilingTime(game);
+        foreach (float pace in new[] { 0f, 0.5f, 1f })
+        {
+            float previous = float.MaxValue;
+            float rawHouses = 0f;
+            for (int minute = 0; minute <= 90; minute += 3)
+            {
+                float t = ceiling + minute * 60f;
+                float interval = DisasterManager.GetInterval(game, t, pace);
+                Assert.Less(interval, previous, $"ritmo {pace}, {minute} min depois do teto");
+                previous = interval;
+                rawHouses = DisasterPace.ApplyHouses(game, DisasterPace.LateHouses(game, game.disasterHousesEnd, minute), pace);
+            }
+            Assert.Greater(rawHouses, Mathf.Max(game.disasterHousesMax, game.paceHousesMax), $"ritmo {pace}: as casas passam do teto");
+        }
     }
 }
