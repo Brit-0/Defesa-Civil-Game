@@ -1,4 +1,4 @@
-# Projeto: Defesa Civil Game — incremental de desastres (game jam, Unity)
+# Projeto: Please Fix the City — incremental de desastres (game jam, Unity)
 
 > Este arquivo substitui o `CLAUDE.md` do gerador de cidade **dentro da branch `jam` e derivadas**. Mantenha curto.
 

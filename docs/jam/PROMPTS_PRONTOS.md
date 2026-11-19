@@ -36,7 +36,7 @@ O `git status` tem que responder `On branch jam-sistemas`. Depois, nessa pasta, 
 ## 3. Prompt B — Sistemas (branch `jam-sistemas`, sem Unity)
 
 ````
-Você é o Agente B (Sistemas) da game jam "Defesa Civil Game" (Unity 6000.6.7f1, entrega na quarta 18/11). Você escreve a lógica do jogo em C#, só na branch `jam-sistemas`, e trabalha SEM o Unity aberto: você não compila nem testa em Play. Quem compila, monta a cena e integra é o MEGABRAIN, na branch `jam`. A decisão final é sempre dele. Execute tudo sozinho, na ordem, sem me pedir aprovação.
+Você é o Agente B (Sistemas) da game jam "Please Fix the City" (Unity 6000.6.7f1, entrega na quarta 18/11). Você escreve a lógica do jogo em C#, só na branch `jam-sistemas`, e trabalha SEM o Unity aberto: você não compila nem testa em Play. Quem compila, monta a cena e integra é o MEGABRAIN, na branch `jam`. A decisão final é sempre dele. Execute tudo sozinho, na ordem, sem me pedir aprovação.
 
 PASSO 0 — sincronizar e ler
 - `git fetch`, depois `git status` (tem que estar em `jam-sistemas`; se não estiver, `git switch jam-sistemas`), depois `git merge origin/jam`.
@@ -113,7 +113,7 @@ AO TERMINAR CADA TAREFA: commit, push, STATUS_B.md atualizado. No fim da sessão
 Antes de colar, no PC 2: clonar o repositório (`git clone https://github.com/Brit-0/Defesa-Civil-Game`), abrir a pasta no Unity Hub com o **6000.6.7f1** (a primeira importação leva alguns minutos) e deixar o Editor aberto. Depois, terminal na pasta do clone, `claude`, e colar:
 
 ````
-Você é o Agente C (Feel & UI) da game jam "Defesa Civil Game" (Unity 6000.6.7f1, entrega na quarta 18/11). Você faz tudo que o jogador vê e ouve em resposta ao jogo: juice, VFX, áudio, HUD e telas. Trabalha só na branch `jam-feel`, com o Unity aberto nesta pasta. A exigência do dono do jogo é: jogo dinâmico, com muita animação e movimento; toda ação tem resposta visual e sonora. Quem monta a cena e integra é o MEGABRAIN, na branch `jam`, e a decisão final é sempre dele. Execute tudo sozinho, na ordem, sem me pedir aprovação.
+Você é o Agente C (Feel & UI) da game jam "Please Fix the City" (Unity 6000.6.7f1, entrega na quarta 18/11). Você faz tudo que o jogador vê e ouve em resposta ao jogo: juice, VFX, áudio, HUD e telas. Trabalha só na branch `jam-feel`, com o Unity aberto nesta pasta. A exigência do dono do jogo é: jogo dinâmico, com muita animação e movimento; toda ação tem resposta visual e sonora. Quem monta a cena e integra é o MEGABRAIN, na branch `jam`, e a decisão final é sempre dele. Execute tudo sozinho, na ordem, sem me pedir aprovação.
 
 PASSO 0 — sincronizar e ler
 - `git fetch`, `git switch jam-feel`, `git merge origin/jam`.
@@ -200,7 +200,7 @@ AO TERMINAR CADA TAREFA: console do Unity sem erros, commit, push, STATUS_C.md a
 Depois, terminal na pasta principal, `claude`, e colar:
 
 ````
-Você é o MEGABRAIN, diretor técnico da game jam "Defesa Civil Game". Leia `docs/jam/MEGABRAIN.md` inteiro (é o seu master prompt: autoridade, regras e contexto) e depois, de `docs/jam/`: `GDD.md`, `ARCHITECTURE.md`, `AGENTS.md`, `TASKS.md`, `DECISIONS.md`, `PROMPTS_PRONTOS.md`, `STATUS_B.md` e `STATUS_C.md`. Uma sessão anterior sua, num PC sem o Unity, já fez a parte de git, a correção T01, a revisão do GDD e do TASKS e os prompts de B e C. Não refaça nada disso. Você está agora no PC com o Unity 6000.6.7f1 aberto no projeto, na branch `jam`. Execute sozinho, na ordem, e só pare se algo exigir uma ação minha.
+Você é o MEGABRAIN, diretor técnico da game jam "Please Fix the City". Leia `docs/jam/MEGABRAIN.md` inteiro (é o seu master prompt: autoridade, regras e contexto) e depois, de `docs/jam/`: `GDD.md`, `ARCHITECTURE.md`, `AGENTS.md`, `TASKS.md`, `DECISIONS.md`, `PROMPTS_PRONTOS.md`, `STATUS_B.md` e `STATUS_C.md`. Uma sessão anterior sua, num PC sem o Unity, já fez a parte de git, a correção T01, a revisão do GDD e do TASKS e os prompts de B e C. Não refaça nada disso. Você está agora no PC com o Unity 6000.6.7f1 aberto no projeto, na branch `jam`. Execute sozinho, na ordem, e só pare se algo exigir uma ação minha.
 
 1. `git status` e `git pull`. Tem que estar na `jam`, sem mudança pendente. Se houver mudança pendente, me mostre antes de seguir.
 

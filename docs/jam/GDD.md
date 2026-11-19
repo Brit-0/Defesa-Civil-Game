@@ -1,4 +1,4 @@
-# GDD — Defesa Civil Game (jam)
+# GDD — Please Fix the City (jam)
 
 Legenda: **[CONFIRMADO]** = decidido pelo usuário. **[PROPOSTA]** = sugestão do organizador, vale como padrão de implementação. **[DECISÃO]** = decidido pelo MEGABRAIN na revisão de 16/11 (motivo em `DECISIONS.md`); vale como regra. **[PENDENTE]** = precisa de resposta antes de implementar (hoje não há nenhum).
 

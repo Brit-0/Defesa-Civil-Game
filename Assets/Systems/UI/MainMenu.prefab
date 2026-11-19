@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddc0646d5f8fad464cce33cd2fe1e28c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenu
-  title: <wave a=0.45>DEFESA CIVIL</wave>
+  title: <wave a=0.45>PLEASE FIX THE CITY</wave>
   subtitle: "Mantenha a cidade de p\xE9."
   howToPlay: '1. Clique numa casa com problema para abrir um chamado
 
@@ -59,12 +59,12 @@ MonoBehaviour:
   bandHeight: 300
   bandY: 200
   bandMargin: 90
-  titleSize: 150
+  titleSize: 110
   subtitleSize: 40
   howToPlaySize: 30
   buttonSize: {x: 380, y: 104}
   emblemScale: 1.25
-  emblemOffset: 600
+  emblemOffset: 660
   buttonY: -150
   howToPlayY: -340
   dimColor: {r: 0, g: 0, b: 0, a: 0.4}

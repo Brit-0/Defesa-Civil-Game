@@ -1,4 +1,4 @@
-# Projeto: Defesa Civil Game — incremental de desastres (game jam, Unity)
+# Projeto: Please Fix the City — incremental de desastres (game jam, Unity)
 
 ## O jogo
 Desastres (terremoto, tempestade, incêndio) quebram casas. O jogador despacha trabalhadores, coleta dinheiro, compra upgrades e automatiza. Caos cheio = derrota; objetivo final comprado = vitória. Prazo: 3 dias. Escopo pequeno, muito polido.

@@ -1,4 +1,4 @@
-# Defesa Civil Game — documentação da game jam
+# Please Fix the City — documentação da game jam
 
 Incremental de gestão de desastres: terremotos, tempestades e incêndios quebram casas; o jogador envia trabalhadores para consertá-las, compra upgrades e segura o caos da cidade até cumprir a meta final.
 

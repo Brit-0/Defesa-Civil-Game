@@ -13,7 +13,7 @@ public class Tutorial : MonoBehaviour
     public const string StrongTipKey = "DefesaCivil.TipStrong";
 
     [Header("TEXTS (aceitam tags do Text Animator)")]
-    [SerializeField] private string cardTitle = "DEFESA CIVIL";
+    [SerializeField] private string cardTitle = "PLEASE FIX THE CITY";
     [SerializeField] private string cardBody = "Objetivo: conserte as casas que os desastres quebram e junte dinheiro para comprar o Centro de Operações, antes que o CAOS encha.\n<size=75%><color=#F2C14E>Vamos fazer o primeiro conserto juntos (1 minuto).</color></size>";
     [Tooltip("Tempo do jogo no passo do mini game: o conserto leva 2,5 s e o iniciante precisa ler e mirar")]
     [SerializeField, Range(.1f, 1f)] private float miniGameSlowMotion = .35f;

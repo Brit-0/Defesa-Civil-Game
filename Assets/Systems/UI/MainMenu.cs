@@ -11,7 +11,7 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
     [Header("TEXTS (o título aceita tags do Text Animator)")]
-    [SerializeField] private string title = "<wave a=0.45>DEFESA CIVIL</wave>";
+    [SerializeField] private string title = "<wave a=0.45>PLEASE FIX THE CITY</wave>";
     [SerializeField] private string subtitle = "Mantenha a cidade de pé.";
     [SerializeField, TextArea(3, 6)] private string howToPlay =
         "1. Clique numa casa com problema para abrir um chamado\n" +
@@ -34,7 +34,8 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private float bandHeight = 300f;
     [SerializeField] private float bandY = 200f;
     [SerializeField] private float bandMargin = 90f;
-    [SerializeField] private float titleSize = 150f;
+    //110 cabe o PLEASE FIX THE CITY (1045 px) entre os emblemas também na tela 16:10 do itch.io (CONSERTOS_V7C)
+    [SerializeField] private float titleSize = 110f;
     [SerializeField] private float subtitleSize = 40f;
     [SerializeField] private float howToPlaySize = 30f;
     [SerializeField] private Vector2 difficultyButtonSize = new Vector2(460f, 150f);
@@ -45,7 +46,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private float chooseSize = 34f;
     //Emblema pixel (32x32) dos dois lados do título: escala sobre os 3 px por pixel e distância do centro
     [SerializeField] private float emblemScale = 1.25f;
-    [SerializeField] private float emblemOffset = 600f;
+    [SerializeField] private float emblemOffset = 660f;
     [SerializeField] private float buttonY = -150f;
     [SerializeField] private float howToPlayY = -340f;
 

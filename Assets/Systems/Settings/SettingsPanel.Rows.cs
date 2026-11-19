@@ -68,7 +68,7 @@ public partial class SettingsPanel
     {
         string gold = "<color=#" + ColorUtility.ToHtmlStringRGB(accentColor) + ">";
         string text =
-            gold + "DEFESA CIVIL</color>\n" +
+            gold + "PLEASE FIX THE CITY</color>\n" +
             "jogo de game jam, tema Citizen Tech\n\n" +
             gold + "CRIAÇÃO</color>\n" +
             "Pietro Piccoli e Felipe Brito\n\n" +
