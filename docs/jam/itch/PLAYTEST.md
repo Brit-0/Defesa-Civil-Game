@@ -89,8 +89,8 @@ Responder curto, de 1 a 5 onde houver número. As respostas vão para o MEGABRAI
 Perguntas da página do itch.io (respostas vão para o `PAGINA.md`):
 
 12. Título: **Please Fix the City** (como no menu, decidido em 19/11).
-13. Nomes e funções da equipe nos créditos (o git mostra Pietro Piccoli e Brit-0, Felipe C. Brito).
+13. Nomes e funções da equipe nos créditos (o git mostra Pietro Piccoli e Brit-0, Felipe C. Brito). Respondida em 19/11: equipe CryptCandle, Pietro Piccoli e Felipe Brito.
 14. A arte da cidade veio do lote GS4 feito a partir dos kits da Kenney (CC0)? Quem deve ser creditado?
 15. A jam pede para declarar uso de IA? Fica a linha nos créditos?
-16. Nome da empresa no jogo (`Company Name`, hoje `DefaultCompany`): qual usar?
+16. Nome da empresa no jogo (`Company Name`): respondida em 19/11, `CryptCandle`.
 17. Qual o nome da jam e a hora exata do fim do envio na quinta?

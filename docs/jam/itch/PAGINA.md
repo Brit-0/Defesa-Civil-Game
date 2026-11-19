@@ -14,6 +14,8 @@ Subtítulo (é o mesmo do menu do jogo, `MainMenu.cs`): **Mantenha a cidade de p
 
 Nome decidido em 19/11: **Please Fix the City**, igual à tela do jogo (o repositório e as pastas seguem `Defesa-Civil-Game`).
 
+Equipe: **CryptCandle** (decidido em 19/11). É o `Company Name` do jogo, fica discreto no canto do menu inicial e abre a seção CRIAÇÃO dos créditos.
+
 URL sugerida: `<usuario>.itch.io/please-fix-the-city`
 
 ## Descrição curta (campo "Short description or tagline")
@@ -73,9 +75,8 @@ Fontes: `CameraController.cs` (botão direito ou do meio, roda), ação `Cancel`
 
 Bloco para a página (o que está entre colchetes precisa de confirmação; ver a nota abaixo):
 
-> **Equipe**
-> - [Pietro Piccoli] — [função]
-> - [Felipe Brito] — [função]
+> **Criação: CryptCandle**
+> - Pietro Piccoli e Felipe Brito
 >
 > **Som e música**
 > - Gamemaster Audio — Pro Sound Collection v1.3 (licença comercial do pacote, comprada pela equipe). Efeitos, ambientes de chuva e fogo e as duas músicas (*Green Lake Serenade* e *Darkness Falls*) vêm desse pacote.
@@ -95,7 +96,7 @@ Bloco para a página (o que está entre colchetes precisa de confirmação; ver 
 
 Notas para quem publica:
 
-- **Nomes da equipe:** o git mostra `Pietro-Piccoli` e `Brit-0` (Felipe C. Brito, pelo e-mail dos commits). Confirmar nomes, funções e se mais alguém entra nos créditos. Não publicar e-mails.
+- **Nomes da equipe:** decidido em 19/11 pelo Pietro: equipe CryptCandle, com Pietro Piccoli e Felipe Brito, mais ninguém. É o mesmo bloco da aba CRÉDITOS do jogo (`SettingsPanel.Rows.cs`). Não publicar e-mails.
 - **Sons Gamemaster:** a licença permite usar dentro do jogo, mas os arquivos soltos não podem ser redistribuídos (`STATUS_C.md`, seção "Sons provisórios"). O jogo compilado está liberado; **não publicar o repositório nem pôr link para ele** enquanto `Assets/Audio/` tiver os arquivos do pacote. A lista de cada som e a faixa de origem estão no `STATUS_C.md` da `jam-feel`.
 - **Fonte ModernDOS:** CC0 conferido na própria fonte (`Assets/Fonts/ModernDOS8x16.ttf`, tabela de nomes: "Public Domain, Creative Commons Zero (CC0) 1.0"). Crédito não é obrigatório, mas é bom dar.
 - **Arte da cidade:** os nomes dos sprites (`Casa_A`, `Fabrica_A`, `Predio_A`, carros, natureza) batem com o lote GS4 que o Pietro fez a partir dos kits CC0 da Kenney. **Confirmar com o Pietro e com quem desenhou** antes de publicar a linha. CC0 não exige crédito; o crédito à Kenney é cortesia.
@@ -112,7 +113,7 @@ Notas para quem publica:
 | Classification | Games |
 | Release status | Released |
 | Pricing | No payments (ou "$0 or donate", a critério da equipe) |
-| Uploads | `PleaseFixTheCity_WebGL.zip` marcado "This file will be played in the browser"; `PleaseFixTheCity_Windows.zip` marcado "Windows" |
+| Uploads | `Please-Fix-the-City-WebGL.zip` marcado "This file will be played in the browser"; `Please-Fix-the-City-Windows.zip` marcado "Windows" |
 | Embed options | Embed in page; manually set size **960 x 600** (o tamanho do canvas no Player Settings) |
 | Frame options | Fullscreen button ligado; "Mobile friendly" desligado; "Automatically start on page load" desligado (o clique libera o áudio) |
 | SharedArrayBuffer | Desligado (o jogo não usa threads) |

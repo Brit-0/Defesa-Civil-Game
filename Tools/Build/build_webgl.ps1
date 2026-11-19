@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Build WebGL de entrega do Please Fix the City: Builds\WebGL (index.html na raiz) e Builds\zip\PleaseFixTheCity_WebGL.zip.
+    Build WebGL de entrega do Please Fix the City: Builds\WebGL (index.html na raiz) e Builds\itch\Please-Fix-the-City-WebGL.zip.
 
 .DESCRIPTION
     Chama o Unity 6000.6.7f1 em batchmode com -executeMethod BuildScript.BuildWebGL (Assets\Editor\BuildScript.cs).
@@ -69,9 +69,9 @@ if ($maior.Length -gt 200MB) { Write-Host 'AVISO: arquivo maior que 200 MB (limi
 if ($total -gt 500MB) { Write-Host 'AVISO: mais de 500 MB descompactado (limite do itch.io para HTML5).' -ForegroundColor Yellow }
 
 if (-not $SemZip) {
-    $nome = 'PleaseFixTheCity_WebGL'
+    $nome = 'Please-Fix-the-City-WebGL'
     if ($Development) { $nome += '_dev' }
-    $zip = Join-Path $projeto "Builds\zip\$nome.zip"
+    $zip = Join-Path $projeto "Builds\itch\$nome.zip"
     $n = New-ZipDaPasta -Origem $saida -Zip $zip
     Write-Host "Zip: $zip ($n arquivos, $(Format-MB (Get-Item -LiteralPath $zip).Length)); index.html na raiz do zip." -ForegroundColor Green
 }

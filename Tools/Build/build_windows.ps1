@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Build Windows de entrega do Please Fix the City: Builds\Windows\PleaseFixTheCity.exe e Builds\zip\PleaseFixTheCity_Windows.zip.
+    Build Windows de entrega do Please Fix the City: Builds\Windows\PleaseFixTheCity.exe e Builds\itch\Please-Fix-the-City-Windows.zip.
 
 .DESCRIPTION
     Chama o Unity 6000.6.7f1 em batchmode com -executeMethod BuildScript.BuildWindows (Assets\Editor\BuildScript.cs).
@@ -59,9 +59,9 @@ $tamanho = (Get-ChildItem -LiteralPath $saida -Recurse -File | Measure-Object Le
 Write-Host "Build Windows OK: $exe ($(Format-MB $tamanho) na pasta)." -ForegroundColor Green
 
 if (-not $SemZip) {
-    $nome = 'PleaseFixTheCity_Windows'
+    $nome = 'Please-Fix-the-City-Windows'
     if ($Development) { $nome += '_dev' }
-    $zip = Join-Path $projeto "Builds\zip\$nome.zip"
+    $zip = Join-Path $projeto "Builds\itch\$nome.zip"
     $fora = @('*_BurstDebugInformation_DoNotShip/*', '*_BackUpThisFolder_ButDontShipItWithYourGame/*')
     $n = New-ZipDaPasta -Origem $saida -Zip $zip -Excluir $fora
     Write-Host "Zip: $zip ($n arquivos, $(Format-MB (Get-Item -LiteralPath $zip).Length))." -ForegroundColor Green
