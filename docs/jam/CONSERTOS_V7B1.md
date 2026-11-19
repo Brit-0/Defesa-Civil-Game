@@ -10,9 +10,9 @@ O botão JOGAR virou três botões lado a lado, com "Escolha a dificuldade" em c
 
 | Botão | Subtítulo | Cor |
 |---|---|---|
-| **GAROA** | Fácil · desastres mais calmos | dourado puxado para o verde |
-| **TEMPORAL** | Normal · o jogo como ele é | dourado (pulsa: a sugestão) |
-| **APOCALIPSE** | Difícil · caos sem trégua | dourado puxado para o vermelho |
+| **GAROA** | Fácil: desastres mais calmos | dourado puxado para o verde |
+| **TEMPORAL** | Normal: o jogo como ele é | dourado (pulsa: a sugestão) |
+| **APOCALIPSE** | Difícil: caos sem trégua | dourado puxado para o vermelho |
 
 Clicar guarda a escolha (`Difficulty.Set`) e começa a partida, com a mesma onda de antes. A escolha vale até o fim do Play (o recomeço mantém) e cada Play novo volta ao Normal.
 
@@ -54,3 +54,13 @@ Simulado com `--set` nos campos da curva (intervalo e rampa escalados) e `goal.b
 - os multiplicadores ficam a no máximo 25% do Normal;
 - o piso do intervalo;
 - a escolha atual chega ao custo do Centro.
+
+## Conferido (19/11)
+
+- **EditMode:** 233/233. O chão assado ficou com o mesmo hash depois dos testes.
+- **Play com robô** (`analises-lilith/jogo-defesa-civil/v7b1/robo.cs` + `rodar.sh`):
+  - os três textos cabem no botão (o maior pede 392 de 460 px);
+  - o clique no APOCALIPSE dá `Difficulty.Current = Hard`, Centro a 37.950 e intervalo de 45 s (50 s no Normal);
+  - 0 erros no console.
+- **Print:** `analises-lilith/jogo-defesa-civil/resultados/v7b1_menu.png` (Game View 1280x720).
+- **Os campos do menu:** os campos novos (`easyHint` etc.) não estão no `MainMenu.prefab`, então valem os padrões do código. O `buttonSize` e o `playText` antigos do prefab ficaram sem uso, porque o tamanho do botão agora é `difficultyButtonSize`.

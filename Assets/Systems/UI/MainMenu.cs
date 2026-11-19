@@ -21,11 +21,11 @@ public class MainMenu : MonoBehaviour
 
     [Header("DIFICULDADES (nome no botão e subtítulo curto embaixo)")]
     [SerializeField] private string easyName = "GAROA";
-    [SerializeField] private string easyHint = "Fácil · desastres mais calmos";
+    [SerializeField] private string easyHint = "Fácil: desastres mais calmos";
     [SerializeField] private string normalName = "TEMPORAL";
-    [SerializeField] private string normalHint = "Normal · o jogo como ele é";
+    [SerializeField] private string normalHint = "Normal: o jogo como ele é";
     [SerializeField] private string hardName = "APOCALIPSE";
-    [SerializeField] private string hardHint = "Difícil · caos sem trégua";
+    [SerializeField] private string hardHint = "Difícil: caos sem trégua";
     //Tinta por cima do botão dourado: verde no fácil, vermelho no difícil
     [SerializeField] private Color easyTint = new Color(.62f, 1f, .62f);
     [SerializeField] private Color hardTint = new Color(1f, .5f, .45f);
@@ -41,7 +41,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private float buttonSpacing = 50f;
     [SerializeField] private float buttonFontSize = 56f;
     [Tooltip("Tamanho do subtítulo do botão, em fração da fonte do nome")]
-    [SerializeField] private float hintScale = .46f;
+    [SerializeField] private float hintScale = .5f;
     [SerializeField] private float chooseSize = 34f;
     //Emblema pixel (32x32) dos dois lados do título: escala sobre os 3 px por pixel e distância do centro
     [SerializeField] private float emblemScale = 1.25f;
