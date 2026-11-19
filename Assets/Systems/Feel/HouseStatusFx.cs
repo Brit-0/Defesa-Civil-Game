@@ -32,15 +32,17 @@ public class HouseStatusFx : MonoBehaviour
         public Color readyColor = PixelFx.Green;
         public Color successColor = PixelFx.Gold;
         public Color failColor = PixelFx.Red;
-        [Range(0f, 1f)] public float haloAlpha = .18f;
-        [Range(0f, 1f)] public float haloUrgentAlpha = .35f;
+        [Tooltip("CONSERTOS_V7A: eram haloAlpha 0,3 e haloUrgentAlpha 0,55; nome novo para o valor novo valer também no Editor já aberto")]
+        [Range(0f, 1f)] public float haloCalmAlpha = .18f;
+        [Range(0f, 1f)] public float haloPeakAlpha = .35f;
         [Tooltip("Halo vezes isto no zoom afastado (era 1,4)")]
         public float farHaloBoost = 1.2f;
 
         [Header("URGENCY (ondas por segundo e força do pulso)")]
         public float calmInterval = 1.5f;
         public float urgentInterval = .35f;
-        public float pingScale = 1.3f;
+        [Tooltip("Até onde a onda abre (CONSERTOS_V7A: era pingScale 1,55)")]
+        public float pingMaxScale = 1.3f;
         public float pingTime = .7f;
         [Range(0f, 1f)] public float pingAlpha = .5f;
         public float pulseAmount = .06f;
@@ -358,7 +360,7 @@ public class HouseStatusFx : MonoBehaviour
         ring.rectTransform.localScale = Vector3.one * pulse;
         ring.color = color;
 
-        float haloAlpha = Mathf.Lerp(settings.haloAlpha, settings.haloUrgentAlpha, urgency) * (farZoom ? settings.farHaloBoost : 1f);
+        float haloAlpha = Mathf.Lerp(settings.haloCalmAlpha, settings.haloPeakAlpha, urgency) * (farZoom ? settings.farHaloBoost : 1f);
         halo.color = PixelFx.WithAlpha(color, Mathf.Clamp01(haloAlpha * Mathf.Lerp(.75f, 1f, pulse - 1f > 0f ? (pulse - 1f) / (settings.pulseAmount * 2f) : 0f)));
 
         pingTimer -= delta;
@@ -375,7 +377,7 @@ public class HouseStatusFx : MonoBehaviour
     {
         Color color = house.currentState == State.Intact ? PixelFx.Cream : ProblemColor(0f);
         ring.color = PixelFx.WithAlpha(color, settings.enRouteAlpha);
-        halo.color = PixelFx.WithAlpha(color, settings.haloAlpha * .6f);
+        halo.color = PixelFx.WithAlpha(color, settings.haloCalmAlpha * .6f);
 
         marchTimer -= delta;
         if (marchTimer > 0f) return;
@@ -391,7 +393,7 @@ public class HouseStatusFx : MonoBehaviour
         int step = Mathf.Clamp(Mathf.FloorToInt(progress * 8f + .001f), 0, 8);
 
         progressFill.fillAmount = step / 8f;
-        halo.color = PixelFx.WithAlpha(settings.progressColor, settings.haloAlpha * (.6f + .4f * step / 8f));
+        halo.color = PixelFx.WithAlpha(settings.progressColor, settings.haloCalmAlpha * (.6f + .4f * step / 8f));
 
         if (step == progressStep) return;
 
@@ -413,7 +415,7 @@ public class HouseStatusFx : MonoBehaviour
         float pulse = 1f + settings.pulseAmount * Mathf.Max(0f, Mathf.Cos(beat * Mathf.PI * 2f));
         ring.rectTransform.localScale = Vector3.one * pulse;
         ring.color = settings.readyColor;
-        halo.color = PixelFx.WithAlpha(settings.readyColor, settings.haloAlpha * (farZoom ? settings.farHaloBoost : 1f));
+        halo.color = PixelFx.WithAlpha(settings.readyColor, settings.haloCalmAlpha * (farZoom ? settings.farHaloBoost : 1f));
     }
 
     private void Ping()
@@ -434,7 +436,7 @@ public class HouseStatusFx : MonoBehaviour
 
             pingAge[i] += delta;
             float t = Mathf.Clamp01(pingAge[i] / settings.pingTime);
-            pings[i].rectTransform.localScale = Vector3.one * Mathf.Lerp(1f, settings.pingScale, 1f - (1f - t) * (1f - t));
+            pings[i].rectTransform.localScale = Vector3.one * Mathf.Lerp(1f, settings.pingMaxScale, 1f - (1f - t) * (1f - t));
             pings[i].color = PixelFx.WithAlpha(pings[i].color, (1f - t) * settings.pingAlpha);
         }
     }

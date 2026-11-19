@@ -17,9 +17,9 @@ Eram dois anéis:
 | Anel | Antes | Agora |
 |---|---|---|
 | Onda laranja do pino (`MapMarkers`, `Pin .../Ring`) | sprite `Mk_Ring` com traço de 3 pixels, abrindo até 2× com opacidade 0,9 | aro de 1 pixel do kit (`PixelFx.ThinRing`, mesmo diâmetro), abre até 1,45× (`waveMaxScale`) com 0,85 (`waveAlpha`) |
-| Elipse no pé da casa (`HouseStatusFx`) | traço 2, que virava 3 no zoom afastado (o zoom normal do jogo), ondas até 1,55× com 0,9, halo 0,3/0,55 (× 1,4 longe) | traço 2 em qualquer zoom (1 abre buracos na elipse), ondas até 1,3× com 0,5 (`pingAlpha`), halo 0,18/0,35 (× 1,2 longe) |
+| Elipse no pé da casa (`HouseStatusFx`) | traço 2, que virava 3 no zoom afastado (o zoom normal do jogo), ondas até 1,55× com 0,9, halo 0,3/0,55 (× 1,4 longe) | traço 2 em qualquer zoom (1 abre buracos na elipse), ondas até 1,3× (`pingMaxScale`) com 0,5 (`pingAlpha`), halo 0,18/0,35 (`haloCalmAlpha`/`haloPeakAlpha`, × 1,2 longe em `farHaloBoost`) |
 
-O `waveScale` da cena (2) deixou de ser lido: o campo novo `waveMaxScale` vale pelo código, sem mexer na `Gameplay.unity`. Prints (Play, terremoto de 6 casas perto da Guarda): `analises-lilith/jogo-defesa-civil/v7a/anel_comparar.png` (antes × depois, recorte do 1280×720) e `anel_depois_1080.png`.
+Campos com nome novo de propósito: o `waveScale` da cena (2) deixou de ser lido, sem mexer na `Gameplay.unity`, e os ajustes do `HouseFeedback` (no `House.prefab`) ganharam nome novo porque um Editor já aberto guarda o valor antigo de um campo que só mudou de padrão. Prints (Play, terremoto de 6 casas perto da Guarda): `analises-lilith/jogo-defesa-civil/v7a/anel_comparar.png` (antes × depois, recorte do 1280×720) e `anel_final_1080.png`.
 
 ## 3. Dificuldade: teto macio
 
@@ -53,6 +53,6 @@ Sem mini games, bom e médio agora perdem 5%. O fogo que pula da v7B-3 não est�
 
 ## Conferências
 
-- EditMode: 236 de 236 na cópia `Defesa-Civil-Game-v3a` com a jam junta (3 testes novos no `DisasterPaceTests`; o `DebutTests` fixa as partes macias em 0 para conferir o piso e o teto duros da v5).
+- EditMode: 242 de 242 na pasta principal (236 de 236 na cópia `Defesa-Civil-Game-v3a` com a jam junta) (3 testes novos no `DisasterPaceTests`; o `DebutTests` fixa as partes macias em 0 para conferir o piso e o teto duros da v5).
 - Play: 0 erros; enchente e meteoro forçados viram incidente; guaritas e para-raios com teto 36.
 - Scripts: `analises-lilith/jogo-defesa-civil/v7a/` (`exp.py` e `rodar.sh` da calibração, `serie.py`, `anel.cs`, `play.cs`, `cap.ps1`).
