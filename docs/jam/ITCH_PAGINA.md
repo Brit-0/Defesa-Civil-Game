@@ -23,9 +23,9 @@ URL sugerida: `<usuario>.itch.io/please-fix-the-city`
 
 ## Descrição curta (campo "Short description or tagline")
 
-> Terremotos, tempestades, incêndios, enchentes e até meteoros quebram a cidade. Despache equipes, conserte e automatize antes que o caos vença.
+> Terremotos, incêndios, enchentes e meteoros quebram a cidade. Despache equipes e conserte antes que o caos vença.
 
-(141 caracteres.)
+(113 caracteres; o itch.io aceita no máximo 120.) Tema da página: BG #1b1a24, BG2 #2b2936, texto #f3ecd6, link #ffc83d, fonte Pixel, fundo `fundo_itch.png`.
 
 ## Descrição longa
 
@@ -44,7 +44,7 @@ URL sugerida: `<usuario>.itch.io/please-fix-the-city`
 > - Energia, Coleta de Impostos e upgrades que mudam o jeito de jogar
 > - Pixel art, sons e música que ficam tensos junto com a cidade
 >
-> Feito em 3 dias para a jam **[nome da jam]**, com o tema **Citizen Tech**, pela equipe **CryptCandle**.
+> Feito em 3 dias para a Global Solution (GS) da **FIAP**, com o tema **Citizen Tech**, pela equipe **CryptCandle**.
 
 ## Como jogar
 
