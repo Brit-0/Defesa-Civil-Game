@@ -15,6 +15,7 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private string resumeText = "CONTINUAR";
     [SerializeField] private string restartText = "REINICIAR";
     [SerializeField] private string settingsText = "CONFIGURAÇÕES";
+    [SerializeField] private string quitText = "SAIR";
     [SerializeField] private string hintText = "Esc ou P pausa e continua";
 
     [Header("LAYER")]
@@ -88,9 +89,12 @@ public class PauseMenu : MonoBehaviour
         dim.raycastTarget = true;
         FeelUI.Stretch(dim.rectTransform);
 
-        //Três opções: o painel cresce uma linha (o tamanho do prefab é o de duas)
+        //Três opções, quatro com o Sair: o painel cresce uma linha por opção além de duas (o tamanho do prefab é o de duas)
+        bool canQuit = QuitAvailable(Application.platform);
+        int options = canQuit ? 4 : 3;
         float step = optionSize.y + 14f;
-        Vector2 size = panelSize + new Vector2(0f, step);
+        Vector2 size = panelSize + new Vector2(0f, step * (options - 2));
+        float firstY = 10f + step * (options - 2) * .5f;
         if (px != null)
         {
             panel = FeelUI.CreateWindow("Panel", screen).rectTransform;
@@ -108,16 +112,24 @@ public class PauseMenu : MonoBehaviour
 
         //Continuar é a ação principal: o botão dourado
         Button resume = FeelUI.CreateButton("ResumeBtn", panel, resumeText, optionSize, resumeColor, 40f, true);
-        FeelUI.Place((RectTransform)resume.transform, center, center, new Vector2(0f, 10f + step * .5f), optionSize);
+        FeelUI.Place((RectTransform)resume.transform, center, center, new Vector2(0f, firstY), optionSize);
         resume.onClick.AddListener(Resume);
 
         Button settings = FeelUI.CreateButton("SettingsBtn", panel, settingsText, optionSize, restartColor);
-        FeelUI.Place((RectTransform)settings.transform, center, center, new Vector2(0f, 10f - step * .5f), optionSize);
+        FeelUI.Place((RectTransform)settings.transform, center, center, new Vector2(0f, firstY - step), optionSize);
         settings.onClick.AddListener(OpenSettings);
 
         Button restart = FeelUI.CreateButton("RestartBtn", panel, restartText, optionSize, restartColor);
-        FeelUI.Place((RectTransform)restart.transform, center, center, new Vector2(0f, 10f - step * 1.5f), optionSize);
+        FeelUI.Place((RectTransform)restart.transform, center, center, new Vector2(0f, firstY - step * 2f), optionSize);
         restart.onClick.AddListener(Restart);
+
+        //Sair fecha o jogo; no navegador (WebGL) não há o que fechar, então o botão nem aparece
+        if (canQuit)
+        {
+            Button quit = FeelUI.CreateButton("QuitBtn", panel, quitText, optionSize, restartColor);
+            FeelUI.Place((RectTransform)quit.transform, center, center, new Vector2(0f, firstY - step * 3f), optionSize);
+            quit.onClick.AddListener(Quit);
+        }
 
         TMP_Text hintLbl = FeelUI.CreateText("Hint", panel, hintText, hintSize, hintColor);
         FeelUI.Place(hintLbl.rectTransform, bottom, center, new Vector2(0f, 34f), new Vector2(panelSize.x, hintSize * 1.4f));
@@ -236,5 +248,18 @@ public class PauseMenu : MonoBehaviour
     private void Restart()
     {
         if (GameManager.Instance != null && !ScreenTransition.Busy) ScreenTransition.Restart();
+    }
+
+    //No WebGL o Application.Quit não fecha a aba do navegador: lá o Sair fica de fora
+    public static bool QuitAvailable(RuntimePlatform platform) => platform != RuntimePlatform.WebGLPlayer;
+
+    private void Quit()
+    {
+        if (!QuitAvailable(Application.platform)) return;
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 }

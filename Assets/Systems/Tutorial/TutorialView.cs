@@ -10,10 +10,14 @@ using UnityEngine.UI;
 public class TutorialView : MonoBehaviour
 {
     [Header("LAYOUT (tela de referência 1920x1080)")]
-    [SerializeField] private Vector2 bubbleSize = new Vector2(1060f, 172f);
+    [SerializeField] private Vector2 bubbleSize = new Vector2(1060f, 184f);
     [Tooltip("Margem interna do balão dos lados e em cima/embaixo")]
     [SerializeField] private float textPadding = 44f;
     [SerializeField] private float textPaddingY = 20f;
+    [Tooltip("Do alto do balão até a linha do passo (v7B-2: era 20, colado na moldura)")]
+    [SerializeField] private float stepTop = 30f;
+    [Tooltip("Da base do balão até a base do botão PULAR (v7B-2: era 12, colado na moldura)")]
+    [SerializeField] private float skipBottom = 26f;
     [SerializeField] private float bubbleBottom = 150f;
     [SerializeField] private Vector2 cardSize = new Vector2(1000f, 540f);
     [SerializeField] private float border = 5f;
@@ -48,6 +52,7 @@ public class TutorialView : MonoBehaviour
     private TMP_Text okLbl;
     private RectTransform arrow;
     private Image ring;
+    private Canvas pointerCanvas;
     private Action onOk;
 
     private RectTransform hudTarget;
@@ -67,12 +72,19 @@ public class TutorialView : MonoBehaviour
 
         root.SetAsLastSibling();
         rootGroup = root.gameObject.AddComponent<CanvasGroup>();
+        // Balão e cartão são abas: por cima dos efeitos do mapa e das outras abas (v7B-2)
+        HudTabs.Raise(root.gameObject, HudTabs.TutorialOrder);
         Vector2 center = new Vector2(.5f, .5f);
 
+        // Seta e aro num Canvas próprio: numa casa ficam abaixo das abas, num botão do HUD acima delas (LateUpdate).
+        RectTransform pointer = FeelUI.CreateRect("Pointer", root);
+        FeelUI.Stretch(pointer);
+        pointerCanvas = HudTabs.Raise(pointer.gameObject, HudTabs.MapEffectOrder, false);
+
         // Aro fino do Mk_Ring, Simple e quadrado (o Button2 fatiado esticava e quadriculava, #531).
-        ring = FeelUI.CreateRing("Ring", root, arrowColor);
+        ring = FeelUI.CreateRing("Ring", pointer, arrowColor);
         ring.gameObject.SetActive(false);
-        arrow = BuildArrow(root);
+        arrow = BuildArrow(pointer);
         arrow.gameObject.SetActive(false);
 
         // Balão do passo: moldura dourada como as dicas da cena.
@@ -82,9 +94,9 @@ public class TutorialView : MonoBehaviour
 
         // Margem interna: texto longe da moldura dos lados e de cima, e abaixo da linha do passo (#531).
         stepLbl = FeelUI.CreateText("Step", bubble, "", textSize * .6f, frameColor, TextAlignmentOptions.TopLeft);
-        FeelUI.Place(stepLbl.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(textPadding, -textPaddingY), new Vector2(300f, textSize));
+        FeelUI.Place(stepLbl.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(textPadding, -stepTop), new Vector2(300f, textSize));
 
-        float textTop = textPaddingY + textSize;
+        float textTop = stepTop + textSize;
         TMP_Text text = FeelUI.CreateText("Lbl", bubble, "", textSize, Color.white, TextAlignmentOptions.MidlineLeft);
         FeelUI.Place(text.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(textPadding, -textTop),
             new Vector2(bubbleSize.x - textPadding - 290f, bubbleSize.y - textTop - textPaddingY));
@@ -100,11 +112,9 @@ public class TutorialView : MonoBehaviour
         okLbl = okButton.GetComponentInChildren<TMP_Text>();
 
         skipButton = FeelUI.CreateButton("Skip", bubble, "PULAR TUTORIAL", new Vector2(220f, 40f), skipColor, 18f);
-        FeelUI.Place((RectTransform)skipButton.transform, new Vector2(1f, 0f), center, new Vector2(-136f, 32f), new Vector2(220f, 40f));
+        FeelUI.Place((RectTransform)skipButton.transform, new Vector2(1f, 0f), center, new Vector2(-136f, skipBottom + 20f), new Vector2(220f, 40f));
         skipButton.onClick.AddListener(() => SkipPressed?.Invoke());
 
-        // Seta por cima do balão: alvo embaixo à esquerda (META) deixava a seta escondida atrás dele.
-        arrow.SetAsLastSibling();
         bubble.gameObject.SetActive(false);
     }
 
@@ -290,6 +300,10 @@ public class TutorialView : MonoBehaviour
             ring.gameObject.SetActive(false);
             return;
         }
+
+        // Alvo do HUD (a META, um botão da aba): seta por cima do balão e das abas; casa: efeito do mapa, por baixo delas
+        int order = HudTabs.PointerOrderFor(hasHud);
+        if (pointerCanvas != null && pointerCanvas.sortingOrder != order) pointerCanvas.sortingOrder = order;
 
         // Aro sempre redondo, no passo de 32 do sprite (FeelUI.RingSide). Painel inteiro do HUD (maior que o aro
         // maior) fica só com a seta, sem aro por cima.

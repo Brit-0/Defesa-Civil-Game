@@ -3,9 +3,9 @@
 Pedido do Pietro:
 1. A ponta da seta da válvula fica no começo do círculo e mostra o sentido do giro.
 2. Material ainda sai fácil demais: Carrinho de mão e armazéns novos mais caros.
-3. O Repasse da Prefeitura dava dinheiro demais já no começo. Agora ele depende do dinheiro que o jogador tem.
+3. O Coleta de Impostos dava dinheiro demais já no começo. Agora ele depende do dinheiro que o jogador tem.
 
-## Repasse da Prefeitura
+## Coleta de Impostos
 
 - **Antes:** a cada 10 s, `1,2 × nível × casas intactas × (1 − caos)`, com ou sem dinheiro no caixa. O nível 1 custava R$ 150 e pagava R$ 184 a cada 10 s, então se pagava em 10 s.
 - **Agora:** `nível × (0,3 × casas intactas + 15% do caixa)`, até o teto de `14 × casas intactas` (o mesmo em todo nível), vezes `(1 − caos)³`.

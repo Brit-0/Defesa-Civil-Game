@@ -85,7 +85,7 @@ public class RewardFx : MonoBehaviour
         if (after <= before) return;
 
         Transform target = HudJuice.Instance != null ? HudJuice.Instance.MoneyTarget : null;
-        RectTransform layer = FeelUI.HudLayer(LayerName);
+        RectTransform layer = HudTabs.FeedbackLayer(LayerName);
         if (target == null || layer == null) return;
 
         FeelParticles.Emit(FxKind.Glint, layer, FeelUI.HudPosition(target), counterScale, VfxQuality.Scale(counterGlints));
@@ -93,7 +93,7 @@ public class RewardFx : MonoBehaviour
 
     private void OnUpgradePurchased(UpgradeData upgrade, int level)
     {
-        RectTransform layer = FeelUI.HudLayer(LayerName);
+        RectTransform layer = HudTabs.FeedbackLayer(LayerName);
         if (layer == null) return;
 
         Vector2 at = ButtonPosition(upgrade, layer);
@@ -138,7 +138,7 @@ public class RewardFx : MonoBehaviour
 
     private void Celebrate()
     {
-        RectTransform layer = FeelUI.HudLayer(LayerName);
+        RectTransform layer = HudTabs.FeedbackLayer(LayerName);
         if (layer == null) return;
 
         float width = layer.rect.width;

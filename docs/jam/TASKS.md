@@ -42,7 +42,7 @@ Meta do dia: jogo completo com vitória e derrota, todos os desastres e a arte r
 | [ ] | T20 | Tempestade: dano espalhado ao longo de ~8 s, raios com chance de incêndio (`LightningStruck`). Liberada aos 90 s de partida. | B | T06 | Dois tipos de desastre alternando. |
 | [ ] | T21 | Incêndio (`OnFire`): temporizador (`FireTimeLeft01`), sem material, vira `Damaged` 3 se ignorado, peso 2 no caos. Incêndio isolado liberado aos 180 s. | B | T04 | Incêndio jogável do início ao fim. |
 | [ ] | T22 | Automação níveis 1 a 4 (GDD, seção 7). | B | T08 | Cada nível remove um passo. |
-| [ ] | T23 | Repasse da Prefeitura (upgrade `income`, `PassiveIncomePaid`). | B | T08, T07 | Dinheiro entra sem clique após destravar e cai com o caos. |
+| [ ] | T23 | Coleta de Impostos (upgrade `income`, `PassiveIncomePaid`). | B | T08, T07 | Dinheiro entra sem clique após destravar e cai com o caos. |
 | [ ] | T24 | Centro de Operações (upgrade `goal`) + vitória (lógica). | B | T08 | Comprar o objetivo encerra a partida. |
 | [ ] | T25 | Calibrar os valores com partida jogada (botão de 4× do `GameManager`). | B + A + usuário | T15, T22–T24 | Partida fecha em 10 a 15 min. |
 | [ ] | T26 | VFX: chuva em overlay, flash de relâmpago, fogo animado com fumaça e temporizador, vinheta pelo caos. | C | T12, arte | Tempestade e incêndio têm cara própria. |

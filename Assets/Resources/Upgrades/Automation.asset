@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
   id: automation
   displayName: "Automa\xE7\xE3o"
-  description: "Cada n\xEDvel tira um passo do despacho: base autom\xE1tica, equipe autom\xE1tica e coleta autom\xE1tica. O despacho sozinho \xE9 das guaritas."
+  description: "Menos cliques no despacho. N\xEDvel 1: a base \xE9 escolhida sozinha. N\xEDvel 2: a equipe tamb\xE9m. N\xEDvel 3: a recompensa entra sozinha."
   icon: {fileID: 1626110622, guid: 2b89dc3da1935ac58d86d65e37cc4924, type: 3}
   order: 5
   category: 1

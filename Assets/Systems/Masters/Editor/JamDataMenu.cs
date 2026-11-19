@@ -48,8 +48,8 @@ public static class JamDataMenu
         CreateUpgrade("Tools", UpgradeIds.Tools, "Ferramentas melhores", "-10% de tempo de trabalho", 2, 8, 40, 1.5f, 0.1f, overwrite, ref created, ref updated);
         CreateUpgrade("Cart", UpgradeIds.Cart, "Carrinho de mão", "+1 material por trabalhador no Armazém", 3, 4, 50, 2.5f, 1f, overwrite, ref created, ref updated);
         CreateUpgrade("Reward", UpgradeIds.Reward, "Seguro municipal", "+25% de dinheiro por conserto", 4, 10, 50, 1.55f, 0.25f, overwrite, ref created, ref updated);
-        CreateUpgrade("Automation", UpgradeIds.Automation, "Automação", "Cada nível tira um passo do despacho: base automática, equipe automática e coleta automática. O despacho sozinho é das guaritas.", 5, 3, 150, 2.4f, 1f, overwrite, ref created, ref updated);
-        CreateUpgrade("Income", UpgradeIds.Income, "Repasse da Prefeitura", "A Prefeitura repassa parte do seu caixa de tempos em tempos, até um teto por casa intacta. Caos alto corta o repasse.", 6, 5, 150, 1.4f, 1f, overwrite, ref created, ref updated);
+        CreateUpgrade("Automation", UpgradeIds.Automation, "Automação", "Menos cliques no despacho. Nível 1: a base é escolhida sozinha. Nível 2: a equipe também. Nível 3: a recompensa entra sozinha.", 5, 3, 150, 2.4f, 1f, overwrite, ref created, ref updated);
+        CreateUpgrade("Income", UpgradeIds.Income, "Coleta de Impostos", "A cidade paga impostos de tempos em tempos: rende mais com casas inteiras e dinheiro em caixa. Caos alto corta.", 6, 5, 150, 1.4f, 1f, overwrite, ref created, ref updated);
         CreateUpgrade("Goal", UpgradeIds.Goal, "Centro de Operações", "Objetivo final: a cidade ganha uma central de Defesa Civil. Comprar é vencer.", 8, 1, 33000, 1f, 0f, overwrite, ref created, ref updated);
 
         AssetDatabase.SaveAssets();

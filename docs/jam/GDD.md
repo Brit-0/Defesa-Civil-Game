@@ -108,7 +108,7 @@ Comprados na aba de upgrades (já existe o botão e o prefab `UpgradeButton`). C
 | `reward` | Seguro municipal | +25% dinheiro por conserto | 10 | 50 | 1,55 |
 | `automation` | Automação | Remove passos do despacho (abaixo) | 3 (v5A; era 4) | 150 | 2,6 |
 | `outpost` | Guarita (v5A) | Despacho sozinho num quarteirão escolhido (`GUARITAS.md`) | 1 por quarteirão | 90 | 1,25 |
-| `income` | Repasse da Prefeitura | Nível 1 destrava o repasse; cada nível aumenta o valor (seção 8) | 5 | 200 | 2,0 |
+| `income` | Coleta de Impostos | Nível 1 destrava o repasse; cada nível aumenta o valor (seção 8) | 5 | 200 | 2,0 |
 | `base2` | Segunda base (stretch S2) | Liga a segunda Guarda | 1 | 400 | — |
 | `goal` | Centro de Operações | Vitória | 1 | 5.000 **PLACEHOLDER** | — |
 
@@ -134,7 +134,7 @@ Com as guaritas o jogador vira gestor aos poucos e escolhendo onde: decide upgra
 
 O usuário preferiu um sistema a um upgrade simples e escolheu a opção A. A opção B fica só como registro.
 
-- **A. Repasse da Prefeitura (ESCOLHIDA).** Destravado pelo upgrade `income`. A cada 10 s a Prefeitura paga `valor por casa × nível do upgrade × casas intactas × (1 − caos)`. Usa a mesma barra de caos: cidade em ordem rende mais, cidade em crise rende menos. Um medidor a mais para o jogador gerir, sem tela nova. Cada pagamento dispara `PassiveIncomePaid`, para a apresentação mostrar de onde veio o dinheiro.
+- **A. Coleta de Impostos (ESCOLHIDA).** Destravado pelo upgrade `income`. A cada 10 s a Prefeitura paga `valor por casa × nível do upgrade × casas intactas × (1 − caos)`. Usa a mesma barra de caos: cidade em ordem rende mais, cidade em crise rende menos. Um medidor a mais para o jogador gerir, sem tela nova. Cada pagamento dispara `PassiveIncomePaid`, para a apresentação mostrar de onde veio o dinheiro.
 - **B. Imposto por casa.** Upgrade simples: cada casa intacta paga X por segundo.
 
 ## 9. Fim de jogo
@@ -169,7 +169,7 @@ A implementar, em ordem de impacto:
 
 | ID | Pergunta | Bloqueia |
 |---|---|---|
-| ~~P1~~ | RESOLVIDA: Repasse da Prefeitura (opção A). | — |
+| ~~P1~~ | RESOLVIDA: Coleta de Impostos (opção A). | — |
 | ~~P2~~ | RESOLVIDA: regras do incêndio da seção 4 aprovadas, sem propagação na v1. | — |
 | ~~P3~~ | RESOLVIDA: bases extras compráveis. O MEGABRAIN reduziu para no máximo 1 (seção 7), como stretch S2. | — |
 | ~~P4~~ | RESOLVIDA: "Centro de Operações". | — |

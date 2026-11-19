@@ -21,13 +21,16 @@ public class GoalTracker : MonoBehaviour
     [SerializeField] private float paddingY = 18f;
     [SerializeField] private float titleHeight = 28f;
     [SerializeField] private float barHeight = 30f;
+    [Tooltip("Moldura da barra: o trilho e o amarelo ficam por dentro dela, com a mesma altura")]
+    [SerializeField] private float barEdge = 3f;
     [SerializeField] private float milestoneHeight = 24f;
 
     [Header("COLORS")]
     [SerializeField] private Color frameColor = FeelUI.ButtonColor;
     [SerializeField] private Color readyColor = new Color(.35f, .85f, .4f);
     [SerializeField] private Color backColor = FeelUI.PanelColor;
-    [SerializeField] private Color barBackColor = new Color(0f, 0f, 0f, .45f);
+    [SerializeField] private Color barEdgeColor = FeelUI.ButtonColor;
+    [SerializeField] private Color barBackColor = FeelUI.PixelInk;
     [SerializeField] private Color barColor = new Color(1f, .82f, .3f);
     [SerializeField] private Color milestoneColor = new Color(.6f, .85f, 1f);
 
@@ -75,6 +78,7 @@ public class GoalTracker : MonoBehaviour
         frameImage = FeelUI.CreatePanel("Goal", parent, frameColor);
         frame = frameImage.rectTransform;
         FeelUI.Place(frame, zero, zero, position, size);
+        HudTabs.Raise(frame.gameObject, HudTabs.TabOrder);
         FeelUI.Stretch(FeelUI.CreatePanel("Back", frame, backColor).rectTransform, border);
 
         //Título, barra e marco empilhados com a mesma folga entre eles; a mesma margem em cima e embaixo
@@ -87,11 +91,15 @@ public class GoalTracker : MonoBehaviour
         titleLbl.fontSizeMin = 14f;
         titleLbl.fontSizeMax = 22f;
 
-        Image barBack = FeelUI.CreatePanel("BarBack", frame, barBackColor);
+        //Barra perfeita (v7B-2): moldura e trilho lisos, e o preenchimento com o mesmo retângulo do trilho. O fundo
+        //era o painel arredondado, cujo desenho fica mais baixo que o retângulo: o amarelo saía mais alto e o cobria.
+        Image barBack = FeelUI.CreateImage("BarBack", frame, barEdgeColor, null);
         FeelUI.Place(barBack.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(padding, -paddingY - titleHeight - gap), new Vector2(inner, barHeight));
+        Image track = FeelUI.CreateImage("Track", barBack.rectTransform, barBackColor, null);
+        FeelUI.Stretch(track.rectTransform, barEdge);
 
         //Preenchimento liso, sem sprite: o PixelSkin trocava o painel arredondado pela janela branca e a barra nunca enchia (#535)
-        Image fillImage = FeelUI.CreateImage("Fill", barBack.rectTransform, barColor, null);
+        Image fillImage = FeelUI.CreateImage("Fill", track.rectTransform, barColor, null);
         fill = fillImage.rectTransform;
         fill.anchorMin = Vector2.zero;
         fill.anchorMax = new Vector2(0f, 1f);

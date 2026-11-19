@@ -68,7 +68,8 @@ public class ActionFeedback : MonoBehaviour
         string text = TextFor(reason);
         if (string.IsNullOrEmpty(text)) return;
 
-        if (layer == null) layer = FeelUI.HudLayer("FeelPopups");
+        //Camada própria acima das abas (v7B-2): o "Sem dinheiro!" do clique na aba de melhorias não some atrás dela
+        if (layer == null) layer = HudTabs.FeedbackLayer("ActionPopups");
         if (layer == null) return;
 
         TMP_Text label = pool.Count > 0 ? pool.Pop() : NewLabel();

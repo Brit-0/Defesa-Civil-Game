@@ -24,7 +24,7 @@ As decisões da etapa do gerador de cidade continuam em `docs/decisions.md`.
 - Plataforma: **Windows e WebGL**. Isso **revoga** a decisão anterior "sem build WebGL" de `docs/decisions.md`. — usuário
 
 **Respostas do segundo formulário (16/11, 08:30)**
-- Renda passiva = **Repasse da Prefeitura**, ligado ao caos (P1). — usuário
+- Renda passiva = **Coleta de Impostos**, ligado ao caos (P1). — usuário
 - Incêndio com as regras propostas, sem propagação na v1 (P2). — usuário
 - **1 a 2 bases extras compráveis** (P3). — usuário
 - Haverá um agente "ultra" chamado **MEGABRAIN**, que organiza e delega todas as tarefas e **NÃO é o chat principal**. Papel: orquestrador acima dos agentes. — usuário

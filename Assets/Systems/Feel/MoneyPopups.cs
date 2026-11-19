@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 //Coleta: várias moedinhas pulam da casa e voam em arco até o contador de dinheiro do HUD, sem número
-//(lista Para Arrumar, item 21). O Repasse da Prefeitura, que não vem de uma casa, continua com o texto "+N Repasse".
+//(lista Para Arrumar, item 21). A Coleta de Impostos, que não vem de uma casa, continua com o texto "+N Impostos".
 public class MoneyPopups : MonoBehaviour
 {
     [Header("REFERENCES (vazio = monta sozinho)")]
@@ -38,7 +38,7 @@ public class MoneyPopups : MonoBehaviour
     [SerializeField] private float endScale = .5f;
 
     [Header("PASSIVE INCOME")]
-    [SerializeField] private string incomeFormat = "+{0} Repasse";
+    [SerializeField] private string incomeFormat = "+{0} Impostos";
     [SerializeField] private Vector2 incomeOffset = new Vector2(-40f, -130f);
 
     private const string LayerName = "FeelPopups";
@@ -134,7 +134,7 @@ public class MoneyPopups : MonoBehaviour
         coinPool.Push(coin);
     }
 
-    //O Repasse da Prefeitura não vem de uma casa: nasce perto do contador e sobe até ele
+    //A Coleta de Impostos não vem de uma casa: nasce perto do contador e sobe até ele
     private void OnPassiveIncomePaid(int amount)
     {
         if (amount <= 0) return;

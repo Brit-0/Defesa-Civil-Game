@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-// Testes de editor do Repasse da Prefeitura (BALANCEAMENTO_V6F): piso por casa com o caixa vazio, a fração do caixa até
+// Testes de editor da Coleta de Impostos (BALANCEAMENTO_V6F): piso por casa com o caixa vazio, a fração do caixa até
 // o teto por casa intacta (o mesmo em todo nível) e o corte do caos pelo expoente. Números próprios, sem o asset.
 public class PassiveIncomeTests
 {

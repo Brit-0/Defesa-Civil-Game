@@ -102,7 +102,7 @@ MonoBehaviour:
   flyTime: 0.45
   riseDistance: 60
   endScale: 0.5
-  incomeFormat: +{0} Repasse
+  incomeFormat: +{0} Impostos
   incomeOffset: {x: -40, y: -130}
 --- !u!114 &5093523919060715900
 MonoBehaviour:

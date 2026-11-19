@@ -272,7 +272,7 @@ def upgrades():
             ('Carrinho de mão', 60, '0/4', 'Icons/BuildMaterial.png'),
             ('Seguro municipal', 50, '0/10', 'Houses/Suburban/Casa_A/Casa_A.png'),
             ('Automação', 150, '0/4', 'Houses/Carros/Ambulancia/Ambulancia.png'),
-            ('Repasse da Prefeitura', 200, '0/5', 'Houses/Commercial/Predio_A/Predio_A.png'),
+            ('Coleta de Impostos', 200, '0/5', 'Houses/Commercial/Predio_A/Predio_A.png'),
             ('Centro de Operações', 5000, '0/1', 'Houses/Commercial/Arranha_Ceu_A/Arranha_Ceu_A.png')]
     for i, (name, price, count, art) in enumerate(rows):
         ry = y + 66 + i * 72

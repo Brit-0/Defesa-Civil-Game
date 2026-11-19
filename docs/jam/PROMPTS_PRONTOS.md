@@ -103,7 +103,7 @@ T09 — fechar o menu `Tools/Jam/Create Default Data`
 - Rodar duas vezes não duplica nem apaga o que foi ajustado à mão em campos que o menu não conhece. Escreva em STATUS_B.md a lista dos assets que ele cria, para o MEGABRAIN conferir.
 
 DIA 2 (comece assim que o Dia 1 estiver no remoto, sem esperar prompt novo), nesta ordem:
-T24 (upgrade `goal` + `Win()`), T23 (Repasse da Prefeitura, upgrade `income`, `PassiveIncomePaid`), T22 níveis 1 a 3 da automação, T21 (incêndio: `FireTimeLeft01`, temporizador, vira `Damaged` 3), T20 (tempestade, `LightningStruck`, liberada aos 90 s; incêndio isolado aos 180 s), T22 nível 4. Antes de cada uma: `git fetch` e `git merge origin/jam`, e leia em `docs/jam/TASKS.md` a seção "Pedidos entre agentes", onde o MEGABRAIN devolve erros de compilação e bugs do playtest: esses vêm antes de tarefa nova.
+T24 (upgrade `goal` + `Win()`), T23 (Coleta de Impostos, upgrade `income`, `PassiveIncomePaid`), T22 níveis 1 a 3 da automação, T21 (incêndio: `FireTimeLeft01`, temporizador, vira `Damaged` 3), T20 (tempestade, `LightningStruck`, liberada aos 90 s; incêndio isolado aos 180 s), T22 nível 4. Antes de cada uma: `git fetch` e `git merge origin/jam`, e leia em `docs/jam/TASKS.md` a seção "Pedidos entre agentes", onde o MEGABRAIN devolve erros de compilação e bugs do playtest: esses vêm antes de tarefa nova.
 
 AO TERMINAR CADA TAREFA: commit, push, STATUS_B.md atualizado. No fim da sessão, um relatório curto: tarefas entregues com hash, pedidos de cena que você deixou, dúvidas e o que assumiu.
 ````

@@ -25,7 +25,7 @@ Hoje os 8 botões de melhoria usam arte emprestada de outras coisas (ambulância
 | `upgrade_cart.png` | Carrinho de mão (mais material por viagem) | `BuildMaterial.png` | `wheelbarrow full of bricks and planks, side view` |
 | `upgrade_reward.png` | Seguro municipal (pagamento maior por conserto) | `Casa_A.png` | `small house inside a shield with a gold coin, insurance icon` |
 | `upgrade_automation.png` | Automação (despacho automático) | `Ambulancia.png` | `gear with a lightning bolt and a radio antenna, automation icon` |
-| `upgrade_income.png` | Repasse da Prefeitura (dinheiro a cada intervalo) | `Predio_A.png` | `city hall building with stack of gold coins` |
+| `upgrade_income.png` | Coleta de Impostos (dinheiro a cada intervalo) | `Predio_A.png` | `city hall building with stack of gold coins` |
 | `upgrade_goal.png` | Centro de Operações (objetivo final, vence o jogo) | `Arranha_Ceu_A.png` | `emergency operations center tower with siren light and radar dish, trophy feeling` |
 
 As chaves que o código procura estão em `FeelUITheme.LabIconKeys` (`upgrade_` + o `id` do `UpgradeData`). Melhoria nova do B com outro `id` = mais uma linha aqui e um PNG com `upgrade_<id>.png`; o código não muda.

@@ -123,7 +123,7 @@ public class ResourcesManager : MonoBehaviour
 
     private float incomeTimer;
 
-    // Repasse da Prefeitura (GDD, seção 8): destravado pelo upgrade income, pago a cada incomeInterval em Playing.
+    // Coleta de Impostos (GDD, seção 8): destravado pelo upgrade income, pago a cada incomeInterval em Playing.
     private void TickPassiveIncome()
     {
         if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) return;

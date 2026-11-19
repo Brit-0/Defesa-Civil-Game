@@ -101,7 +101,7 @@ A lista completa, com arquivo e tarefa de cada um, está em `ARCHITECTURE.md`, s
 - **Problemas:** `Damaged` (precisa de material, dano 1 a 3) e `OnFire` (sem material, temporizador; se ignorado vira `Damaged` 3; pesa 2 no caos; sem propagação na v1). Casa não atendida fica quebrada, nunca vira ruína.
 - **Desastres:** terremoto (epicentro e raio), tempestade (dano espalhado por ~8 s, raios podem iniciar incêndio), incêndio isolado. Aviso 3 s antes. Frequência e intensidade crescem com o tempo. Guarda e Armazéns nunca são afetados.
 - **Caos:** barra que persegue a proporção ponderada de casas com problema; 100% = derrota.
-- **Dinheiro:** só por conserto no início. Renda passiva pelo "Repasse da Prefeitura": destravado por upgrade, paga a cada 10 s conforme casas intactas e `(1 − caos)`.
+- **Dinheiro:** só por conserto no início. Renda passiva pelo "Coleta de Impostos": destravado por upgrade, paga a cada 10 s conforme casas intactas e `(1 − caos)`.
 - **Upgrades propostos:** contratar trabalhador, velocidade, tempo de trabalho, material por viagem, recompensa, automação, repasse, 1 a 2 bases extras compráveis, e o objetivo final "Centro de Operações" (~15.000).
 - **Mantidos:** Material + Armazém, Incêndio. **Cortado:** kits de primeiros socorros (esconder do HUD). **Stretch:** energia e postes, só se o Dia 2 fechar no prazo; a recomendação do chat de design é tratar como cortado.
 - Todos os números são iniciais e moram em ScriptableObjects (`BalanceData`, `UpgradeData`, `DisasterData`), nunca no código.

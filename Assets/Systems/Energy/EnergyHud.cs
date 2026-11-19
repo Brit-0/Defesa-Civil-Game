@@ -127,6 +127,8 @@ public class EnergyHud : MonoBehaviour
         root.pivot = new Vector2(0f, 1f);
         root.sizeDelta = panelSize;
         root.anchoredPosition = TopLeft();
+        // Plaquinha e janela do gerador são aba: por cima dos efeitos do mapa (v7B-2)
+        HudTabs.Raise(root.gameObject, HudTabs.TabOrder);
 
         // Plaquinha: raio, consumo/capacidade, estado e a barra. Clicar abre o gerador.
         Image window = FeelUI.CreateWindow("Panel", root);

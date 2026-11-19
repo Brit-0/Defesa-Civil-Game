@@ -148,7 +148,7 @@ public static class GameEvents
     public static event Action<int, int> MoneyChanged;          // (antes, depois)
     public static event Action<int> MaterialChanged;
     public static event Action<int> WorkersChanged;
-    public static event Action<int> PassiveIncomePaid;          // valor do Repasse da Prefeitura
+    public static event Action<int> PassiveIncomePaid;          // valor do Coleta de Impostos
 
     // Casas e chamados
     public static event Action<House, State, State> HouseStateChanged; // (casa, antes, depois)
